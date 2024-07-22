@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title %}Log In{% endblock title %}
+
+{% block contenuto %}
+
+
+<div class="container">
+    <div class="row my-4 justify-content-center align-items-center">
+
+        <div class="col-6 py-5">
+            <div class="d-flex py-4 bg-body-tertiary">
+                <main class="form-signin w-100 m-auto">
+                    <form class="text-center" method="post">
+                        {% csrf_token %}
+                        <img class="mb-4 " src="{% static 'logo/saniscope_logo 2.png' %}" alt="" width="72" height="57">
+                        <h1 class="h3 mb-3 fw-normal">Log In</h1>
+                        
+
+                        <div class="form-floating my-2 px-5" >
+                            {{ form.username|as_crispy_field }}
+                            <!--
+                            <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+                            <label for="floatingInput">Email </label>
+                            -->
+                          
+                        </div>
+                        <div class="form-floating my-3 px-5">
+                            {{ form.password|as_crispy_field }}
+                            <!--
+                            <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+                            <label for="floatingPassword">Password</label>
+                            -->
+                        </div>
+                        <div class="form-floating my-3">
+                            <button class="btn btn-primary  py-3" type="submit">Log In</button>
+                        </div>    
+                        <div class="form-floating" style=" margin-top: 40px;">
+                            <p class="mt-2 "><a class="" href="{% url 'password_reset' %}">Password dimenticata?</a></p>
+                        </div>
+                    
+                        <div class=" " style="text-align: center;">
+                            <p class=" text-body-secondary">© Saniscope-chimica</p>
+                        </div>
+                       
+                        
+                    </form>
+                    
+                </main>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+{% endblock contenuto %}

@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titolo %} {{nome_categoria}} {% endblock titolo %}
+
+
+{% block contenuto %}
+
+<div class="container">
+  
+    <div class="row">
+
+        <div class="col-xl-3 col-md-12 py-5">
+
+            <div class="row">
+
+                <div class="col-12">
+                    <form class="input-group rounded py-2" action="{% url 'search_prodotto' categoria_pk %}">
+                        <input type="text" name="query" class="form-control rounded" placeholder="Search" aria-label="Search"
+                            aria-describedby="search-addon" />
+                        <span class="input-group-text border-0" id="search-addon">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </form>
+                </div>
+
+            </div>
+            
+            
+            <div class="row">
+                <div class="col-12">
+                    <ul class="list-group py-4">
+                        {%if sottocategorie|length > 0%}
+                        <li class="list-group-item"><a href="{% url 'dettaglio_categoria' categoria_pk %}">
+                            LISTA COMPLETA
+                        </a></li>
+                        {%endif%}
+
+                    </ul>
+
+                    <ul class="list-group py-3">
+                        {% for sottocategoria in sottocategorie %}
+                            <li class="list-group-item">
+                                <a href="{% url 'dettaglio_sottocategoria' sottocategoria.categoria_id sottocategoria.codice_sottocategoria %}">
+                                    {{ sottocategoria.nome_sottocategoria }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                </div>
+            </div>
+
+            <!--
+            {%if sottocategorie|length > 0%}
+                <div class="btn text-center ">
+                    <a href="{% url 'dettaglio_categoria' categoria_pk %}">
+                        lista completa
+                    </a>
+                </div>
+            {%endif%}
+
+            {% for sottocategoria in sottocategorie %}
+            <div class="btn">
+               <a href="{% url 'dettaglio_sottocategoria' sottocategoria.categoria_id sottocategoria.codice_sottocategoria %}" class="list-group-item list-group-item-action" aria-current="true">
+                    {{ sottocategoria.nome_sottocategoria }}
+                </a>
+            </div>
+            {% endfor %}
+
+            -->
+             
+
+        </div>
+
+        <div class="col-xl-9 col-md-12">
+
+            <div class="row">
+
+                <div class="col-12 text-center py-5">
+                    <h1 class="fw-bold">{{nome_categoria}}</h1>
+                </div>
+
+                {% for x in prodotti %}
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-4 col-xxl-4 card-deck py-4 " >
+
+                    <div class="card" style="height: 100%;">
+                        <img src="{{x.immagine_rel.immagine}}" class="card-img-top" style="max-height: 200px; width:100%; object-fit: contain;padding-top:3vh;" alt="...">
+                        <div class="card-body">
+                            <p class="card-text">{{x.codice_prodotto}}</p>
+                            <h6 class="card-title">{{x.descrizione}}</h6>
+                            <h6 class="card-title">{{x.unita_di_misura}}</h6>
+                        </div>
+    
+                        <div class="card-footer">
+                            <div class="row">
+                                {% if x.scheda_rel.scheda %}
+                                    <div class="col-6 text-left">
+                                        <a class="btn btn-success"
+                                            href="{{x.scheda_rel.scheda}}" target="_blank"><small>Scheda Tecnica</small></a>
+                                    </div>
+                                {%endif%}
+                                <div class="col-6 text-right">
+                                    <a class="btn btn-primary" style="float: right;" href="{% url 'aggiungi_prodotti' x.pk%}"><small>Aggiungi </small><i
+                                            class="bi bi-cart text-dark"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                {% endfor %}
+
+
+
+            </div>
+
+        </div>
+
+        <div class="col-12 py-4">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                {% if prodotti.has_previous %}
+                  <li class="page-item"><a class="page-link" href="?page=1">&laquo;</a></li>
+                  <li class="page-item"><a class="page-link" href="?page={{ prodotti.previous_page_number }}">{{ prodotti.previous_page_number }}</a></li>
+                {% endif %}
+                  <li class="page-item bg-primary"><a class="page-link" href="#">{{ prodotti.number }}</a></li>
+                {% if prodotti.has_next %}
+                  <li class="page-item"><a class="page-link" href="?page={{ prodotti.next_page_number }}">{{ prodotti.next_page_number }}</a></li>
+                  <li class="page-item"><a class="page-link" href="?page={{ prodotti.paginator.num_pages }}">&raquo;</a></li>
+                {% endif %}
+                </ul>
+            </nav>
+        </div>
+
+    </div>
+</div>
+
+
+{% endblock %}

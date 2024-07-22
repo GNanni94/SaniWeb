@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titolo %} Politiche aziendali {% endblock titolo %}
+
+{% block contenuto %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-12 py-4">
+            <h1 class="text-center">Politiche aziendali</h1>
+        </div>    
+
+        <div class="col-12 py-4">
+            <a href="{% static 'condizioni_vendita/POLITICA29-07-2022.docx' %}" target="_blank"> 
+                <button type="button" class="btn btn-light rounded-pill fs-5" target="_blank">Condizioni di vendita</button>
+            </a>
+            
+        </div>    
+    </div>    
+</div>    
+
+{% endblock contenuto %}

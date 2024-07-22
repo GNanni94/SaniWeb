@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titolo %} Documenti {% endblock titolo %}
+
+
+{% block contenuto %}
+
+
+<div class="container">
+
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center py-5">Documenti</h1>
+        </div>
+        
+    </div>    
+
+    <div class="row">
+        <div class="col-12">
+
+            {% for categoria in object_list %}
+            <table class="table border">
+                <h4 class="text-center py-3 fs-2">{{categoria.nome_categoria}}</h4>
+                <thead>
+                    {%if categoria.file_cat.file %}
+                    <tr>
+                        <th class="text-center fs-4">{{categoria.file_cat.nome_file}}</th>
+                        <th class="text-center">
+                            <a class="bi bi-filetype-pdf fs-2"
+                                href="media/{{categoria.file_cat.file}}" target="_blank"></a>
+                            </a>
+                        </th>
+                    </tr>
+                    {%endif%}
+                </thead>
+                <tbody>
+
+                </tbody> 
+            </table>
+            {% endfor %}
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock contenuto %}

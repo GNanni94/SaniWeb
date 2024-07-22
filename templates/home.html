@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titolo %} Home {% endblock titolo %}
+
+
+{% block contenuto %}
+
+<div class="container-fluid">
+
+    <div class="row py-5">        
+
+        <div class="col-1">
+        
+        </div>    
+
+        <div class="col-10">
+            <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                  <div class="carousel-item active">
+                    <img src="https://www.radioluna.it/news/wp-content/uploads/2017/12/chimica.jpg" class="d-block w-100" alt="..." height="600px" >
+                  </div>
+                  <div class="carousel-item">
+                    <img src="https://img.freepik.com/premium-photo/ai-generated-ai-generative-chemistry-lab-laboratory-technical-equipment-with-many-glassware-bottle-medicine-research-graphic-art_95211-10609.jpg?w=2000" class="d-block w-100" alt="..." height="600px">
+                  </div>
+                  <div class="carousel-item">
+                    <img src="https://img.freepik.com/free-vector/realistic-laboratory-composition-with-front-view-glass-table-with-jars-flasks-test-tube-stands-vector-illustration_1284-82407.jpg?w=2000&t=st=1690451842~exp=1690452442~hmac=b255af9ca2f82f1065fd9e8775dfd4c0f9667d1ec3ef107a85ac47fd696095cb" class="d-block w-100" alt="..." height="600px">
+                  </div>
+                </div>
+              </div>
+        </div>
+
+    </div>    
+</div>    
+
+{% endblock contenuto %}

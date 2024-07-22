@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titolo %} Home {% endblock titolo %}
+
+
+{% block contenuto %}
+<div class="contaier py-5">
+
+
+    <div class="row py-5" style="text-align: center;">
+        <h1 class="display-1" style="color: blue;">Etichettatura ambientale</h1>
+    </div>
+
+    <div style="text-align: center; width: 50%; margin-left: 25%; margin-top: 6vh; margin-bottom: 50px;">
+        <a href="ETICHETTATURA-AMBIENTALE-VERSIONE-0-02-01-23.pdf" class="btn btn-primary" target="_blank"
+            style="height: 10vh; width: 350px;">
+            <h1 class="display-1">Aziende</h1>
+        </a>
+    </div>
+    <div style="text-align: center; width: 50%; margin-left: 25%;">
+        <a href="ETICHETTATURA-AMBIENTALE-PRIVATI-VERS.0-DEL-02-01-23.pdf" class="btn btn-primary" target="_blank"
+            style="height: 10vh; width: 350px;">
+            <h1 class="display-1">Privati</h1>
+        </a>
+    </div>
+</div>
+{% endblock contenuto %}

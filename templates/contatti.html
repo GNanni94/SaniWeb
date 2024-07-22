@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load crispy_forms_tags %}
+{% block titolo %} Contatti {% endblock titolo %}
+
+{% block contenuto %}
+
+
+<main id="cont">
+  <div id="contenuto">
+    <div id="cont" class="container">
+      <div class="row pt-5">
+
+        <div class="col-md-7">
+          <h4>COMPILA IL MODULO</h4>
+          <div>
+
+            <form action="" method="post">
+              
+              {% csrf_token %}
+              {{ cliente|crispy }}
+              {{ messaggio|crispy }}
+
+              <button class="btn btn-primary "  type="submit">Invia</button>
+            </form>
+            
+
+          </div>
+        </div>
+
+        <div id="info" class="col-md-5 text-center">
+          <div id="contenutoInfo">
+
+            <!-- Content -->
+            <h3 class="text-uppercase">SANISCOPE-CHIMICA S.R.L</h3>
+            <p class="pt-2">
+              Via A. Burzagli, 83
+
+              52025 Montevarchi(AR)
+              <br class="pt-1">
+              <strong>Tel: </strong>
+              <a href="tel:+39055980308">(+39) 055 980308</a>
+              <br>
+              <strong>Fax: </strong>
+              055 981450
+              <br>
+              <strong>Email: </strong>
+              <a title="Sani Scope CHimica Srl" href="mailto:info@saniscope-chimica.it"
+                target="_blank">info@saniscope-chimica.it</a>
+              <br>
+              <strong>COD.FISC/P.IVA:</strong>
+              00156060519
+            </p>
+
+          </div>
+
+          <div class="justify-content-center">
+            <h3>Orari di apertura</h3>
+            <table id="orari" class="table table-responsive">
+              <tbody>
+
+                <tr>
+                  <td>Lunedi: </td>
+                  <td> 8.00-12.00 / 13.45-17.45</td>
+                </tr>
+                <tr>
+                  <td>Martedi: </td>
+                  <td> 8.00-12.00 / 13.45-17.45</td>
+
+                </tr>
+                <tr>
+                  <td>Mercoledi: </td>
+                  <td> 8.00-12.00 / 13.45-17.45</td>
+
+                </tr>
+                <tr>
+                  <td>Giovedi: </td>
+                  <td> 8.00-12.00 / 13.45-17.45</td>
+
+                </tr>
+                <tr>
+                  <td>Venerdi: </td>
+                  <td> 8.00-12.00 / 13.45-17.45</td>
+
+                </tr>
+
+                <tr>
+                  <td>Sabato: </td>
+                  <td>Chiuso</td>
+                </tr>
+
+                <tr>
+                  <td>Domenica: </td>
+                  <td>Chiuso</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+
+
+        </div>
+
+        <div class="col-12 pt-5">
+          <div id="map" style="height: 350px;">
+            <script>var mymap = L.map('map').setView([43.528066, 11.562978], 17);
+              L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                subdomains: ['a', 'b', 'c']
+              }).addTo(mymap);
+              mymap = L.marker([43.528066, 11.562978]).addTo(mymap);</script>
+          </div>
+        </div>
+
+      </div>
+      <!--
+      <div class="row">
+          <div id="mappa" class="riga2 col-md-12" style="height: 180px;">
+              <div id="mapid" class="leaflet-container leaflet-touch leaflet-retina leaflet-safari leaflet-fade-anim leaflet-grab leaflet-touch-drag leaflet-touch-zoom" tabindex="0">
+  
+              <div class="leaflet-pane leaflet-map-pane" style="transform: translate3d(0px, 0px, 0px);"><div class="leaflet-pane leaflet-tile-pane"><div class="leaflet-layer " style="z-index: 1; opacity: 1;"><div class="leaflet-tile-container leaflet-zoom-animated" style="z-index: 17; transform: translate3d(-1033px, -289px, 0px) scale(2);"></div><div class="leaflet-tile-container leaflet-zoom-animated" style="z-index: 18; transform: translate3d(-1031px, -323px, 0px) scale(1);"><img alt="" role="presentation" src="http://c.tile.openstreetmap.org/18/139493/95796.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1388px, 286px, 0px); opacity: 1;"><img alt="" role="presentation" src="http://a.tile.openstreetmap.org/18/139493/95797.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1388px, 542px, 0px); opacity: 1;"><img alt="" role="presentation" src="http://b.tile.openstreetmap.org/18/139492/95796.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1132px, 286px, 0px); opacity: 1;"><img alt="" role="presentation" src="http://a.tile.openstreetmap.org/18/139494/95796.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1644px, 286px, 0px); opacity: 1;"><img alt="" role="presentation" src="http://c.tile.openstreetmap.org/18/139492/95797.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1132px, 542px, 0px); opacity: 1;"><img alt="" role="presentation" src="http://b.tile.openstreetmap.org/18/139494/95797.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1644px, 542px, 0px); opacity: 1;"><img alt="" role="presentation" src="http://a.tile.openstreetmap.org/18/139491/95796.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(876px, 286px, 0px); opacity: 1;"><img alt="" role="presentation" src="http://b.tile.openstreetmap.org/18/139495/95796.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1900px, 286px, 0px); opacity: 1;"><img alt="" role="presentation" src="http://b.tile.openstreetmap.org/18/139491/95797.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(876px, 542px, 0px); opacity: 1;"><img alt="" role="presentation" src="http://c.tile.openstreetmap.org/18/139495/95797.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1900px, 542px, 0px); opacity: 1;"></div></div></div><div class="leaflet-pane leaflet-shadow-pane"><img src="https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png" class="leaflet-marker-shadow leaflet-zoom-animated" alt="" style="margin-left: -12px; margin-top: -41px; width: 41px; height: 41px; transform: translate3d(76px, 110px, 0px);"></div><div class="leaflet-pane leaflet-overlay-pane"></div><div class="leaflet-pane leaflet-marker-pane"><img src="https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="" tabindex="0" style="margin-left: -12px; margin-top: -41px; width: 25px; height: 41px; transform: translate3d(76px, 110px, 0px); z-index: 110;"></div><div class="leaflet-pane leaflet-tooltip-pane"></div><div class="leaflet-pane leaflet-popup-pane"></div><div class="leaflet-proxy leaflet-zoom-animated" style="transform: translate3d(35710406px, 24524013.234375px, 0px) scale(131072);"></div></div><div class="leaflet-control-container"><div class="leaflet-top leaflet-left"><div class="leaflet-control-zoom leaflet-bar leaflet-control"><a class="leaflet-control-zoom-in leaflet-disabled" href="#" title="Zoom in" role="button" aria-label="Zoom in">+</a><a class="leaflet-control-zoom-out" href="#" title="Zoom out" role="button" aria-label="Zoom out">−</a></div></div><div class="leaflet-top leaflet-right"></div><div class="leaflet-bottom leaflet-left"></div><div class="leaflet-bottom leaflet-right"><div class="leaflet-control-attribution leaflet-control"><a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a></div></div></div></div>
+          </div>
+      </div>
+  -->
+
+    </div>
+  </div>
+</main>
+
+
+{% endblock contenuto %}

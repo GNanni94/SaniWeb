@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titolo %} Home {% endblock titolo %}
+
+
+{% block contenuto %}
+
+<section class="container-fluid">
+	<div class="row  g-4 py-5">
+		<div class="col-12">
+			<h2 class="text-center">CATEGORIE</h2>
+		</div>
+	</div>
+
+	<div class="row g-4 py-3" style="text-align: -webkit-center;">
+		{% for categoria in object_list %}
+		<div class="col-sm-12 col-md-6 col-lg-6 col-xl-4 col-xxl-3 my-4 ">
+		
+			<div class="card text-bg-dark " style="min-width:22rem; min-height:22rem; max-width:26rem; max-height:26rem;" id="home_contenitore_immagineCategorie">
+				<a href="{% url 'dettaglio_categoria' categoria.pk %}">
+					<img src="{{ categoria.immagine_categoria.url }}" class="card-img view" alt="..."
+						style=" min-width: 22rem; min-height:23rem; max-width: 26rem; max-height:26rem; "
+						id="home_immaginiCategorie">
+					<div class="mask align-items-center">
+						<div class="d-flex justify-content-center align-items-center h-100">
+							<h5 class="card-title text-light display-6 fw-bold">{{ categoria.nome_categoria }}</h5>
+		
+						</div>
+					</div>
+				</a>
+		
+			</div>
+		
+		</div>
+		
+		{% endfor %}
+	</div>
+
+
+</section>
+{% endblock contenuto %}
