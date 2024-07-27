@@ -25,8 +25,8 @@ class Categoria(models.Model):
 class Sottocategoria(models.Model):
 
     nome_sottocategoria=models.CharField(_("nome_sottocategoria"), max_length=30, blank=True)
-    codice_sottocategoria=models.IntegerField(unique=True, default=99)
     categoria=models.ForeignKey("Categoria", on_delete=models.CASCADE, blank=True, null=True)
+    codice_sottocategoria=models.IntegerField(unique=True, default=99)
 
     def save(self, *args, **kwargs):
         sottocategoria_target=Sottocategoria.objects.filter(categoria_id = self.categoria_id).order_by('codice_sottocategoria').last()
