@@ -140,7 +140,13 @@ class CatalogoListView(ListView):
             prodotti = prodotti | prodotti_gruppo_true
         return prodotti
 '''
+#SETUP DI SOTTOCATEGORIA_ID DI PRODOTTO
+def ConfiguraSottocategoiaIdArticoli():
+    articoli = Prodotto.objects.all()
+    for articolo in articoli:
+        articolo.save()
 
+ConfiguraSottocategoiaIdArticoli() 
 
 #PRE-POPOLAMENTO
 def ConfiguraImmaginiArticoli():
@@ -151,7 +157,6 @@ def ConfiguraImmaginiArticoli():
         immagine_articolo.immagine = "/media/default_immagine_articolo/saniscope_logo 2.png"
         immagine_articolo.save()
         
-
 #ConfiguraImmaginiArticoli()
 
 #INSERIMENTO IMMAGINI
