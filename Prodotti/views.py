@@ -146,7 +146,7 @@ def ConfiguraSottocategoiaIdArticoli():
     for articolo in articoli:
         articolo.save()
 
-ConfiguraSottocategoiaIdArticoli() 
+#ConfiguraSottocategoiaIdArticoli() 
 
 #PRE-POPOLAMENTO
 def ConfiguraImmaginiArticoli():
