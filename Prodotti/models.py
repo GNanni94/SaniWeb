@@ -53,14 +53,14 @@ class Prodotto(models.Model):
     sottocategoriaGestionale = models.IntegerField(null=True)
 
     def save(self, *args, **kwargs):
-        sottocategoria_target=Sottocategoria.objects.filter(codice_sottocategoria = self.categoria_id * 10 + self.sottocategoriaGestionale ).first()
-        if sottocategoria_target is not None:
+        if self.sottocategoriaGestionale is not None:
+            sottocategoria_target=Sottocategoria.objects.filter(codice_sottocategoria = self.categoria_id * 10 + self.sottocategoriaGestionale ).first()
             self.sottocategoria = sottocategoria_target
             return super().save(*args, **kwargs)
 
 
     def __str__ (self):
-        return "Id: "+ str(self.pk)+",   codice prodotto: " + self.codice_prodotto + ",   nome prodotto: " + self.descrizione
+        return "Id: "+ str(self.pk)+",   codice prodotto: " + self.codice_prodotto
 
     def get_absolute_url(self):
         return reverse("dettaglio_categoria", kwargs={"pk": self.categoria.pk})
