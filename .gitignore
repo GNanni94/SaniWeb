@@ -4,10 +4,10 @@ Pipfile.lock
 requirements.txt
 
 #sottocartelle pycache
-Carrello\__pycache__\
-InvioEmail\__pycache__\
-Pagine\__pycache__\
-Preventivo\migrations\
-Prodotti\__pycache__\
-SitoWeb\__pycache__\
-Utente\__pycache__\
+Carrello/__pycache__/
+InvioEmail/__pycache__/
+Pagine/__pycache__/
+Preventivo/__pycache__/
+Prodotti/__pycache__/
+SitoWeb/__pycache__/
+Utente/__pycache__/
