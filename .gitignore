@@ -2,3 +2,12 @@
 Pipfile
 Pipfile.lock
 requirements.txt
+
+#sottocartelle pycache
+Carrello\__pycache__\
+InvioEmail\__pycache__\
+Pagine\__pycache__\
+Preventivo\migrations\
+Prodotti\__pycache__\
+SitoWeb\__pycache__\
+Utente\migrations\
