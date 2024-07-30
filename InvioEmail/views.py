@@ -8,10 +8,10 @@ def emailPreventivo(request, carrello, dettaglio_preventivo, preventivo):
 
     subject = 'Richeista Preventivo'
 
-    message ='Messaggio inviato da: '+ preventivo.cliente.first_name + " " + preventivo.cliente.cognome_ragione_sociale + " " + preventivo.cliente.email + "\n "  
+    message ='Messaggio inviato da: '+ preventivo.cliente.first_name + " " + preventivo.cliente.cognome_ragione_sociale + ", con email " + preventivo.cliente.email + "\n "  
     mes=" "
     for x in carrello:
-        mes = x.prodotto.codice_prodotto + " " + x.prodotto.descrizione + ", quantità: " +  str(x.quantita) + "\n " + mes + "\n"
+        mes = "*  codice prodotto: " + x.prodotto.codice_prodotto + ", nome prodotto: " + x.prodotto.nome_prodotto + ", quantità: " +  str(x.quantita) + "\n " + mes + "\n"
     
     message = message + mes + "\n "
 
