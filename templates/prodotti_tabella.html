@@ -26,7 +26,13 @@
                             {% for x in prodotti %}
                             <tr>
                                 <td>{{x.codice_prodotto}}</td>
-                                <td>{{x.nome_prodotto}} {{x.descrizione}}</td>
+                                <td>{{x.nome_prodotto}} <br> 
+                                    {% if x.descrizione %}
+
+                    
+                                    <i>{{x.descrizione}} </i> 
+                                    {% endif %}
+                                </td>
                                 <td>{{x.unita_di_misura}}</td>
                                 <td>{{x.categoria.nome_categoria}}</td>
                                 <td>{{x.sottocategoria.nome_sottocategoria}}</td>

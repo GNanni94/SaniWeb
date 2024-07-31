@@ -205,6 +205,7 @@
                 <i class="bi bi-person-fill text-dark icon-lg fs-2"> </i>
               </a>
               <ul class="dropdown-menu text-small dropstart py-1" style= "right: 0 !important; left: auto !important" aria-labelledby="dropdownUser1">
+                <li class="text-center bg-light">  {{user.email}} </li>
                 {% if user.is_authenticated %}
                   {% if user.is_staff %}
                 <li><a class="dropdown-item bg-dark text-white" href="{% url 'sincronizzazione' %}">Sincronizzazione immagini e schede</a></li>

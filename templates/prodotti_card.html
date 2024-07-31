@@ -86,10 +86,22 @@
                     <div class="card" style="height: 100%;">
                         <img src="{{x.immagine_rel.immagine}}" class="card-img-top" style="max-height: 200px; width:100%; object-fit: contain;padding-top:3vh;" alt="...">
                         <div class="card-body">
-                            <p class="card-text">{{x.codice_prodotto}}</p>
+                            <div class="row py-2"> 
+                                <div class="col-8"> 
+                                    <p class="card-text">{{x.codice_prodotto}}</p>
+                                </div>
+                                <div class="col-4"> 
+                                    <h6 class="card-title float-end">{{x.unita_di_misura}}</h6>
+                                </div>
+                            </div>
+                            <!--<p class="card-text">{{x.codice_prodotto}}</p> -->
                             <h6 class="card-title">{{x.nome_prodotto}}</h6>
+                            {% if x.descrizione %}
+
                             <h6 class="card-title">{{x.descrizione}}</h6>
-                            <h6 class="card-title">{{x.unita_di_misura}}</h6>
+                            {% endif%}
+
+                            <!--<h6 class="card-title">{{x.unita_di_misura}}</h6>-->
                         </div>
     
                         <div class="card-footer">
