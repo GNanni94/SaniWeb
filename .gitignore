@@ -1,7 +1,6 @@
 #file dell'ambiente virtuale fra
 Pipfile
 Pipfile.lock
-requirements.txt
 
 #sottocartelle pycache
 Carrello/__pycache__/
@@ -11,3 +10,4 @@ Preventivo/__pycache__/
 Prodotti/__pycache__/
 SitoWeb/__pycache__/
 Utente/__pycache__/
+
