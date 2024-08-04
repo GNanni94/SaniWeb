@@ -1,6 +1,10 @@
 #file dell'ambiente virtuale fra
 Pipfile
 Pipfile.lock
+requirements.txt
+
+#file .venv mac fra
+.venv/
 
 #sottocartelle pycache
 Carrello/__pycache__/
@@ -10,4 +14,3 @@ Preventivo/__pycache__/
 Prodotti/__pycache__/
 SitoWeb/__pycache__/
 Utente/__pycache__/
-
