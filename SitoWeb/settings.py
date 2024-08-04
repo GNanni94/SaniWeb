@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure--q!k-c1bfeebws@4rc#%_t!ae_t^fn-)!gqzo#t&grj&fb1a@b
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.100.107']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -155,9 +155,9 @@ CRISPY_TEMPLATE_PACK = "bootstrap5" #new
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'giulionannicini@gmail.com'
-EMAIL_HOST_PASSWORD = 'ikbdqnbxdtezozwd'
-EMAIL_USE_TLS = True
-#EMAIL_USE_SSL = False
+EMAIL_HOST = 'out.postassl.it'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = 'info@saniscope-chimica.it'
+EMAIL_HOST_PASSWORD = 'Term30@1961'
+#EMAIL_USE_TLS = True
+EMAIL_USE_SSL = True
