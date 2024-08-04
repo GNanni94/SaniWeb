@@ -19,3 +19,6 @@ Prodotti/migrations/__pycache__/
 SitoWeb/__pycache__/
 Utente/__pycache__/
 Utente/migrations/__pycache__/
+
+#ds_store
+.DS_Store
