@@ -8,9 +8,14 @@ requirements.txt
 
 #sottocartelle pycache
 Carrello/__pycache__/
+Carrello/migrations/__pycache__/
 InvioEmail/__pycache__/
 Pagine/__pycache__/
+Pagine/migrations/__pycache__/
 Preventivo/__pycache__/
+Preventivo/migrations/__pycache__/
 Prodotti/__pycache__/
+Prodotti/migrations/__pycache__/
 SitoWeb/__pycache__/
 Utente/__pycache__/
+Utente/migrations/__pycache__/
