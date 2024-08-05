@@ -32,8 +32,8 @@ def emailMessaggio(request, cleinte, messaggio):
     send_mail(subject, message, from_email, recipient_list)
 
 
-def rispostaEmailMessaggio(request, cleinte):
+def rispostaEmailMessaggio(request, cliente):
     subject = 'SaniScope-Chimica s.r.l.'  
-    message = 'La ringraziamo per averci scelto, la contatteremo prima possibile SaniScope-Chimica s.r.l.' 
+    message = 'La ringraziamo per averci scelto, la contatteremo prima possibile Saniscope-chimica s.r.l.' 
     from_email = 'giulionannicini@gmail.com'
-    recipient_list = [cleinte.email]
+    recipient_list = [cliente.email]
