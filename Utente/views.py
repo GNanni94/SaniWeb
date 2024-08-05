@@ -36,7 +36,6 @@ class SignUpView(CreateView):
     template_name = "registration/signup.html"
 
     def form_valid(self, form) -> HttpResponse:
-        print(form.cleaned_data)
         form_cleaned = form.cleaned_data
         registrato = Registrati()
         registrato.email = form_cleaned.get("email")
