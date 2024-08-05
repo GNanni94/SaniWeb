@@ -3,7 +3,7 @@ from django.core.mail import send_mail
 from django.shortcuts import  HttpResponse
 # Create your views here.
 
-
+#DA PREVENTIVO PUOI ACCEDERE AL CLIENTE CHE RISULTA ESSERE L'UTENTE REGISTRATO
 def emailPreventivo(request, carrello, dettaglio_preventivo, preventivo):
 
     subject = 'Richiesta Preventivo'
