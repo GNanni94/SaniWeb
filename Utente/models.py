@@ -51,11 +51,25 @@ class Registrati(AbstractUser, AbstractBaseUser):
     indirizzo = models.CharField(max_length=255, blank=True)
     citta = models.CharField(max_length=255, blank=True)
     telefono = PhoneNumberField(null=False, blank=True )
-    username = models.CharField(max_length=30, blank=True)
+    #username = models.CharField(max_length=30, blank=True)
     
+    REQUIRED_FIELDS = []
+    USERNAME_FIELD = "email"
+
     def __str__ (self):
         return self.cognome_ragione_sociale + " " + self.codiceFiscale_PartitaIVA + " " + self.indirizzo + " " + self.citta
 
     class Meta:
         db_table = "Registrati"
         verbose_name_plural = "Registrati"
+
+    def email_user(self) -> None:
+
+        subject = "Email di benvenuto"
+
+        message = "Ciao"+ self.first_name + "\n Ti ringraziamo per esserti registrato al nostro sito.\n"
+        message = message + "Queste sono le tue credenziali per accedere al sito\n Username: " + self.email + "\nPassword: "+ self.password
+
+        from_email = "info@saniscope-chimica.it"
+
+        return super().email_user(subject, message, from_email)
