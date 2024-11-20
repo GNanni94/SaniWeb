@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure--q!k-c1bfeebws@4rc#%_t!ae_t^fn-)!gqzo#t&grj&fb1a@b
 DEBUG = True
 
 ALLOWED_HOSTS = ['192.168.100.107',
-                 '127.0.0.1']
+                 '127.0.0.1', 'test.saniscope-chimica.it', 'saniscope-chimica.it', 'www.saniscope-chimica.it']
 
 
 # Application definition
