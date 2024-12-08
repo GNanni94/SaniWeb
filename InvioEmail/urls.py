@@ -3,5 +3,5 @@ from .views import emailPreventivo, emailMessaggio
 
 urlpatterns = [
     path('emailPreventivo/', emailPreventivo, name='emailPreventivo'),
-    path('emailMessaggio/', emailMessaggio, name='emailMessaggio'),
+    path('emailMessaggio/', emailMessaggio, name='emailMessaggio')
 ]

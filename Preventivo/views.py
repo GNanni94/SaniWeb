@@ -8,6 +8,7 @@ from django.views.generic import ListView
 from typing import Any, Dict
 from InvioEmail.views import emailPreventivo
 from django.core.paginator import Paginator
+import logging
 
 # Create your views here.
 
@@ -27,7 +28,9 @@ class PreventivoListView(ListView):
         return render(request, self.template_name, context)
 
 def crea_ordine_da_carrello(request):
+    #logger = logging.getLogger(__name__)
     if request.user.is_authenticated:
+        #logger.info(f"Creato ordene dal carrello dell'utente con id: {request.user.pk} ed email {request.user.email}")
         preventivo = Preventivo()
         preventivo.cliente = request.user
         preventivo.save()

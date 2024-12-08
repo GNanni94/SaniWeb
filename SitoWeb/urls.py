@@ -24,11 +24,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include("Pagine.urls")),
     path("catalogo/", include("Prodotti.urls")),
-    path("clienti/", include("Utente.urls")),
+    path("cliente/", include("Utente.urls")),
     path("clienti/", include("django.contrib.auth.urls")), 
     path("carrello/", include("Carrello.urls")),
     path("preventivo/", include("Preventivo.urls")),
     path("email/", include("InvioEmail.urls")),
-
+    path("cookies/", include("cookie_consent.urls"))
 
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

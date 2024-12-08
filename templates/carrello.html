@@ -8,19 +8,28 @@
 {% block contenuto %}
 
 <div class="container">
-    <div class="row">
+    <div class="row" >
 
-        <div class="col-12">
+        <div class="col-12 text-center my-5">
+
+            <div>
+                <h2 class="text-black">Carrello</h2>
+                {% if totale_elementi_carrello == 0 %}
+
+                <h4>Il carrello è vuoto. </h4>
+                <br>
+                
+                <h3>Vai nel <a href="{% url 'catalogo' %}">catalogo</a> per aggiungere prodotti </h3>
+                
+                {% endif %}   
+            </div>
 
             <section class="h-100">
-                <div class="container h-100 py-5">
-                    <div class="row d-flex justify-content-center align-items-center h-100">
-                        <div class="col-12 text-center">
+                <div class="container h-100">
+                    <div class="row d-flex justify-content-center h-100">
+                        <div class="col-lg-7 col-12 text-center">
 
-                            <div class="mb-4">
-                                <h2 class="text-black">Carrello</h2>
-
-                            </div>
+                            
                             {% for elementi_carrello in object_list %}
                             <div class="card rounded-3 mb-4">
                                 <div class="card-body p-4">
@@ -31,7 +40,7 @@
                                         </div>
                                         <div class="col-md-3 col-lg-3 col-xl-3">
                                             <p>{{ elementi_carrello.prodotto.codice_prodotto }}</p>
-                                            <p class="lead fw-normal mb-2">{{ elementi_carrello.prodotto.descrizione }}</p>
+                                            <p class="lead fw-normal mb-2">{{ elementi_carrello.prodotto.nome_prodotto }}</p>
                                             <p>{{ elementi_carrello.prodotto.categoria.nome_categoria }}</p>
                                         </div>
                                         <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
@@ -64,6 +73,11 @@
                                 </div>
                             </div>
                             {% endfor %}
+                            
+
+
+                        </div>
+                        <div class="col-lg-5 col-12">
                             <div class="row justify-content-center">
                                 {% if totale_elementi_carrello > 0 %}
                                     
@@ -82,14 +96,12 @@
                                                 </div>
                                             </div>    
                                         </div>
-
+                
                                         
                                     
                                 {% endif %}    
-
+                
                             </div>
-
-
                         </div>
                     </div>
                 </div>
@@ -97,6 +109,7 @@
 
 
         </div>
+           
 
     </div>
 </div>

@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block titolo %} Profilo {% endblock titolo %}
+
+{% block contenuto %}
+
+    <div class="container-fluid">
+        <div class="row ">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 bg-light sidebar shadow p-3 my-4">
+                <h5 class="text-primary text-center">Utente: </h5>
+                
+                <h5 class="text-dark">{{user.email}}</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showSection('profilo')">Gestione Profilo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('ordini')">Vecchi Ordini</a>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="#" onclick="showSection('password2')">Cambia password</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('password')">Cambia Password</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active text-danger" href="#" onclick="showSection('eliminazione_profilo')">Eliminazione profilo</a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Contenuto -->
+            <main class="col-md-9 col-lg-10 content my-3">
+                <!-- Gestione Profilo -->
+                <div id="profilo" class="section">
+                    <h1 style="text-align: center;" >Gestione Profilo</h1>
+                    <form>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Nome e Cognome</label>
+                            <input type="text" class="form-control" id="name" value="Mario Rossi">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" value="mario.rossi@example.com">
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Telefono</label>
+                            <input type="tel" class="form-control" id="phone" value="+39 123 456 789">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salva Modifiche</button>
+                    </form>
+                </div>
+
+                <!-- Vecchi Ordini -->
+                <div id="ordini" class="section" style="display: none;">
+                    <h1 style="text-align: center;">Vecchi Ordini</h1>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Data</th>
+                                <th>Prodotti</th>
+                                <th>Totale</th>
+                                <th>Stato</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>20/11/2024</td>
+                                <td>3</td>
+                                <td>€120.00</td>
+                                <td><span class="badge bg-success">Completato</span></td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>15/11/2024</td>
+                                <td>1</td>
+                                <td>€35.00</td>
+                                <td><span class="badge bg-warning">In lavorazione</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Cambia Password -->
+                <div id="password" class="section" style="display: none;">
+                    <h1 style="text-align: center;">Cambia Password</h1>
+                    <form>
+                        <div class="mb-3">
+                            <label for="current-password" class="form-label">Password Attuale</label>
+                            <input type="password" class="form-control" id="current-password">
+                        </div>
+                        <div class="mb-3">
+                            <label for="new-password" class="form-label">Nuova Password</label>
+                            <input type="password" class="form-control" id="new-password">
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirm-password" class="form-label">Conferma Nuova Password</label>
+                            <input type="password" class="form-control" id="confirm-password">
+                        </div>
+                        <button type="submit" class="btn btn-success">Aggiorna Password</button>
+                    </form>
+                </div>
+
+
+                <div id="password2" class="section" style="display: none;">
+                    <div class= "container">
+                        <div class = "row my-4">
+                        <div class= "col-12">
+                            <h1>Password cambiata</h1>
+                            <p>Per favore inserisci la tua vecchia Password, per sicurezza, 
+                            e inserisci la nuova Password due volte, così possiamo verificare se hai 
+                            scritto correttamente</p>
+                    
+                            <form method="POST">{% csrf_token %}
+                            {{ form|crispy }}
+                            <input class="btn btn-success" type="submit" value="Cambia la mia password">
+                            </form>
+                        </div>
+                        </div>
+                    </div>    
+                </div>
+                
+
+                <!-- Eliminazione profilo -->
+                <div id="eliminazione_profilo" class="section" style="display: none;">
+                    <h1 style="text-align: center;">Elimina profilo</h1>
+                    <h5>Se uno desidera eliminare il profilo, verranno cancellati tutti i dati personali conpreso gli storico della lista dei vecchi preventivi</h5>
+                    <a class="btn btn-danger mx-4" href={% url 'eliminaProfilo' user.pk %}    >Elimina</a>
+                </div>
+
+                
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            // Nascondi tutte le sezioni
+            document.querySelectorAll('.section').forEach(section => section.style.display = 'none');
+            // Mostra la sezione selezionata
+            document.getElementById(sectionId).style.display = 'block';
+        }
+    </script>
+
+
+    
+{% endblock contenuto %}
+

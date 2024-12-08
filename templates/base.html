@@ -108,7 +108,52 @@
 		})
   </script>
 
+
+  {% load static cookie_consent_tags %}
+
+      {% block before_close_head %}
+          <link href="{% static 'cookie_consent/css/footer.css' %}" rel="stylesheet" type="text/css">
+      {% endblock %}
+
+      {% static "cookie_consent/cookiebar.js" as cookiebar_src %}
+      {% url 'cookie_consent_status' as status_url %}
+      <script type="module">
+          // This code differs from the original version
+          // Original version:
+          import { showCookieBar } from '{{ cookiebar_src }}';
+          showCookieBar({
+              statusUrl: '{{ status_url|escapejs }}',
+               templateSelector: '#cookie-consent__cookie-bar',
+               cookieGroupsSelector: '#cookie-consent__cookie-groups',
+               onShow: () => document.querySelector('body').classList.add('with-cookie-bar'),
+               onAccept: () => document.querySelector('body').classList.remove('with-cookie-bar'),
+               onDecline: () => document.querySelector('body').classList.remove('with-cookie-bar'),
+           });
+
+
+          {% comment %} const cookiebarSrc = '{{ cookiebar_src|escapejs }}'.replace(/&amp;/g, '&');
+          try {
+              const { showCookieBar } = await import(cookiebarSrc);
+              showCookieBar({
+                  statusUrl: '{{ status_url|escapejs }}',
+                  templateSelector: '#cookie-consent__cookie-bar',
+                  cookieGroupsSelector: '#cookie-consent__cookie-groups',
+                  onShow: () => document.body.classList.add('with-cookie-bar'),
+                  onAccept: () => document.body.classList.remove('with-cookie-bar'),
+                  onDecline: () => document.body.classList.remove('with-cookie-bar'),
+              });
+          } catch (error) {
+              console.error('Error loading cookie bar module:', error);
+          } {% endcomment %}
+      </script>
+      
+  {% all_cookie_groups 'cookie-consent__cookie-groups' %}
+
+
   <title>{% block titolo %} SaniScope-chimica {% endblock titolo %}</title>
+
+
+
 </head>
 
 <nav class="navbar navbar-expand-lg ">
@@ -213,6 +258,7 @@
                 {% endif %}
                 <li><a class="dropdown-item bg-dark text-white" href="{% url 'lista_ordini'%}">Lista preventivi</a></li>
                 <li><a class="dropdown-item bg-dark text-white" href="{% url 'password_change' %}">Cambia password</a></li>
+                <li><a class="dropdown-item bg-dark text-white" href="{% url 'profilo' %}">Profilo</a></li>
                 <li><a class="dropdown-item bg-dark text-white" href="{% url 'logout' %}">Log Out</a></li>
               </ul>
             </div>  
@@ -259,6 +305,8 @@
     </div>
   </div>
 </nav>
+
+
 
 
 <body>
@@ -358,6 +406,66 @@
   </footer>
 
 
+
+  {% url "cookie_consent_cookie_group_list" as url_cookies %}
+
+<template id="cookie-consent__cookie-bar">
+  <div class="cookie-bar">
+      <span>This site uses cookies for better performance and user experience.
+      Do you agree to use these cookies?</span>
+      <button type="button" class="cookie-consent__accept" onclick="onAccept()" >pippio Accept and Close</button>
+      {% comment %} <button type="button" class="cookie-consent__decline">Decline</button> {% endcomment %}
+      <a href="{{ url_cookies }}">Cookies info</a>
+  </div>
+</template>
+
+<style>
+
+  .cookie-bar {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #333;
+    color: #fff;
+    text-align: center;
+    padding: 15px;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    grid-gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.cookie-bar button {
+    margin: 5px;
+    padding: 10px 20px;
+    background: #007BFF;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.cookie-bar button:hover {
+    background: #0056b3;
+}
+
+.cookie-bar a {
+    color: #00aaff;
+    text-decoration: none;
+    margin-left: 10px;
+    font-size: 14px;
+}
+
+.cookie-bar a:hover {
+    text-decoration: underline;
+}
+
+</style>  
 
 
 </body>
