@@ -3,7 +3,7 @@ from .views import messaggio
 from .views import SignUpView
 from .forms import CustomAuthenticationForm
 from django.contrib.auth import views
-from .views import ProfiloView, UtenteDeleteView
+from .views import ProfiloView, UtenteDeleteView, Profilo
 
 urlpatterns = [
     path("signup/", SignUpView.as_view(), name="signup"),
@@ -13,6 +13,7 @@ urlpatterns = [
             authentication_form=CustomAuthenticationForm
             ),name='login'),
     path('profilo/', ProfiloView.as_view(), name="profilo" ),     
-    path('profilo/<int:pk>/delete', UtenteDeleteView.as_view(), name="eliminaProfilo" )
+    path('profilo/<int:pk>/delete', UtenteDeleteView.as_view(), name="eliminaProfilo" ),
+    path('profilo/<int:pk>/update', Profilo.as_view(), name="profilo" )
 
 ]

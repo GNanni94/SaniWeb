@@ -4,9 +4,9 @@ from django.views.generic import TemplateView
 from .forms import ClienteForm, MessaggioForm
 from .models import Cliente, Richiesta_messaggio, Registrati
 from Preventivo.models import Preventivo
-from django.views.generic import CreateView, DeleteView
+from django.views.generic import CreateView, DeleteView, UpdateView
 from django.urls import reverse_lazy
-from .forms import ClienteCreationForm
+from .forms import ClienteCreationForm, ProfiloForm
 from InvioEmail.views import emailMessaggio
 import logging
 
@@ -84,4 +84,21 @@ class UtenteDeleteView (DeleteView):
     def delete(self, *args, **kwargs):
 
         return super(PresetDeleteView, self).delete(*args, **kwargs)
+
+class Profilo(UpdateView):
+    #form_class = ProfiloForm
+    model = Registrati
+    template_name = "profilo.html"
+    success_url=reverse_lazy("home")
+    
+
+    fields = [
+            "email",
+            "first_name",
+            "cognome_ragione_sociale",
+            "codiceFiscale_PartitaIVA",
+            "indirizzo",
+            "citta",
+            "telefono",
+    ] 
   

@@ -256,9 +256,10 @@
                 <li><a class="dropdown-item bg-dark text-white" href="{% url 'sincronizzazione' %}">Sincronizzazione immagini e schede</a></li>
                   {% endif %}
                 {% endif %}
-                <li><a class="dropdown-item bg-dark text-white" href="{% url 'lista_ordini'%}">Lista preventivi</a></li>
+                <li><a class="dropdown-item bg-dark text-white" href="{% url 'profilo' user.pk %}">Profilo</a></li>
                 <li><a class="dropdown-item bg-dark text-white" href="{% url 'password_change' %}">Cambia password</a></li>
-                <li><a class="dropdown-item bg-dark text-white" href="{% url 'profilo' %}">Profilo</a></li>
+                <li><a class="dropdown-item bg-dark text-white" href="{% url 'lista_ordini'%}">Lista preventivi</a></li>    
+                <li><a class="dropdown-item bg-dark text-danger" href={% url 'eliminaProfilo' user.pk %}>Elimina</a></li>
                 <li><a class="dropdown-item bg-dark text-white" href="{% url 'logout' %}">Log Out</a></li>
               </ul>
             </div>  

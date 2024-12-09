@@ -16,6 +16,7 @@ class ClienteForm(ModelForm):
             "citta",
             "telefono",
         )
+
 class MessaggioForm(ModelForm):
     class Meta:
         model = Messaggi
@@ -59,4 +60,16 @@ class CustomAuthenticationForm(AuthenticationForm):
     username = forms.EmailField(label='Inserisci email', widget=forms.EmailInput(attrs={'class':'form-control'}))
     password = forms.CharField(label='Inserisci password', widget=forms.PasswordInput(attrs={'class':'form-control'}))
     
-   
+class ProfiloForm(ModelForm):
+    class Meta:
+        model = Registrati
+        
+        fields = (
+            "email",
+            "first_name",
+            "cognome_ragione_sociale",
+            "codiceFiscale_PartitaIVA",
+            "indirizzo",
+            "citta",
+            "telefono",
+        ) 
