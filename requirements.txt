@@ -1,0 +1,18 @@
+asgiref==3.8.1
+beautifulsoup4==4.12.2
+crispy-bootstrap5==0.7
+dj-database-url==2.0.0
+Django==4.2.14
+django-appconf==1.0.6
+django-bootstrap-v5==1.0.11
+django-cookie-consent @ file:///Users/giulionannicini/Downloads/django-cookie-consent-master
+django-cookiebanner==0.2.8
+django-crispy-forms==2.0
+django-phonenumber-field==7.3.0
+gunicorn==20.1.0
+phonenumberslite==8.13.30
+Pillow==9.4.0
+psycopg2-binary==2.9.6
+soupsieve==2.4.1
+sqlparse @ file:///Users/ec2-user/ci_py311/sqlparse_1678394278812/work
+typing_extensions==4.6.3
