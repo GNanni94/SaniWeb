@@ -37,16 +37,16 @@ class Sottocategoria(models.Model):
     def __str__ (self):
         return str(self.codice_sottocategoria%10) +" " + self.nome_sottocategoria 
 
-    class Meta:
         db_table="Sottocategoria"
         verbose_name = "Sottocategoria"
         verbose_name_plural ="Sottocategorie"
 
 class Prodotto(models.Model):
     codice_prodotto=models.CharField(max_length=10, blank=True)
-    nome_prodotto=models.CharField(max_length=30,blank=True)
+    nome_prodotto=models.CharField(max_length=50,blank=True)
     descrizione=models.CharField(max_length=250, blank=True, null=True)
     unita_di_misura = models.CharField(max_length=2,null=True)
+    precursore = models.CharField(max_length=250, blank=True, null=True)
     gruppo=models.IntegerField(null=True)
     categoria=models.ForeignKey("Categoria", on_delete=models.CASCADE, blank=True, null=True)
     sottocategoria = models.ForeignKey("Sottocategoria",to_field="codice_sottocategoria", on_delete=models.CASCADE, blank=True, null=True)    

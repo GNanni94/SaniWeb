@@ -13,7 +13,7 @@ admin.site.register(SchedeTecniche)
 @admin.register(Prodotto)
 class ProdottoAdmin(admin.ModelAdmin):
 
-    list_display = ['pk','codice_prodotto', 'nome_prodotto', 'descrizione', 'unita_di_misura', 'gruppo', 'categoria', 'sottocategoria']
+    list_display = ['pk','codice_prodotto', 'nome_prodotto', 'descrizione', 'precursore', 'unita_di_misura', 'gruppo', 'categoria', 'sottocategoria']
     search_fields = ['pk','codice_prodotto','nome_prodotto', 'descrizione']
 
 @admin.register(Categoria)
