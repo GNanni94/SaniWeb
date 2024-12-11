@@ -32,7 +32,9 @@
                                         <i>{{x.descrizione}} </i> 
                                     {% endif %}
                                     {% if x.precursore %}
-                                        <i class="bi bi-info-circle" data-toggle="tooltip" data-bs-placement="top" >{{x.precursore}}</i>
+                                        <br>
+                                        <i>{{x.precursore}}</i>
+                                        
                                     {% endif %}
                                 </td>
                                 <td>{{x.unita_di_misura}}</td>
@@ -62,14 +64,6 @@ $(document).ready(function () {
     });
 });
 
-    // Inizializza i tooltip di Bootstrap
-document.addEventListener('DOMContentLoaded', function () {
-  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-  tooltipTriggerList.map(function (tooltipTriggerEl) {
-    return new bootstrap.Tooltip(tooltipTriggerEl)
-  })
-});
-  
   
 
 </script>

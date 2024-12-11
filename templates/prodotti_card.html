@@ -98,9 +98,11 @@
                             <h6 class="card-title">{{x.nome_prodotto}}</h6>
                             {% if x.descrizione %}
 
-                            <h6 class="card-title">{{x.descrizione}}</h6>
+                                <h6 class="card-title">{{x.descrizione}}</h6>
                             {% endif%}
-
+                            {% if x.precursore %}
+                                <i>{{x.precursore}}</i>
+                            {% endif%}
                             <!--<h6 class="card-title">{{x.unita_di_misura}}</h6>-->
                         </div>
     
