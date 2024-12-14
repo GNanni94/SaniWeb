@@ -1,0 +1,27 @@
+{% load static cookie_consent_tags %}
+{% static "cookie_consent/cookiebar.module.js" as cookiebar_src %}
+<script type="module">
+    import {showCookieBar} from '{{ cookiebar_src }}';
+
+    showCookieBar({
+      statusUrl: '{{ status_url|escapejs }}',
+      templateSelector: '#cookie-consent__cookie-bar',
+      cookieGroupsSelector: '#cookie-consent__cookie-groups',
+      onShow: () => document.querySelector('body').classList.add('with-cookie-bar'),
+      onAccept: (cookieGroups) => {
+        document.querySelector('body').classList.remove('with-cookie-bar');
+        const analyticsEnabled = cookieGroups.find(group => group.varname === 'statistic') != undefined;
+        if (analyticsEnabled) {
+            const templateNode = document.getElementById('analytics-scripts');
+            const analyticsScripts = templateNode.content.cloneNode(true);
+            document.head.appendChild(analyticsScripts);
+        }
+      },
+      onDecline: () => document.querySelector('body').classList.remove('with-cookie-bar'),
+    });
+    
+</script>
+
+{% all_cookie_groups 'cookie-consent__cookie-groups' %}
+
+

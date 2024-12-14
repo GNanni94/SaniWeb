@@ -1,0 +1,46 @@
+version: '3.9'
+# Defining the compose version
+services:
+
+ # Nginx server
+ nginx:
+ 
+   # Build context
+   build: ./nginx
+   
+   # Mapping machine and container ports
+   ports:
+     - 1337:80
+     
+   # Storage volumes
+   volumes:
+     - static_volume:/home/app/static
+     - media_volume:/home/app/media
+   depends_on:
+     - web
+   restart: "on-failure"
+   
+ # Django application
+ web:
+ 
+   # Build context
+   build: .
+   
+   # Build commands
+   command: sh -c "python manage.py makemigrations &&
+                   python manage.py migrate &&
+                   python manage.py collectstatic --noinput &&
+                   gunicorn SitoWeb.wsgi:application --bind 0.0.0.0:8000"
+                   
+   # Storage volumes
+   volumes:
+     - static_volume:/home/app/static
+     - media_volume:/home/app/media
+     
+   # Exposing port 8000
+   expose: 
+   - 8000
+   restart: "on-failure"
+volumes:
+ static_volume:
+ media_volume:
