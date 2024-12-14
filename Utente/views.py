@@ -90,7 +90,6 @@ class Profilo(UpdateView):
     model = Registrati
     template_name = "profilo.html"
     success_url=reverse_lazy("home")
-    
 
     fields = [
             "email",

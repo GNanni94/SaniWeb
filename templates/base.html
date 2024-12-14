@@ -27,17 +27,12 @@
   integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.css" />  
-  <!--{% load bootstrap5 %}
-	  {% bootstrap_css %}
-	  {% bootstrap_javascript %}-->
 
   <link href="{% static 'css/main.css' %}" rel="stylesheet" type="text/css" />
 
 
   <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.2.0/mdb.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-
-  <!--<link rel="icon" type="image/x-icon" href="{% static '' %}"> -->
 
 
   <script>
@@ -107,48 +102,6 @@
 			ricaricaElementiCarrello();
 		})
   </script>
-
-
-  {% load static cookie_consent_tags %}
-
-      {% block before_close_head %}
-          <link href="{% static 'cookie_consent/css/footer.css' %}" rel="stylesheet" type="text/css">
-      {% endblock %}
-
-      {% static "cookie_consent/cookiebar.js" as cookiebar_src %}
-      {% url 'cookie_consent_status' as status_url %}
-      <script type="module">
-          // This code differs from the original version
-          // Original version:
-          import { showCookieBar } from '{{ cookiebar_src }}';
-          showCookieBar({
-              statusUrl: '{{ status_url|escapejs }}',
-               templateSelector: '#cookie-consent__cookie-bar',
-               cookieGroupsSelector: '#cookie-consent__cookie-groups',
-               onShow: () => document.querySelector('body').classList.add('with-cookie-bar'),
-               onAccept: () => document.querySelector('body').classList.remove('with-cookie-bar'),
-               onDecline: () => document.querySelector('body').classList.remove('with-cookie-bar'),
-           });
-
-
-          {% comment %} const cookiebarSrc = '{{ cookiebar_src|escapejs }}'.replace(/&amp;/g, '&');
-          try {
-              const { showCookieBar } = await import(cookiebarSrc);
-              showCookieBar({
-                  statusUrl: '{{ status_url|escapejs }}',
-                  templateSelector: '#cookie-consent__cookie-bar',
-                  cookieGroupsSelector: '#cookie-consent__cookie-groups',
-                  onShow: () => document.body.classList.add('with-cookie-bar'),
-                  onAccept: () => document.body.classList.remove('with-cookie-bar'),
-                  onDecline: () => document.body.classList.remove('with-cookie-bar'),
-              });
-          } catch (error) {
-              console.error('Error loading cookie bar module:', error);
-          } {% endcomment %}
-      </script>
-      
-  {% all_cookie_groups 'cookie-consent__cookie-groups' %}
-
 
   <title>{% block titolo %} SaniScope-chimica {% endblock titolo %}</title>
 
@@ -263,11 +216,6 @@
                 <li><a class="dropdown-item bg-dark text-white" href="{% url 'logout' %}">Log Out</a></li>
               </ul>
             </div>  
-
-
-
-				
-
 				  </div>
 
 				{% else %}
@@ -288,20 +236,6 @@
 				{% endif %}
 
 			  </span>
-
-
-      <!--
-      <div class="d-flex">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="bottoniLoginSignup">
-          <li class="nav-item">
-            <a class="nav-link text-dark btn btn-light px-3 mx-2" href="#">Login</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-dark btn btn-light px-3 mx-2" href="#">Sign-up</a>
-          </li>
-        </ul>
-      </div>
-      -->
 
     </div>
   </div>
@@ -407,18 +341,30 @@
   </footer>
 
 
-
   {% url "cookie_consent_cookie_group_list" as url_cookies %}
-
 <template id="cookie-consent__cookie-bar">
   <div class="cookie-bar">
       <span>This site uses cookies for better performance and user experience.
       Do you agree to use these cookies?</span>
-      <button type="button" class="cookie-consent__accept" onclick="onAccept()" >pippio Accept and Close</button>
-      {% comment %} <button type="button" class="cookie-consent__decline">Decline</button> {% endcomment %}
+      <button type="button" class="cookie-consent__accept">Accetta e continua</button>
       <a href="{{ url_cookies }}">Cookies info</a>
   </div>
 </template>
+
+<template id="analytics-scripts">
+  <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-KXYD9R1HXB" type="text/plain" data-cookieconsent="statistics"></script>
+  <script type="text/javascript">
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-KXYD9R1HXB');
+  </script>
+</template>
+
+  {% url 'cookie_consent_status' as status_url %}
+  {% include "./show-cookie-bar-script.html" with status_url=status_url %}
+ 
 
 <style>
 

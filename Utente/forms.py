@@ -3,6 +3,7 @@ from django.forms import ModelForm
 from .models import Cliente, Messaggi, Registrati
 from phonenumber_field.formfields import PhoneNumberField
 from django import forms
+import logging
 
 
 class ClienteForm(ModelForm):
@@ -41,6 +42,15 @@ class ClienteCreationForm(UserCreationForm):
             "citta",
             "telefono",
         ) 
+
+    def clean_codiceFiscale_PartitaIVA(self):
+        logger = logging.getLogger(__name__)
+        codiceFiscale_PartitaIVA = self.cleaned_data['codiceFiscale_PartitaIVA']
+        
+        logger.info(f" {codiceFiscale_PartitaIVA} che arriva")
+
+        raise forms.ValidationError("Error Message") # Your own error message that will appear to the user in case the field is not valid
+        return codiceFiscale_PartitaIVA # In case everything is fine just return user's input.
 
 
 
