@@ -30,7 +30,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:1337"]
+CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS").split(" ")
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
 # Application definition
@@ -242,12 +243,3 @@ logging.config.dictConfig({
         'django.server': DEFAULT_LOGGING['loggers']['django.server'],
     },
 })
-
-
-#SECURE_SSL_REDIRECT = False
-#SECURE_HSTS_SECONDS = 31536000  # 1 year
-#SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-#SECURE_HSTS_PRELOAD = True
-
-#SESSION_COOKIE_SECURE = True
-#CSRF_COOKIE_SECURE = True
