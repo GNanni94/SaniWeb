@@ -1,5 +1,5 @@
 # Fetching the latest nginx image
-FROM nginx:1.23-alpine
+FROM nginx:1.25
 
 # Removing default nginx.conf
 RUN rm /etc/nginx/conf.d/default.conf
