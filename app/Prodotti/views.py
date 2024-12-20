@@ -154,7 +154,7 @@ def ConfiguraImmaginiArticoli():
     for articolo in articoli:
         immagine_articolo = ImmaginiArticolo()
         immagine_articolo.articolo = articolo
-        immagine_articolo.immagine = "/mediafiles/default_immagine_articolo/saniscope_logo 2.png"
+        immagine_articolo.immagine = "/media/default_immagine_articolo/saniscope_logo 2.png"
         immagine_articolo.save()
         
 #ConfiguraImmaginiArticoli()
