@@ -168,7 +168,7 @@ def configuraImmagini():
         articolo= Prodotto.objects.filter(codice_prodotto=nome_immagine).first()
         if articolo is not None:
             articolo = articolo.immagine_rel
-            articolo.immagine = '/mediafiles/immagini_articoli/' + immagine
+            articolo.immagine = '/media/immagini_articoli/' + immagine
             articolo.save()
 
 #configuraImmagini()
