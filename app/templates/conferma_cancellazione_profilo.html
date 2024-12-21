@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block titolo %} Profilo {% endblock titolo %}
+
+{% block contenuto %}
+
+<div class="container">
+    <div class="row justify-content-center">
+    <div class="col-8">
+<form method="post">{% csrf_token %}
+     
+ 
+ 
+<p class="my-4">Sei sicuro di voler cancellare l'account {{ emailRegistrato }}?</p>
+ 
+ Saranno cancellati i seguenti preventivi
+ 
+ <ul>
+ {% for x in preventivi %}
+    <li> Identificativo  <a href="{% url 'dettaglio_ordine' x.id %}">{{x.id}}</a> - Creato {{x.data}} </li>
+ {% endfor %}
+ </ul>
+
+ Saranno cancellati i seguenti messaggi
+ 
+  <ul>
+    {% for x in messaggi %}
+       <li> Identificato {{x.id}} - Creato {{x.data_richiesta}} </li>
+    {% endfor %}
+    </ul>
+    <input type="submit" class="btn btn-danger" value="Conferma">
+</form>
+</div>
+</div>
+</div>
+{% endblock contenuto %}

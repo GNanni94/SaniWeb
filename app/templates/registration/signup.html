@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Sign Up{% endblock title%}
+
+{% block contenuto %}
+
+
+<div class="container">
+    <div class="row my-4">
+        <div class="col-12">
+
+        <div class="card">
+            <div class="card-header text-center display-6">Registrati</div>
+            <div class="card-body">
+        
+                <form class="row"  method="post" >
+                {% csrf_token %}
+        
+                    <div class="col-md-6">
+                          {{ form.first_name|as_crispy_field }}
+                    </div>
+                
+                    <div class="col-md-6" >
+                       {{ form.cognome_ragione_sociale|as_crispy_field }}
+                        </div>
+
+                        <div class="col-12">
+                            {{ form.email|as_crispy_field }}
+                        </div>
+                  
+
+                    
+                        <div class="col-md-6 ">
+                            {{ form.codiceFiscale_PartitaIVA|as_crispy_field }}
+                        </div>
+                       
+                        <div class="col-md-6">
+                            {{ form.telefono|as_crispy_field }}
+                        </div>
+                    
+                        <div class="col-md-6 ">
+                            {{ form.citta|as_crispy_field }}
+                        </div>    
+
+                        <div class="col-md-6 ">
+                            {{ form.indirizzo|as_crispy_field }}
+                        </div>    
+
+                        <div class="col-md-6 ">
+                            {{ form.password1|as_crispy_field }}
+                        </div>    
+
+                        <div class="col-md-6 ">
+                            {{ form.password2|as_crispy_field }}
+                        </div>    
+               
+                        <div class="col-12 text-center">
+                            <button class="btn btn-success w-30 "  type="submit">Registrati</button>
+                        </div>
+                </form>
+            </div>
+        
+        </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+{% endblock contenuto %}
