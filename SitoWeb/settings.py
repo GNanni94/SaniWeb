@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+import logging.config
+from django.utils.log import DEFAULT_LOGGING
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,13 +23,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--q!k-c1bfeebws@4rc#%_t!ae_t^fn-)!gqzo#t&grj&fb1a@b'
+SECRET_KEY = bool(os.environ.get("DEBUG", default=0))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.100.107',
-                 '127.0.0.1', 'test.saniscope-chimica.it', 'saniscope-chimica.it', 'www.saniscope-chimica.it']
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
+
+CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS").split(" ")
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
 # Application definition
@@ -49,6 +53,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'phonenumber_field',
     'InvioEmail.apps.InvioemailConfig',
+    'cookie_consent',
     
 ]
 
@@ -88,9 +93,13 @@ WSGI_APPLICATION = 'SitoWeb.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.environ.get("SQL_DATABASE", BASE_DIR / "db.sqlite3"),
+        "USER": os.environ.get("SQL_USER", "user"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
+        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        "PORT": os.environ.get("SQL_PORT", "5432"),
     }
 }
 
@@ -130,19 +139,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#MEDIA_ROOT = '/media/'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static/'),
-)
+MEDIA_URL = 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles/')
 
 
 AUTH_USER_MODEL = "Utente.Registrati" #new
@@ -160,5 +164,82 @@ EMAIL_HOST = 'out.postassl.it'
 EMAIL_PORT = 465
 EMAIL_HOST_USER = 'info@saniscope-chimica.it'
 EMAIL_HOST_PASSWORD = 'Term30@1961'
-#EMAIL_USE_TLS = True
 EMAIL_USE_SSL = True
+
+
+# Disable Django's logging setup
+LOGGING_CONFIG = None
+
+LOGLEVEL = os.environ.get('LOGLEVEL', 'info').upper()
+
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'default': {
+            # exact format is not important, this is the minimum information
+            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+        },
+        'django.server': DEFAULT_LOGGING['formatters']['django.server'],
+    },
+    'handlers': {
+        # console logs to stderr
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'default',
+        },
+        'django.server': DEFAULT_LOGGING['handlers']['django.server'],
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'SaniLog.log',
+            'formatter': 'default',
+        },
+    },
+    'loggers': {
+        # default for all undefined Python modules
+        '': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+        },
+        # Our application code
+        'Carrello': {
+            'level': LOGLEVEL,
+            'handlers': ['file'],
+            # Avoid double logging because of root logger
+            'propagate': False,
+        },
+        'InvioEmail': {
+            'level': LOGLEVEL,
+            'handlers': ['file'],
+            # Avoid double logging because of root logger
+            'propagate': False,
+        },
+        'Pagine': {
+            'level': LOGLEVEL,
+            'handlers': ['file'],
+            # Avoid double logging because of root logger
+            'propagate': False,
+        },
+        'Preventivo': {
+            'level': LOGLEVEL,
+            'handlers': ['file'],
+            # Avoid double logging because of root logger
+            'propagate': False,
+        },
+        'Prodotti': {
+            'level': LOGLEVEL,
+            'handlers': ['file'],
+            # Avoid double logging because of root logger
+            'propagate': False,
+        },
+        'Utente': {
+            'level': LOGLEVEL,
+            'handlers': ['file'],
+            # Avoid double logging because of root logger
+            'propagate': False,
+        },
+        # Default runserver request logging
+        'django.server': DEFAULT_LOGGING['loggers']['django.server'],
+    },
+})
