@@ -161,7 +161,7 @@ def ConfiguraImmaginiArticoli():
 
 #INSERIMENTO IMMAGINI
 def configuraImmagini():
-    immagini = os.listdir(os.getcwd() + "/media/immagini_articoli/")
+    immagini = os.listdir(os.getcwd() + "/mediafiles/immagini_articoli/")
     for immagine in immagini:
         posizione_dot = immagine.find('.')
         nome_immagine = immagine[:posizione_dot]
@@ -183,14 +183,14 @@ def ConfiguraSchedeArticoli():
 #ConfiguraSchedeArticoli()
         
 def configuraSchede():
-    schede = os.listdir(os.getcwd() + "/media/schede_tecniche/")
+    schede = os.listdir(os.getcwd() + "/mediafiles/schede_tecniche/")
     for scheda in schede:
         posizione_dot = scheda.find('.')
         nome_scheda = scheda[:posizione_dot]
         articolo= Prodotto.objects.filter(codice_prodotto=nome_scheda).first()
         if articolo is not None:
             articolo = articolo.scheda_rel
-            articolo.scheda = "/media/schede_tecniche/" + scheda
+            articolo.scheda = "/mediafiles/schede_tecniche/" + scheda
             articolo.save()
 
 #configuraSchede()

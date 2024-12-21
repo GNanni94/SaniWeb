@@ -1,0 +1,17 @@
+asgiref==3.8.1
+beautifulsoup4==4.12.3
+crispy-bootstrap5==2024.10
+dj-database-url==2.3.0
+Django==4.2.17
+django-appconf==1.0.6
+django-bootstrap-v5==1.0.11
+django-cookie-consent==0.6.0
+django-cookiebanner==0.2.8
+django-crispy-forms==2.3
+django-phonenumber-field==8.0.0
+gunicorn==23.0.0
+phonenumberslite==8.13.52
+Pillow==11.0.0
+psycopg2-binary==2.9.10
+soupsieve==2.6
+typing_extensions==4.12.2
