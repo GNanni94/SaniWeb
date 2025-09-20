@@ -38,7 +38,7 @@
                                             <img src="{{ elementi_carrello.prodotto.immagine_rel.immagine}}"
                                                 class="img-fluid rounded-3" style="max-height: 170px;"  alt="descrizione">
                                         </div>
-                                        <div class="col-md-3 col-lg-3 col-xl-3">
+                                        <div class="col-md-3 col-lg-4 col-xl-3">
                                             <p>{{ elementi_carrello.prodotto.codice_prodotto }}</p>
                                             <p class="lead fw-normal mb-2">{{ elementi_carrello.prodotto.nome_prodotto }}</p>
                                             <p>{{ elementi_carrello.prodotto.categoria.nome_categoria }}</p>
@@ -50,7 +50,7 @@
                                                 <i class="bi bi-dash-lg"></i>
                                             </a>
                                             -->
-                                            <form action="{%url 'settaggio_quantita' elementi_carrello.pk%}" method="post">
+                                            <form action="{%url 'settaggio_quantita' elementi_carrello.pk%}"  method="post" class="mx-auto" style="max-width: 400px;">
                                                 {% csrf_token %}
                                                 {{form|crispy}}
                                                 <button class="btn btn-default">Aggiorna</button>

@@ -23,15 +23,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = bool(os.environ.get("DEBUG", default=0))
+SECRET_KEY = 'django-insecure--q!k-c1bfeebws@4rc#%_t!ae_t^fn-)!gqzo#t&grj&fb1a@b'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
-
-CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS").split(" ")
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+ALLOWED_HOSTS = ['192.168.100.107',
+                 '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -93,13 +91,9 @@ WSGI_APPLICATION = 'SitoWeb.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
-        "NAME": os.environ.get("SQL_DATABASE", BASE_DIR / "db.sqlite3"),
-        "USER": os.environ.get("SQL_USER", "user"),
-        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
-        "HOST": os.environ.get("SQL_HOST", "localhost"),
-        "PORT": os.environ.get("SQL_PORT", "5432"),
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -139,14 +133,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_URL = 'media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles/')
+#MEDIA_ROOT = '/media/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'assets/'),
+)
 
 
 AUTH_USER_MODEL = "Utente.Registrati" #new
@@ -164,6 +163,7 @@ EMAIL_HOST = 'out.postassl.it'
 EMAIL_PORT = 465
 EMAIL_HOST_USER = 'info@saniscope-chimica.it'
 EMAIL_HOST_PASSWORD = 'Term30@1961'
+#EMAIL_USE_TLS = True
 EMAIL_USE_SSL = True
 
 
@@ -199,7 +199,7 @@ logging.config.dictConfig({
     'loggers': {
         # default for all undefined Python modules
         '': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'handlers': ['console'],
         },
         # Our application code
@@ -243,3 +243,12 @@ logging.config.dictConfig({
         'django.server': DEFAULT_LOGGING['loggers']['django.server'],
     },
 })
+
+
+#SECURE_SSL_REDIRECT = False
+#SECURE_HSTS_SECONDS = 31536000  # 1 year
+#SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+#SECURE_HSTS_PRELOAD = True
+
+#SESSION_COOKIE_SECURE = True
+#CSRF_COOKIE_SECURE = True
