@@ -20,6 +20,8 @@ SitoWeb/__pycache__/
 Utente/__pycache__/
 Utente/migrations/__pycache__/
 
+web/
+
 #ds_store
 .DS_Store
 .DS_Store
