@@ -77,5 +77,16 @@ class Registrati(AbstractUser):
         message = message + "Queste sono le tue credenziali per accedere al sito\n Username: " + self.email + "\nPassword: "+ self.password
 
         from_email = "info@saniscope-chimica.it"
-
-        return super().email_user(subject, message, from_email)
+        try:
+            send_mail(
+                subject,
+                message,
+                from_email,
+                [self.email],
+                fail_silently=False
+            )
+        except SMTPRecipientsRefused as e:
+        # Qui puoi loggare l’errore o gestirlo
+            print("Errore invio email:", e)
+            return redirect('signup')  # nome della tua URL
+        return redirect('home')
