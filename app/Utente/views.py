@@ -45,6 +45,7 @@ class SignUpView(CreateView):
         form_cleaned = form.cleaned_data
         registrato = Registrati()
         registrato.email = form_cleaned.get("email")
+        registrato.username = form_cleaned.get("email")
         registrato.first_name = form_cleaned.get("first_name")
         registrato.cognome_ragione_sociale = form_cleaned.get("cognome_ragione_sociale")
         registrato.codiceFiscale_PartitaIVA = form_cleaned.get("codiceFiscale_PartitaIVA")
@@ -57,8 +58,6 @@ class SignUpView(CreateView):
 
         registrato.email_user()
         return super().form_valid(form)
-    
-
 
 class ProfiloView (TemplateView):
     

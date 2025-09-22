@@ -1,5 +1,6 @@
 # pull official base image
-FROM python:3.14-rc-slim-bookworm
+
+FROM python:3.11.13-slim-trixie
 
 # set work directory
 WORKDIR /usr/src/app
@@ -9,7 +10,8 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # install system dependencies
-RUN apt-get update && apt-get install -y netcat-traditional libpq-dev zlib1g-dev libjpeg-dev gcc
+
+RUN apt-get update && apt-get install -y netcat-traditional
 
 # install dependencies
 RUN pip install --upgrade pip

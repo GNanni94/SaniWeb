@@ -2,7 +2,13 @@ from typing import Any
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.models import AbstractUser, AbstractBaseUser
+import re
+from django.core.exceptions import ValidationError
 
+def valida_numero_telefono(valore):
+    pattern = r'^\+?\d{8,15}$'  # Esempio semplice: numeri tra 8 e 15 cifre, opzionale '+'
+    if not re.match(pattern, valore):
+        raise ValidationError('Numero di telefono non valido.')
 
 # Create your models here.
 class Cliente(models.Model):
@@ -11,7 +17,9 @@ class Cliente(models.Model):
     email = models.EmailField(max_length=150,blank=True)
     indirizzo = models.CharField(max_length=255, blank=True)
     citta = models.CharField(max_length=255, blank=True)
-    telefono = PhoneNumberField(null=False, blank=True)
+    #telefono = PhoneNumberField(null=False, blank=True)
+    telefono = models.CharField(max_length= 15, null=False, blank=True, validators=[valida_numero_telefono])
+    
 
 
     class Meta:
@@ -43,15 +51,13 @@ class Richiesta_messaggio (models.Model):
         verbose_name_plural = "Richiesta_messaggi"
 
 
-
-class Registrati(AbstractUser, AbstractBaseUser):
+class Registrati(AbstractUser):
     email= models.EmailField(max_length=40, unique=True)
     cognome_ragione_sociale = models.CharField(max_length=50, blank=True, null=False)
     codiceFiscale_PartitaIVA= models.CharField(max_length=16)
     indirizzo = models.CharField(max_length=255, blank=True)
     citta = models.CharField(max_length=255, blank=True)
-    telefono = PhoneNumberField(null=False, blank=True )
-    #username = models.CharField(max_length=30, blank=True)
+    telefono = models.CharField(max_length= 15, null=False, blank=True, validators=[valida_numero_telefono])
     
     REQUIRED_FIELDS = []
     USERNAME_FIELD = "email"
@@ -71,5 +77,16 @@ class Registrati(AbstractUser, AbstractBaseUser):
         message = message + "Queste sono le tue credenziali per accedere al sito\n Username: " + self.email + "\nPassword: "+ self.password
 
         from_email = "info@saniscope-chimica.it"
-
-        return super().email_user(subject, message, from_email)
+        try:
+            send_mail(
+                subject,
+                message,
+                from_email,
+                [self.email],
+                fail_silently=False
+            )
+        except SMTPRecipientsRefused as e:
+        # Qui puoi loggare l’errore o gestirlo
+            print("Errore invio email:", e)
+            return redirect('signup')  # nome della tua URL
+        return redirect('home')
