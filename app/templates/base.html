@@ -144,9 +144,8 @@
           </a>
           <ul class="dropdown-menu" id="dropdownCategorie">
             {% for lista in categoria %}
-              <li><a class="dropdown-item fs-6" href="{% url 'dettaglio_categoria' lista.pk %}">{{lista.nome_categoria}}</a></li>
+                <li><a class="dropdown-item fs-6" href="{% url 'dettaglio_categoria' lista.pk %}">{{lista.nome_categoria}}</a></li>
             {% endfor %}
-            
           </ul>
         </li>
         
@@ -212,7 +211,7 @@
                 <li><a class="dropdown-item bg-dark text-white" href="{% url 'profilo' user.pk %}">Profilo</a></li>
                 <li><a class="dropdown-item bg-dark text-white" href="{% url 'password_change' %}">Cambia password</a></li>
                 <li><a class="dropdown-item bg-dark text-white" href="{% url 'lista_ordini'%}">Lista preventivi</a></li>    
-                <li><a class="dropdown-item bg-dark text-danger" href={% url 'eliminaProfilo' user.pk %}>Elimina</a></li>
+                <li><a class="dropdown-item bg-dark text-danger" href="{% url 'eliminaProfilo' user.pk %}">Elimina</a></li>
                 <li><a class="dropdown-item bg-dark text-white" href="{% url 'logout' %}">Log Out</a></li>
               </ul>
             </div>  

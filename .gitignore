@@ -20,6 +20,21 @@ SitoWeb/__pycache__/
 Utente/__pycache__/
 Utente/migrations/__pycache__/
 
+app/Carrello/__pycache__/
+app/Carrello/migrations/__pycache__/
+app/InvioEmail/__pycache__/
+app/Pagine/__pycache__/
+app/Pagine/migrations/__pycache__/
+app/Preventivo/__pycache__/
+app/Preventivo/migrations/__pycache__/
+app/Prodotti/__pycache__/
+app/Prodotti/migrations/__pycache__/
+app/SitoWeb/__pycache__/
+app/Utente/__pycache__/
+app/Utente/migrations/__pycache__/
+app/SaniLog.log
+web/
+
 #ds_store
 .DS_Store
 .DS_Store
