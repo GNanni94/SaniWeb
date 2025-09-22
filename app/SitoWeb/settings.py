@@ -243,7 +243,3 @@ logging.config.dictConfig({
         'django.server': DEFAULT_LOGGING['loggers']['django.server'],
     },
 })
-<<<<<<< HEAD
-
-=======
->>>>>>> develop
