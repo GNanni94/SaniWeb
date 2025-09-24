@@ -19,8 +19,6 @@ class Cliente(models.Model):
     citta = models.CharField(max_length=255, blank=True)
     #telefono = PhoneNumberField(null=False, blank=True)
     telefono = models.CharField(max_length= 15, null=False, blank=True, validators=[valida_numero_telefono])
-    
-
 
     class Meta:
         db_table = "Cliente"
@@ -77,13 +75,5 @@ class Registrati(AbstractUser):
         message = message + "Queste sono le tue credenziali per accedere al sito\n Username: " + self.email + "\nPassword: "+ self.password
 
         from_email = "info@saniscope-chimica.it"
-        
-        send_mail(
-            subject,
-            message,
-            from_email,
-            [self.email],
-            fail_silently=True
-        )
-        
-        return redirect('home')
+
+        return super().email_user(subject, message, from_email)

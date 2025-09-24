@@ -43,9 +43,9 @@ class Sottocategoria(models.Model):
 
 class Prodotto(models.Model):
     codice_prodotto=models.CharField(max_length=10, blank=True)
-    nome_prodotto=models.CharField(max_length=50,blank=True)
+    nome_prodotto=models.CharField(max_length=300,blank=True)
     descrizione=models.CharField(max_length=250, blank=True, null=True)
-    unita_di_misura = models.CharField(max_length=2,null=True)
+    unita_di_misura = models.CharField(max_length=4,null=True)
     precursore = models.CharField(max_length=250, blank=True, null=True)
     gruppo=models.IntegerField(null=True)
     categoria=models.ForeignKey("Categoria", on_delete=models.CASCADE, blank=True, null=True)
@@ -86,7 +86,7 @@ class ImmaginiArticolo(models.Model):
 
 class SchedeTecniche (models.Model):
     articolo = models.OneToOneField(Prodotto, on_delete= models.CASCADE, null=True, related_name='scheda_rel')
-    data_inizio = models.DateTimeField(default = datetime.datetime.now())
+    data_inizio = models.DateTimeField(default = datetime.datetime.now)
     data_fine = models.DateTimeField(null =True)
     scheda = models.FileField(upload_to ="schede_tecniche/", null=True)
     

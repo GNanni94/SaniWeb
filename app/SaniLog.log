@@ -225,3 +225,9 @@
 2025-09-19 17:16:18,600 Carrello.views INFO     Richiesta aggiunta prodotto 2 al carrello dell'utente 13
 2025-09-20 08:51:10,419 Utente.backends INFO     Si è loggato l'utente info@saniscope-chimica.it
 2025-09-20 08:51:24,572 Carrello.views INFO     Richiesta aggiunta prodotto 35 al carrello dell'utente 1
+2025-09-24 21:17:09,457 Utente.backends INFO     Si è loggato l'utente info@saniscope-chimica.it
+2025-09-24 22:11:32,077 Utente.backends INFO     Si è loggato l'utente info@saniscope-chimica.it
+2025-09-24 22:12:17,267 Utente.forms INFO      sadasdasdasdasda che arriva
+2025-09-24 22:12:29,026 Utente.forms INFO      sadasdasdasdasda che arriva
+2025-09-24 22:12:29,036 Utente.views INFO     Si è registarto con l'email frank-1996@hotmail.it
+2025-09-24 22:13:11,602 Utente.backends INFO     Si è loggato l'utente frank-1996@hotmail.it

@@ -8,7 +8,7 @@ import datetime
 class Preventivo (models.Model):
 
     cliente = models.ForeignKey(Registrati, on_delete=models.CASCADE, related_name='ordini')
-    data = models.DateTimeField(default = datetime.datetime.now())
+    data = models.DateTimeField(default = datetime.datetime.now)
     
     def __str__(self):
         return  str(self.pk)+ " "+ str(self.cliente.username)
