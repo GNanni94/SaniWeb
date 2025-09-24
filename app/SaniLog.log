@@ -231,3 +231,7 @@
 2025-09-24 22:12:29,026 Utente.forms INFO      sadasdasdasdasda che arriva
 2025-09-24 22:12:29,036 Utente.views INFO     Si è registarto con l'email frank-1996@hotmail.it
 2025-09-24 22:13:11,602 Utente.backends INFO     Si è loggato l'utente frank-1996@hotmail.it
+2025-09-24 22:54:01,190 Utente.backends INFO     Si è loggato l'utente info@saniscope-chimica.it
+2025-09-24 23:17:10,616 InvioEmail.views INFO     Email preventivo dell'utente con id: 2 ed email g.nanni94@hotmail.it
+2025-09-24 23:17:17,837 InvioEmail.views INFO     Email preventivo dell'utente con id: 3 ed email 
+2025-09-24 23:20:17,105 InvioEmail.views INFO     Email preventivo dell'utente con id: 4 ed email g.nanni94@hotmail.it

@@ -18,7 +18,7 @@ def messaggio(request):
         cliente = ClienteForm(request.POST)
         messaggio = MessaggioForm(request.POST)
         if cliente.is_valid() and messaggio.is_valid():
-            logger.info(f"Messaggio dell'utente con id: {request.user.pk} ed email {request.user.email}")
+            #logger.info(f"Messaggio dell'utente con id: {request.user.pk} ed email {request.user.email}")
             cliente_obj = cliente.save()
             messaggio_obj = messaggio.save()
             richiesta = Richiesta_messaggio()
@@ -27,7 +27,7 @@ def messaggio(request):
             richiesta.save()
             emailMessaggio(request, cliente_obj, messaggio_obj)
             
-            return render(request, "contatti.html", )
+            return render(request, "home.html", )
     else:
         cliente = ClienteForm()
         messaggio = MessaggioForm()
