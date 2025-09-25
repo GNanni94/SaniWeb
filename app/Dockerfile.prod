@@ -3,7 +3,7 @@
 ###########
 
 # pull official base image
-FROM python:3.13.7-slim-trixie as builder
+FROM python:3.13.7-slim-trixie AS builder
 
 # set work directory
 WORKDIR /usr/src/app
