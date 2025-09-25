@@ -1,6 +1,6 @@
 # pull official base image
 
-FROM python:3.11.13-slim-trixie
+FROM python:3.13.7-slim-trixie
 
 # set work directory
 WORKDIR /usr/src/app
