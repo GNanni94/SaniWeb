@@ -3,11 +3,7 @@
 ###########
 
 # pull official base image
-<<<<<<< HEAD
-FROM python:3.14-rc-slim-bookworm as builder
-=======
 FROM python:3.11.13-slim-trixie as builder
->>>>>>> nuoveModifichePerAutenticazione
 
 # set work directory
 WORKDIR /usr/src/app
