@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Prodotti.apps.ProdottiConfig',
     'Pagine.apps.PagineConfig',
-    'bootstrap5',
     'Carrello.apps.CarrelloConfig',
     'Preventivo.apps.PreventivoConfig',
     'Utente.apps.UtenteConfig',
