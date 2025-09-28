@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'phonenumber_field',
     'InvioEmail.apps.InvioemailConfig',
-    'cookiebanner ',
+    'cookiebanner',
     
 ]
 
@@ -201,8 +201,8 @@ COOKIEBANNER = {
             "optional": True,
             "cookies": [
                 {
-                    "pattern": "_pk_.*",
-                    "description": _("Matomo cookie for website analysis."),
+                    "pattern": "gtag",
+                    "description": _("Google cookie for website analysis."),
                 },
             ],
         },
