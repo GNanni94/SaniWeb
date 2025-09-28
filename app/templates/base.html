@@ -339,99 +339,21 @@
     </div>
   </footer>
 
+{% cookiebanner_modal 'vanilla' %}
 
+<button onclick="document.querySelector('#cookiebannerModal').classList.remove('hidden')">change cookie preferences</button>
 
-
-
-
-
-  {% load cookie_consent_tags %}
-    
-    {% if not_tracking %}
-        {% include "cookie_consent/banner.html" %}
-    {% endif %}
-
-
-
-
-
-
-
-
-
-
-  {% url "cookie_consent_cookie_group_list" as url_cookies %}
-<template id="cookie-consent__cookie-bar">
-  <div class="cookie-bar">
-      <span>This site uses cookies for better performance and user experience.
-      Do you agree to use these cookies?</span>
-      <button type="button" class="cookie-consent__accept">Accetta e continua</button>
-      <a href="{{ url_cookies }}">Cookies info</a>
-  </div>
-</template>
-
-<template id="analytics-scripts">
-  <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-KXYD9R1HXB" type="text/plain" data-cookieconsent="statistics"></script>
+{% cookie_accepted 'analytics' as cookie_analytics %}
+{% if cookie_analytics %}
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-KXYD9R1HXB" type="text/plain" data-cookieconsent="statistics"></script>
   <script type="text/javascript">
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
 
     gtag('config', 'G-KXYD9R1HXB');
-  </script>
-</template>
-
-  {% url 'cookie_consent_status' as status_url %}
-  {% include "./show-cookie-bar-script.html" with status_url=status_url %}
- 
-
-<style>
-
-  .cookie-bar {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background: #333;
-    color: #fff;
-    text-align: center;
-    padding: 15px;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    grid-gap: 10px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.cookie-bar button {
-    margin: 5px;
-    padding: 10px 20px;
-    background: #007BFF;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-.cookie-bar button:hover {
-    background: #0056b3;
-}
-
-.cookie-bar a {
-    color: #00aaff;
-    text-decoration: none;
-    margin-left: 10px;
-    font-size: 14px;
-}
-
-.cookie-bar a:hover {
-    text-decoration: underline;
-}
-
-</style>  
+     </script>
+{% endif %}
 
 
 </body>
