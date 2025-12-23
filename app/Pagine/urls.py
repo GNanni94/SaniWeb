@@ -11,5 +11,6 @@ urlpatterns = [
     #path("Contatti", TemplateView.as_view(template_name="contatti.html"), name = "contatti"),
     path("Contatti", include("Utente.urls")),
     path("Documenti", DocumentoView.as_view(), name="documenti"),
+    path("logoEmail", emplateView.as_view(template_name="logoEmail.html"), name="logoEmail"),
 
 ]
