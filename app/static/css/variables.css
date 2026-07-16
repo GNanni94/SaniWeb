@@ -1,0 +1,14 @@
+/* Design tokens: unico punto da modificare per cambiare colori/font in tutto il sito */
+:root {
+  --color-primary: #1B5AA0;      /* sfondo navbar; testo del bottone Login/Carrello */
+  --color-primary-dark: #123F73; /* sfondo footer; hover del bottone Login/Carrello */
+  --color-accent: #FFFFFF;       /* sfondo bottone "Registrati"; hover link footer */
+  --color-accent-dark: #227A54;  /* hover del bottone "Registrati" */
+  --color-bg: #FFFFFF;           /* sfondo/bordo del bottone Login/Carrello (bianco pieno) */
+  --color-bg-alt: #F5F6F8;       /* hover link navbar; hover del bottone Login/Carrello */
+  --color-text: #33383D;         /* colore testo di base del sito (su sfondo chiaro) */
+  --color-text-light: #FFFFFF;   /* colore testo su sfondi blu (navbar, footer, bottone Registrati) */
+
+  --font-base: 'Inter', sans-serif; /* font di base per tutto il sito */
+  --font-heading: 'Barlow Semi Condensed', sans-serif; /* font per titoli (es. "CATEGORIE" e nomi categoria nelle card) */
+}

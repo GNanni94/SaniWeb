@@ -4,6 +4,7 @@ services:
       context: ./app
       dockerfile: Dockerfile.prod
     command: gunicorn SitoWeb.wsgi:application --bind 0.0.0.0:8000
+    restart: unless-stopped
     volumes:
       - static_volume:/home/app/web/staticfiles
       - media_volume:/home/app/web/mediafiles
@@ -15,6 +16,7 @@ services:
       - db
   db:
     image: postgres:15
+    restart: unless-stopped
     volumes:
       - postgres_data_staging:/var/lib/postgresql/data/
     ports:
@@ -23,6 +25,7 @@ services:
       - ./.env.staging.db
   nginx:
     build: ./nginx
+    restart: unless-stopped
     volumes:
       - static_volume:/home/app/web/staticfiles
       - media_volume:/home/app/web/mediafiles

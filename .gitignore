@@ -37,4 +37,10 @@ web/
 
 #ds_store
 .DS_Store
-.DS_Store
+
+#file .md
+*.md
+Docs/
+
+#log
+app/SaniLog.log

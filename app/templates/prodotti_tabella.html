@@ -10,7 +10,13 @@
             <div>
                 <div class="table-responsive py-5" >
                     <h2>{{nome_categoria}}</h2>
-                    <table id="listProdottiTable" class="table table-striped table-bordered">
+                    <select id="filtroSottocategoria" class="form-select form-select-sm w-auto d-none">
+                        <option value="">Tutte le sottocategorie</option>
+                        {% for sc in sottocategorie %}
+                            <option value="{{ sc.nome_sottocategoria }}">{{ sc.nome_sottocategoria }}</option>
+                        {% endfor %}
+                    </select>
+                    <table id="listProdottiTable" class="table table-striped table-bordered" style="text-align: left;">
                         <thead>
                             <tr>
                                 <th>CODICE PRODOTTO</th>
@@ -18,7 +24,7 @@
                                 <th>UNITA DI MISURA</th>
                                 <th>CATEGORIA</th>
                                 <th>SottoCategoria</th>
-                                <th>Aggiungi al carrello</th>
+                                <th style="text-align: right;">Aggiungi al carrello</th>
 
                             </tr>
                         </thead>
@@ -26,21 +32,30 @@
                             {% for x in prodotti %}
                             <tr>
                                 <td>{{x.codice_prodotto}}</td>
-                                <td>{{x.nome_prodotto}} <br> 
-                                    {% if x.descrizione %}
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="flex-grow-1 text-break" style="min-width: 0;">
+                                            {{x.nome_prodotto}} <br>
+                                            {% if x.descrizione %}
 
-                                        <i>{{x.descrizione}} </i> 
-                                    {% endif %}
-                                    {% if x.precursore %}
-                                        <br>
-                                        <i>{{x.precursore}}</i>
-                                        
-                                    {% endif %}
+                                                <i>{{x.descrizione}} </i>
+                                            {% endif %}
+                                            {% if x.precursore %}
+                                                <br>
+                                                <i>{{x.precursore}}</i>
+
+                                            {% endif %}
+                                        </span>
+                                        <a class="btn btn-primary btn-sm d-sm-none ms-2 flex-shrink-0" href="{% url 'aggiungi_prodotti' x.pk%}"
+                                            title="Aggiungi al carrello">
+                                            <i class="bi bi-cart3"></i>
+                                        </a>
+                                    </div>
                                 </td>
                                 <td>{{x.unita_di_misura}}</td>
                                 <td>{{x.categoria.nome_categoria}}</td>
                                 <td>{{x.sottocategoria.nome_sottocategoria}}</td>
-                                <td>
+                                <td style="text-align: right;">
                                     <a class="btn btn-primary"
                                         href="{% url 'aggiungi_prodotti' x.pk%}">Aggiungi al carrello</a>
 
@@ -57,9 +72,98 @@
 <script type="text/javascript">
 
 $(document).ready(function () {
+    // Tipo di paginazione personalizzato: mostra sempre la prima pagina (1) e
+    // l'ultima (33), e un solo numero centrale che rappresenta la pagina
+    // corrente (di default "2" quando si e' in pagina 1, poi sostituito dal
+    // numero della pagina corrente man mano che ci si sposta), invece della
+    // finestra di piu' numeri consecutivi che offre di default DataTables
+    $.fn.dataTable.ext.pager.uno_corrente_ultimo = function (page, pages) {
+        var numbers;
+
+        if (pages <= 3) {
+            // Poche pagine in tutto: le mostriamo tutte, l'ellissi non serve
+            numbers = [];
+            for (var i = 0; i < pages; i++) {
+                numbers.push(i);
+            }
+        }
+        else if (page === 0) {
+            numbers = [0, 1, 'ellipsis', pages - 1]; // pagina 1: "1 2 ... 33"
+        }
+        else if (page === pages - 1) {
+            numbers = [0, 'ellipsis', pages - 1]; // ultima pagina: "1 ... 33"
+        }
+        else {
+            numbers = [0, page, 'ellipsis', pages - 1]; // pagine intermedie: "1 [corrente] ... 33"
+        }
+
+        numbers.DT_el = 'span';
+        return ['previous', numbers, 'next'];
+    };
+
     $('#listProdottiTable').DataTable({
+        "pagingType": "uno_corrente_ultimo",
+        "responsive": {
+            // Soglia fissa (576px, la stessa usata altrove nel sito per "telefono")
+            // invece di lasciare che DataTables decida da solo in base al contenuto:
+            // con testi brevi (es. "Kg") le colonne "ci starebbero" comunque compresse
+            // senza mai passare al "+", quindi serve un limite di larghezza esplicito
+            "breakpoints": [
+                { "name": "desktop", "width": Infinity },
+                { "name": "phone", "width": 576 }
+            ],
+            "details": {
+                // Renderer come quello di default di DataTables Responsive, ma
+                // esclude la colonna "Aggiungi al carrello" (indice 5) dalla lista:
+                // combinare le classi "min-phone" e "none" non basta (bug di
+                // parsing nella libreria quando sono unite), quindi la si esclude
+                // qui a mano - l'icona nella cella del NOME la sostituisce gia'
+                "renderer": function (api, rowIdx, columns) {
+                    var data = columns
+                        .filter(function (col) {
+                            return col.hidden && col.columnIndex !== 5;
+                        })
+                        .map(function (col) {
+                            return '<li data-dtr-index="' + col.columnIndex + '" data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
+                                '<span class="dtr-title">' + col.title + '</span> ' +
+                                '<span class="dtr-data">' + col.data + '</span>' +
+                                '</li>';
+                        })
+                        .join('');
+
+                    return data ? $('<ul data-dtr-index="' + rowIdx + '" class="dtr-details"/>').append(data) : false;
+                }
+            }
+        },
+        "columnDefs": [
+            { "className": "all", "targets": 1 },                    // NOME: sempre visibile, a sinistra
+            { "className": "min-phone", "targets": [0, 2, 3, 4, 5] } // resto: visibile da 576px in su, sotto nascosto (0,2,3,4 nel "+", 5 escluso dal renderer sopra)
+        ],
         "language": {
             "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/it-IT.json"
+        },
+        "initComplete": function () {
+            var api = this.api();
+
+            // Mette "Cerca:", il filtro sottocategoria e "Mostra x elementi"
+            // (generati separatamente da DataTables) su un'unica riga, col
+            // filtro sottocategoria centrato tra gli altri due
+            var $riga = $('<div class="dt-controls-row"></div>');
+            $('#listProdottiTable_length').before($riga);
+            $riga.append(
+                $('#listProdottiTable_filter'),
+                $('#filtroSottocategoria').removeClass('d-none'),
+                $('#listProdottiTable_length')
+            );
+
+            $('#filtroSottocategoria').on('change', function () {
+                var valore = $(this).val();
+                // Ricerca esatta (non per sottostringa) sulla colonna SottoCategoria
+                // (indice 4), altrimenti selezionare una sottocategoria il cui nome
+                // e' contenuto in quello di un'altra la filtrerebbe assieme
+                var termine = valore ? '^' + $.fn.dataTable.util.escapeRegex(valore) + '$' : '';
+                api.column(4).search(termine, true, false).draw();
+            });
         }
     });
 });

@@ -1,60 +1,146 @@
-.fotoStoriaAziendaMobile {
-    display: none;
+body {
+  font-family: var(--font-base);
+  color: var(--color-text);
 }
 
+/* Simboli "+" e "-" dei controlli di zoom della mappa Leaflet nella
+   pagina contatti: forzati al nero, invece del colore link di default */
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+  color: #000;
+}
+
+/* Footer */
+.site-footer {
+  background-color: var(--color-primary-dark);
+  color: var(--color-text-light);
+}
+
+.site-footer a {
+  color: var(--color-text-light);
+}
+
+.site-footer a:hover,
+.site-footer a:focus {
+  color: var(--color-text-light);
+}
+
+.footer-social a {
+  font-size: 1.5rem;
+  margin: 0 0.5rem;
+}
 
 /* media query base html */
-
 @media screen and (max-width: 992px) {
-    
-    
-    #bottoniLoginSignup{
-        display: -webkit-inline-box;
-    }
 
-    
-    #linkfooterlogo{
-        font-size: small;
-        display: inline-grid;
-        justify-content: center !important;
-    }
-
-    
-    #EtichettaturaAmbientale{
-        padding-top: 25px;
-        display: inline-grid;
-        justify-content: center !important;
-    }
-
-    
-    #linkIconefooter{
-        justify-content: center !important;
-        padding-top: 25px;
-        /*padding-right: 40%;*/
-    }
-
-
-
+  .footer-brand,
+  .footer-links {
+    text-align: center;
   }
 
-  /* media query storia azienda */
-
-
-  @media screen and (max-width: 1200px) {
-
-    .fotoStoriaAzirenda{
-        display: none;
-    }
-
-    .fotoStoriaAziendaMobile{
-        display: flex !important;
-    }
-
-  }   
-
-
-.dropdown:hover .dropdown-menu {
-    display: block;
+  .site-footer .footer-social {
+    width: 100%; /* senza questo la colonna (col-lg-4, senza taglia per schermi piu' stretti) si restringe al contenuto e "justify-content: center" non ha spazio per centrare davvero le icone */
+    justify-content: center !important; /* selettore con due classi (invece di una sola) apposta: mdb.min.css, caricato dopo main.css in base.html, ridefinisce ".justify-content-end" con !important, e a parita' di specificita' vincerebbe lui in quanto caricato per ultimo */
+    padding-top: 1rem;
+  }
 }
 
-  
+/* Catalogo: titolo "CATEGORIE" e nome categoria nelle card con il font
+   per i titoli invece del font di base del sito */
+.catalogo-titolo,
+#home_contenitore_immagineCategorie .card-title {
+  font-family: var(--font-heading);
+}
+
+/* Catalogo: sotto i 576px la classe "col-6" (aggiunta in catalogo.html)
+   mette 2 card per riga (a coppie), ma la dimensione delle card e'
+   fissata inline (pensata per schermi piu' larghi) quindi va ridotta
+   qui - serve !important perche' e' l'unico modo per battere uno style
+   inline. Rimpicciolito anche il titolo, altrimenti "display-6" (pensato
+   per card da 16-18rem) trabocca da una card cosi' piccola */
+@media (max-width: 575.98px) {
+  #home_contenitore_immagineCategorie,
+  #home_immaginiCategorie {
+    min-width: 10rem !important;
+    max-width: 11rem !important;
+    min-height: 10rem !important;
+    max-height: 11rem !important;
+  }
+
+  #home_contenitore_immagineCategorie .card-title {
+    font-size: 1rem;
+  }
+}
+
+/* Tabella prodotti (DataTables): sotto i 576px il testo "Showing x to y..."
+   (con "float" di default) non ci sta piu' affiancato alla paginazione e
+   va a capo in modo disordinato: lo mettiamo su una riga propria a piena
+   larghezza */
+@media (max-width: 575.98px) {
+  #listProdottiTable_wrapper .dataTables_info {
+    float: none;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Tabella prodotti (DataTables): riga con "Mostra x elementi", il filtro
+   sottocategoria e "Cerca:" - tre colonne (sinistra/centro/destra) cosi'
+   il filtro sottocategoria resta centrato sulla riga indipendentemente
+   dalla larghezza degli altri due controlli */
+#listProdottiTable_wrapper .dt-controls-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: .5rem;
+}
+
+#listProdottiTable_wrapper .dt-controls-row > #listProdottiTable_filter {
+  justify-self: start;
+}
+
+#listProdottiTable_wrapper .dt-controls-row > #filtroSottocategoria {
+  justify-self: center;
+}
+
+#listProdottiTable_wrapper .dt-controls-row > #listProdottiTable_length {
+  justify-self: end;
+}
+
+/* Tabella prodotti (DataTables): paginazione sempre centrata orizzontalmente
+   (di default e' allineata a destra), cosi' non si sposta quando il numero
+   di pulsanti visibili cambia (es. con o senza "..."). Tenuta su un'unica
+   riga, scorrevole se non dovesse comunque starci */
+#listProdottiTable_wrapper .dataTables_paginate {
+  float: none;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+/* Tabella prodotti (DataTables): nasconde del tutto (invece di limitarsi a
+   disattivarlo in grigio) il pulsante "Precedente" quando si e' in prima
+   pagina, e "Successivo" quando si e' nell'ultima. DataTables aggiunge gia'
+   la classe "disabled" a questi pulsanti quando non sono utilizzabili */
+#listProdottiTable_wrapper .paginate_button.previous.disabled,
+#listProdottiTable_wrapper .paginate_button.next.disabled {
+  display: none;
+}
+
+/* media query storia azienda */
+.fotoStoriaAziendaMobile {
+  display: none;
+}
+
+@media screen and (max-width: 1200px) {
+
+  .fotoStoriaAzirenda {
+    display: none;
+  }
+
+  .fotoStoriaAziendaMobile {
+    display: flex !important;
+  }
+}

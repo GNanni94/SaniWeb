@@ -1,0 +1,146 @@
+/* Navbar */
+.site-navbar {
+  background-color: var(--color-primary);
+  position: relative;
+}
+
+/* Sotto la soglia xxl (hamburger attivo): il pannello del menu e' sempre
+   in overlay (assoluto), anche durante l'animazione di apertura di Bootstrap,
+   cosi' scivola sopra il contenuto invece di spingerlo giu' senza scatti */
+@media (max-width: 1399.98px) {
+  #navbarSupportedContent {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: var(--color-primary);
+    z-index: 1030;
+    padding: 0 1rem; /* niente padding-bottom qui: essendo l'elemento la cui altezza viene animata, un padding verticale lascerebbe un pezzetto di sfondo residuo quando l'altezza arriva a 0 (vedi padding-bottom spostato su .navbar-text) */
+  }
+
+  #navbarSupportedContent.show {
+    height: auto !important;
+  }
+
+  /* Padding-bottom spostato qui (invece che su #navbarSupportedContent):
+     essendo un elemento interno non animato, viene tagliato via pulito
+     da overflow:hidden durante la chiusura, senza lasciare residui blu.
+     display:block e' necessario perche' .navbar-text di default e' uno
+     <span> inline: senza, il suo padding verticale non verrebbe conteggiato
+     nell'altezza del pannello (height:auto) e i bottoni sporgerebbero fuori
+     dal blu */
+  #navbarSupportedContent .navbar-text {
+    display: block;
+    padding-bottom: 1rem;
+  }
+
+  /* Rallenta leggermente la discesa dello sfondo blu del menu hamburger,
+     cosi' da lasciare respiro prima che compaiano le voci sotto */
+  #navbarSupportedContent.collapsing {
+    transition: height .3s ease; /* uguale alla durata del fade dei contenuti, cosi' allo sfondo (che si riduce sia in apertura che in chiusura) non resta un pezzetto visibile dopo che voci/bottoni sono gia' scomparsi */
+  }
+
+  /* Stato di partenza delle voci del menu e dei bottoni
+     Login/Registrati nascosto, prima che lo sfondo abbia finito di scendere */
+  #navbarSupportedContent .navbar-nav > .nav-item,
+  #navbarSupportedContent .navbar-text {
+    opacity: 0; /* invisibile all'inizio (0 = trasparente, 1 = visibile) */
+    transform: translateY(-1px); /* punto di partenza: 1px piu' in alto della posizione finale */
+    transition: opacity .08s ease, transform .08s ease; /* durata (.08s) e velocita' (ease) con cui opacity e transform passano dal valore di partenza a quello finale: piu' e' bassa, piu' la comparsa di ogni singola voce e' immediata */
+  }
+
+  /* Stato finale (visibile): agganciato ad aria-expanded="true" sul bottone
+     hamburger (sibling del pannello) invece che a .show, perche' Bootstrap
+     imposta aria-expanded="true" subito all'avvio dell'apertura, non a fine
+     animazione come .show - cosi' le voci iniziano a comparire mentre lo
+     sfondo blu sta ancora scendendo, non dopo */
+  .navbar-toggler[aria-expanded="true"] ~ #navbarSupportedContent .navbar-nav > .nav-item,
+  .navbar-toggler[aria-expanded="true"] ~ #navbarSupportedContent .navbar-text {
+    opacity: 1; /* completamente visibile */
+    transform: translateY(0); /* posizione verticale definitiva, nessuno spostamento */
+  }
+
+  /* Alla chiusura (aria-expanded torna a "false" subito) scompaiono
+     tutti insieme, senza sfasamento */
+  .navbar-toggler[aria-expanded="false"] ~ #navbarSupportedContent .navbar-nav > .nav-item,
+  .navbar-toggler[aria-expanded="false"] ~ #navbarSupportedContent .navbar-text {
+    transition-delay: 0s; /* nessuna attesa: si nascondono tutti insieme appena parte la chiusura */
+  }
+
+  /* Sfasamento crescente tra una voce e l'altra del menu, cosi' compaiono
+     una dopo l'altra invece che tutte insieme */
+  #navbarSupportedContent .navbar-nav > .nav-item:nth-child(1) { transition-delay: .03s; } /* Azienda: nessuna attesa, parte subito */
+  #navbarSupportedContent .navbar-nav > .nav-item:nth-child(2) { transition-delay: .06s; } /* Catalogo */
+  #navbarSupportedContent .navbar-nav > .nav-item:nth-child(3) { transition-delay: .09s; } /* Documenti */
+  #navbarSupportedContent .navbar-nav > .nav-item:nth-child(4) { transition-delay: .12s; } /* Contatti */
+
+  /* I bottoni Login/Registrati (o carrello/profilo se loggato) compaiono per ultimi */
+  #navbarSupportedContent .navbar-text { transition-delay: .15s; } /* attesa minima: compaiono subito dopo le voci del menu */
+}
+
+/* Disattiva l'animazione a comparsa per chi ha impostato la preferenza
+   di sistema per ridurre le animazioni */
+@media (prefers-reduced-motion: reduce) {
+  #navbarSupportedContent .navbar-nav > .nav-item,
+  #navbarSupportedContent .navbar-text {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Icona hamburger: colore delle 3 linee = bianco (sta su sfondo blu navbar).
+   Nota: un SVG data-URI non puo' leggere le custom property CSS,
+   quindi il colore va aggiornato qui a mano se cambia lo sfondo della navbar. */
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23FFFFFF' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+.site-navbar .nav-link,
+.site-navbar .navbar-brand {
+  color: var(--color-text-light);
+}
+
+.site-navbar .nav-link:hover,
+.site-navbar .nav-link:focus {
+  color: var(--color-text-light);
+}
+
+/* Menu "Catalogo": si apre al passaggio del mouse (oltre che al click)
+   solo quando la navbar e' espansa orizzontalmente, per non interferire
+   col comportamento a tocco della versione mobile con hamburger */
+@media (min-width: 1400px) {
+  .site-navbar .navbar-nav > .nav-item.dropdown:hover > .dropdown-menu {
+    display: block;
+    margin-top: 0;
+  }
+}
+
+/* Colori del sito applicati al menu a tendina delle categorie (invece
+   del bianco/nero di default di Bootstrap) */
+#dropdownCategorie {
+  background-color: var(--color-bg); /* sfondo bianco, coerente col resto del sito (non il blu della navbar, per non appesantire) */
+  border: 3px solid var(--color-primary); /* bordo dello stesso blu della navbar, per collegarla visivamente al menu da cui esce */
+  border-radius: .5rem; /* angoli arrotondati del riquadro del menu */
+  overflow: hidden; /* taglia gli angoli delle voci interne seguendo l'arrotondamento del contenitore */
+  padding: 0; /* di default Bootstrap mette .5rem di padding sopra/sotto: lo togliamo cosi' la prima e l'ultima voce toccano i bordi del menu e i loro angoli possono combaciare con quelli del contenitore */
+}
+
+#dropdownCategorie .dropdown-item {
+  color: var(--color-text); /* testo nello stesso grigio scuro usato nel resto del sito */
+  border: 1px solid transparent; /* bordo invisibile di riserva, stesso spessore di quello dell'hover: evita che la voce "salti" di 1px quando il bordo compare */
+  border-radius: 5px; /* raggio del contenitore (.5rem = 8px) meno lo spessore del suo bordo (3px): cosi' la curva della voce combacia esattamente con quella del menu agli angoli che toccano il bordo esterno */
+}
+
+#dropdownCategorie .dropdown-item:hover,
+#dropdownCategorie .dropdown-item:focus {
+  color: var(--color-primary); /* testo blu (colore navbar) per evidenziare la voce selezionata */
+  border-color: var(--color-primary); /* contorno blu (stesso blu della navbar) attorno alla voce sotto il mouse, senza riempire lo sfondo di grigio */
+}
+
+/* Bottoni Login/Registrati/Carrello: stessa classe, rettangolari, sfondo bianco, testo nero */
+.btn.btn-light-custom {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-bg);
+  color: var(--color-text);
+}

@@ -236,3 +236,16 @@
 2025-09-24 23:17:17,837 InvioEmail.views INFO     Email preventivo dell'utente con id: 3 ed email 
 2025-09-24 23:20:17,105 InvioEmail.views INFO     Email preventivo dell'utente con id: 4 ed email g.nanni94@hotmail.it
 2025-09-25 11:07:16,223 Utente.backends INFO     Si è loggato l'utente info@saniscope-chimica.it
+2026-07-15 17:09:40,455 Utente.backends INFO     Si è loggato l'utente info@saniscope-chimica.it
+2026-07-15 17:09:46,570 Carrello.views INFO     Richiesta aggiunta prodotto 12 al carrello dell'utente 1
+2026-07-15 17:10:07,195 Carrello.views INFO     Richiesta eliminazione elemento carrello 16 utente 1
+2026-07-15 17:10:07,198 Carrello.views INFO     Effettuata richiesta eliminazione elemento carrello 16 utente 1
+2026-07-15 17:10:07,905 Carrello.views INFO     Richiesta eliminazione elemento carrello 15 utente 1
+2026-07-15 17:10:07,907 Carrello.views INFO     Effettuata richiesta eliminazione elemento carrello 15 utente 1
+2026-07-15 17:10:10,881 Carrello.views INFO     Richiesta aggiunta prodotto 12 al carrello dell'utente 1
+2026-07-15 17:10:13,827 Carrello.views INFO     Richiesta eliminazione elemento carrello 17 utente 1
+2026-07-15 17:10:13,830 Carrello.views INFO     Effettuata richiesta eliminazione elemento carrello 17 utente 1
+2026-07-15 17:15:34,467 Utente.views INFO     Richiesta cancellazione utente con id 1
+2026-07-15 17:17:34,395 Utente.views INFO     Richiesta cancellazione utente con id 1
+2026-07-15 17:28:33,501 Utente.backends INFO     Si è loggato l'utente info@saniscope-chimica.it
+2026-07-15 23:28:23,341 Utente.backends INFO     Si è loggato l'utente info@saniscope-chimica.it
