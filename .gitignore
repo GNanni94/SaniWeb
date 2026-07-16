@@ -41,6 +41,3 @@ web/
 #file .md
 *.md
 Docs/
-
-#file di ambiente (contengono segreti)
-.env*
