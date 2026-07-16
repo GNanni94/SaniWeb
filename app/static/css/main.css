@@ -1,3 +1,10 @@
+/* Sfondo di <html> (non <body>, che resta bianco per il contenuto) uguale al
+   blu del footer/navbar: durante il rimbalzo elastico di Safari iOS/Android
+   oltre il fondo pagina si vede questo colore invece del bianco di default */
+html {
+  background-color: var(--color-primary-dark);
+}
+
 body {
   font-family: var(--font-base);
   color: var(--color-text);
@@ -52,21 +59,26 @@ body {
   font-family: var(--font-heading);
 }
 
-/* Catalogo: sotto i 576px la classe "col-6" (aggiunta in catalogo.html)
-   mette 2 card per riga (a coppie), ma la dimensione delle card e'
-   fissata inline (pensata per schermi piu' larghi) quindi va ridotta
-   qui - serve !important perche' e' l'unico modo per battere uno style
-   inline. Rimpicciolito anche il titolo, altrimenti "display-6" (pensato
-   per card da 16-18rem) trabocca da una card cosi' piccola */
-@media (max-width: 575.98px) {
-  #home_contenitore_immagineCategorie,
-  #home_immaginiCategorie {
-    min-width: 10rem !important;
-    max-width: 11rem !important;
-    min-height: 10rem !important;
-    max-height: 11rem !important;
-  }
+/* Catalogo: card categorie a dimensione fluida (100% della colonna Bootstrap,
+   quadrate tramite aspect-ratio) invece di min/max-width fissi in rem: quei
+   valori erano calcolati per stare a malapena nello spazio della colonna e
+   bastava un font di sistema piu' grande (es. accessibilita' su iOS) per
+   farle sfondare nella colonna accanto, sovrapponendosi */
+.catalogo-card {
+  width: 100%;
+  max-width: 18rem; /* tetto per non farle diventare enormi su schermi larghi con poche colonne */
+}
 
+.catalogo-card-img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+/* Catalogo: sotto i 576px la classe "col-6" mette 2 card per riga (a coppie);
+   il titolo va rimpicciolito, altrimenti "display-6" (pensato per card da
+   16-18rem) trabocca da una card cosi' piccola */
+@media (max-width: 575.98px) {
   #home_contenitore_immagineCategorie .card-title {
     font-size: 1rem;
   }
