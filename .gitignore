@@ -42,5 +42,5 @@ web/
 *.md
 Docs/
 
-#log
-app/SaniLog.log
+#file di ambiente (contengono segreti)
+.env*
