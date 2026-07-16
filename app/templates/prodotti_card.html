@@ -81,7 +81,7 @@
                 </div>
 
                 {% for x in prodotti %}
-                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-4 col-xxl-4 card-deck py-4 " >
+                <div class="col-6 col-xl-4 col-xxl-4 card-deck py-4 " >
 
                     <div class="card" style="height: 100%;">
                         <img src="{{x.immagine_rel.immagine}}" class="card-img-top" style="max-height: 200px; width:100%; object-fit: contain;padding-top:3vh;" alt="...">
@@ -107,17 +107,13 @@
                         </div>
     
                         <div class="card-footer">
-                            <div class="row">
+                            <div class="d-flex justify-content-center align-items-center gap-2">
                                 {% if x.scheda_rel.scheda %}
-                                    <div class="col-6 text-left">
-                                        <a class="btn btn-success"
-                                            href="{{x.scheda_rel.scheda}}" target="_blank"><small>Scheda Tecnica</small></a>
-                                    </div>
-                                {%endif%}
-                                <div class="col-6 text-right">
-                                    <a class="btn btn-primary" style="float: right;" href="{% url 'aggiungi_prodotti' x.pk%}"><small>Aggiungi </small><i
-                                            class="bi bi-cart text-dark"></i></a>
-                                </div>
+                                    <a class="btn btn-success"
+                                        href="{{x.scheda_rel.scheda}}" target="_blank"><small>Scheda Tecnica</small></a>
+                                {% endif %}
+                                <a class="btn btn-primary" href="{% url 'aggiungi_prodotti' x.pk %}"><small>Aggiungi </small><i
+                                        class="bi bi-cart text-dark"></i></a>
                             </div>
                         </div>
                     </div>

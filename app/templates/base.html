@@ -197,8 +197,8 @@
             <li class="nav-item mb-3"><a href="{% url 'etichettatura_ambientale' %}"
                 class="nav-link p-0">Etichettatura Ambientale</a></li>
 
-            <li class="nav-item mb-3"><a href="#" class="nav-link p-0">Privacy Policy</a></li>
-            <li class="nav-item mb-3"><a href="#" class="nav-link p-0">Cookie Policy</a></li>
+            <li class="nav-item mb-3"><a href="/media/pdfPrivacy/4aba850a6cbb0f0d9164a7c2274d54f6_10678372616168637874.pdf" class="nav-link p-0" target="_blank">Privacy Policy</a></li>
+            <li class="nav-item mb-3"><a href="#" class="nav-link p-0" onclick="document.querySelector('#cookiebannerModal').classList.remove('hidden'); return false;">Cookie Policy</a></li>
           </ul>
         </div>
 
@@ -240,8 +240,6 @@
   </footer>
 
 {% cookiebanner_modal 'vanilla' %}
-
-<button onclick="document.querySelector('#cookiebannerModal').classList.remove('hidden')">change cookie preferences</button>
 
 {% cookie_accepted 'analytics' as cookie_analytics %}
 {% if cookie_analytics %}

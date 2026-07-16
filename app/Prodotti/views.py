@@ -27,8 +27,8 @@ class ProdottoListView(ListView):
             query = ''
             return {}
         object_list = Prodotto.objects.filter(
-            Q(codice_prodotto__icontains=query) | Q(descrizione__icontains=query)
-        )  
+            Q(codice_prodotto__icontains=query) | Q(nome_prodotto__icontains=query)
+        )
         return object_list
  
     def get_context_data(self, **kwargs):

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block titolo %} Home {% endblock titolo %}
+{% block titolo %} Catalogo {% endblock titolo %}
 
 
 {% block contenuto %}
@@ -21,8 +21,8 @@
 					<img src="{{ categoria.immagine_categoria.url }}" class="card-img view catalogo-card-img" alt="..."
 						id="home_immaginiCategorie">
 					<div class="mask align-items-center">
-						<div class="d-flex justify-content-center align-items-center h-100">
-							<h5 class="card-title text-light display-6 fw-bold">{{ categoria.nome_categoria }}</h5>
+						<div class="d-flex justify-content-center align-items-center w-100 h-100 text-center">
+							<h5 class="card-title text-light display-6 fw-bold mb-0">{{ categoria.nome_categoria }}</h5>
 
 						</div>
 					</div>
