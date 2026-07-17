@@ -65,6 +65,16 @@
     if (!cookiebannerCookie) cookiebannerModal.classList.remove('hidden');
   });
 
+  // Fix rispetto al file originale della libreria (vedi Docs/cookiebanner.md):
+  // l'IntersectionObserver puo' scattare piu' volte durante il caricamento
+  // della pagina (immagini/font che cambiano il layout), e ogni volta il
+  // codice sotto ri-registrava gli stessi listener di click. Con
+  // "classList.toggle('show')" (non idempotente) un numero pari di listener
+  // accumulati annullava il click su "Show cookie details" invece di aprirlo.
+  // Il flag "listenersAttached" fa si' che i listener vengano collegati una
+  // sola volta, indipendentemente da quante volte l'observer scatta.
+  let listenersAttached = false;
+
   new IntersectionObserver(([e]) => {
     if (cookiebannerCookie) {
       try {
@@ -75,6 +85,9 @@
         console.warn("having trouble parsing the cookiebannerCookie or settings the checkboxes")
       }
     }
+
+    if (listenersAttached) return;
+    listenersAttached = true;
 
     document.querySelectorAll("a[data-toggle='cookiebannerCollapse']").forEach((a) => {
       a.addEventListener("click", () =>

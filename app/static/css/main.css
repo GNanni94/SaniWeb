@@ -59,20 +59,16 @@ body {
   font-family: var(--font-heading);
 }
 
-/* Catalogo: card categorie a dimensione fluida (100% della colonna Bootstrap,
-   quadrate tramite aspect-ratio) invece di min/max-width fissi in rem: quei
-   valori erano calcolati per stare a malapena nello spazio della colonna e
-   bastava un font di sistema piu' grande (es. accessibilita' su iOS) per
-   farle sfondare nella colonna accanto, sovrapponendosi */
+/* Catalogo: card categorie a dimensione fluida (100% della colonna Bootstrap)
+   invece di min/max-width fissi in rem: quei valori erano calcolati per
+   stare a malapena nello spazio della colonna e bastava un font di sistema
+   piu' grande (es. accessibilita' su iOS) per farle sfondare nella colonna
+   accanto, sovrapponendosi. Il quadrato (ratio 1:1) e il ritaglio
+   dell'immagine sono gestiti in HTML con le utility Bootstrap 5.3
+   ".ratio.ratio-1x1" e ".object-fit-cover", senza tetto massimo: la
+   dimensione segue solo la larghezza della colonna a ogni breakpoint. */
 .catalogo-card {
   width: 100%;
-  max-width: 18rem; /* tetto per non farle diventare enormi su schermi larghi con poche colonne */
-}
-
-.catalogo-card-img {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
 }
 
 /* Catalogo: sotto i 576px la classe "col-6" mette 2 card per riga (a coppie);
@@ -141,6 +137,55 @@ body {
   display: none;
 }
 
+/* Tabella prodotti (DataTables): i pulsanti di paginazione (".paginate_button",
+   classi proprietarie di DataTables) di default hanno uno stile con bordo
+   grigio, diverso da quello della paginazione Bootstrap/MDB usata altrove nel
+   sito (es. catalogo/card prodotti). Valori ripresi 1:1 da quelli calcolati
+   su ".page-link"/".page-item.active .page-link" li', per farli sembrare
+   visivamente identici pur essendo generati da una libreria diversa */
+#listProdottiTable_wrapper .paginate_button {
+  display: inline-block;
+  margin: 0 2px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 4px;
+  color: rgb(79, 79, 79);
+  font-family: Roboto, sans-serif;
+  font-size: 14.4px;
+  line-height: 23.04px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: 0.3s linear; /* stessa durata/curva di ".page-link" (Bootstrap/MDB), che di default e' "all" senza durata (cambio istantaneo) */
+}
+
+/* !important necessario qui: il CSS di DataTables stesso mette gia'
+   "color: ... !important" su questi tre stati (normale in hover, .current,
+   .disabled), quindi una regola senza !important verrebbe ignorata
+   indipendentemente dalla specificita' del selettore */
+#listProdottiTable_wrapper .paginate_button:hover:not(.disabled):not(.current) {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, .2), 0 6px 20px 0 rgba(0, 0, 0, .19);
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: #000 !important;
+  border: 0 !important;
+}
+
+#listProdottiTable_wrapper .paginate_button.current {
+  background: rgb(18, 102, 241);
+  color: #fff !important;
+}
+
+#listProdottiTable_wrapper .paginate_button.disabled {
+  color: rgb(117, 117, 117);
+  cursor: default;
+}
+
+#listProdottiTable_wrapper .dataTables_paginate .ellipsis {
+  color: rgb(79, 79, 79);
+  font-family: Roboto, sans-serif;
+  font-size: 14.4px;
+  padding: 0 4px;
+}
+
 /* media query storia azienda */
 .fotoStoriaAziendaMobile {
   display: none;
@@ -155,4 +200,14 @@ body {
   .fotoStoriaAziendaMobile {
     display: flex !important;
   }
+}
+
+/* Banner cookie (libreria django-cookiebanner): i bottoni "Accept all"/"Salva"
+   nel footer del banner, di default allineati a destra (text-align:right nel
+   <style> incluso dalla libreria stessa). Selettore con due ID (invece di uno
+   solo) per vincere sulla specificita' a parita' di proprieta', dato che lo
+   <style> della libreria viene incluso in base.html dopo main.css e a parita'
+   di specificita' vincerebbe lui in quanto dichiarato per ultimo */
+#cookiebannerModal #cookiebannerModalFooter {
+  text-align: center;
 }

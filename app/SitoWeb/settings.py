@@ -171,11 +171,6 @@ EMAIL_USE_SSL = True
 COOKIEBANNER = {
     "title": _("Cookie settings"),
     "header_text": _("We are using cookies on this website. A few are essential, others are not."),
-    "footer_text": _("Please accept our cookies"),
-    "footer_links": [
-        {"title": _("Imprint"), "href": "/imprint"},
-        {"title": _("Privacy"), "href": "/privacy"},
-    ],
     "groups": [
         {
             "id": "essential",

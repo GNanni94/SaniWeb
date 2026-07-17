@@ -18,8 +18,10 @@
 
 			<div class="card text-bg-dark mx-auto catalogo-card" id="home_contenitore_immagineCategorie">
 				<a href="{% url 'dettaglio_categoria' categoria.pk %}">
-					<img src="{{ categoria.immagine_categoria.url }}" class="card-img view catalogo-card-img" alt="..."
-						id="home_immaginiCategorie">
+					<div class="ratio ratio-1x1">
+						<img src="{{ categoria.immagine_categoria.url }}" class="card-img view object-fit-cover" alt="..."
+							id="home_immaginiCategorie">
+					</div>
 					<div class="mask align-items-center">
 						<div class="d-flex justify-content-center align-items-center w-100 h-100 text-center">
 							<h5 class="card-title text-light display-6 fw-bold mb-0">{{ categoria.nome_categoria }}</h5>
