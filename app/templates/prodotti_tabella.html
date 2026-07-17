@@ -4,12 +4,28 @@
 
 
 {% block contenuto %}
+
+<section class="container-fluid">
+    <div class="row py-5">
+        <div class="col-12 position-relative text-center">
+            <h2 class="mb-0">{{nome_categoria}}</h2>
+            {% if not user.is_authenticated %}
+            <div class="alert alert-info catalogo-alert-preventivo d-inline-flex align-items-center mb-0 py-2 mt-3 mt-md-0" role="alert">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                <div>
+                    Per richiedere un preventivo devi prima <a href="{% url 'signup' %}" class="alert-link">registrarti</a>.
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
 <div class="container">
     <div class="row" style="text-align: center">
         <div class="col-12">
             <div>
-                <div class="table-responsive py-5" >
-                    <h2>{{nome_categoria}}</h2>
+                <div class="table-responsive py-3" >
                     <select id="filtroSottocategoria" class="form-select form-select-sm w-auto d-none">
                         <option value="">Tutte le sottocategorie</option>
                         {% for sc in sottocategorie %}
@@ -23,8 +39,8 @@
                                 <th>NOME</th>
                                 <th>UNITA DI MISURA</th>
                                 <th>CATEGORIA</th>
-                                <th>SottoCategoria</th>
-                                <th style="text-align: right;">Aggiungi al carrello</th>
+                                <th>SOTTOCATEGORIA</th>
+                                <th style="text-align: right;">AGGIUNGI AL CARRELLO</th>
 
                             </tr>
                         </thead>

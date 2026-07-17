@@ -33,9 +33,10 @@
                             <label for="floatingPassword">Password</label>
                             -->
                         </div>
-                        <div class="form-floating my-3">
-                            <button class="btn btn-primary  py-3" type="submit">Log In</button>
-                        </div>    
+                        <div class="form-floating my-3 d-flex justify-content-center gap-2 flex-wrap">
+                            <button class="btn btn-primary py-3" type="submit">Log In</button>
+                            <a class="btn btn-outline-primary py-3" href="{% url 'signup' %}">Non sei ancora registrato? Registrati</a>
+                        </div>
                         <div class="form-floating" style=" margin-top: 40px;">
                             <p class="mt-2 "><a class="" href="{% url 'password_reset' %}">Password dimenticata?</a></p>
                         </div>

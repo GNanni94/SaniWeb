@@ -15,32 +15,25 @@
         
     </div>    
 
-    <div class="row">
-        <div class="col-12">
-
-            {% for categoria in object_list %}
-            <table class="table border">
-                <h4 class="text-center py-3 fs-2">{{categoria.nome_categoria}}</h4>
-                <thead>
-                    {%if categoria.file_cat.file %}
-                    <tr>
-                        <th class="text-center fs-4">{{categoria.file_cat.nome_file}}</th>
-                        <th class="text-center">
-                            <a class="bi bi-filetype-pdf fs-2"
-                                href="media/{{categoria.file_cat.file}}" target="_blank"></a>
-                            </a>
-                        </th>
-                    </tr>
-                    {%endif%}
-                </thead>
-                <tbody>
-
-                </tbody> 
-            </table>
-            {% endfor %}
-
+    {% for categoria in object_list %}
+    <h4 class="text-center py-3 fs-2">{{categoria.nome_categoria}}</h4>
+    <div class="row g-4 justify-content-center mb-5">
+        {% for file in categoria.file_cat.all %}
+        {% if file.file %}
+        <div class="col-auto">
+            <div class="card mx-auto" style="max-width: 20rem;">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-0">{{file.nome_file}}</h5>
+                </div>
+                <a class="card-footer text-center py-4" href="media/{{file.file}}" target="_blank">
+                    <i class="bi bi-filetype-pdf fs-1" style="color: red;"></i>
+                </a>
+            </div>
         </div>
+        {% endif %}
+        {% endfor %}
     </div>
+    {% endfor %}
 
 </div>
 

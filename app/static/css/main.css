@@ -59,6 +59,36 @@ body {
   font-family: var(--font-heading);
 }
 
+/* Catalogo: avviso "devi registrarti per il preventivo" - stesso blu della
+   navbar/footer del sito invece del celeste di default di ".alert-info".
+   Selettore con due classi (invece di una sola) apposta: MDB, caricato dopo
+   main.css in base.html, ridefinisce ".alert-info" con colori propri diretti
+   (non tramite variabili CSS), e a parita' di specificita' vincerebbe lui
+   in quanto caricato per ultimo */
+.alert-info.catalogo-alert-preventivo {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.alert-info.catalogo-alert-preventivo .alert-link {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* Solo da md in su: l'avviso si aggancia in alto a destra della riga del
+   titolo (invece di seguire il flusso normale sotto il titolo su schermi
+   piccoli, dove l'avviso va a capo per non sovrapporsi). Bootstrap 5.3 non
+   ha varianti responsive per le utility di posizionamento (niente
+   "position-md-absolute"), quindi qui serve CSS custom */
+@media (min-width: 768px) {
+  .alert.catalogo-alert-preventivo {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+}
+
 /* Catalogo: card categorie a dimensione fluida (100% della colonna Bootstrap)
    invece di min/max-width fissi in rem: quei valori erano calcolati per
    stare a malapena nello spazio della colonna e bastava un font di sistema
