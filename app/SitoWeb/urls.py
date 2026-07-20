@@ -24,8 +24,14 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include("Pagine.urls")),
     path("catalogo/", include("Prodotti.urls")),
+    # "clienti/" (django.contrib.auth.urls) va incluso PRIMA di "cliente/"
+    # (Utente.urls): quest'ultimo ridefinisce alcuni nomi di route gia'
+    # usati da auth.urls (es. "login", "password_reset") con viste/form
+    # personalizzati del progetto - a parita' di nome, reverse()/{% url %}
+    # usa l'ultima route registrata in urlpatterns, quindi l'include di
+    # Utente.urls deve stare dopo per vincere lui, non quello generico
+    path("clienti/", include("django.contrib.auth.urls")),
     path("cliente/", include("Utente.urls")),
-    path("clienti/", include("django.contrib.auth.urls")), 
     path("carrello/", include("Carrello.urls")),
     path("preventivo/", include("Preventivo.urls")),
 

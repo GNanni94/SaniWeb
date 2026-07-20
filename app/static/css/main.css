@@ -5,6 +5,32 @@ html {
   background-color: var(--color-primary-dark);
 }
 
+/* Bottone dello stesso blu della navbar, per chi non deve usare i colori
+   semantici di Bootstrap (success/danger/ecc.) ma il blu del sito - es. il
+   bottone "Manda istruzioni" in password_reset_form.html. Il blu "primary"
+   di default di Bootstrap (--bs-primary) e' un altro azzurro piu' chiaro,
+   diverso da var(--color-primary): non basta ".btn-primary" */
+.btn.btn-navbar {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.btn.btn-navbar:hover,
+.btn.btn-navbar:focus {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  color: #fff;
+}
+
+/* Campo email di password_reset_form.html: testo scritto e placeholder
+   centrati invece che allineati a sinistra di default (l'input non eredita
+   il "text-center" del form circostante). ":placeholder-shown" non serve:
+   il placeholder segue da solo il text-align impostato sull'input */
+#form-password-reset #id_email {
+  text-align: center;
+}
+
 body {
   font-family: var(--font-base);
   color: var(--color-text);
@@ -307,6 +333,18 @@ body {
 }
 
 #form-registrazione .form-control:focus:not(.is-invalid) {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
+}
+
+/* Stesso trattamento del form di registrazione qui sopra, applicato al
+   campo email di password_reset_form.html */
+#form-password-reset .form-control:not(.is-invalid) {
+  border-color: var(--color-primary);
+  border-width: 2px;
+}
+
+#form-password-reset .form-control:focus:not(.is-invalid) {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
 }

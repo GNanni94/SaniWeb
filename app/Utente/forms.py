@@ -1,4 +1,4 @@
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm, PasswordResetForm
 from django.forms import ModelForm
 from .models import Cliente, Messaggi, Registrati
 from phonenumber_field.formfields import PhoneNumberField
@@ -116,4 +116,14 @@ class ClienteChangeForm(UserChangeForm):
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.EmailField(label='Inserisci email', widget=forms.EmailInput(attrs={'class':'form-control'}))
     password = forms.CharField(label='Inserisci password', widget=forms.PasswordInput(attrs={'class':'form-control'}))
-    
+
+
+class CustomPasswordResetForm(PasswordResetForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["email"].widget.attrs["placeholder"] = "inserisci l'email"
+        # label=False (non solo stringa vuota): crispy-forms non renderizza
+        # proprio il tag <label>, invece che lasciarne uno vuoto - qui basta
+        # gia' il placeholder a indicare cosa scrivere nel campo
+        self.fields["email"].label = False
+
