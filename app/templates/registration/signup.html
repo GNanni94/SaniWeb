@@ -6,72 +6,133 @@
 
 
 <div class="container">
-    <div class="row my-4">
-        <div class="col-12">
+  <div class="row my-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header text-center display-6">
+          Registrati
+        </div>
+        <div class="card-body">
+          <form id="form-registrazione" class="row"  method="post" >
+          {% csrf_token %}
+            <div class="col-12">
+                <label for="id_azienda" class="form-label">Azienda</label>
+                <input type="text" class="form-control" id="id_azienda" name="azienda" placeholder="Inserisci qui il nome della tua azienda, altrimenti lascia vuoto il campo.">
+            </div>
 
-        <div class="card">
-            <div class="card-header text-center display-6">Registrati</div>
-            <div class="card-body">
-        
-                <form id="form-registrazione" class="row"  method="post" >
-                {% csrf_token %}
-        
-                    <div class="col-md-6">
-                          {{ form.first_name|as_crispy_field }}
-                    </div>
-                
-                    <div class="col-md-6" >
-                       {{ form.cognome_ragione_sociale|as_crispy_field }}
-                        </div>
+            <div id="riga-nome-cognome" class="col-12 row collapse show">
+                <div class="col-md-6">
+                      {{ form.first_name|as_crispy_field }}
+                </div>
 
-                        <div class="col-12">
-                            {{ form.email|as_crispy_field }}
-                        </div>
-                    
-                        <div class="col-md-6 ">
-                            {{ form.codiceFiscale_PartitaIVA|as_crispy_field }}
-                        </div>
-                       
-                        <div class="col-md-6">
-                            {{ form.telefono|as_crispy_field }}
-                        </div>
-                    
-                        <div class="col-md-6 ">
-                            {{ form.citta|as_crispy_field }}
-                        </div>    
+                <div class="col-md-6" >
+                    {{ form.cognome_ragione_sociale|as_crispy_field }}
+                </div>
+            </div>
 
-                        <div class="col-md-6 ">
-                            {{ form.indirizzo|as_crispy_field }}
-                        </div>    
-
-                        <div class="col-md-6 ">
-                            {{ form.password1|as_crispy_field }}
-                            <ul id="requisiti-password1" class="list-unstyled small mt-1 mb-0">
-                                <li data-regola="lunghezza"><i class="bi bi-circle text-muted me-1"></i>Almeno 8 caratteri</li>
-                                <li data-regola="alfanumerico"><i class="bi bi-circle text-muted me-1"></i>Non solo lettere o solo numeri</li>
-                                <li data-regola="maiuscola"><i class="bi bi-circle text-muted me-1"></i>Almeno una lettera maiuscola</li>
-                                <li data-regola="speciale"><i class="bi bi-circle text-muted me-1"></i>Almeno un carattere speciale</li>
-                            </ul>
-                        </div>
-
-                        <div class="col-md-6 ">
-                            {{ form.password2|as_crispy_field }}
-                        </div>    
-               
-                        <div class="col-12 text-center">
-                            <button class="btn btn-success w-30 "  type="submit">Registrati</button>
-                        </div>
-                </form>
+            <div class="col-12">
+                {{ form.email|as_crispy_field }}
             </div>
         
-        </div>
+            <div class="col-md-6 ">
+                {{ form.codiceFiscale_PartitaIVA|as_crispy_field }}
+            </div>
+            
+            <div class="col-md-6">
+                {{ form.telefono|as_crispy_field }}
+            </div>
+        
+            <div class="col-md-6 ">
+                {{ form.citta|as_crispy_field }}
+            </div>    
 
+            <div class="col-md-6 ">
+                {{ form.indirizzo|as_crispy_field }}
+            </div>    
 
+            <div class="col-md-6 ">
+                {{ form.password1|as_crispy_field }}
+                <ul id="requisiti-password1" class="list-unstyled small mt-1 mb-0">
+                    <li data-regola="lunghezza"><i class="bi bi-circle text-muted me-1"></i>Almeno 8 caratteri</li>
+                    <li data-regola="alfanumerico"><i class="bi bi-circle text-muted me-1"></i>Non solo lettere o solo numeri</li>
+                    <li data-regola="maiuscola"><i class="bi bi-circle text-muted me-1"></i>Almeno una lettera maiuscola</li>
+                    <li data-regola="speciale"><i class="bi bi-circle text-muted me-1"></i>Almeno un carattere speciale</li>
+                </ul>
+            </div>
+
+            <div class="col-md-6 ">
+                {{ form.password2|as_crispy_field }}
+            </div>    
+    
+            <div class="col-12 text-center">
+                <button class="btn btn-success w-30 "  type="submit">Registrati</button>
+            </div>
+          </form>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <script>
+  // Campo "Azienda": non fa parte del ModelForm (nel model Utente esiste
+  // solo "cognome_ragione_sociale", non un campo azienda dedicato). Quando
+  // viene compilato, i campi "Nome"/"Cognome" si nascondono e il loro
+  // contenuto viene sostituito dal testo di "Azienda", cosi' e'
+  // "cognome_ragione_sociale" a finire salvato nel DB anche per le aziende.
+  // Svuotando di nuovo "Azienda" i valori di Nome/Cognome scritti in
+  // precedenza (se presenti) vengono ripristinati.
+  (function () {
+    var campoAzienda = document.getElementById('id_azienda');
+    var rigaNomeCognome = document.getElementById('riga-nome-cognome');
+    var campoNome = document.getElementById('id_first_name');
+    var campoCognome = document.getElementById('id_cognome_ragione_sociale');
+    if (!campoAzienda || !rigaNomeCognome || !campoNome || !campoCognome) return;
+
+    // toggle:false: l'istanza viene creata senza far scattare subito
+    // un'animazione, la riga parte gia' visibile grazie alla classe "show"
+    // messa direttamente nell'HTML
+    var collapseNomeCognome = new bootstrap.Collapse(rigaNomeCognome, { toggle: false });
+
+    var nomeSalvato = null;
+    var cognomeSalvato = null;
+    // true solo quando l'animazione di chiusura e' completamente finita:
+    // finche' la riga e' ancora visibile o in movimento, non scriviamo il
+    // valore di Azienda dentro "Cognome" per evitare che si veda lampeggiare
+    // il carattere appena digitato nel campo che sta per sparire
+    var rigaNascosta = false;
+
+    rigaNomeCognome.addEventListener('hidden.bs.collapse', function () {
+      rigaNascosta = true;
+      campoCognome.value = campoAzienda.value;
+    });
+    rigaNomeCognome.addEventListener('show.bs.collapse', function () {
+      rigaNascosta = false;
+    });
+
+    campoAzienda.addEventListener('input', function () {
+      var valore = campoAzienda.value;
+
+      if (valore.trim() !== '') {
+        if (nomeSalvato === null) {
+          nomeSalvato = campoNome.value;
+          cognomeSalvato = campoCognome.value;
+          campoNome.value = '';
+          campoCognome.value = '';
+          collapseNomeCognome.hide();
+        } else if (rigaNascosta) {
+          campoCognome.value = valore;
+        }
+      } else {
+        collapseNomeCognome.show();
+        campoNome.value = nomeSalvato || '';
+        campoCognome.value = cognomeSalvato || '';
+        nomeSalvato = null;
+        cognomeSalvato = null;
+      }
+    });
+  })();
+
   // Icona di validita' sintattica a fine campo (pallino verde con check se
   // valido, pallino rosso con croce se non valido), mostrata solo quando si
   // esce dal campo ("blur") dopo aver scritto qualcosa - appena si
@@ -128,6 +189,11 @@
       input.addEventListener('input', nascondiErroreServer, { once: true });
       input._nascondiErroreServer = nascondiErroreServer;
     }
+
+    // Riferimento salvato sull'input stesso, cosi' chi aggiunge in seguito
+    // un'altra icona nello stesso wrapper (vedi installaOcchioPassword) puo'
+    // spostarla senza doverla ricercare nel DOM
+    input._iconaValidita = icona;
 
     return icona;
   }
@@ -298,6 +364,47 @@
   }
 
   installaIconaCorrispondenza('id_password1', 'id_password2');
+
+  // Tasto "occhio" per mostrare/nascondere la password in chiaro: riusa lo
+  // stesso wrapper "position-relative" gia' creato da creaIconaCampo (sopra)
+  // per l'icona di validita', spostando quest'ultima piu' a sinistra per
+  // fare posto al nuovo pulsante
+  function installaOcchioPassword(idCampo) {
+    var input = document.getElementById(idCampo);
+    if (!input) return;
+    var wrapper = input.parentNode;
+    var iconaValidita = input._iconaValidita;
+
+    input.style.paddingRight = '4.5rem';
+    if (iconaValidita) {
+      // "me-3" di Bootstrap imposta margin-right con !important: un normale
+      // style.marginRight verrebbe ignorato, serve setProperty(...,
+      // "important") per spostare davvero l'icona e non farla sovrapporre
+      // al nuovo pulsante "occhio"
+      iconaValidita.style.setProperty('margin-right', '2.5rem', 'important');
+    }
+
+    var bottone = document.createElement('button');
+    bottone.type = 'button';
+    bottone.className = 'btn btn-link position-absolute top-50 end-0 translate-middle-y p-0 me-3';
+    // colore uguale a quello della navbar (var(--color-primary), vedi
+    // variables.css): non e' il blu "primary" di Bootstrap, quindi va
+    // impostato a mano invece che con la classe "text-primary"
+    bottone.style.color = 'var(--color-primary)';
+    bottone.setAttribute('aria-label', 'Mostra/nascondi password');
+    bottone.innerHTML = '<i class="bi bi-eye"></i>';
+    wrapper.appendChild(bottone);
+
+    bottone.addEventListener('click', function () {
+      var mostrata = input.type === 'text';
+      input.type = mostrata ? 'password' : 'text';
+      bottone.querySelector('i').className = mostrata ? 'bi bi-eye' : 'bi bi-eye-slash';
+      input.focus();
+    });
+  }
+
+  installaOcchioPassword('id_password1');
+  installaOcchioPassword('id_password2');
 
   // L'errore che Django restituisce su "clean_password2()" (es. "troppo
   // simile all'email", password comune, ecc.) viene sempre allegato al

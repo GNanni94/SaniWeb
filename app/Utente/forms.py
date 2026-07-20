@@ -62,6 +62,8 @@ class ClienteCreationForm(UserCreationForm):
         # signup.html, quindi qui va tolto per non duplicarlo
         self.fields["password1"].help_text = ""
         self.fields["password2"].help_text = ""
+        self.fields["cognome_ragione_sociale"].label = "Cognome"
+        self.fields["email"].widget.attrs["placeholder"] = "nome@dominio.it"
 
     def clean_email(self):
         email = self.cleaned_data["email"]
