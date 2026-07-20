@@ -14,7 +14,17 @@
     </div>    
     {% for categoria in object_list %}
     <div class="border rounded p-4 mb-5 mx-auto categoria-documenti">
-        <h4 class="text-center py-3 fs-2">{{categoria.nome_categoria}}</h4>
+        <h4 class="text-center py-3 fs-2 text-uppercase mb-0">{{categoria.nome_categoria}}</h4>
+        {% if categoria.file_cat.all %}
+        {% comment %}
+        ".row" di Bootstrap ha margini orizzontali negativi (il gutter, ".g-4")
+        anche da vuoto: con una categoria appena creata, senza documenti, quei
+        margini negativi restavano comunque nel DOM e alteravano il calcolo di
+        "width: fit-content" su ".categoria-documenti" (vedi main.css), facendo
+        sembrare il titolo non centrato nel riquadro. Renderizzando la riga solo
+        se c'e' almeno un documento, il titolo resta l'unico contenuto e il
+        riquadro si stringe esattamente intorno a lui, centrato correttamente
+        {% endcomment %}
         <div class="row g-4 justify-content-center">
             {% for file in categoria.file_cat.all %}
             {% if file.file %}
@@ -26,6 +36,7 @@
             {% endif %}
             {% endfor %}
         </div>
+        {% endif %}
     </div>
     {% endfor %}
 </div>

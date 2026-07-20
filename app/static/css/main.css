@@ -313,15 +313,20 @@ body {
 
 /* Riquadro che racchiude ogni categoria di documenti (titolo + card PDF),
    per separarle visivamente l'una dall'altra (documenti.html). Bordo dello
-   stesso blu della navbar, spessore 2px come gli altri controlli blu del
-   sito. La classe utility ".border" di Bootstrap applica il bordo con
-   "!important" leggendo pero' il colore/spessore da variabili CSS
-   (--bs-border-color/--bs-border-width): ridefinendo qui solo le variabili,
-   invece di riscrivere "border-color"/"border-width", non serve un
-   ulteriore "!important" per vincere */
-.categoria-documenti {
-  --bs-border-color: var(--color-primary);
-  --bs-border-width: 2px;
+   stesso blu della navbar, spessore 4px (piu' marcato degli altri controlli
+   blu del sito, che sono a 2/3px, per far risaltare di piu' il riquadro).
+   Selettore con due classi (invece di una sola) apposta, e "border-color"/
+   "border-width" impostati direttamente con "!important" (non tramite le
+   variabili --bs-border-color/--bs-border-width lette dall'utility ".border"
+   di Bootstrap): MDB ridefinisce ".border" con un colore fisso
+   ("#e0e0e0") e "!important", ignorando quelle variabili - stesso problema
+   gia' documentato altrove in questo file per ".card"/".alert-info", MDB
+   vince a parita' di specificita' perche' caricato dopo Bootstrap in
+   base.html. Serve quindi vincere sia sulla specificita' (due classi contro
+   una) sia sull'"!important" */
+.border.categoria-documenti {
+  border-color: var(--color-primary) !important;
+  border-width: 2px !important;
   /* Il riquadro si stringe intorno al proprio contenuto (una categoria con
      1 solo documento non deve avere il bordo largo quanto il container con
      mezzo riquadro vuoto), ma non supera mai la larghezza disponibile su
