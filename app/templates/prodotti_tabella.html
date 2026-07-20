@@ -7,47 +7,40 @@
 
 <section class="container-fluid">
     <div class="row py-5">
-        <div class="col-12 position-relative text-center">
+        <div class="col-12 text-center">
             <h2 class="mb-0">{{nome_categoria}}</h2>
-            {% if not user.is_authenticated %}
-            <div class="alert alert-info catalogo-alert-preventivo d-inline-flex align-items-center mb-0 py-2 mt-3 mt-md-0" role="alert">
-                <i class="bi bi-info-circle-fill me-2"></i>
-                <div>
-                    Per richiedere un preventivo devi prima <a href="{% url 'signup' %}" class="alert-link">registrarti</a>.
-                </div>
-            </div>
-            {% endif %}
         </div>
     </div>
 </section>
 
 <div class="container">
-    <div class="row" style="text-align: center">
+    <div class="row">
         <div class="col-12">
-            <div>
-                <div class="table-responsive py-3" >
-                    <select id="filtroSottocategoria" class="form-select form-select-sm w-auto d-none">
-                        <option value="">Tutte le sottocategorie</option>
-                        {% for sc in sottocategorie %}
-                            <option value="{{ sc.nome_sottocategoria }}">{{ sc.nome_sottocategoria }}</option>
-                        {% endfor %}
-                    </select>
-                    <table id="listProdottiTable" class="table table-striped table-bordered" style="text-align: left;">
+            <div class="table-responsive py-3">
+                {% if not user.is_authenticated %}
+                {% include 'partials/alert_preventivo.html' with alert_id="alertPreventivoTabella" alert_extra_class="d-none" %}
+                {% endif %}
+                <select id="filtroSottocategoria" class="form-select form-select-sm w-auto d-none">
+                    <option value="">Tutte le sottocategorie</option>
+                    {% for sc in sottocategorie %}
+                        <option value="{{ sc.nome_sottocategoria }}">{{ sc.nome_sottocategoria }}</option>
+                    {% endfor %}
+                </select>
+                <table id="listProdottiTable" class="table table-striped table-bordered tabella-in-caricamento" style="text-align: left;">
                         <thead>
                             <tr>
-                                <th>CODICE PRODOTTO</th>
-                                <th>NOME</th>
-                                <th>UNITA DI MISURA</th>
-                                <th>CATEGORIA</th>
-                                <th>SOTTOCATEGORIA</th>
-                                <th style="text-align: right;">AGGIUNGI AL CARRELLO</th>
+                                <th style="text-align: center;">CODICE PRODOTTO</th>
+                                <th style="text-align: center;">NOME</th>
+                                <th style="text-align: center;">UNITA DI MISURA</th>
+                                <th style="text-align: center;">SOTTOCATEGORIA</th>
+                                <th style="text-align: center;">AGGIUNGI AL PREVENTIVO</th>
 
                             </tr>
                         </thead>
                         <tbody>
                             {% for x in prodotti %}
                             <tr>
-                                <td>{{x.codice_prodotto}}</td>
+                                <td style="text-align: center;">{{x.codice_prodotto}}</td>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <span class="flex-grow-1 text-break" style="min-width: 0;">
@@ -68,19 +61,17 @@
                                         </a>
                                     </div>
                                 </td>
-                                <td>{{x.unita_di_misura}}</td>
-                                <td>{{x.categoria.nome_categoria}}</td>
-                                <td>{{x.sottocategoria.nome_sottocategoria}}</td>
-                                <td style="text-align: right;">
+                                <td style="text-align: center;">{{x.unita_di_misura}}</td>
+                                <td style="text-align: center;">{{x.sottocategoria.nome_sottocategoria}}</td>
+                                <td style="text-align: center;">
                                     <a class="btn btn-primary"
-                                        href="{% url 'aggiungi_prodotti' x.pk%}">Aggiungi al carrello</a>
+                                        href="{% url 'aggiungi_prodotti' x.pk%}">Aggiungi al preventivo</a>
 
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
-            </div>
         </div>
     </div>
 </div>
@@ -119,6 +110,9 @@ $(document).ready(function () {
 
     $('#listProdottiTable').DataTable({
         "pagingType": "uno_corrente_ultimo",
+        "lengthChange": false, // toglie il selettore "Show x entries"
+        "info": false, // toglie la scritta "Risultati da X a Y di Z elementi"
+        "ordering": false, // toglie le frecce di ordinamento e il click sulle intestazioni per ordinare
         "responsive": {
             // Soglia fissa (576px, la stessa usata altrove nel sito per "telefono")
             // invece di lasciare che DataTables decida da solo in base al contenuto:
@@ -129,15 +123,22 @@ $(document).ready(function () {
                 { "name": "phone", "width": 576 }
             ],
             "details": {
+                // Colonna cliccabile per aprire/chiudere i dettagli nascosti su
+                // telefono: NOME (indice 1) invece della prima colonna di default
+                // (CODICE PRODOTTO) - la freccina di default viene poi nascosta
+                // via CSS (".dtr-control:before" in main.css), cosi' e' il testo
+                // del nome stesso a fare da bottone, senza icona separata
+                "target": 1,
                 // Renderer come quello di default di DataTables Responsive, ma
-                // esclude la colonna "Aggiungi al carrello" (indice 5) dalla lista:
+                // esclude la colonna "Aggiungi al preventivo" (indice 4, dopo
+                // la rimozione della colonna "CATEGORIA") dalla lista:
                 // combinare le classi "min-phone" e "none" non basta (bug di
                 // parsing nella libreria quando sono unite), quindi la si esclude
                 // qui a mano - l'icona nella cella del NOME la sostituisce gia'
                 "renderer": function (api, rowIdx, columns) {
                     var data = columns
                         .filter(function (col) {
-                            return col.hidden && col.columnIndex !== 5;
+                            return col.hidden && col.columnIndex !== 4;
                         })
                         .map(function (col) {
                             return '<li data-dtr-index="' + col.columnIndex + '" data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
@@ -152,33 +153,120 @@ $(document).ready(function () {
             }
         },
         "columnDefs": [
-            { "className": "all", "targets": 1 },                    // NOME: sempre visibile, a sinistra
-            { "className": "min-phone", "targets": [0, 2, 3, 4, 5] } // resto: visibile da 576px in su, sotto nascosto (0,2,3,4 nel "+", 5 escluso dal renderer sopra)
+            { "className": "all", "targets": 1 },                 // NOME: sempre visibile, a sinistra
+            { "className": "min-phone", "targets": [0, 2, 3, 4] } // resto: visibile da 576px in su, sotto nascosto (0,2,3 nel "+", 4 escluso dal renderer sopra)
         ],
         "language": {
+            // NOTA: non aggiungere altre chiavi qui dentro (es. "search",
+            // "searchPlaceholder") insieme a "url" - causa la mancata
+            // applicazione della traduzione italiana caricata dall'url
+            // (la tabella torna in inglese). Personalizzazioni del testo
+            // vanno fatte via JS in "initComplete", non qui
             "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/it-IT.json"
         },
         "initComplete": function () {
             var api = this.api();
 
-            // Mette "Cerca:", il filtro sottocategoria e "Mostra x elementi"
-            // (generati separatamente da DataTables) su un'unica riga, col
-            // filtro sottocategoria centrato tra gli altri due
-            var $riga = $('<div class="dt-controls-row"></div>');
-            $('#listProdottiTable_length').before($riga);
-            $riga.append(
-                $('#listProdottiTable_filter'),
-                $('#filtroSottocategoria').removeClass('d-none'),
-                $('#listProdottiTable_length')
-            );
+            // Mette "Cerca:", l'avviso "devi registrarti" (se presente) e il
+            // filtro sottocategoria sulla stessa riga: ricerca a sinistra,
+            // filtro a destra e avviso centrato fra i due (tre contenitori
+            // ".dt-control-ricerca/-alert/-filtro" con giustificazione
+            // start/center/end, stesso trucco usato in prodotti_card.html
+            // per centrare davvero l'avviso a prescindere dalla larghezza
+            // degli altri due - "flex" impostato in main.css da queste
+            // classi custom apposta, NON dall'utility ".flex-fill" di
+            // Bootstrap: quella usa "!important", che vincerebbe sempre
+            // sulla regola sotto i 576px che deve poter cambiare "flex" in
+            // base alla larghezza dello schermo).
+            // Anche questa riga resta nascosta ("tabella-in-caricamento",
+            // stessa classe della tabella) finche' non e' impostata la
+            // larghezza definitiva del campo ricerca qui sotto: altrimenti
+            // si vedrebbe comparire con la larghezza di default di
+            // DataTables e poi "allungarsi" di scatto quando arriva la
+            // risincronizzazione
+            var $riga = $('<div class="dt-controls-row tabella-in-caricamento"></div>');
+            $('#listProdottiTable_filter').before($riga);
+
+            var $rigaRicerca = $('<div class="d-flex justify-content-start dt-control-ricerca"></div>');
+            $riga.append($rigaRicerca.append($('#listProdottiTable_filter')));
+
+            var $alertPreventivo = $('#alertPreventivoTabella');
+            if ($alertPreventivo.length) {
+                var $rigaAlert = $('<div class="d-flex justify-content-center dt-control-alert"></div>');
+                $riga.append($rigaAlert.append($alertPreventivo.removeClass('d-none')));
+            }
+
+            var $rigaFiltro = $('<div class="d-flex justify-content-end dt-control-filtro"></div>');
+            $riga.append($rigaFiltro.append($('#filtroSottocategoria').removeClass('d-none')));
+
+            // Classi Bootstrap sul campo di ricerca generato da DataTables
+            // (di suo non ha nessuna classe, solo lo stile di default della libreria),
+            // e placeholder al posto della label "Cerca:" (rimossa a mano
+            // invece di usare l'opzione "language.search", vedi nota sopra)
+            $('#listProdottiTable_filter label')
+                .contents()
+                .filter(function () { return this.nodeType === 3; })
+                .remove();
+            $('#listProdottiTable_filter input')
+                .addClass('form-control form-control-sm')
+                .attr('placeholder', 'Cerca...');
+
+            // Larghezza del campo di ricerca uguale a quella della colonna
+            // "CODICE PRODOTTO" (prima colonna). Misurata con getBoundingClientRect
+            // (non jQuery outerWidth) per includere esattamente i bordi condivisi
+            // di "table-bordered" (border-collapse), e "box-sizing: border-box"
+            // forzato sull'input cosi' il valore si applica alla larghezza totale
+            // visibile, non solo al contenuto.
+            // Risincronizzata piu' volte, non solo una all'avvio: DataTables (e
+            // l'estensione Responsive) ricalcolano le larghezze delle colonne
+            // DOPO "initComplete" (es. con un reflow subito successivo), quindi
+            // una misura presa solo qui risulterebbe quasi subito superata -
+            // per questo si risincronizza anche con un breve ritardo, a ogni
+            // ridisegno della tabella ("draw.dt", es. cambio pagina/ricerca) e
+            // al resize della finestra
+            // Stesso ragionamento anche per il filtro sottocategoria, allineato
+            // pero' alla colonna "AGGIUNGI AL PREVENTIVO" (ultima, indice 4) dato
+            // che sta a destra della riga (vedi CSS ".dt-controls-row")
+            // Sotto i 576px (soglia "phone" usata anche per il responsive di
+            // DataTables piu' sopra) la colonna "CODICE PRODOTTO" e' nascosta
+            // (resta visibile solo "NOME"), quindi la sua larghezza sarebbe 0 -
+            // sincronizzarla comprimerebbe il campo ricerca a 0px. Sotto quella
+            // soglia si toglie percio' la larghezza forzata via JS e si lascia
+            // gestire a CSS (".dt-controls-row" in main.css), che sotto i 576px
+            // divide la riga a meta' tra i due controlli invece di seguire le
+            // colonne
+            var $inputRicerca = $('#listProdottiTable_filter input').css('box-sizing', 'border-box');
+            var $selectSottocategoria = $('#filtroSottocategoria').css('box-sizing', 'border-box');
+            function sincronizzaLarghezzaControlli() {
+                if (window.innerWidth <= 576) {
+                    $inputRicerca.css('width', '');
+                    $selectSottocategoria.css('width', '');
+                    return;
+                }
+                var colonne = document.querySelectorAll('#listProdottiTable thead th');
+                var larghezzaPrima = colonne[0].getBoundingClientRect().width;
+                var larghezzaUltima = colonne[colonne.length - 1].getBoundingClientRect().width;
+                $inputRicerca.css('width', larghezzaPrima + 'px');
+                $selectSottocategoria.css('width', larghezzaUltima + 'px');
+            }
+            sincronizzaLarghezzaControlli();
+            setTimeout(function () {
+                sincronizzaLarghezzaControlli();
+                // Solo ora la larghezza e' quella definitiva: si mostrano
+                // insieme tabella e riga dei controlli (vedi commenti sopra)
+                $('#listProdottiTable, .dt-controls-row').removeClass('tabella-in-caricamento');
+            }, 100);
+            $('#listProdottiTable').on('draw.dt', sincronizzaLarghezzaControlli);
+            $(window).on('resize', sincronizzaLarghezzaControlli);
 
             $('#filtroSottocategoria').on('change', function () {
                 var valore = $(this).val();
                 // Ricerca esatta (non per sottostringa) sulla colonna SottoCategoria
-                // (indice 4), altrimenti selezionare una sottocategoria il cui nome
-                // e' contenuto in quello di un'altra la filtrerebbe assieme
+                // (indice 3, dopo la rimozione della colonna "CATEGORIA"), altrimenti
+                // selezionare una sottocategoria il cui nome e' contenuto in quello
+                // di un'altra la filtrerebbe assieme
                 var termine = valore ? '^' + $.fn.dataTable.util.escapeRegex(valore) + '$' : '';
-                api.column(4).search(termine, true, false).draw();
+                api.column(3).search(termine, true, false).draw();
             });
         }
     });

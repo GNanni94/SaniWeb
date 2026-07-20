@@ -28,6 +28,5 @@ urlpatterns = [
     path("clienti/", include("django.contrib.auth.urls")), 
     path("carrello/", include("Carrello.urls")),
     path("preventivo/", include("Preventivo.urls")),
-    path("email/", include("InvioEmail.urls")),
 
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

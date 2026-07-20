@@ -7,34 +7,27 @@
 
 
 <div class="container">
-
     <div class="row">
         <div class="col-12">
             <h1 class="text-center py-5">Documenti</h1>
         </div>
-        
     </div>    
-
     {% for categoria in object_list %}
-    <h4 class="text-center py-3 fs-2">{{categoria.nome_categoria}}</h4>
-    <div class="row g-4 justify-content-center mb-5">
-        {% for file in categoria.file_cat.all %}
-        {% if file.file %}
-        <div class="col-auto">
-            <div class="card mx-auto" style="max-width: 20rem;">
-                <div class="card-body text-center">
-                    <h5 class="card-title mb-0">{{file.nome_file}}</h5>
-                </div>
-                <a class="card-footer text-center py-4" href="media/{{file.file}}" target="_blank">
-                    <i class="bi bi-filetype-pdf fs-1" style="color: red;"></i>
-                </a>
-            </div>
+    <div class="border rounded p-4 mb-5 mx-auto categoria-documenti">
+        <h4 class="text-center py-3 fs-2">{{categoria.nome_categoria}}</h4>
+        <div class="row g-4 justify-content-center">
+            {% for file in categoria.file_cat.all %}
+            {% if file.file %}
+            {% include 'partials/card_documento.html' with titolo=file.nome_file url_file=file.file.url %}
+            {% if forloop.counter|divisibleby:5 and not forloop.last %}
+            {# Spartitore invisibile largo il 100% della riga: forza il documento successivo ad andare a capo dopo ogni 5°, a prescindere dalla larghezza reale delle card (che varia in base al titolo) #}
+            <div class="w-100"></div>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
         </div>
-        {% endif %}
-        {% endfor %}
     </div>
     {% endfor %}
-
 </div>
 
 {% endblock contenuto %}

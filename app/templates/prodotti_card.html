@@ -9,86 +9,51 @@
 
     <div class="row">
         <div class="col-12 py-5">
-            <div class="position-relative text-center">
+            <div class="text-center">
                 <h1 class="fw-bold mb-0">{{nome_categoria}}</h1>
-                {% if not user.is_authenticated %}
-                <div class="alert alert-info catalogo-alert-preventivo d-inline-flex align-items-center mb-0 py-2 mt-3 mt-md-0" role="alert">
-                    <i class="bi bi-info-circle-fill me-2"></i>
-                    <div>
-                        Per richiedere un preventivo devi prima <a href="{% url 'signup' %}" class="alert-link">registrarti</a>.
-                    </div>
-                </div>
-                {% endif %}
             </div>
         </div>
     </div>
 
+    {% if not user.is_authenticated %}
+    <div class="row">
+        <div class="col-12 d-flex justify-content-center card-control-alert">
+            {% include 'partials/alert_preventivo.html' %}
+        </div>
+    </div>
+    {% endif %}
+
     <div class="row">
 
-        <div class="col-xl-3 col-md-12 py-5">
+        <div class="col-12 py-3 d-flex flex-nowrap align-items-center justify-content-between gap-2">
 
-            <div class="row">
-
-                <div class="col-12">
-                    <form class="input-group rounded py-2" action="{% url 'search_prodotto' categoria_pk %}">
-                        <input type="text" name="query" class="form-control rounded" placeholder="Search" aria-label="Search"
-                            aria-describedby="search-addon" />
-                        <span class="input-group-text border-0" id="search-addon">
-                            <i class="fas fa-search"></i>
-                        </span>
-                    </form>
-                </div>
-
-            </div>
-            
-            
-            <div class="row">
-                <div class="col-12">
-                    <ul class="list-group py-4">
-                        {%if sottocategorie|length > 0%}
-                        <li class="list-group-item"><a href="{% url 'dettaglio_categoria' categoria_pk %}">
-                            LISTA COMPLETA
-                        </a></li>
-                        {%endif%}
-
-                    </ul>
-
-                    <ul class="list-group py-3">
-                        {% for sottocategoria in sottocategorie %}
-                            <li class="list-group-item">
-                                <a href="{% url 'dettaglio_sottocategoria' sottocategoria.categoria_id sottocategoria.codice_sottocategoria %}">
-                                    {{ sottocategoria.nome_sottocategoria }}
-                                </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-
-                </div>
+            <div class="card-control-ricerca flex-grow-1 flex-shrink-1" style="max-width: 20rem;">
+                <form class="input-group rounded w-100" action="{% url 'search_prodotto' categoria_pk %}">
+                    <input type="text" name="query" id="prodottiCardSearch" class="form-control rounded" placeholder="Search" aria-label="Search"
+                        aria-describedby="search-addon" />
+                    <span class="input-group-text border-0" id="search-addon">
+                        <i class="fas fa-search"></i>
+                    </span>
+                </form>
             </div>
 
-            <!--
-            {%if sottocategorie|length > 0%}
-                <div class="btn text-center ">
-                    <a href="{% url 'dettaglio_categoria' categoria_pk %}">
-                        lista completa
-                    </a>
-                </div>
-            {%endif%}
-
-            {% for sottocategoria in sottocategorie %}
-            <div class="btn">
-               <a href="{% url 'dettaglio_sottocategoria' sottocategoria.categoria_id sottocategoria.codice_sottocategoria %}" class="list-group-item list-group-item-action" aria-current="true">
-                    {{ sottocategoria.nome_sottocategoria }}
-                </a>
+            {% if sottocategorie|length > 0 %}
+            <div class="card-control-filtro flex-grow-1 flex-shrink-1" style="max-width: 20rem;">
+                <select id="prodottiCardFiltro" class="form-select" onchange="if (this.value) window.location.href = this.value;">
+                    <option value="{% url 'dettaglio_categoria' categoria_pk %}">Lista completa</option>
+                    {% for sottocategoria in sottocategorie %}
+                        <option value="{% url 'dettaglio_sottocategoria' sottocategoria.categoria_id sottocategoria.codice_sottocategoria %}"
+                            {% if sottocategoria.codice_sottocategoria == sottocategoria_corrente_pk %}selected{% endif %}>
+                            {{ sottocategoria.nome_sottocategoria }}
+                        </option>
+                    {% endfor %}
+                </select>
             </div>
-            {% endfor %}
-
-            -->
-             
+            {% endif %}
 
         </div>
 
-        <div class="col-xl-9 col-md-12">
+        <div class="col-12">
 
             <div class="row">
 

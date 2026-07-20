@@ -12,7 +12,10 @@ class EmailBackend(ModelBackend):
         except UserModel.DoesNotExist:
             return None
         else:
-            if user.check_password(password):
+            # "user_can_authenticate" (ereditato da ModelBackend) controlla
+            # "is_active": senza, un account disattivato da admin potrebbe
+            # comunque continuare a fare login normalmente
+            if user.check_password(password) and self.user_can_authenticate(user):
                 logger.info("Si è loggato l'utente " + user.email)
                 return user
         return None

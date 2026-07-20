@@ -30,30 +30,6 @@
         </div>
 
         <div id="info" class="col-md-5 text-center mt-2">
-          <div id="contenutoInfo">
-
-            <!-- Content -->
-            <h3 class="text-uppercase">SANISCOPE-CHIMICA S.R.L</h3>
-            <p class="pt-2">
-              Via A. Burzagli, 83
-
-              52025 Montevarchi(AR)
-              <br class="pt-1">
-              <strong>Tel: </strong>
-              <a href="tel:+39055980308">(+39) 055 980308</a>
-              <br>
-              <strong>Fax: </strong>
-              055 981450
-              <br>
-              <strong>Email: </strong>
-              <a title="Sani Scope CHimica Srl" href="mailto:info@saniscope-chimica.it"
-                target="_blank">info@saniscope-chimica.it</a>
-              <br>
-              <strong>COD.FISC/P.IVA:</strong>
-              00156060519
-            </p>
-
-          </div>
 
           <div class="justify-content-center">
             <h3>Orari di apertura</h3>
@@ -104,12 +80,22 @@
 
         <div class="col-12 pt-5">
           <div id="map" style="height: 350px;">
-            <script>var mymap = L.map('map').setView([43.528066, 11.562978], 17);
+            <script>
+              // scrollWheelZoom:false evita che chi scorre la pagina con la
+              // rotellina resti "intrappolato" nello zoom passando col
+              // cursore sopra la mappa - lo zoom coi bottoni +/- resta attivo
+              var mymap = L.map('map', { scrollWheelZoom: false }).setView([43.528066, 11.562978], 17);
               L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
                 subdomains: ['a', 'b', 'c']
               }).addTo(mymap);
-              mymap = L.marker([43.528066, 11.562978]).addTo(mymap);</script>
+              // Stesso URL di indicazioni stradali gia' usato nel link del footer,
+              // per coerenza: cliccando sul marker si apre Google Maps in un'altra scheda
+              L.marker([43.528066, 11.562978]).addTo(mymap)
+                .on('click', function () {
+                  window.open('https://www.google.com/maps/dir/?api=1&destination=43.528066,11.562978', '_blank', 'noopener');
+                });
+            </script>
           </div>
         </div>
 
@@ -128,5 +114,20 @@
   </div>
 </main>
 
+<script>
+  // Campo "Contenuto": parte basso (2 righe, vedi MessaggioForm) e cresce
+  // da solo mentre si scrive, invece di avere un'altezza fissa grande
+  // "per sicurezza" indipendentemente da quanto testo viene scritto
+  (function () {
+    var textarea = document.getElementById('id_contenuto');
+    if (!textarea) return;
+    function adattaAltezza() {
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+    textarea.addEventListener('input', adattaAltezza);
+    adattaAltezza();
+  })();
+</script>
 
 {% endblock contenuto %}

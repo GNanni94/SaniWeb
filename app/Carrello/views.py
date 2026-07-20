@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView  # new
 from django.views.generic.edit import UpdateView, DeleteView, CreateView  # new
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.decorators.http import require_POST
 from .models import Carrello
 from Prodotti.models import Prodotto
 from django.contrib import messages
@@ -14,8 +16,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Create your views here.
-class CarrelloListView(ListView):
-    
+class CarrelloListView(LoginRequiredMixin, ListView):
+
     model = Carrello
     template_name = "carrello.html"
 
@@ -45,15 +47,25 @@ def aggiungi_prodotti_al_carrello(request, prodottoId):
         return redirect(prodotto) 
     return redirect('login')     
 
+@require_POST
 def elimina_elementi_dal_carrello(request, carrelloId):
     if request.user.is_authenticated:
         logger.info(f"Richiesta eliminazione elemento carrello {carrelloId} utente {request.user.pk}")
-        Carrello.objects.filter(id = carrelloId).delete()
+        # "cliente=request.user" e' il filtro di proprieta': prima mancava,
+        # quindi bastava conoscere/indovinare un carrelloId per cancellare
+        # l'elemento di carrello di un altro cliente
+        Carrello.objects.filter(id = carrelloId, cliente = request.user).delete()
         logger.info(f"Effettuata richiesta eliminazione elemento carrello {carrelloId} utente {request.user.pk}")
-    return redirect('carrello')   
+    return redirect('carrello')
 
+@require_POST
 def settaggio_quantita(request, carrelloId):
-    elemento_carrello = get_object_or_404(Carrello, pk=carrelloId)
+    # "cliente_id=request.user.pk" (non "cliente=request.user"): questa riga
+    # gira anche per un utente anonimo (il controllo is_authenticated e'
+    # sotto), e filtrare una ForeignKey con un AnonymousUser al posto di
+    # un'istanza del modello utente solleva un ValueError - confrontare i pk
+    # (None per l'anonimo) evita il problema restando comunque un 404 pulito
+    elemento_carrello = get_object_or_404(Carrello, pk=carrelloId, cliente_id=request.user.pk)
     if request.user.is_authenticated:
         carrello_form = CarrelloForm(request.POST)
         datiForm = carrello_form.save(commit=False)
@@ -72,8 +84,9 @@ def settaggio_quantita(request, carrelloId):
 
 
 
+@require_POST
 def aumenta_quantita_carrello(request, carrelloId):
-    elemento_carrello = get_object_or_404(Carrello, pk=carrelloId)
+    elemento_carrello = get_object_or_404(Carrello, pk=carrelloId, cliente_id=request.user.pk)
     if request.user.is_authenticated:
         logger.info(f"Richiesta aumento quantita prodotto {elemento_carrello.prodotto.pk} carrello {carrelloId} utente {request.user.pk}")
         elemento_carrello.quantita += 1
@@ -82,8 +95,9 @@ def aumenta_quantita_carrello(request, carrelloId):
     return redirect('carrello')      
 
 
+@require_POST
 def diminuisci_quantita_carrello(request, carrelloId):
-    elemento_carrello = get_object_or_404(Carrello, pk=carrelloId)
+    elemento_carrello = get_object_or_404(Carrello, pk=carrelloId, cliente_id=request.user.pk)
     if request.user.is_authenticated:
         logger.info(f"Richiesta diminuzione quantita prodotto {elemento_carrello.prodotto.pk} carrello {carrelloId} utente {request.user.pk}")
         quantita = elemento_carrello.quantita

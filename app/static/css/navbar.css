@@ -18,6 +18,15 @@
     padding: 0 1rem; /* niente padding-bottom qui: essendo l'elemento la cui altezza viene animata, un padding verticale lascerebbe un pezzetto di sfondo residuo quando l'altezza arriva a 0 (vedi padding-bottom spostato su .navbar-text) */
   }
 
+  /* L'icona profilo e' sempre visibile in alto a destra (fuori dal menu
+     hamburger, vedi base.html), quindi puo' essere aperta anche a menu
+     hamburger gia' aperto: senza questa regola il suo dropdown (z-index
+     1000 di default in Bootstrap) resterebbe parzialmente coperto dal
+     pannello #navbarSupportedContent qui sopra (z-index 1030) */
+  .site-navbar .dropdown-menu[aria-labelledby="dropdownUser1"] {
+    z-index: 1031;
+  }
+
   #navbarSupportedContent.show {
     height: auto !important;
   }
@@ -136,6 +145,44 @@
 #dropdownCategorie .dropdown-item:focus {
   color: var(--color-primary); /* testo blu (colore navbar) per evidenziare la voce selezionata */
   border-color: var(--color-primary); /* contorno blu (stesso blu della navbar) attorno alla voce sotto il mouse, senza riempire lo sfondo di grigio */
+}
+
+/* Stessi colori del menu Categorie qui sopra (sfondo bianco, bordo blu
+   navbar, testo scuro) applicati al menu del profilo utente (Profilo,
+   Cambia password, Lista preventivi, Elimina, Log Out). "Elimina" resta
+   rossa (.text-danger, gia' nel template) - il colore qui sotto si applica
+   solo alle voci senza quella classe, dato che arriva dopo nel foglio di
+   stile ma ha la stessa specificita' di un selettore per classe */
+#dropdownUser1 ~ .dropdown-menu {
+  background-color: var(--color-bg);
+  border: 3px solid var(--color-primary);
+  border-radius: .5rem;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* Riga con l'email dell'utente (non e' un ".dropdown-item", quindi non
+   eredita la linea di separazione blu qui sotto): stessa linea, per
+   coerenza con il resto del menu */
+#dropdownUser1 ~ .dropdown-menu > li:first-child {
+  border-bottom: 1px solid var(--color-primary);
+}
+
+#dropdownUser1 ~ .dropdown-menu .dropdown-item {
+  color: var(--color-text);
+  /* Linea blu (stesso blu della navbar) a separare una voce dall'altra,
+     tolta sull'ultima voce per non lasciare un bordo doppio col contenitore */
+  border-bottom: 1px solid var(--color-primary);
+}
+
+#dropdownUser1 ~ .dropdown-menu li:last-child .dropdown-item {
+  border-bottom: none;
+}
+
+#dropdownUser1 ~ .dropdown-menu .dropdown-item:hover,
+#dropdownUser1 ~ .dropdown-menu .dropdown-item:focus {
+  color: var(--color-primary);
+  background-color: var(--color-bg-alt);
 }
 
 /* Bottoni Login/Registrati/Carrello: stessa classe, rettangolari, sfondo bianco, testo nero */

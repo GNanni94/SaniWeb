@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.contrib.auth.decorators import user_passes_test
 import os
 from SitoWeb import settings
 # Create your views here.
@@ -79,7 +80,8 @@ class SottocategoriaListView(ListView):
         context['nome_categoria'] = sottocategoria.nome_sottocategoria
         context['categoria_pk'] = categoria.pk
         context['sottocategorie'] = Sottocategoria.objects.filter(categoria_id=categoria.pk)
-        return render(request, self.template_name, context)  
+        context['sottocategoria_corrente_pk'] = sottocategoria.codice_sottocategoria
+        return render(request, self.template_name, context)
 
 class CatalogoListView(ListView):
     model = Prodotto
@@ -210,9 +212,10 @@ def controllaSchedeTecniche():
     ConfiguraSchedeArticoli()
     configuraSchede()
 
-def sincronizzazione(self):        #aggiorno tabelle
+@user_passes_test(lambda u: u.is_authenticated and u.is_staff, login_url='login')
+def sincronizzazione(request):        #aggiorno tabelle
    controllaImmaginiArticolo()
    controllaSchedeTecniche()
-   return redirect('home')   
-#sincronizzazione() 
+   return redirect('home')
+#sincronizzazione()
 

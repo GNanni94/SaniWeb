@@ -66,8 +66,11 @@
                                             <span name="quantity" >{{ elementi_carrello.quantita }} {{elementi_carrello.prodotto.unita_di_misura}} <span>
                                         </div>
                                         <div class="col-md-1 col-lg-1 col-xl-1 text-end">
-                                            <a href="{% url 'elimina_prodotti' elementi_carrello.pk %}"
-                                                class="text-danger"><i class="bi bi-trash fs-3"></i></a>
+                                            {# form invece di un link: la view richiede POST (vedi Carrello/views.py), altrimenti un link/immagine su un'altra pagina potrebbe far cancellare l'elemento a un utente loggato senza che se ne accorga #}
+                                            <form method="post" action="{% url 'elimina_prodotti' elementi_carrello.pk %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-link text-danger p-0 border-0"><i class="bi bi-trash fs-3"></i></button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>

@@ -1,0 +1,6 @@
+<div {% if alert_id %}id="{{ alert_id }}"{% endif %} class="alert alert-info catalogo-alert-preventivo catalogo-alert-inline d-inline-flex align-items-center mb-0 py-2{% if alert_extra_class %} {{ alert_extra_class }}{% endif %}" role="alert">
+    <i class="bi bi-info-circle-fill me-3"></i>
+    <div>
+        <a href="{% url 'signup' %}" class="alert-link">Registrarti</a> per richiedere un preventivo.
+    </div>
+</div>

@@ -5,6 +5,7 @@ from .forms import ClienteForm, MessaggioForm
 from .models import Cliente, Richiesta_messaggio, Registrati
 from Preventivo.models import Preventivo
 from django.views.generic import CreateView, DeleteView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from .forms import ClienteCreationForm
 from InvioEmail.views import emailMessaggio
@@ -42,53 +43,75 @@ class SignUpView(CreateView):
 
     def form_valid(self, form) -> HttpResponse:
         logger = logging.getLogger(__name__)
-        form_cleaned = form.cleaned_data
-        registrato = Registrati()
-        registrato.email = form_cleaned.get("email")
-        registrato.username = form_cleaned.get("email")
-        registrato.first_name = form_cleaned.get("first_name")
-        registrato.cognome_ragione_sociale = form_cleaned.get("cognome_ragione_sociale")
-        registrato.codiceFiscale_PartitaIVA = form_cleaned.get("codiceFiscale_PartitaIVA")
-        registrato.indirizzo = form_cleaned.get("indirizzo")
-        registrato.citta = form_cleaned.get("citta")
-        registrato.telefono = form_cleaned.get("telefono")
-        registrato.password = form_cleaned.get("password1")
 
-        logger.info(f"Si è registarto con l'email {registrato.email}")
+        # Salva prima l'utente: se l'invio dell'email di benvenuto sotto
+        # dovesse fallire (dominio non recapitabile, server SMTP giu', ecc.),
+        # l'account esiste comunque - prima l'ordine era invertito e un
+        # fallimento dell'invio impediva la creazione dell'account, con un
+        # errore 500 non gestito mostrato all'utente
+        response = super().form_valid(form)
 
-        registrato.email_user()
-        return super().form_valid(form)
+        logger.info(f"Si è registarto con l'email {self.object.email}")
+
+        # Oggetto "usa e getta" solo per il testo dell'email di benvenuto:
+        # serve la password in chiaro (quella su self.object e' gia' l'hash),
+        # non viene mai salvato su DB
+        registrato = Registrati(
+            email=self.object.email,
+            first_name=self.object.first_name,
+            password=form.cleaned_data.get("password1"),
+        )
+        try:
+            registrato.email_user()
+        except Exception:
+            logger.exception(f"Invio email di benvenuto fallito per {registrato.email}")
+
+        return response
 
 class ProfiloView (TemplateView):
     
     template_name = "profilo.html"
 
-class UtenteDeleteView (DeleteView):
+class UtenteDeleteView (LoginRequiredMixin, DeleteView):
     template_name = "conferma_cancellazione_profilo.html"
     success_url = reverse_lazy('home')
     model = Registrati
 
+    def get_queryset(self):
+        # Un utente puo' cancellare solo il proprio account, non quello di
+        # altri: prima non c'era alcun filtro qui, quindi bastava cambiare
+        # il pk nell'URL per cancellare l'account di un altro cliente
+        return Registrati.objects.filter(pk=self.request.user.pk)
+
     def get_context_data(self, **kwargs):
         logger = logging.getLogger(__name__)
         context = {}
-        
-        registrato = Registrati.objects.get(pk=self.kwargs['pk']) 
+
+        registrato = self.object
         logger.info(f"Richiesta cancellazione utente con id {registrato.pk}")
         context['emailRegistrato'] = registrato.email
         context['preventivi'] = Preventivo.objects.filter(cliente_id = registrato.pk)
         context['messaggi'] = Richiesta_messaggio.objects.filter(cliente_id = registrato.pk)
-       
+
         return context
 
     def delete(self, *args, **kwargs):
 
-        return super(PresetDeleteView, self).delete(*args, **kwargs)
+        return super().delete(*args, **kwargs)
 
-class Profilo(UpdateView):
+class Profilo(LoginRequiredMixin, UpdateView):
 
     model = Registrati
     template_name = "profilo.html"
     success_url=reverse_lazy("home")
+
+    def get_queryset(self):
+        # Un utente puo' modificare solo il proprio profilo, non quello di
+        # altri: prima non c'era alcun filtro, quindi bastava cambiare il pk
+        # nell'URL per modificare i dati (email compresa) di un altro
+        # utente - potenzialmente un modo per rubare l'account cambiandone
+        # l'email e poi usando "password dimenticata"
+        return Registrati.objects.filter(pk=self.request.user.pk)
 
     fields = [
             "email",

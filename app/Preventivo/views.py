@@ -5,6 +5,7 @@ from Carrello.models import Carrello
 from .models import Preventivo, Elementi_Preventivo
 from .forms import DettaglioPreventivoForm
 from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from typing import Any, Dict
 from InvioEmail.views import emailPreventivo
 from django.core.paginator import Paginator
@@ -13,7 +14,7 @@ import logging
 # Create your views here.
 
 
-class PreventivoListView(ListView):
+class PreventivoListView(LoginRequiredMixin, ListView):
     model = Preventivo
     template_name = "preventivo.html"
     paginate_by = 8
@@ -51,12 +52,16 @@ def crea_ordine_da_carrello(request):
         
         return redirect('lista_ordini')
 
-class PreventivoDetailView(ListView):
+class PreventivoDetailView(LoginRequiredMixin, ListView):
     model = Preventivo
     template_name = "dettaglio_preventivo.html"
 
     def get_queryset(self) -> QuerySet[Any]:
-        preventivo = Preventivo.objects.get(pk=self.kwargs['pk'])
+        # Un utente puo' vedere solo il dettaglio dei propri preventivi, non
+        # quelli di altri clienti: prima non c'era alcun filtro sul
+        # proprietario, bastava cambiare il pk nell'URL per vedere prodotti,
+        # quantita' e dati di un preventivo altrui
+        preventivo = get_object_or_404(Preventivo, pk=self.kwargs['pk'], cliente=self.request.user)
         object_list = preventivo.elementi_preventivo.all()
         return object_list
 

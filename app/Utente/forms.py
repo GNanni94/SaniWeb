@@ -4,6 +4,13 @@ from .models import Cliente, Messaggi, Registrati
 from phonenumber_field.formfields import PhoneNumberField
 from django import forms
 import logging
+import re
+
+# Stessa regex usata lato client (vedi signup.html): EmailField di Django da
+# solo accetta anche domini senza un vero punto+TLD (es. "test@localhost",
+# pensato per casi come indirizzi di rete locale) - qui viene richiesto un
+# punto nel dominio seguito da almeno 2 caratteri
+EMAIL_REGEX = re.compile(r'^[^\s@]+@[^\s@]+\.[^\s@]{2,}$')
 
 
 class ClienteForm(ModelForm):
@@ -23,7 +30,12 @@ class MessaggioForm(ModelForm):
         model = Messaggi
         fields = (
             "contenuto",
-        ) 
+        )
+        # rows basso apposta: l'altezza cresce da sola mentre si scrive
+        # (vedi JS in contatti.html), quindi non serve partire gia' alta
+        widgets = {
+            "contenuto": forms.Textarea(attrs={"rows": 1}),
+        }
 
 
 
@@ -32,7 +44,7 @@ class ClienteCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
     class Meta:
         model = Registrati
-        
+
         fields = (
             "email",
             "first_name",
@@ -41,7 +53,21 @@ class ClienteCreationForm(UserCreationForm):
             "indirizzo",
             "citta",
             "telefono",
-        ) 
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # L'elenco regole generato di default da AUTH_PASSWORD_VALIDATORS e'
+        # gia' mostrato in modo piu' chiaro dalla checklist live in
+        # signup.html, quindi qui va tolto per non duplicarlo
+        self.fields["password1"].help_text = ""
+        self.fields["password2"].help_text = ""
+
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        if not EMAIL_REGEX.match(email):
+            raise forms.ValidationError("Inserisci un indirizzo email valido.")
+        return email
 
 
 

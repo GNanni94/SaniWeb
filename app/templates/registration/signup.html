@@ -13,7 +13,7 @@
             <div class="card-header text-center display-6">Registrati</div>
             <div class="card-body">
         
-                <form class="row"  method="post" >
+                <form id="form-registrazione" class="row"  method="post" >
                 {% csrf_token %}
         
                     <div class="col-md-6">
@@ -27,8 +27,6 @@
                         <div class="col-12">
                             {{ form.email|as_crispy_field }}
                         </div>
-                  
-
                     
                         <div class="col-md-6 ">
                             {{ form.codiceFiscale_PartitaIVA|as_crispy_field }}
@@ -48,7 +46,13 @@
 
                         <div class="col-md-6 ">
                             {{ form.password1|as_crispy_field }}
-                        </div>    
+                            <ul id="requisiti-password1" class="list-unstyled small mt-1 mb-0">
+                                <li data-regola="lunghezza"><i class="bi bi-circle text-muted me-1"></i>Almeno 8 caratteri</li>
+                                <li data-regola="alfanumerico"><i class="bi bi-circle text-muted me-1"></i>Non solo lettere o solo numeri</li>
+                                <li data-regola="maiuscola"><i class="bi bi-circle text-muted me-1"></i>Almeno una lettera maiuscola</li>
+                                <li data-regola="speciale"><i class="bi bi-circle text-muted me-1"></i>Almeno un carattere speciale</li>
+                            </ul>
+                        </div>
 
                         <div class="col-md-6 ">
                             {{ form.password2|as_crispy_field }}
@@ -67,5 +71,246 @@
     </div>
 </div>
 
+<script>
+  // Icona di validita' sintattica a fine campo (pallino verde con check se
+  // valido, pallino rosso con croce se non valido), mostrata solo quando si
+  // esce dal campo ("blur") dopo aver scritto qualcosa - appena si
+  // ricomincia a modificare il campo l'icona si nasconde di nuovo, finche'
+  // non si esce nuovamente. Icone Bootstrap Icons + utility di
+  // posizionamento Bootstrap, gia' caricate nel sito - nessun CSS custom
+  // necessario.
+  // "opzioni.blocca" (solo per l'email) usa anche "setCustomValidity()" per
+  // impedire davvero l'invio del form finche' il campo non e' valido, stesso
+  // meccanismo nativo che gia' blocca i campi "required" vuoti - senza,
+  // l'icona rossa sarebbe solo decorativa. Per gli altri campi invece e'
+  // solo un'indicazione visiva (vedi sotto il motivo)
+
+  // Contenitore + icona (senza logica di validazione): condiviso sia da
+  // installaIconaValidita (un campo, verifica sul proprio valore) sia da
+  // installaIconeCorrispondenza sotto (due campi, verifica che coincidano)
+  function creaIconaCampo(input) {
+    var wrapper = document.createElement('div');
+    wrapper.className = 'position-relative';
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(input);
+    input.classList.add('pe-5');
+
+    var icona = document.createElement('i');
+    icona.className = 'bi position-absolute top-50 end-0 translate-middle-y me-3 d-none';
+    icona.style.fontSize = '1.25rem';
+    icona.setAttribute('aria-hidden', 'true');
+    wrapper.appendChild(icona);
+
+    // Il wrapper appena creato mette l'input dentro un nuovo div, "rompendo"
+    // la fratellanza diretta con il div ".invalid-feedback" di crispy-forms
+    // di cui Bootstrap si serve (regola CSS ".is-invalid ~ .invalid-feedback")
+    // per mostrare il messaggio di errore restituito dal server: l'input
+    // resta "is-invalid" (bordo rosso) ma il testo dell'errore non compare
+    // piu'. Lo forziamo visibile a mano, individuandolo tramite
+    // "aria-describedby" (che crispy-forms imposta gia' sull'input).
+    var feedbackServer = (input.getAttribute('aria-describedby') || '').split(/\s+/)
+      .map(function (id) { return id && document.getElementById(id); })
+      .filter(function (el) { return el && el.classList.contains('invalid-feedback'); });
+
+    if (input.classList.contains('is-invalid')) {
+      feedbackServer.forEach(function (el) { el.style.display = 'block'; });
+
+      // L'errore si riferisce al valore gia' scritto dal server: appena
+      // l'utente ricomincia a modificare il campo lo nascondiamo (stesso
+      // principio dell'icona sotto, che si nasconde su "input" e riappare
+      // solo al prossimo "blur"/submit). Esposta anche su "input._nascondi..."
+      // perche' a volte l'errore va nascosto anche da un ALTRO campo (vedi
+      // password1/password2 sotto)
+      var nascondiErroreServer = function () {
+        input.classList.remove('is-invalid');
+        feedbackServer.forEach(function (el) { el.style.display = 'none'; });
+      };
+      input.addEventListener('input', nascondiErroreServer, { once: true });
+      input._nascondiErroreServer = nascondiErroreServer;
+    }
+
+    return icona;
+  }
+
+  function installaIconaValidita(idCampo, eValida, opzioni) {
+    opzioni = opzioni || {};
+    var input = document.getElementById(idCampo);
+    if (!input) return;
+    var icona = creaIconaCampo(input);
+
+    function aggiornaIcona() {
+      icona.classList.remove('bi-check-circle-fill', 'bi-x-circle-fill', 'text-success', 'text-danger');
+
+      if (opzioni.blocca) {
+        // Azzerato prima di ricontrollare: altrimenti checkValidity() sotto
+        // risulterebbe sempre false (un customValidity non vuoto blocca la
+        // validita' del campo a prescindere da tutto il resto)
+        input.setCustomValidity('');
+      }
+      var valore = input.value.trim();
+      var valida = valore !== '' && eValida(valore, input);
+
+      if (opzioni.blocca && valore && !valida) {
+        input.setCustomValidity(opzioni.messaggio || 'Valore non valido.');
+      }
+
+      if (!valore) {
+        icona.classList.add('d-none');
+        return;
+      }
+      icona.classList.remove('d-none');
+      if (valida) {
+        icona.classList.add('bi-check-circle-fill', 'text-success');
+      } else {
+        icona.classList.add('bi-x-circle-fill', 'text-danger');
+      }
+    }
+
+    input.addEventListener('blur', aggiornaIcona);
+    input.addEventListener('input', function () {
+      icona.classList.add('d-none');
+    });
+  }
+
+  // Email: il controllo "checkValidity()" nativo del browser su
+  // type="email" da solo non basta - accetta anche indirizzi senza un
+  // dominio con un vero punto+TLD (es. "asdasdas@adsas", "test@localhost"),
+  // pensato apposta per casi come indirizzi di rete locale. Qui serve una
+  // regex piu' severa, che richiede un punto nel dominio seguito da almeno 2
+  // caratteri (stessa regex usata lato server in
+  // ClienteCreationForm.clean_email). Blocca davvero il submit.
+  var EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  installaIconaValidita('id_email', function (valore, input) {
+    return input.checkValidity() && EMAIL_REGEX.test(valore);
+  }, { blocca: true, messaggio: 'Inserisci un indirizzo email valido (es. nome@dominio.it).' });
+
+  // Telefono: solo indicazione visiva, NON blocca il submit - la
+  // validazione vera e propria (con django-phonenumber-field) e' ancora in
+  // pausa, qui si riusa la stessa regex gia' in uso lato server
+  // (valida_numero_telefono in Utente/models.py) solo come indicazione
+  var TELEFONO_REGEX = /^\+?\d{8,15}$/;
+  installaIconaValidita('id_telefono', function (valore) {
+    return TELEFONO_REGEX.test(valore);
+  });
+
+  // Codice fiscale / partita IVA: solo indicazione visiva, NON blocca il
+  // submit - controlla solo il FORMATO (lunghezza e struttura plausibili:
+  // 11 cifre per la partita IVA, oppure 16 caratteri nella struttura tipica
+  // del codice fiscale), non il carattere di controllo/checksum reale (la
+  // validazione con python-stdnum discussa in precedenza resta in pausa)
+  var CF_PIVA_REGEX = /^(\d{11}|[A-Za-z]{6}\d{2}[A-Za-z]\d{2}[A-Za-z]\d{3}[A-Za-z])$/;
+  installaIconaValidita('id_codiceFiscale_PartitaIVA', function (valore) {
+    return CF_PIVA_REGEX.test(valore);
+  });
+
+  // Password: 4 regole controllate lato client (lunghezza minima, non solo
+  // lettere/non solo numeri, almeno una maiuscola, almeno un carattere
+  // speciale), le stesse ora richieste anche lato server tramite
+  // AUTH_PASSWORD_VALIDATORS in settings.py (UppercaseValidator e
+  // SpecialCharacterValidator in Utente/validators.py). Definite una sola
+  // volta e riusate sia per l'icona di validita' complessiva sia per la
+  // checklist dettagliata sotto il campo
+  var REGOLE_PASSWORD = {
+    lunghezza: function (v) { return v.length >= 8; },
+    alfanumerico: function (v) { return !/^[A-Za-z]+$/.test(v) && !/^\d+$/.test(v); },
+    maiuscola: function (v) { return /[A-Z]/.test(v); },
+    speciale: function (v) { return /[^A-Za-z0-9]/.test(v); },
+  };
+
+  var MESSAGGIO_PASSWORD = 'La password deve avere almeno 8 caratteri, una maiuscola e un carattere speciale, e non essere solo lettere o solo numeri.';
+
+  installaIconaValidita('id_password1', function (valore) {
+    return Object.keys(REGOLE_PASSWORD).every(function (chiave) {
+      return REGOLE_PASSWORD[chiave](valore);
+    });
+  }, {
+    blocca: true,
+    messaggio: MESSAGGIO_PASSWORD,
+  });
+
+  // Checklist dettagliata: a differenza dell'icona sopra (che aggiorna
+  // "customValidity" solo al "blur"), qui il blocco si aggiorna ad ogni
+  // carattere digitato - cosi' appena tutti i requisiti sono soddisfatti il
+  // submit si sblocca subito, senza dover uscire dal campo
+  function installaChecklistPassword(idCampo, idLista) {
+    var input = document.getElementById(idCampo);
+    var lista = document.getElementById(idLista);
+    if (!input || !lista) return;
+
+    function aggiorna() {
+      var valore = input.value;
+      var valida = true;
+      Object.keys(REGOLE_PASSWORD).forEach(function (chiave) {
+        var ok = REGOLE_PASSWORD[chiave](valore);
+        valida = valida && ok;
+        var icona = lista.querySelector('[data-regola="' + chiave + '"] i');
+        icona.classList.remove('bi-circle', 'text-muted', 'bi-check-circle-fill', 'text-success', 'bi-x-circle-fill', 'text-danger');
+        if (valore === '') {
+          icona.classList.add('bi-circle', 'text-muted');
+        } else if (ok) {
+          icona.classList.add('bi-check-circle-fill', 'text-success');
+        } else {
+          icona.classList.add('bi-x-circle-fill', 'text-danger');
+        }
+      });
+      input.setCustomValidity(valore && !valida ? MESSAGGIO_PASSWORD : '');
+    }
+
+    input.addEventListener('input', aggiorna);
+  }
+
+  installaChecklistPassword('id_password1', 'requisiti-password1');
+
+  // Conferma password: l'icona qui non valuta il proprio contenuto (quello
+  // lo fa gia' l'icona su "Password" sopra), ma se coincide con il campo
+  // "Password" - nascosta finche' non sono stati scritti entrambi i valori,
+  // aggiornata uscendo da uno qualsiasi dei due campi. Solo indicazione
+  // visiva, NON blocca il submit - la mancata corrispondenza la intercetta
+  // comunque UserCreationForm lato server
+  function installaIconaCorrispondenza(idCampoOrigine, idCampoConferma) {
+    var origine = document.getElementById(idCampoOrigine);
+    var conferma = document.getElementById(idCampoConferma);
+    if (!origine || !conferma) return;
+    var icona = creaIconaCampo(conferma);
+
+    function aggiorna() {
+      icona.classList.remove('bi-check-circle-fill', 'bi-x-circle-fill', 'text-success', 'text-danger');
+      if (!origine.value || !conferma.value) {
+        icona.classList.add('d-none');
+        return;
+      }
+      icona.classList.remove('d-none');
+      if (origine.value === conferma.value) {
+        icona.classList.add('bi-check-circle-fill', 'text-success');
+      } else {
+        icona.classList.add('bi-x-circle-fill', 'text-danger');
+      }
+    }
+
+    function nascondi() {
+      icona.classList.add('d-none');
+    }
+
+    origine.addEventListener('blur', aggiorna);
+    conferma.addEventListener('blur', aggiorna);
+    origine.addEventListener('input', nascondi);
+    conferma.addEventListener('input', nascondi);
+  }
+
+  installaIconaCorrispondenza('id_password1', 'id_password2');
+
+  // L'errore che Django restituisce su "clean_password2()" (es. "troppo
+  // simile all'email", password comune, ecc.) viene sempre allegato al
+  // campo "Conferma password", anche se il valore che l'utente deve
+  // correggere e' quello scritto in "Password" qui sopra - va quindi
+  // nascosto anche scrivendo in id_password1, non solo in id_password2
+  (function () {
+    var pw1 = document.getElementById('id_password1');
+    var pw2 = document.getElementById('id_password2');
+    if (pw1 && pw2 && pw2._nascondiErroreServer) {
+      pw1.addEventListener('input', pw2._nascondiErroreServer, { once: true });
+    }
+  })();
+</script>
 
 {% endblock contenuto %}

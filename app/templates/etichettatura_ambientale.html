@@ -12,19 +12,9 @@
         </div>
     </div>
 
-    <div class="row justify-content-center g-3 py-4">
-        <div class="col-auto">
-            <a href="/media/pdfEtichettaturaAmbientale/ETICHETTATURA-AMBIENTALE-VERSIONE-0-02-01-23.pdf"
-                class="btn btn-accent btn-lg px-5" target="_blank">
-                Aziende
-            </a>
-        </div>
-        <div class="col-auto">
-            <a href="/media/pdfEtichettaturaAmbientale/ETICHETTATURA-AMBIENTALE-PRIVATI-VERS.0-DEL-02-01-23.pdf"
-                class="btn btn-accent btn-lg px-5" target="_blank">
-                Privati
-            </a>
-        </div>
+    <div class="row g-4 justify-content-center py-4">
+        {% include 'partials/card_documento.html' with titolo="Aziende" url_file="/media/pdfEtichettaturaAmbientale/ETICHETTATURA-AMBIENTALE-VERSIONE-0-02-01-23.pdf" %}
+        {% include 'partials/card_documento.html' with titolo="Privati" url_file="/media/pdfEtichettaturaAmbientale/ETICHETTATURA-AMBIENTALE-PRIVATI-VERS.0-DEL-02-01-23.pdf" %}
     </div>
 </div>
 

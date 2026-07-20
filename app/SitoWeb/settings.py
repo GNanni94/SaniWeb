@@ -24,14 +24,27 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = bool(os.environ.get("DEBUG", default=0))
+# Prima queste due righe erano scambiate: SECRET_KEY leggeva la variabile
+# DEBUG (diventando semplicemente True/False, un "segreto" indovinabile che
+# indebolisce firma delle sessioni, CSRF e token di reset password), mentre
+# DEBUG era fisso a True anche in produzione (pagine di errore con
+# tracciamento completo del codice mostrate a chiunque)
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "0") in ("1", "True", "true", "TRUE")
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS").split(" ")
+
+# "not DEBUG" (non fisso a True): in dev il sito gira su HTTP semplice
+# (localhost, non HTTPS) - un cookie "Secure" non verrebbe rimandato
+# indietro dal browser su una connessione non cifrata, rompendo il login in
+# locale. In staging/prod (DEBUG=False, sito dietro HTTPS) i cookie di
+# sessione e CSRF vengono inviati solo su connessioni cifrate
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
@@ -121,6 +134,12 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+    {
+        'NAME': 'Utente.validators.UppercaseValidator',
+    },
+    {
+        'NAME': 'Utente.validators.SpecialCharacterValidator',
+    },
 ]
 
 
@@ -156,6 +175,10 @@ AUTHENTICATION_BACKENDS = ['Utente.backends.EmailBackend']
 
 LOGIN_REDIRECT_URL = "home" #new
 LOGOUT_REDIRECT_URL = "home" #new
+# Senza questo, "LoginRequiredMixin" (usato in Utente/views.py per proteggere
+# Profilo/UtenteDeleteView) reindirizza di default a "/accounts/login/", che
+# non esiste in questo progetto (404) - il login vero e' sotto "clienti/"
+LOGIN_URL = "login"
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5" #new
 CRISPY_TEMPLATE_PACK = "bootstrap5" #new
@@ -169,36 +192,36 @@ EMAIL_HOST_PASSWORD = 'Term30@1961'
 EMAIL_USE_SSL = True
 
 COOKIEBANNER = {
-    "title": _("Cookie settings"),
-    "header_text": _("We are using cookies on this website. A few are essential, others are not."),
+    "title": _("Impostazioni cookie"),
+    "header_text": _("Questo sito utilizza cookie. Alcuni sono essenziali, altri no."),
     "groups": [
         {
             "id": "essential",
-            "name": _("Essential"),
-            "description": _("Essential cookies allow this page to work."),
+            "name": _("Essenziali"),
+            "description": _("I cookie essenziali permettono il funzionamento di questa pagina."),
             "cookies": [
                 {
                     "pattern": "cookiebanner",
-                    "description": _("Meta cookie for the cookies that are set."),
+                    "description": _("Cookie tecnico che memorizza le preferenze sui cookie impostati."),
                 },
                 {
                     "pattern": "csrftoken",
-                    "description": _("This cookie prevents Cross-Site-Request-Forgery attacks."),
+                    "description": _("Questo cookie previene attacchi di tipo Cross-Site-Request-Forgery."),
                 },
                 {
                     "pattern": "sessionid",
-                    "description": _("This cookie is necessary to allow logging in, for example."),
+                    "description": _("Questo cookie è necessario, ad esempio, per consentire l'accesso al sito."),
                 },
             ],
         },
         {
             "id": "analytics",
-            "name": _("Analytics"),
+            "name": _("Analitici"),
             "optional": True,
             "cookies": [
                 {
                     "pattern": "gtag",
-                    "description": _("Google cookie for website analysis."),
+                    "description": _("Cookie di Google per l'analisi del sito web."),
                 },
             ],
         },
