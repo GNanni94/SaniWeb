@@ -20,28 +20,24 @@
 	<div class="row g-4 py-3 justify-content-center">
 		{% for categoria in object_list %}
 		<div class="col-6 col-md-4 col-xl-3 my-4">
-
 			<div class="card text-bg-dark mx-auto catalogo-card" id="home_contenitore_immagineCategorie">
-				<a href="{% url 'dettaglio_categoria' categoria.pk %}">
+				<a href="{% url 'dettaglio_categoria' categoria.pk %}" class="text-decoration-none d-block position-relative">
 					<div class="ratio ratio-1x1">
 						<img src="{{ categoria.immagine_categoria.url }}" class="card-img view object-fit-cover" alt="..."
 							id="home_immaginiCategorie">
 					</div>
-					<div class="mask align-items-center">
-						<div class="d-flex justify-content-center align-items-center w-100 h-100 text-center">
-							<h5 class="card-title text-light display-6 fw-bold mb-0">{{ categoria.nome_categoria }}</h5>
-
-						</div>
+					{% comment %}
+					Layer sopra l'immagine (equivalente al ".mask" di MDB, rimosso dal
+					progetto): ".card-img-overlay" di Bootstrap posiziona il contenuto in
+					assoluto sopra l'immagine, qui centrato col titolo
+					{% endcomment %}
+					<div class="card-img-overlay d-flex justify-content-center align-items-center p-0">
+						<h5 class="card-title text-light display-6 fw-bold text-center mb-0">{{ categoria.nome_categoria }}</h5>
 					</div>
 				</a>
-
 			</div>
-
 		</div>
-
 		{% endfor %}
 	</div>
-
-
 </section>
 {% endblock contenuto %}

@@ -5,74 +5,67 @@
 
 {% block contenuto %}
 
-<section class="container-fluid">
-    <div class="row py-5">
-        <div class="col-12 text-center">
-            <h2 class="mb-0">{{nome_categoria}}</h2>
-        </div>
+<div class="row py-5">
+    <div class="col-12 text-center">
+        <h2 class="mb-0">{{nome_categoria}}</h2>
     </div>
-</section>
+</div>
 
 <div class="container">
-    <div class="row">
-        <div class="col-12">
-            <div class="table-responsive py-3">
-                {% if not user.is_authenticated %}
-                {% include 'partials/alert_preventivo.html' with alert_id="alertPreventivoTabella" alert_extra_class="d-none" %}
-                {% endif %}
-                <select id="filtroSottocategoria" class="form-select form-select-sm w-auto d-none">
-                    <option value="">Tutte le sottocategorie</option>
-                    {% for sc in sottocategorie %}
-                        <option value="{{ sc.nome_sottocategoria }}">{{ sc.nome_sottocategoria }}</option>
-                    {% endfor %}
-                </select>
-                <table id="listProdottiTable" class="table table-striped table-bordered tabella-in-caricamento" style="text-align: left;">
-                        <thead>
-                            <tr>
-                                <th style="text-align: center;">CODICE PRODOTTO</th>
-                                <th style="text-align: center;">NOME</th>
-                                <th style="text-align: center;">UNITA DI MISURA</th>
-                                <th style="text-align: center;">SOTTOCATEGORIA</th>
-                                <th style="text-align: center;">AGGIUNGI AL PREVENTIVO</th>
-
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for x in prodotti %}
-                            <tr>
-                                <td style="text-align: center;">{{x.codice_prodotto}}</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <span class="flex-grow-1 text-break" style="min-width: 0;">
-                                            {{x.nome_prodotto}} <br>
-                                            {% if x.descrizione %}
-
-                                                <i>{{x.descrizione}} </i>
-                                            {% endif %}
-                                            {% if x.precursore %}
-                                                <br>
-                                                <i>{{x.precursore}}</i>
-
-                                            {% endif %}
-                                        </span>
-                                        <a class="btn btn-primary btn-sm d-sm-none ms-2 flex-shrink-0" href="{% url 'aggiungi_prodotti' x.pk%}"
-                                            title="Aggiungi al carrello">
-                                            <i class="bi bi-cart3"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                                <td style="text-align: center;">{{x.unita_di_misura}}</td>
-                                <td style="text-align: center;">{{x.sottocategoria.nome_sottocategoria}}</td>
-                                <td style="text-align: center;">
-                                    <a class="btn btn-primary"
-                                        href="{% url 'aggiungi_prodotti' x.pk%}">Aggiungi al preventivo</a>
-
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+    <div class="table-responsive py-3">
+        {% if not user.is_authenticated %}
+        <div class="text-center mb-3">
+            {% include 'partials/alert_preventivo.html' %}
         </div>
+        {% endif %}
+        <select id="filtroSottocategoria" class="form-select form-select-sm d-none">
+            <option value="">Tutte le sottocategorie</option>
+            {% for sc in sottocategorie %}
+                <option value="{{ sc.nome_sottocategoria }}">{{ sc.nome_sottocategoria }}</option>
+            {% endfor %}
+        </select>
+        <table id="listProdottiTable" class="table table-bordered table-sm table-hover tabella-in-caricamento text-center align-middle">
+            <thead class="table-navbar align-middle">
+                <tr>
+                    <th>CODICE PRODOTTO</th>
+                    <th>NOME</th>
+                    <th>UNITA DI MISURA</th>
+                    <th>SOTTOCATEGORIA</th>
+                    <th>AGGIUNGI AL PREVENTIVO</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for x in prodotti %}
+                <tr>
+                    <td>{{x.codice_prodotto}}</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <span class="flex-grow-1 text-break" style="min-width: 0;">
+                                {{x.nome_prodotto}} <br>
+                                {% if x.descrizione %}
+                                    <i>{{x.descrizione}} </i>
+                                {% endif %}
+                                {% if x.precursore %} <br>
+                                    <i>{{x.precursore}}</i>
+                                {% endif %}
+                            </span>
+                            <a class="btn btn-navbar btn-sm d-sm-none ms-2 flex-shrink-0" href="{% url 'aggiungi_prodotti' x.pk%}"
+                                title="Aggiungi al preventivo">
+                                <i class="bi bi-receipt"></i>
+                            </a>
+                        </div>
+                    </td>
+                    <td>{{x.unita_di_misura}}</td>
+                    <td>{{x.sottocategoria.nome_sottocategoria}}</td>
+                    <td>
+                        <a class="btn btn-navbar" href="{% url 'aggiungi_prodotti' x.pk%}" title="Aggiungi al preventivo">
+                             Aggiungi al preventivo
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -97,11 +90,14 @@ $(document).ready(function () {
         else if (page === 0) {
             numbers = [0, 1, 'ellipsis', pages - 1]; // pagina 1: "1 2 ... 33"
         }
+        else if (page === pages - 2) {
+            numbers = [0, 'ellipsis', page, pages - 1]; // ultima pagina: "1 ... 33"
+        }
         else if (page === pages - 1) {
-            numbers = [0, 'ellipsis', pages - 1]; // ultima pagina: "1 ... 33"
+            numbers = [0, 'ellipsis', page - 1, pages - 1]; // ultima pagina: "1 ... 33"
         }
         else {
-            numbers = [0, page, 'ellipsis', pages - 1]; // pagine intermedie: "1 [corrente] ... 33"
+            numbers = [0, page, page + 1,  'ellipsis', pages - 1]; // pagine intermedie: "1 ... 33"
         }
 
         numbers.DT_el = 'span';
@@ -167,34 +163,26 @@ $(document).ready(function () {
         "initComplete": function () {
             var api = this.api();
 
-            // Mette "Cerca:", l'avviso "devi registrarti" (se presente) e il
-            // filtro sottocategoria sulla stessa riga: ricerca a sinistra,
-            // filtro a destra e avviso centrato fra i due (tre contenitori
-            // ".dt-control-ricerca/-alert/-filtro" con giustificazione
-            // start/center/end, stesso trucco usato in prodotti_card.html
-            // per centrare davvero l'avviso a prescindere dalla larghezza
-            // degli altri due - "flex" impostato in main.css da queste
-            // classi custom apposta, NON dall'utility ".flex-fill" di
-            // Bootstrap: quella usa "!important", che vincerebbe sempre
-            // sulla regola sotto i 576px che deve poter cambiare "flex" in
-            // base alla larghezza dello schermo).
-            // Anche questa riga resta nascosta ("tabella-in-caricamento",
-            // stessa classe della tabella) finche' non e' impostata la
-            // larghezza definitiva del campo ricerca qui sotto: altrimenti
-            // si vedrebbe comparire con la larghezza di default di
-            // DataTables e poi "allungarsi" di scatto quando arriva la
-            // risincronizzazione
+            // Mette "Cerca:" e il filtro sottocategoria sulla stessa riga:
+            // ricerca a sinistra, filtro a destra (due contenitori
+            // ".dt-control-ricerca/-filtro" con giustificazione start/end,
+            // "flex" impostato in main.css da queste classi custom apposta,
+            // NON dall'utility ".flex-fill" di Bootstrap: quella usa
+            // "!important", che vincerebbe sempre sulla regola sotto i
+            // 576px che deve poter cambiare "flex" in base alla larghezza
+            // dello schermo).
+            // L'avviso "devi registrarti" (se presente) e' invece sulla sua
+            // riga separata, sopra questa, sotto il titolo - vedi HTML.
+            // Questa riga resta nascosta ("tabella-in-caricamento", stessa
+            // classe della tabella) finche' non e' impostata la larghezza
+            // definitiva del campo ricerca qui sotto: altrimenti si
+            // vedrebbe comparire con la larghezza di default di DataTables
+            // e poi "allungarsi" di scatto quando arriva la risincronizzazione
             var $riga = $('<div class="dt-controls-row tabella-in-caricamento"></div>');
             $('#listProdottiTable_filter').before($riga);
 
             var $rigaRicerca = $('<div class="d-flex justify-content-start dt-control-ricerca"></div>');
             $riga.append($rigaRicerca.append($('#listProdottiTable_filter')));
-
-            var $alertPreventivo = $('#alertPreventivoTabella');
-            if ($alertPreventivo.length) {
-                var $rigaAlert = $('<div class="d-flex justify-content-center dt-control-alert"></div>');
-                $riga.append($rigaAlert.append($alertPreventivo.removeClass('d-none')));
-            }
 
             var $rigaFiltro = $('<div class="d-flex justify-content-end dt-control-filtro"></div>');
             $riga.append($rigaFiltro.append($('#filtroSottocategoria').removeClass('d-none')));
@@ -258,6 +246,35 @@ $(document).ready(function () {
             }, 100);
             $('#listProdottiTable').on('draw.dt', sincronizzaLarghezzaControlli);
             $(window).on('resize', sincronizzaLarghezzaControlli);
+
+            // Bug osservato (Chrome, debug con l'utente): passando da desktop
+            // a telefono le righe restano vuote a schermo, da telefono a
+            // desktop ricerca/filtro collassano quasi a 0px - finche' non si
+            // ricarica la pagina. Verificato con diagnostica dal vivo: il DOM
+            // e gli stili calcolati sono SEMPRE corretti (contenuto, colore,
+            // altezza, un solo elemento con quell'id) anche quando lo schermo
+            // mostra vuoto/collassato - non e' quindi un problema nei nostri
+            // dati o nel nostro CSS, ma un mancato ridisegno del browser dopo
+            // che DataTables Responsive nasconde/mostra molte celle in una
+            // volta sola al cambio di breakpoint.
+            // "responsive-resize.dt" e' l'evento che DataTables Responsive
+            // lancia sulla tabella subito DOPO aver finito di ricalcolare le
+            // colonne (a differenza del semplice "resize" della finestra, che
+            // puo' scattare mentre il ricalcolo e' ancora in corso, leggendo
+            // larghezze non ancora definitive - da cui il collasso di
+            // ricerca/filtro). Qui si risincronizzano le larghezze con il
+            // timing giusto, e si forza anche un ridisegno (toccare
+            // "transform" e poi toglierlo al frame successivo e' un
+            // workaround comune per bug di questo tipo nei browser Chromium)
+            $('#listProdottiTable').on('responsive-resize.dt', function () {
+                sincronizzaLarghezzaControlli();
+
+                var tabella = document.getElementById('listProdottiTable');
+                tabella.style.transform = 'translateZ(0)';
+                requestAnimationFrame(function () {
+                    tabella.style.transform = '';
+                });
+            });
 
             $('#filtroSottocategoria').on('change', function () {
                 var valore = $(this).val();

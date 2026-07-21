@@ -27,7 +27,7 @@
 
         <div class="col-12 py-3 d-flex flex-nowrap align-items-center justify-content-between gap-2">
 
-            <div class="card-control-ricerca flex-grow-1 flex-shrink-1" style="max-width: 20rem;">
+            <div class="card-control-ricerca flex-grow-1 flex-shrink-1" style="max-width: 12rem;">
                 <form class="input-group rounded w-100" action="{% url 'search_prodotto' categoria_pk %}">
                     <input type="text" name="query" id="prodottiCardSearch" class="form-control rounded" placeholder="Search" aria-label="Search"
                         aria-describedby="search-addon" />
@@ -38,7 +38,7 @@
             </div>
 
             {% if sottocategorie|length > 0 %}
-            <div class="card-control-filtro flex-grow-1 flex-shrink-1" style="max-width: 20rem;">
+            <div class="card-control-filtro flex-grow-1 flex-shrink-1" style="max-width: 28rem;">
                 <select id="prodottiCardFiltro" class="form-select" onchange="if (this.value) window.location.href = this.value;">
                     <option value="{% url 'dettaglio_categoria' categoria_pk %}">Lista completa</option>
                     {% for sottocategoria in sottocategorie %}
@@ -89,8 +89,9 @@
                                     <a class="btn btn-success"
                                         href="{{x.scheda_rel.scheda}}" target="_blank"><small>Scheda Tecnica</small></a>
                                 {% endif %}
-                                <a class="btn btn-primary" href="{% url 'aggiungi_prodotti' x.pk %}"><small>Aggiungi </small><i
-                                        class="bi bi-cart text-white"></i></a>
+                                <a class="btn btn-navbar" href="{% url 'aggiungi_prodotti' x.pk %}" title="Aggiungi al preventivo">
+                                    Aggiungi al preventivo
+                                </a>
                             </div>
                         </div>
                     </div>
