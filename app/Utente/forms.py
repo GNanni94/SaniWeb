@@ -114,8 +114,8 @@ class ClienteChangeForm(UserChangeForm):
         )  
 
 class CustomAuthenticationForm(AuthenticationForm):
-    username = forms.EmailField(label='Inserisci email', widget=forms.EmailInput(attrs={'class':'form-control'}))
-    password = forms.CharField(label='Inserisci password', widget=forms.PasswordInput(attrs={'class':'form-control'}))
+    username = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class':'form-control'}))
+    password = forms.CharField(label='Password', widget=forms.PasswordInput(attrs={'class':'form-control'}))
 
 
 class CustomPasswordResetForm(PasswordResetForm):

@@ -47,3 +47,22 @@
   border-color: var(--color-primary);
   box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
 }
+
+/* Stesso trattamento dei form qui sopra, applicato ai campi del form di
+   login.html (email e password) */
+#form-login .form-control:not(.is-invalid) {
+  border-color: var(--color-primary);
+  border-width: 2px;
+}
+
+#form-login .form-control:focus:not(.is-invalid) {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
+}
+
+/* Toglie l'asterisco che crispy-forms aggiunge di suo alle etichette dei
+   campi obbligatori ("Email*", "Password*") - solo estetico, il campo
+   resta comunque obbligatorio (l'attributo HTML "required" non cambia) */
+#form-login .asteriskField {
+  display: none;
+}
