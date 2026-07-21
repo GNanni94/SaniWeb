@@ -19,14 +19,14 @@
       {% endcomment %}
       <div class="d-block d-sm-none text-center pt-5">
         <h3>Orari di apertura</h3>
-        <table id="orari-compatto" class="table table-responsive">
+        <table id="orari-compatto" class="table table-sm align-middle">
           <tbody>
             <tr>
-              <td>Lunedi-Venerdi: </td>
+              <td>Lunedi-Venerdi </td>
               <td> 8.00-12.00 / 13.45-17.45</td>
             </tr>
             <tr>
-              <td>Sabato-Domenica: </td>
+              <td>Sabato-Domenica </td>
               <td>Chiuso</td>
             </tr>
           </tbody>
@@ -52,11 +52,11 @@
           </div>
         </div>
 
-        <div id="info" class="col-md-5 text-center mt-2">
+        <div id="info" class="col-md-5 text-center">
 
           <div class="justify-content-center d-none d-sm-block">
             <h3>Orari di apertura</h3>
-            <table id="orari" class="table table-responsive">
+            <table id="orari" class="table">
               <tbody>
 
                 <tr>
@@ -97,64 +97,89 @@
             </table>
           </div>
 
+          <div class="pt-3">
+            <div id="map" style="height: 244px;">
+              <div class="map-hint" id="mapHint">Usa due dita per spostare la mappa</div>
+              <script>
+                var mymap = L.map('map', { scrollWheelZoom: true }).setView([43.528066, 11.562978], 17);
+                L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                  subdomains: ['a', 'b', 'c']
+                }).addTo(mymap);
+                // Stesso URL di indicazioni stradali gia' usato nel link del footer,
+                // per coerenza: cliccando sul marker si apre Google Maps in un'altra scheda
+                L.marker([43.528066, 11.562978]).addTo(mymap)
+                  .on('click', function () {
+                    window.open('https://www.google.com/maps/dir/?api=1&destination=43.528066,11.562978', '_blank', 'noopener');
+                  });
 
-
-        </div>
-
-        <div class="col-12 pt-2">
-          <div id="map" style="height: 350px;">
-            <div class="map-hint" id="mapHint">Usa due dita per spostare la mappa</div>
-            <script>
-              // scrollWheelZoom:false evita che chi scorre la pagina con la
-              // rotellina resti "intrappolato" nello zoom passando col
-              // cursore sopra la mappa - lo zoom coi bottoni +/- resta attivo
-              var mymap = L.map('map', { scrollWheelZoom: false }).setView([43.528066, 11.562978], 17);
-              L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                subdomains: ['a', 'b', 'c']
-              }).addTo(mymap);
-              // Stesso URL di indicazioni stradali gia' usato nel link del footer,
-              // per coerenza: cliccando sul marker si apre Google Maps in un'altra scheda
-              L.marker([43.528066, 11.562978]).addTo(mymap)
-                .on('click', function () {
-                  window.open('https://www.google.com/maps/dir/?api=1&destination=43.528066,11.562978', '_blank', 'noopener');
+                // Da telefono, un dito solo deve scorrere la pagina invece di
+                // spostare la mappa - il CSS "touch-action: pan-y" (vedi
+                // contatti.css, regola "#map") dovrebbe bastare da solo, ma
+                // nella pratica su alcuni Chrome Android non e' sufficiente
+                // (Leaflet intercetta comunque il gesto). Soluzione diretta:
+                // il trascinamento resta disattivato di default, e si attiva
+                // solo quando si rilevano 2 o piu' dita sullo schermo - con
+                // un dito solo Leaflet non ascolta proprio il movimento,
+                // quindi lo scroll nativo della pagina passa attraverso
+                // senza ostacoli. Col dito solo si mostra anche un banner
+                // ("usa due dita"), cosi' chi prova davvero a spostare la
+                // mappa capisce perche' non si muove, invece di sembrare
+                // rotta.
+                // Il vincolo delle 2 dita vale solo da telefono (sotto i
+                // 576px, stesso breakpoint della tabella orari compatta):
+                // da tablet/desktop con schermo touch il trascinamento con
+                // un dito solo deve funzionare normalmente, dato che non c'e'
+                // uno scroll verticale della pagina con cui rischia di
+                // confliggere allo stesso modo
+                var mqTelefono = window.matchMedia('(max-width: 575.98px)');
+                var hint = document.getElementById('mapHint');
+                var timeoutHint = null;
+                if (mqTelefono.matches) {
+                  mymap.dragging.disable();
+                }
+                mymap.getContainer().addEventListener('touchstart', function (e) {
+                  if (!mqTelefono.matches) return;
+                  clearTimeout(timeoutHint);
+                  if (e.touches.length >= 2) {
+                    mymap.dragging.enable();
+                    hint.classList.remove('visibile');
+                  } else {
+                    mymap.dragging.disable();
+                    hint.classList.add('visibile');
+                    timeoutHint = setTimeout(function () {
+                      hint.classList.remove('visibile');
+                    }, 1500);
+                  }
+                }, { passive: true });
+                mymap.getContainer().addEventListener('touchend', function (e) {
+                  if (!mqTelefono.matches) return;
+                  if (e.touches.length < 2) {
+                    mymap.dragging.disable();
+                  }
                 });
 
-              // Da telefono, un dito solo deve scorrere la pagina invece di
-              // spostare la mappa - il CSS "touch-action: pan-y" (vedi
-              // main.css, regola "#map") dovrebbe bastare da solo, ma nella
-              // pratica su alcuni Chrome Android non e' sufficiente (Leaflet
-              // intercetta comunque il gesto). Soluzione diretta: il
-              // trascinamento resta disattivato di default, e si attiva solo
-              // quando si rilevano 2 o piu' dita sullo schermo - con un dito
-              // solo Leaflet non ascolta proprio il movimento, quindi lo
-              // scroll nativo della pagina passa attraverso senza ostacoli.
-              // Col dito solo si mostra anche un banner ("usa due dita"),
-              // cosi' chi prova davvero a spostare la mappa capisce perche'
-              // non si muove, invece di sembrare rotta
-              var hint = document.getElementById('mapHint');
-              var timeoutHint = null;
-              mymap.dragging.disable();
-              mymap.getContainer().addEventListener('touchstart', function (e) {
-                clearTimeout(timeoutHint);
-                if (e.touches.length >= 2) {
-                  mymap.dragging.enable();
-                  hint.classList.remove('visibile');
-                } else {
-                  mymap.dragging.disable();
-                  hint.classList.add('visibile');
-                  timeoutHint = setTimeout(function () {
-                    hint.classList.remove('visibile');
-                  }, 1500);
-                }
-              }, { passive: true });
-              mymap.getContainer().addEventListener('touchend', function (e) {
-                if (e.touches.length < 2) {
-                  mymap.dragging.disable();
-                }
-              });
-            </script>
+                // Zoom da desktop col trackpad: il pizzico a due dita sul
+                // trackpad (o Ctrl+rotellina) il browser lo traduce in un
+                // evento "wheel" con ctrlKey:true, mentre lo scroll normale
+                // a due dita e' un "wheel" con ctrlKey:false - stesso
+                // meccanismo usato da Google Maps ecc. Si intercetta
+                // l'evento in fase di "capture" (prima che arrivi al
+                // listener interno di Leaflet, gia' registrato sopra da
+                // "scrollWheelZoom:true") e si blocca con stopPropagation()
+                // quando non e' un pizzico/Ctrl: cosi' Leaflet non lo vede
+                // e non fa "preventDefault", lasciando scorrere la pagina
+                // normalmente invece di restare "intrappolati" nello zoom
+                // della mappa
+                mymap.getContainer().addEventListener('wheel', function (e) {
+                  if (!e.ctrlKey) {
+                    e.stopPropagation();
+                  }
+                }, { capture: true });
+              </script>
+            </div>
           </div>
+
         </div>
 
       </div>

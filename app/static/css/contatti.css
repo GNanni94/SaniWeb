@@ -5,20 +5,30 @@
   color: #000;
 }
 
-/* Mappa Leaflet (contatti.html): da telefono, un dito solo scorre la pagina
-   invece di spostare la mappa - serve "touch-action: pan-y" perche' il
-   browser gestisca da solo lo scroll verticale a un dito prima ancora che
-   Leaflet intercetti il gesto, lasciando invece funzionare normalmente i
-   gesti a due dita (pan/pizzico). Riguarda solo il touch: su desktop (mouse)
-   non cambia nulla, il trascinamento con un click resta invariato.
+#map {
+  position: relative; /* per contenere il banner ".map-hint" qui sotto */
+}
+
+/* Da telefono (sotto i 576px, stesso breakpoint della tabella orari
+   compatta), un dito solo scorre la pagina invece di spostare la mappa -
+   serve "touch-action: pan-y" perche' il browser gestisca da solo lo
+   scroll verticale a un dito prima ancora che Leaflet intercetti il
+   gesto, lasciando invece funzionare normalmente i gesti a due dita
+   (pan/pizzico). Solo da telefono: da tablet/desktop (anche con schermo
+   touch) il trascinamento con un dito solo deve restare quello normale di
+   Leaflet (vedi anche il JS in contatti.html, che applica lo stesso
+   vincolo solo sotto questo breakpoint). Riguarda comunque solo il touch:
+   su desktop col mouse non cambia nulla, il trascinamento con un click
+   resta invariato.
    "!important" necessario: leaflet.css mette di suo
    ".leaflet-container.leaflet-touch-drag.leaflet-touch-zoom { touch-action:
    none; }" sull'elemento stesso quando rileva un dispositivo touch (proprio
    il caso da telefono) - un id come "#map" vince gia' per specificita' su
    tre classi, ma "!important" toglie ogni dubbio */
-#map {
-  touch-action: pan-y !important;
-  position: relative; /* per contenere il banner ".map-hint" qui sotto */
+@media (max-width: 575.98px) {
+  #map {
+    touch-action: pan-y !important;
+  }
 }
 
 /* Banner "usa due dita" (contatti.html): mostrato sopra la mappa quando si
@@ -46,4 +56,22 @@
 
 .map-hint.visibile {
   opacity: 1;
+}
+
+/* Tabelle orari (contatti.html), sia la versione compatta da telefono
+   (#orari-compatto) sia quella completa da desktop (#orari): riquadro
+   dello stesso blu della navbar, per farle risaltare rispetto al resto
+   della pagina */
+#orari-compatto,
+#orari {
+  border: 2px solid var(--color-primary);
+}
+
+/* Tabella orari da desktop (#orari): il titolo "Orari di apertura" (h3) e'
+   piu' basso del titolo "RICHIEDI INFORMAZIONI" (h4) della colonna
+   affiancata, quindi la tabella partirebbe piu' in alto rispetto alla
+   casella "Nome" del form. Margine misurato via devtools per farla
+   iniziare esattamente allo stesso livello */
+#orari {
+  margin-top: 35px;
 }
