@@ -16,6 +16,21 @@
   color: #fff;
 }
 
+/* Variante outline dello stesso blu, per bottoni secondari accanto a un
+   ".btn-navbar" pieno (es. login.html: "Log In" pieno + "Registrati" outline) */
+.btn.btn-outline-navbar {
+  background-color: transparent;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn.btn-outline-navbar:hover,
+.btn.btn-outline-navbar:focus {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
 /* Variante colore tabella (stesso blu della navbar), da usare su <thead>
    come le varianti ".table-light"/".table-dark" gia' pronte di Bootstrap -
    stessa struttura di variabili CSS di quelle (--bs-table-*), cosi' resta

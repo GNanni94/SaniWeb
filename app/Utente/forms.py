@@ -64,6 +64,12 @@ class ClienteCreationForm(UserCreationForm):
         self.fields["password2"].help_text = ""
         self.fields["cognome_ragione_sociale"].label = "Cognome"
         self.fields["email"].widget.attrs["placeholder"] = "nome@dominio.it"
+        # UserCreationForm (da cui eredita questo form) imposta di suo
+        # "autofocus" sul campo che corrisponde a USERNAME_FIELD del model
+        # (qui "email", vedi Registrati.USERNAME_FIELD) - il browser porta
+        # subito il focus (e scrolla) su quel campo appena la pagina si
+        # carica, invece di mostrare semplicemente l'inizio della pagina
+        self.fields["email"].widget.attrs.pop("autofocus", None)
 
     def clean_email(self):
         email = self.cleaned_data["email"]
