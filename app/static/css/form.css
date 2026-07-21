@@ -35,3 +35,15 @@
   border-color: var(--color-primary);
   box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
 }
+
+/* Stesso trattamento dei due form qui sopra, applicato ai campi del form
+   di contatti.html (nome, email, telefono, messaggio, ecc.) */
+#form-contatti .form-control:not(.is-invalid) {
+  border-color: var(--color-primary);
+  border-width: 2px;
+}
+
+#form-contatti .form-control:focus:not(.is-invalid) {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
+}

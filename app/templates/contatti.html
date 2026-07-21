@@ -10,19 +10,42 @@
 <main id="cont">
   <div id="contenuto">
     <div id="cont" class="container">
+
+      {% comment %}
+      Versione compatta della tabella orari, solo da telefono (sotto i
+      576px): spostata in cima alla pagina, prima del form, dato che essendo
+      piccola (2 righe) non "pesa" quanto la versione completa da desktop -
+      vedi anche piu' sotto, dentro "#info", per la versione completa
+      {% endcomment %}
+      <div class="d-block d-sm-none text-center pt-5">
+        <h3>Orari di apertura</h3>
+        <table id="orari-compatto" class="table table-responsive">
+          <tbody>
+            <tr>
+              <td>Lunedi-Venerdi: </td>
+              <td> 8.00-12.00 / 13.45-17.45</td>
+            </tr>
+            <tr>
+              <td>Sabato-Domenica: </td>
+              <td>Chiuso</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
       <div class="row pt-5">
 
         <div class="col-md-7">
           <h4>RICHIEDI INFORMAZIONI</h4>
           <div>
 
-            <form action="" method="post" class="mb-3">
+            <form id="form-contatti" action="" method="post" class="mb-3">
               
               {% csrf_token %}
               {{ cliente|crispy }}
               {{ messaggio|crispy }}
 
-              <button class="btn btn-primary "  type="submit">Invia</button>
+              <button class="btn btn-navbar"  type="submit">Invia</button>
             </form>
             
 
@@ -31,7 +54,7 @@
 
         <div id="info" class="col-md-5 text-center mt-2">
 
-          <div class="justify-content-center">
+          <div class="justify-content-center d-none d-sm-block">
             <h3>Orari di apertura</h3>
             <table id="orari" class="table table-responsive">
               <tbody>
@@ -78,7 +101,7 @@
 
         </div>
 
-        <div class="col-12 pt-5">
+        <div class="col-12 pt-2">
           <div id="map" style="height: 350px;">
             <div class="map-hint" id="mapHint">Usa due dita per spostare la mappa</div>
             <script>
