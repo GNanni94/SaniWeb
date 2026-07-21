@@ -220,7 +220,7 @@
             <h2 class="mb-0">Saniscope-chimica</h2>
           </a>
 
-          <ul class="nav flex-column text-start">
+          <ul class="nav flex-column text-center text-lg-start">
             <li class="nav-item mb-2">
               <a href="https://www.google.com/maps/dir/?api=1&destination=43.528066,11.562978"
                 target="_blank" rel="noopener" title="Apri le indicazioni stradali su Google Maps">
@@ -238,12 +238,14 @@
         <div class="col-lg-3 footer-links">
 
           <h4 class="text-uppercase fw-bold mb-3 py-3">Link utili</h4>
-          <ul class="nav flex-column">
+          <ul class="nav flex-column text-center text-lg-start">
             <li class="nav-item mb-3"><a href="{% url 'etichettatura_ambientale' %}"
                 class="nav-link p-0">Etichettatura Ambientale</a></li>
 
-            <li class="nav-item mb-3"><a href="/media/pdfPrivacy/4aba850a6cbb0f0d9164a7c2274d54f6_10678372616168637874.pdf" class="nav-link p-0" target="_blank">Privacy Policy</a></li>
-            <li class="nav-item mb-3"><a href="#" class="nav-link p-0" onclick="document.querySelector('#cookiebannerModal').classList.remove('hidden'); return false;">Cookie Policy</a></li>
+            <li class="nav-item mb-3 d-flex flex-row flex-lg-column justify-content-center justify-content-lg-start gap-3">
+              <a href="/media/pdfPrivacy/4aba850a6cbb0f0d9164a7c2274d54f6_10678372616168637874.pdf" class="nav-link p-0" target="_blank">Privacy Policy</a>
+              <a href="#" class="nav-link p-0" onclick="document.querySelector('#cookiebannerModal').classList.remove('hidden'); return false;">Cookie Policy</a>
+            </li>
           </ul>
         </div>
 
