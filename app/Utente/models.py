@@ -71,7 +71,9 @@ class Registrati(AbstractUser):
 
         subject = "Email di benvenuto"
 
-        message = "Ciao"+ self.first_name + "\n Ti ringraziamo per esserti registrato al nostro sito.\n"
+        nome_saluto = self.first_name or self.cognome_ragione_sociale
+
+        message = "Ciao "+ nome_saluto + "\n Ti ringraziamo per esserti registrato al nostro sito.\n"
         message = message + "Queste sono le tue credenziali per accedere al sito\n Username: " + self.email + "\nPassword: "+ self.password
 
         from_email = "info@saniscope-chimica.it"

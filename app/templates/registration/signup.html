@@ -16,18 +16,20 @@
         <div class="card-body">
           <form id="form-registrazione" class="row"  method="post" >
           {% csrf_token %}
-            <div class="col-12">
+            <div class="col-12 mb-3">
                 <label for="id_azienda" class="form-label">Azienda</label>
                 <input type="text" class="form-control" id="id_azienda" name="azienda" placeholder="Se non sei un'azienda, lascia vuoto">
             </div>
 
-            <div id="riga-nome-cognome" class="col-12 row collapse show">
-                <div class="col-md-6">
-                      {{ form.first_name|as_crispy_field }}
-                </div>
+            <div class="col-12">
+                <div id="riga-nome-cognome" class="row collapse show">
+                    <div class="col-md-6">
+                          {{ form.first_name|as_crispy_field }}
+                    </div>
 
-                <div class="col-md-6" >
-                    {{ form.cognome_ragione_sociale|as_crispy_field }}
+                    <div class="col-md-6" >
+                        {{ form.cognome_ragione_sociale|as_crispy_field }}
+                    </div>
                 </div>
             </div>
 
