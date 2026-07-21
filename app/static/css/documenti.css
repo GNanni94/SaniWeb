@@ -1,0 +1,35 @@
+/* Riquadro che racchiude ogni categoria di documenti (titolo + card PDF),
+   per separarle visivamente l'una dall'altra (documenti.html). Bordo dello
+   stesso blu della navbar, spessore 4px (piu' marcato degli altri controlli
+   blu del sito, che sono a 2/3px, per far risaltare di piu' il riquadro).
+   Selettore con due classi (invece di una sola) apposta, e "border-color"/
+   "border-width" impostati direttamente con "!important": l'utility
+   ".border" di Bootstrap e' definita come
+   "border: var(--bs-border-width) var(--bs-border-style)
+   var(--bs-border-color) !important" - essendo gia' "!important" di suo,
+   ridefinire solo le variabili CSS non basterebbe a vincere, serve
+   "!important" anche qui, con una specificita' maggiore (due classi contro
+   una) per avere la meglio a parita' di "!important" */
+.border.categoria-documenti {
+  border-color: var(--color-primary) !important;
+  border-width: 2px !important;
+  /* Il riquadro si stringe intorno al proprio contenuto (una categoria con
+     1 solo documento non deve avere il bordo largo quanto il container con
+     mezzo riquadro vuoto), ma non supera mai la larghezza disponibile su
+     schermi piccoli */
+  width: fit-content;
+  max-width: 100%;
+}
+
+/* Card documento (documenti.html, etichettatura_ambientale.html - vedi
+   partials/card_documento.html): stesso blu della navbar invece del bianco
+   di default, dato che stanno su sfondo bianco e altrimenti si vedrebbe solo
+   il bordo grigio chiaro di Bootstrap a distinguerle dalla pagina.
+   Selettore con due classi (invece di una sola, che avrebbe comunque la
+   stessa specificita' di ".card" di Bootstrap) apposta per vincere sempre,
+   a prescindere dall'ordine di caricamento dei fogli di stile (stessa nota
+   gia' presente altrove in questo file per ".alert-info") */
+.card.card-documento {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}

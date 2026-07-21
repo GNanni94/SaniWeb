@@ -1,0 +1,265 @@
+/* Tabella prodotti (DataTables): nasconde la tabella (senza toglierla dal
+   flusso, "visibility" non "display", altrimenti DataTables non riuscirebbe
+   a misurarne le colonne durante l'inizializzazione) finche' DataTables non
+   l'ha trasformata in versione responsive - la mostra poi il JS in
+   "initComplete" (prodotti_tabella.html). Evita di vedere per un istante la
+   tabella "grezza" (tutte le colonne, senza compressione mobile) prima che
+   JS la ricomprima, soprattutto notabile su telefono */
+.tabella-in-caricamento {
+  visibility: hidden;
+}
+
+/* Tabella prodotti (DataTables): intestazioni colonna centrate. DataTables
+   mette di suo "table.dataTable thead th { text-align: left; }" - punta
+   direttamente al "th" (non e' solo un default ereditato), quindi vince
+   sempre sul "text-align: center" messo sulla <table> in prodotti_tabella.html,
+   che i "th" (senza altre regole piu' specifiche) erediterebbero solo se
+   DataTables non lo sovrascrivesse esplicitamente. L'id della tabella vince
+   sulla classe ".dataTable" di DataTables a prescindere dall'ordine di
+   caricamento dei fogli di stile */
+#listProdottiTable thead th {
+  text-align: center;
+}
+
+/* Tabella prodotti (DataTables): sotto i 576px il testo "Showing x to y..."
+   (con "float" di default) non ci sta piu' affiancato alla paginazione e
+   va a capo in modo disordinato: lo mettiamo su una riga propria a piena
+   larghezza */
+@media (max-width: 575.98px) {
+  #listProdottiTable_wrapper .dataTables_info {
+    float: none;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Tabella prodotti (DataTables): riga con "Cerca:" e il filtro
+   sottocategoria. I due contenitori sono creati via JS (vedi "initComplete"
+   in prodotti_tabella.html) come due celle che si dividono lo spazio in
+   parti uguali (flex:1 1 auto, sotto), ciascuna con la propria
+   giustificazione (start/end). L'avviso "devi registrarti" (se presente) e'
+   sulla sua riga separata sopra, non fa piu' parte di questa riga */
+#listProdottiTable_wrapper .dt-controls-row {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+/* flex:1 1 auto impostato qui (invece che con l'utility ".flex-fill" di
+   Bootstrap, che userebbe "!important") apposta: la regola sotto i 576px
+   deve poter cambiare "flex" in base alla larghezza dello schermo, e
+   "!important" vincerebbe sempre a prescindere */
+#listProdottiTable_wrapper .dt-controls-row > .dt-control-ricerca,
+#listProdottiTable_wrapper .dt-controls-row > .dt-control-filtro {
+  flex: 1 1 auto;
+}
+
+/* DataTables mette di suo un margin-top di 8px su ".dataTables_filter"
+   (il contenitore del campo ricerca), che il filtro sottocategoria non ha:
+   li faceva apparire disallineati verticalmente nella riga qui sopra */
+#listProdottiTable_wrapper .dt-controls-row #listProdottiTable_filter {
+  margin: 0;
+}
+
+/* Sotto i 576px la larghezza di ricerca e filtro non segue piu' le colonne
+   (vedi commento nel JS in prodotti_tabella.html) - si dividono la riga a
+   meta' ciascuno, sempre affiancati sulla stessa riga */
+@media (max-width: 575.98px) {
+  #listProdottiTable_wrapper .dt-controls-row > .dt-control-ricerca {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  #listProdottiTable_wrapper .dt-controls-row > .dt-control-filtro {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  /* La label (<label>Cerca:<input></label> generato da DataTables) e'
+     "inline-block" di suo, quindi non si allarga da sola a riempire lo
+     spazio assegnato dal flex qui sopra - va detto esplicitamente */
+  #listProdottiTable_filter label {
+    display: block;
+    width: 100%;
+  }
+
+  #listProdottiTable_filter input {
+    width: 100% !important;
+  }
+
+  /* Sotto i 576px resta visibile solo la colonna NOME (le altre sono
+     nascoste da DataTables Responsive), quindi l'intestazione "NOME" e'
+     ridondante - si nasconde tutta la riga di intestazione */
+  #listProdottiTable thead {
+    display: none;
+  }
+}
+
+/* Filtro sottocategoria: bordo e freccina dello stesso blu della navbar,
+   invece del grigio di default di Bootstrap. Selettore per id (non
+   ".form-select") apposta: Bootstrap imposta gia' bordo e freccia su
+   ".form-select" con la stessa specificita' di una classe, quindi una
+   regola equivalente potrebbe essere sovrascritta cambiando l'ordine di
+   caricamento dei fogli di stile - l'id vince sempre, a prescindere.
+   Nota: il colore della freccia e' dentro un SVG incorporato nel CSS, che
+   non puo' leggere "var(--color-primary)" - va aggiornato qui a mano se
+   cambia il blu del sito (stessa nota gia' presente in navbar.css per
+   l'icona dell'hamburger) */
+#filtroSottocategoria {
+  border-color: var(--color-primary);
+  border-width: 2px;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%231B5AA0' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* Campo di ricerca della tabella (generato da DataTables): stesso bordo blu
+   e stesso spessore del filtro sottocategoria qui sopra, per coerenza.
+   margin-left:0 toglie il margine di 3px che DataTables mette di default
+   per staccare l'input dalla scritta "Cerca:" - scritta che abbiamo rimosso
+   (vedi JS in prodotti_tabella.html), quindi quello spazio non serve più e
+   disallineava il campo rispetto alla colonna "CODICE PRODOTTO" sotto.
+   height: stesso motivo di "#prodottiCardSearch" piu' sotto (Chrome calcola
+   l'altezza di un <input> dalle metriche del font invece che dal
+   line-height dichiarato, a differenza di <select>) - senza, questo campo
+   risulta piu' basso di "#filtroSottocategoria" qui sopra. Formula con
+   padding 0.5rem (0.25rem per lato) invece di 0.75rem perche' qui, a
+   differenza di "#prodottiCardSearch", sia l'input (".form-control-sm")
+   sia il select (".form-select-sm") sono in taglia small */
+#listProdottiTable_filter input {
+  border-color: var(--color-primary);
+  border-width: 2px;
+  margin-left: 0;
+  height: calc(1.5em + 0.5rem + 4px);
+}
+
+/* Stesso stile (bordo blu navbar) applicato ai controlli di ricerca/filtro
+   della pagina prodotti a card (vedi prodotti_card.html), per coerenza con
+   la tabella qui sopra. Selettori per id per lo stesso motivo spiegato li' */
+/* height: a parita' di padding/line-height/bordo, Chrome calcola l'altezza
+   di un <input> in base alle metriche del font invece che dal line-height
+   dichiarato (a differenza di <select>, che lo rispetta) - risultato,
+   "#prodottiCardSearch" veniva piu' basso di "#prodottiCardFiltro" qui
+   sotto pur avendo lo stesso CSS "a parole". Il calc replica esattamente
+   il box-model dichiarato (line-height 1.5 di Bootstrap + padding .75rem
+   totale + i 2px di bordo per lato impostati qui sotto) forzando un'altezza
+   esplicita che Chrome non ricalcola a modo suo */
+#prodottiCardSearch {
+  border-color: var(--color-primary);
+  border-width: 2px;
+  height: calc(1.5em + 0.75rem + 4px);
+}
+
+#prodottiCardFiltro {
+  border-color: var(--color-primary);
+  border-width: 2px;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%231B5AA0' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* Ricerca/filtro prodotti (prodotti_card.html): "flex-shrink-1" di Bootstrap
+   da solo non basta a far restringere questi campi sotto la loro larghezza
+   intrinseca (un flex item di default non si restringe mai sotto quella),
+   che e' invece necessario qui perche' i due controlli restino affiancati
+   e delle stesse dimensioni anche su schermi stretti, senza andare a capo.
+   Nessuna utility Bootstrap equivalente a "min-width: 0" */
+.card-control-ricerca,
+.card-control-filtro {
+  min-width: 0;
+}
+
+/* Tabella prodotti (DataTables): paginazione sempre centrata orizzontalmente
+   (di default e' allineata a destra), cosi' non si sposta quando il numero
+   di pulsanti visibili cambia (es. con o senza "..."). Tenuta su un'unica
+   riga, scorrevole se non dovesse comunque starci */
+#listProdottiTable_wrapper .dataTables_paginate {
+  float: none;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+/* Tabella prodotti (DataTables): nasconde del tutto (invece di limitarsi a
+   disattivarlo in grigio) il pulsante "Precedente" quando si e' in prima
+   pagina, e "Successivo" quando si e' nell'ultima. DataTables aggiunge gia'
+   la classe "disabled" a questi pulsanti quando non sono utilizzabili */
+#listProdottiTable_wrapper .paginate_button.previous.disabled,
+#listProdottiTable_wrapper .paginate_button.next.disabled {
+  display: none;
+}
+
+/* Tabella prodotti (DataTables): i pulsanti di paginazione (".paginate_button",
+   classi proprietarie di DataTables) di default hanno uno stile con bordo
+   grigio, diverso da quello della paginazione Bootstrap usata altrove nel
+   sito (es. catalogo/card prodotti). Valori ripresi 1:1 da quelli calcolati
+   su ".page-link"/".page-item.active .page-link" li' (quando nel progetto
+   era ancora presente MDB, che li influenzava), per farli sembrare
+   visivamente identici pur essendo generati da una libreria diversa - da
+   ricontrollare/riallineare visivamente ora che MDB non c'e' piu' */
+#listProdottiTable_wrapper .paginate_button {
+  display: inline-block;
+  margin: 0 2px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 4px;
+  color: rgb(79, 79, 79);
+  font-family: Roboto, sans-serif;
+  font-size: 14.4px;
+  line-height: 23.04px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: 0.3s linear; /* stessa durata/curva di ".page-link" quando nel progetto era ancora presente MDB (Bootstrap di suo non anima questa transizione, cambio istantaneo) */
+}
+
+/* !important necessario qui: il CSS di DataTables stesso mette gia'
+   "color: ... !important" su questi tre stati (normale in hover, .current,
+   .disabled), quindi una regola senza !important verrebbe ignorata
+   indipendentemente dalla specificita' del selettore */
+#listProdottiTable_wrapper .paginate_button:hover:not(.disabled):not(.current) {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, .2), 0 6px 20px 0 rgba(0, 0, 0, .19);
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: #000 !important;
+  border: 0 !important;
+}
+
+#listProdottiTable_wrapper .paginate_button.current {
+  background: rgb(18, 102, 241);
+  color: #fff !important;
+}
+
+#listProdottiTable_wrapper .paginate_button.disabled {
+  color: rgb(117, 117, 117);
+  cursor: default;
+}
+
+#listProdottiTable_wrapper .dataTables_paginate .ellipsis {
+  color: rgb(79, 79, 79);
+  font-family: Roboto, sans-serif;
+  font-size: 14.4px;
+  padding: 0 4px;
+}
+
+/* Tabella prodotti (DataTables Responsive), da telefono: nasconde la
+   freccina "\25BA"/"\25BC" che la libreria aggiunge di default davanti alla
+   cella cliccabile per aprire/chiudere i dettagli nascosti (vedi
+   "responsive.details.target" in prodotti_tabella.html, spostato sulla
+   colonna NOME) - il testo del nome resta comunque cliccabile (il cursore a
+   manina e il click restano gestiti dalla libreria, tocca solo l'icona) */
+#listProdottiTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before {
+  content: none;
+}
+
+/* Tabella prodotti (DataTables Responsive), pannello dettagli da telefono:
+   ".dtr-title" (l'etichetta, es. "CODICE PRODOTTO") sopra, ".dtr-data" (il
+   valore, es. "C0002") sotto - "flex-direction: column" impila i due span
+   invece di affiancarli, "align-items: center" li centra entrambi
+   orizzontalmente */
+#listProdottiTable_wrapper .dtr-details > li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#listProdottiTable_wrapper .dtr-details > li .dtr-data {
+  text-align: center;
+}

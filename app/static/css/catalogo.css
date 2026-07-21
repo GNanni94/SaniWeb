@@ -1,0 +1,27 @@
+/* Catalogo: titolo "CATEGORIE" e nome categoria nelle card con il font
+   per i titoli invece del font di base del sito */
+.catalogo-titolo,
+#home_contenitore_immagineCategorie .card-title {
+  font-family: var(--font-heading);
+}
+
+/* Catalogo: card categorie a dimensione fluida (100% della colonna Bootstrap)
+   invece di min/max-width fissi in rem: quei valori erano calcolati per
+   stare a malapena nello spazio della colonna e bastava un font di sistema
+   piu' grande (es. accessibilita' su iOS) per farle sfondare nella colonna
+   accanto, sovrapponendosi. Il quadrato (ratio 1:1) e il ritaglio
+   dell'immagine sono gestiti in HTML con le utility Bootstrap 5.3
+   ".ratio.ratio-1x1" e ".object-fit-cover", senza tetto massimo: la
+   dimensione segue solo la larghezza della colonna a ogni breakpoint. */
+.catalogo-card {
+  width: 100%;
+}
+
+/* Catalogo: sotto i 576px la classe "col-6" mette 2 card per riga (a coppie);
+   il titolo va rimpicciolito, altrimenti "display-6" (pensato per card da
+   16-18rem) trabocca da una card cosi' piccola */
+@media (max-width: 575.98px) {
+  #home_contenitore_immagineCategorie .card-title {
+    font-size: 1rem;
+  }
+}

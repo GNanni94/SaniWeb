@@ -1,0 +1,49 @@
+/* Simboli "+" e "-" dei controlli di zoom della mappa Leaflet nella
+   pagina contatti: forzati al nero, invece del colore link di default */
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+  color: #000;
+}
+
+/* Mappa Leaflet (contatti.html): da telefono, un dito solo scorre la pagina
+   invece di spostare la mappa - serve "touch-action: pan-y" perche' il
+   browser gestisca da solo lo scroll verticale a un dito prima ancora che
+   Leaflet intercetti il gesto, lasciando invece funzionare normalmente i
+   gesti a due dita (pan/pizzico). Riguarda solo il touch: su desktop (mouse)
+   non cambia nulla, il trascinamento con un click resta invariato.
+   "!important" necessario: leaflet.css mette di suo
+   ".leaflet-container.leaflet-touch-drag.leaflet-touch-zoom { touch-action:
+   none; }" sull'elemento stesso quando rileva un dispositivo touch (proprio
+   il caso da telefono) - un id come "#map" vince gia' per specificita' su
+   tre classi, ma "!important" toglie ogni dubbio */
+#map {
+  touch-action: pan-y !important;
+  position: relative; /* per contenere il banner ".map-hint" qui sotto */
+}
+
+/* Banner "usa due dita" (contatti.html): mostrato sopra la mappa quando si
+   tocca con un dito solo (che oggi scorre la pagina invece di muovere la
+   mappa - vedi JS). "pointer-events: none" apposta: il banner non deve
+   intercettare il tocco, altrimenti bloccherebbe proprio lo scroll che deve
+   lasciar passare. z-index alto per stare sopra i pannelli di Leaflet
+   (arrivano fino a circa 700, i controlli a 1000) */
+.map-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1100;
+  background-color: var(--color-primary);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.9rem;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.map-hint.visibile {
+  opacity: 1;
+}

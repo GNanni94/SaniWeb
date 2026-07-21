@@ -1,0 +1,25 @@
+/* media query storia azienda */
+.fotoStoriaAziendaMobile {
+  display: none;
+}
+
+@media screen and (max-width: 1200px) {
+
+  .fotoStoriaAzirenda {
+    display: none;
+  }
+
+  .fotoStoriaAziendaMobile {
+    display: flex !important;
+  }
+}
+
+/* Banner cookie (libreria django-cookiebanner): i bottoni "Accept all"/"Salva"
+   nel footer del banner, di default allineati a destra (text-align:right nel
+   <style> incluso dalla libreria stessa). Selettore con due ID (invece di uno
+   solo) per vincere sulla specificita' a parita' di proprieta', dato che lo
+   <style> della libreria viene incluso in base.html dopo main.css e a parita'
+   di specificita' vincerebbe lui in quanto dichiarato per ultimo */
+#cookiebannerModal #cookiebannerModalFooter {
+  text-align: center;
+}

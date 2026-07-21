@@ -1,0 +1,37 @@
+/* Campo email di password_reset_form.html: testo scritto e placeholder
+   centrati invece che allineati a sinistra di default (l'input non eredita
+   il "text-center" del form circostante). ":placeholder-shown" non serve:
+   il placeholder segue da solo il text-align impostato sull'input */
+#form-password-reset #id_email {
+  text-align: center;
+}
+
+/* Form di registrazione (signup.html): contorno di ogni campo dello stesso
+   blu della navbar invece del grigio di default di Bootstrap/MDB, anche a
+   fuoco (":focus" di suo sarebbe un blu piu' chiaro, diverso da quello del
+   sito). Stesso spessore (2px) di "#prodottiCardSearch" (vedi prodotti.css),
+   per coerenza. ":not(.is-invalid)" e' necessario (non solo un'aggiunta di
+   sicurezza): un selettore con #id vince sempre su ".form-control.is-invalid"
+   di Bootstrap (0 id) a prescindere dal numero di classi di quest'ultimo,
+   quindi senza l'esclusione il bordo rosso degli errori sparirebbe */
+#form-registrazione .form-control:not(.is-invalid) {
+  border-color: var(--color-primary);
+  border-width: 2px;
+}
+
+#form-registrazione .form-control:focus:not(.is-invalid) {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
+}
+
+/* Stesso trattamento del form di registrazione qui sopra, applicato al
+   campo email di password_reset_form.html */
+#form-password-reset .form-control:not(.is-invalid) {
+  border-color: var(--color-primary);
+  border-width: 2px;
+}
+
+#form-password-reset .form-control:focus:not(.is-invalid) {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
+}

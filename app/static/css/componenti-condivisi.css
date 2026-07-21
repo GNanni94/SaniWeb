@@ -1,0 +1,77 @@
+/* Bottone dello stesso blu della navbar, per chi non deve usare i colori
+   semantici di Bootstrap (success/danger/ecc.) ma il blu del sito - es. il
+   bottone "Manda istruzioni" in password_reset_form.html. Il blu "primary"
+   di default di Bootstrap (--bs-primary) e' un altro azzurro piu' chiaro,
+   diverso da var(--color-primary): non basta ".btn-primary" */
+.btn.btn-navbar {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.btn.btn-navbar:hover,
+.btn.btn-navbar:focus {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  color: #fff;
+}
+
+/* Variante colore tabella (stesso blu della navbar), da usare su <thead>
+   come le varianti ".table-light"/".table-dark" gia' pronte di Bootstrap -
+   stessa struttura di variabili CSS di quelle (--bs-table-*), cosi' resta
+   compatibile con table-hover/table-bordered/table-striped */
+.table-navbar {
+  --bs-table-color: #fff;
+  --bs-table-bg: var(--color-primary);
+  --bs-table-border-color: var(--color-primary-dark);
+  --bs-table-striped-bg: var(--color-primary-dark);
+  --bs-table-striped-color: #fff;
+  --bs-table-active-bg: var(--color-primary-dark);
+  --bs-table-active-color: #fff;
+  --bs-table-hover-bg: var(--color-primary-dark);
+  --bs-table-hover-color: #fff;
+  color: var(--bs-table-color);
+  border-color: var(--bs-table-border-color);
+}
+
+/* Avviso "devi registrarti per il preventivo" (partials/alert_preventivo.html),
+   usato in catalogo.html, prodotti_tabella.html e prodotti_card.html - stesso
+   blu della navbar/footer del sito invece del celeste di default di
+   ".alert-info". Selettore con due classi (invece di una sola, che avrebbe
+   comunque la stessa specificita' di ".alert-info" di Bootstrap) apposta per
+   vincere sempre, a prescindere dall'ordine di caricamento dei fogli di stile */
+.alert-info.catalogo-alert-preventivo {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.alert-info.catalogo-alert-preventivo .alert-link {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* Solo da md in su: l'avviso si aggancia in alto a destra della riga del
+   titolo (invece di seguire il flusso normale sotto il titolo su schermi
+   piccoli, dove l'avviso va a capo per non sovrapporsi). Bootstrap 5.3 non
+   ha varianti responsive per le utility di posizionamento (niente
+   "position-md-absolute"), quindi qui serve CSS custom */
+@media (min-width: 768px) {
+  .alert.catalogo-alert-preventivo {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+}
+
+/* Pagine prodotti (prodotti_card.html e prodotti_tabella.html): qui l'avviso
+   non sta piu' agganciato al titolo (vedi sopra) ma nella riga di
+   ricerca/filtro sotto, quindi va annullato l'agganciamento assoluto pensato
+   per il titolo - altrimenti si posizionerebbe rispetto al primo antenato
+   con position non-static trovato risalendo il DOM, con risultato
+   imprevedibile.
+   Tre classi (invece di due) apposta: serve piu' specificita' della regola
+   sopra per vincere a prescindere dall'ordine nel file */
+.alert.catalogo-alert-preventivo.catalogo-alert-inline {
+  position: static;
+}

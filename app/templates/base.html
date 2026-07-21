@@ -34,20 +34,32 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Barlow+Semi+Condensed:wght@600;700&display=swap" rel="stylesheet">
 
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.2.0/mdb.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
-  <!-- Fogli di stile del progetto caricati per ultimi apposta: sia Bootstrap
-       sia MDB (soprattutto MDB, caricato subito sopra) ridefiniscono molte
-       classi che usiamo anche noi (.card, .form-control, .form-select,
-       .alert-info, ...) con valori scritti a mano, non tramite variabili
-       CSS. A parita' di specificita' vince l'ultima regola nell'ordine dei
-       <link>, non l'ordine delle classi nell'HTML - stando qui in fondo le
-       nostre regole vincono di default, senza dover alzare artificialmente
-       la specificita' (due classi, id) ogni volta come si e' dovuto fare
-       finora (vedi commenti in main.css, es. ".card.card-documento") -->
+  <!-- Fogli di stile del progetto caricati per ultimi apposta: Bootstrap
+       ridefinisce molte classi che usiamo anche noi (.card, .form-control,
+       .form-select, .alert-info, ...) con valori di default propri. A
+       parita' di specificita' vince l'ultima regola nell'ordine dei <link>,
+       non l'ordine delle classi nell'HTML - stando qui in fondo le nostre
+       regole vincono di default.
+       Nota: fino a poco fa qui sopra era caricato anche MDB (Material
+       Design Bootstrap), rimosso perche' usato solo per il CSS (nessun
+       componente/JS suo), e le sue sovrascritture (con valori fissi e
+       "!important", non tramite variabili CSS) costringevano ad alzare
+       artificialmente la specificita' (due classi, id) per qualsiasi
+       personalizzazione - vedi commenti superstiti in main.css che citano
+       ancora "MDB" per il contesto storico -->
   <link href="{% static 'css/variables.css' %}" rel="stylesheet" type="text/css" />
   <link href="{% static 'css/main.css' %}" rel="stylesheet" type="text/css" />
+  <!-- CSS divisi per argomento (prima erano tutti dentro main.css): l'ordine
+       tra loro non conta, nessuno dei due ridefinisce le stesse regole -->
+  <link href="{% static 'css/componenti-condivisi.css' %}" rel="stylesheet" type="text/css" />
+  <link href="{% static 'css/catalogo.css' %}" rel="stylesheet" type="text/css" />
+  <link href="{% static 'css/prodotti.css' %}" rel="stylesheet" type="text/css" />
+  <link href="{% static 'css/documenti.css' %}" rel="stylesheet" type="text/css" />
+  <link href="{% static 'css/form.css' %}" rel="stylesheet" type="text/css" />
+  <link href="{% static 'css/contatti.css' %}" rel="stylesheet" type="text/css" />
+  <link href="{% static 'css/varie.css' %}" rel="stylesheet" type="text/css" />
   <link href="{% static 'css/navbar.css' %}" rel="stylesheet" type="text/css" />
 
 
