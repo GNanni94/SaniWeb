@@ -64,6 +64,16 @@ class ClienteCreationForm(UserCreationForm):
         self.fields["password2"].help_text = ""
         self.fields["cognome_ragione_sociale"].label = "Cognome"
         self.fields["email"].widget.attrs["placeholder"] = "nome@dominio.it"
+        # "required" solo sul widget (HTML), non sul field: blocca l'invio lato
+        # browser quando la riga Nome/Cognome e' visibile (utente privato), ma
+        # non cambia la validazione server-side - altrimenti si romperebbe la
+        # registrazione delle aziende, che lasciano first_name vuoto di
+        # proposito (vedi signup.html). Quando "Azienda" e' compilato, Bootstrap
+        # Collapse nasconde la riga con display:none: il browser esclude in
+        # automatico dal controllo di validita' i campi non visualizzati, quindi
+        # il blocco si disattiva da solo senza bisogno di altro JS
+        self.fields["first_name"].widget.attrs["required"] = "required"
+        self.fields["cognome_ragione_sociale"].widget.attrs["required"] = "required"
         # UserCreationForm (da cui eredita questo form) imposta di suo
         # "autofocus" sul campo che corrisponde a USERNAME_FIELD del model
         # (qui "email", vedi Registrati.USERNAME_FIELD) - il browser porta

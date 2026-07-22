@@ -16,12 +16,15 @@
         <div class="card-body">
           <form id="form-registrazione" class="row"  method="post" >
           {% csrf_token %}
-            <div class="col-12 mb-3">
+            <div id="riga-azienda" class="col-12 mb-3 collapse show">
                 <label for="id_azienda" class="form-label">Azienda</label>
                 <input type="text" class="form-control" id="id_azienda" name="azienda" placeholder="Se non sei un'azienda, lascia vuoto">
             </div>
 
             <div class="col-12">
+                <div id="avviso-nome-cognome" class="alert alert-danger d-none" role="alert">
+                    Inserisci Nome e Cognome, oppure il campo Azienda se ti stai registrando come azienda.
+                </div>
                 <div id="riga-nome-cognome" class="row collapse show">
                     <div class="col-md-6">
                           {{ form.first_name|as_crispy_field }}
@@ -88,23 +91,44 @@
   // precedenza (se presenti) vengono ripristinati.
   (function () {
     var campoAzienda = document.getElementById('id_azienda');
+    var rigaAzienda = document.getElementById('riga-azienda');
     var rigaNomeCognome = document.getElementById('riga-nome-cognome');
     var campoNome = document.getElementById('id_first_name');
     var campoCognome = document.getElementById('id_cognome_ragione_sociale');
-    if (!campoAzienda || !rigaNomeCognome || !campoNome || !campoCognome) return;
+    var avvisoNomeCognome = document.getElementById('avviso-nome-cognome');
+    if (!campoAzienda || !rigaAzienda || !rigaNomeCognome || !campoNome || !campoCognome) return;
 
-    // toggle:false: l'istanza viene creata senza far scattare subito
-    // un'animazione, la riga parte gia' visibile grazie alla classe "show"
+    // toggle:false: le istanze vengono create senza far scattare subito
+    // un'animazione, le righe partono gia' visibili grazie alla classe "show"
     // messa direttamente nell'HTML
     var collapseNomeCognome = new bootstrap.Collapse(rigaNomeCognome, { toggle: false });
+    var collapseAzienda = new bootstrap.Collapse(rigaAzienda, { toggle: false });
 
     var nomeSalvato = null;
     var cognomeSalvato = null;
+    var aziendaSalvato = null;
     // true solo quando l'animazione di chiusura e' completamente finita:
     // finche' la riga e' ancora visibile o in movimento, non scriviamo il
     // valore di Azienda dentro "Cognome" per evitare che si veda lampeggiare
     // il carattere appena digitato nel campo che sta per sparire
     var rigaNascosta = false;
+
+    function nascondiAvviso() {
+      if (avvisoNomeCognome) avvisoNomeCognome.classList.add('d-none');
+    }
+
+    // Nome/Cognome sono "required" via widget.attrs lato server (vedi
+    // ClienteCreationForm), pensati per l'utente privato. Quando si passa ad
+    // "azienda" vanno tolti esplicitamente qui: affidarsi solo al fatto che
+    // la riga e' nascosta da Bootstrap Collapse NON basta - durante/appena
+    // dopo l'animazione il campo puo' risultare ancora "invalid" per il
+    // browser ma non piu' focalizzabile, bloccando l'invio con un errore
+    // silenzioso in console invece di un avviso visibile (bug riscontrato in
+    // test)
+    function aggiornaRequired(azienda) {
+      campoNome.required = !azienda;
+      campoCognome.required = !azienda;
+    }
 
     rigaNomeCognome.addEventListener('hidden.bs.collapse', function () {
       rigaNascosta = true;
@@ -116,8 +140,11 @@
 
     campoAzienda.addEventListener('input', function () {
       var valore = campoAzienda.value;
+      var azienda = valore.trim() !== '';
+      aggiornaRequired(azienda);
+      nascondiAvviso();
 
-      if (valore.trim() !== '') {
+      if (azienda) {
         if (nomeSalvato === null) {
           nomeSalvato = campoNome.value;
           cognomeSalvato = campoCognome.value;
@@ -134,6 +161,43 @@
         nomeSalvato = null;
         cognomeSalvato = null;
       }
+    });
+
+    // Simmetrico al blocco sopra: scrivendo in Nome o Cognome si nasconde
+    // "Azienda" (svuotandola, salvando il suo valore per ripristinarlo se poi
+    // si tornasse a svuotare sia Nome che Cognome). Le variazioni di valore
+    // fatte qui via JS (es. ".value = ''") non scatenano l'evento "input",
+    // quindi non c'e' rischio di loop con il blocco sopra
+    function alCambioNomeCognome() {
+      var pieno = campoNome.value.trim() !== '' || campoCognome.value.trim() !== '';
+
+      if (pieno) {
+        if (aziendaSalvato === null) {
+          aziendaSalvato = campoAzienda.value;
+          campoAzienda.value = '';
+          collapseAzienda.hide();
+        }
+      } else if (aziendaSalvato !== null) {
+        collapseAzienda.show();
+        campoAzienda.value = aziendaSalvato;
+        aziendaSalvato = null;
+      }
+    }
+
+    campoNome.addEventListener('input', alCambioNomeCognome);
+    campoCognome.addEventListener('input', alCambioNomeCognome);
+
+    // Mostra un avviso Bootstrap esplicito invece di affidarsi solo al
+    // tooltip nativo del browser (che su alcuni browser/situazioni non
+    // compare affatto, vedi commento sopra su aggiornaRequired):
+    // preventDefault() sopprime solo il popup nativo, il campo resta
+    // comunque invalido e l'invio bloccato
+    [campoNome, campoCognome].forEach(function (campo) {
+      campo.addEventListener('invalid', function (e) {
+        e.preventDefault();
+        if (avvisoNomeCognome) avvisoNomeCognome.classList.remove('d-none');
+      });
+      campo.addEventListener('input', nascondiAvviso);
     });
   })();
 
