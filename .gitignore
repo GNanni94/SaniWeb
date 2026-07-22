@@ -35,8 +35,10 @@ app/Utente/migrations/__pycache__/
 app/SaniLog.log
 web/
 
-#ds_store
+
 .DS_Store
+.claude/
+.playwright-mcp
 
 #file .md
 *.md
