@@ -52,7 +52,7 @@
                                             -->
                                             <form action="{%url 'settaggio_quantita' elementi_carrello.pk%}"  method="post" class="mx-auto" style="max-width: 400px;">
                                                 {% csrf_token %}
-                                                {{form|crispy}}
+                                                {{elementi_carrello.form|crispy}}
                                                 <button class="btn btn-default">Aggiorna</button>
                                             </form>
                                             <!--

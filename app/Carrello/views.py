@@ -24,8 +24,12 @@ class CarrelloListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         elementi_carrello_utente = self.request.user.elementi_carrello.all()
+        # Un form per elemento, legato alla sua quantita' reale (instance=elemento):
+        # un unico CarrelloForm() condiviso da tutte le righe mostrerebbe sempre
+        # 0 (il default del campo "quantita" nel model), non la quantita' vera
+        for elemento in elementi_carrello_utente:
+            elemento.form = CarrelloForm(instance=elemento)
         context["object_list"] = elementi_carrello_utente
-        context["form"] = CarrelloForm()        
         context["preventivo"] = DettaglioPreventivoForm()
         context["totale_elementi_carrello"] = sum([elemento.quantita for elemento in elementi_carrello_utente])
         return context
