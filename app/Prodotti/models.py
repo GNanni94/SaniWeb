@@ -51,7 +51,7 @@ class Prodotto(models.Model):
         upload_to="documenti/",
         null=True,
         blank=True,
-        default="documenti/Regolamento-2019-1148_esplosivi.pdf",
+        default="",
     )
     gruppo=models.IntegerField(null=True)
     categoria=models.ForeignKey("Categoria", on_delete=models.CASCADE, blank=True, null=True)
