@@ -17,6 +17,19 @@ def catalogo_home(request):
         'categoria': Categoria.objects.all()
     }
 
+def _mostra_precursori(user):
+    # Solo gli utenti azienda possono vedere i prodotti soggetti alla
+    # normativa precursori (vedi Registrati.is_azienda); staff/superuser
+    # li vedono comunque, anche nel catalogo pubblico
+    if not user.is_authenticated:
+        return False
+    return user.is_staff or user.is_superuser or user.is_azienda
+
+def _filtra_precursori(queryset, user):
+    if _mostra_precursori(user):
+        return queryset
+    return queryset.filter(Q(precursore__isnull=True) | Q(precursore=''))
+
 class ProdottoListView(ListView):
     model = Prodotto
     template_name = "prodotti_card.html"
@@ -30,7 +43,7 @@ class ProdottoListView(ListView):
         object_list = Prodotto.objects.filter(
             Q(codice_prodotto__icontains=query) | Q(nome_prodotto__icontains=query)
         )
-        return object_list
+        return _filtra_precursori(object_list, self.request.user)
  
     def get_context_data(self, **kwargs):
         context = {}
@@ -70,6 +83,7 @@ class SottocategoriaListView(ListView):
             prodotti_gruppo_true = Prodotto.objects.filter(gruppo=1)
             prodotti = prodotti | prodotti_gruppo_true
         prodotti = prodotti.filter(sottocategoria_id=sottocategoria.codice_sottocategoria)
+        prodotti = _filtra_precursori(prodotti, self.request.user)
         paginator = Paginator(prodotti,self.paginate_by)
         page_number=request.GET.get('page')
         prodotti=paginator.get_page(page_number)
@@ -95,11 +109,13 @@ class CatalogoListView(ListView):
         nome_categoria = categoria.nome_categoria
         if nome_categoria.casefold() == "prodotti chimici":
             self.template_name = 'prodotti_tabella.html'
+            prodotti = _filtra_precursori(prodotti, request.user)
         else:
             self.template_name = 'prodotti_card.html'
             if nome_categoria.casefold() == "prodotti per piscine":
                 prodotti_gruppo_true = Prodotto.objects.filter(gruppo=1)
                 prodotti = prodotti | prodotti_gruppo_true
+            prodotti = _filtra_precursori(prodotti, request.user)
             paginator = Paginator(prodotti,self.paginate_by)
             page_number=request.GET.get('page')
             prodotti=paginator.get_page(page_number)

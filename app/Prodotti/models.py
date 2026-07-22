@@ -46,7 +46,12 @@ class Prodotto(models.Model):
     nome_prodotto=models.CharField(max_length=300,blank=True)
     descrizione=models.CharField(max_length=250, blank=True, null=True)
     unita_di_misura = models.CharField(max_length=4,null=True)
-    precursore = models.CharField(max_length=250, blank=True, null=True)
+    precursore = models.FileField(
+        upload_to="documenti/",
+        null=True,
+        blank=True,
+        default="documenti/Regolamento-2019-1148_esplosivi.pdf",
+    )
     gruppo=models.IntegerField(null=True)
     categoria=models.ForeignKey("Categoria", on_delete=models.CASCADE, blank=True, null=True)
     sottocategoria = models.ForeignKey("Sottocategoria",to_field="codice_sottocategoria", on_delete=models.CASCADE, blank=True, null=True)    

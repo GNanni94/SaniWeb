@@ -46,7 +46,9 @@
                                     <i>{{x.descrizione}} </i>
                                 {% endif %}
                                 {% if x.precursore %} <br>
-                                    <i>{{x.precursore}}</i>
+                                    <a class="btn btn-navbar btn-sm" href="{{x.precursore.url}}" target="_blank">
+                                        <i class="bi bi-filetype-pdf"></i> <small>Normativa Precursori</small>
+                                    </a>
                                 {% endif %}
                             </span>
                             <a class="btn btn-navbar btn-sm d-sm-none ms-2 flex-shrink-0" href="{% url 'aggiungi_prodotti' x.pk%}"

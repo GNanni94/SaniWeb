@@ -63,6 +63,13 @@ class Registrati(AbstractUser):
     def __str__ (self):
         return self.cognome_ragione_sociale + " " + self.codiceFiscale_PartitaIVA + " " + self.indirizzo + " " + self.citta
 
+    @property
+    def is_azienda(self):
+        # Nessun campo dedicato: in registrazione il nome dell'azienda viene
+        # salvato in cognome_ragione_sociale lasciando first_name vuoto
+        # (vedi signup.html), stessa euristica gia' usata in email_user()
+        return not self.first_name
+
     class Meta:
         db_table = "Registrati"
         verbose_name_plural = "Registrati"
