@@ -6,8 +6,6 @@ from .models import Prodotto, Categoria, Sottocategoria, ImmaginiArticolo, Sched
 #admin.site.register(Prodotto)
 #admin.site.register(Categoria)
 #admin.site.register(Sottocategoria)
-admin.site.register(ImmaginiArticolo)
-admin.site.register(SchedeTecniche)
 
 
 @admin.register(Prodotto)
@@ -27,6 +25,12 @@ class SottocategoriaAdmin(admin.ModelAdmin):
     search_fields = ['nome_sottocategoria']
 
 
-#@admin.register(ImmaginiArticolo)
-#class ImmaginiArticoloAdmin(admin.ModelAdmin):
-#    list_display = ['pk', 'descrizione']
+@admin.register(ImmaginiArticolo)
+class ImmaginiArticoloAdmin(admin.ModelAdmin):
+    list_display = ['pk', 'articolo_id', 'immagine']
+    search_fields = ['=articolo__pk']
+
+@admin.register(SchedeTecniche)
+class SchedeTecnicheAdmin(admin.ModelAdmin):
+    list_display = ['pk', 'articolo_id', 'scheda']
+    search_fields = ['=articolo__pk']

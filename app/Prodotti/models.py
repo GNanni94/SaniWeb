@@ -35,8 +35,9 @@ class Sottocategoria(models.Model):
             return super().save( *args, **kwargs)
 
     def __str__ (self):
-        return str(self.codice_sottocategoria%10) +" " + self.nome_sottocategoria 
+        return str(self.codice_sottocategoria%10) +" " + self.nome_sottocategoria
 
+    class Meta:
         db_table="Sottocategoria"
         verbose_name = "Sottocategoria"
         verbose_name_plural ="Sottocategorie"
