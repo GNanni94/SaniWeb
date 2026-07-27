@@ -1,5 +1,6 @@
 import datetime
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
@@ -97,3 +98,19 @@ class AvvisoChiusuraIntegrazioneHomeTest(TestCase):
     def test_nessun_banner_se_nessun_avviso_attivo(self):
         response = self.client.get(reverse('home'))
         self.assertNotContains(response, 'id="avvisoChiusura"')
+
+
+class AvvisoChiusuraLinkNavbarTest(TestCase):
+    def test_link_admin_visibile_per_utente_staff(self):
+        User = get_user_model()
+        staff = User.objects.create_user(username="staffuser", email="staff@example.com", password="testpass123", is_staff=True)
+        self.client.force_login(staff)
+        response = self.client.get(reverse('home'))
+        self.assertContains(response, reverse('admin:Avvisi_avvisochiusura_changelist'))
+
+    def test_link_admin_non_visibile_per_utente_normale(self):
+        User = get_user_model()
+        utente = User.objects.create_user(username="utentenormale", email="utente@example.com", password="testpass123")
+        self.client.force_login(utente)
+        response = self.client.get(reverse('home'))
+        self.assertNotContains(response, reverse('admin:Avvisi_avvisochiusura_changelist'))

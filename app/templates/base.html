@@ -204,6 +204,9 @@
           <a href="{% url 'sincronizzazione' %}" title="Sincronizzazione immagini e schede" class="d-inline-flex">
             <i class="bi bi-arrow-repeat fs-5" style="color: var(--color-primary);"></i>
           </a>
+          <a href="{% url 'admin:Avvisi_avvisochiusura_changelist' %}" title="Avvisi di chiusura" class="d-inline-flex">
+            <i class="bi bi-megaphone fs-5" style="color: var(--color-primary);"></i>
+          </a>
           {% endif %}
           <span>{{ user.email }}</span>
         </li>
