@@ -8,6 +8,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from .context_processors import avviso_chiusura
+from .forms import AvvisoChiusuraForm
 from .models import AvvisoChiusura
 
 
@@ -195,3 +196,127 @@ class AvvisoFerieEstive2026MigrationTest(TestCase):
                 motivo_chiusura="ferie estive",
             ).exists()
         )
+
+
+class AvvisoChiusuraFormTest(TestCase):
+    def test_form_valido_con_dati_corretti(self):
+        form = AvvisoChiusuraForm(data={
+            "data_inizio": "2026-08-07",
+            "data_fine": "2026-08-23",
+            "motivo_chiusura": "ferie estive",
+            # "attivo" omesso: una checkbox non spuntata non manda alcun
+            # valore nel POST reale, il form deve comunque validare
+            # (BooleanField del model genera un form field required=False)
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertFalse(form.cleaned_data["attivo"])
+
+    def test_form_non_valido_con_data_fine_precedente(self):
+        form = AvvisoChiusuraForm(data={
+            "data_inizio": "2026-08-23",
+            "data_fine": "2026-08-07",
+            "motivo_chiusura": "ferie estive",
+            "attivo": "on",
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn("data_fine", form.errors)
+
+
+class NuovoAvvisoViewTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.staff = User.objects.create_user(username="staffcrud1", email="staffcrud1@example.com", password="testpass123", is_staff=True)
+        self.utente = User.objects.create_user(username="normalecrud1", email="normalecrud1@example.com", password="testpass123")
+        AvvisoChiusura.objects.all().delete()
+
+    def test_post_valido_crea_avviso_e_risponde_con_tabella_aggiornata(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse("nuovo_avviso"),
+            data={"data_inizio": "2026-12-24", "data_fine": "2027-01-06", "motivo_chiusura": "festivita natalizie"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "festivita natalizie")
+        self.assertTrue(AvvisoChiusura.objects.filter(motivo_chiusura="festivita natalizie").exists())
+
+    def test_post_non_valido_non_crea_nulla_e_risponde_con_form_errori(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse("nuovo_avviso"),
+            data={"data_inizio": "2027-01-06", "data_fine": "2026-12-24", "motivo_chiusura": "festivita natalizie"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(AvvisoChiusura.objects.filter(motivo_chiusura="festivita natalizie").exists())
+
+    def test_utente_normale_non_autorizzato(self):
+        self.client.force_login(self.utente)
+        response = self.client.post(reverse("nuovo_avviso"), data={}, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 302)
+
+    def test_get_risponde_405(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("nuovo_avviso"))
+        self.assertEqual(response.status_code, 405)
+
+
+class ModificaAvvisoViewTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.staff = User.objects.create_user(username="staffcrud2", email="staffcrud2@example.com", password="testpass123", is_staff=True)
+        AvvisoChiusura.objects.all().delete()
+        self.avviso = _crea_avviso(datetime.date(2026, 8, 7), datetime.date(2026, 8, 23))
+
+    def test_post_valido_aggiorna_avviso_esistente(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse("modifica_avviso", args=[self.avviso.pk]),
+            data={"data_inizio": "2026-08-08", "data_fine": "2026-08-24", "motivo_chiusura": "ferie estive prolungate"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.avviso.refresh_from_db()
+        self.assertEqual(self.avviso.motivo_chiusura, "ferie estive prolungate")
+        self.assertEqual(self.avviso.data_inizio, datetime.date(2026, 8, 8))
+
+    def test_post_non_valido_non_modifica_nulla(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse("modifica_avviso", args=[self.avviso.pk]),
+            data={"data_inizio": "2026-08-23", "data_fine": "2026-08-07", "motivo_chiusura": "x"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.avviso.refresh_from_db()
+        self.assertEqual(self.avviso.motivo_chiusura, "ferie estive")
+
+    def test_utente_normale_non_autorizzato(self):
+        User = get_user_model()
+        utente = User.objects.create_user(username="normalecrud2", email="normalecrud2@example.com", password="testpass123")
+        self.client.force_login(utente)
+        response = self.client.post(reverse("modifica_avviso", args=[self.avviso.pk]), data={}, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 302)
+
+
+class EliminaAvvisoViewTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.staff = User.objects.create_user(username="staffcrud3", email="staffcrud3@example.com", password="testpass123", is_staff=True)
+        AvvisoChiusura.objects.all().delete()
+        self.avviso = _crea_avviso(datetime.date(2026, 8, 7), datetime.date(2026, 8, 23))
+
+    def test_post_elimina_avviso_e_risponde_con_tabella_aggiornata(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(reverse("elimina_avviso", args=[self.avviso.pk]), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(AvvisoChiusura.objects.filter(pk=self.avviso.pk).exists())
+        self.assertNotContains(response, "ferie estive")
+
+    def test_utente_normale_non_autorizzato(self):
+        User = get_user_model()
+        utente = User.objects.create_user(username="normalecrud3", email="normalecrud3@example.com", password="testpass123")
+        self.client.force_login(utente)
+        response = self.client.post(reverse("elimina_avviso", args=[self.avviso.pk]), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(AvvisoChiusura.objects.filter(pk=self.avviso.pk).exists())

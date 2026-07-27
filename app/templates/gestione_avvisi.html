@@ -1,47 +1,36 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block titolo %} Avvisi di chiusura {% endblock titolo %}
 
 {% block contenuto %}
 
 <div class="container">
     <div class="row">
-        <div class="col-12">
-            <h1 class="text-center py-5">Avvisi di chiusura</h1>
+        <div class="col-12 d-flex justify-content-between align-items-center py-5">
+            <h1 class="mb-0">Avvisi di chiusura</h1>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAvviso" id="btnNuovoAvviso">
+                + Nuovo avviso
+            </button>
         </div>
     </div>
 
-    {% comment %}
-    Pagina provvisoria di sola lettura: la gestione interattiva (creazione/
-    modifica come pop-up) arriva in un secondo momento
-    {% endcomment %}
-    <p class="text-center mb-4">La gestione completa arriverà a breve. Per ora, elenco di sola lettura degli avvisi configurati.</p>
-
-    {% if avvisi %}
-    <div class="table-responsive">
-        <table class="table table-striped align-middle">
-            <thead>
-                <tr>
-                    <th scope="col">Data inizio</th>
-                    <th scope="col">Data fine</th>
-                    <th scope="col">Motivo</th>
-                    <th scope="col">Attivo</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for avviso in avvisi %}
-                <tr>
-                    <td>{{ avviso.data_inizio }}</td>
-                    <td>{{ avviso.data_fine }}</td>
-                    <td>{{ avviso.motivo_chiusura }}</td>
-                    <td>{{ avviso.attivo|yesno:"Sì,No" }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <p class="text-center">Nessun avviso configurato.</p>
-    {% endif %}
+    {% include 'partials/tabella_avvisi.html' %}
 </div>
+
+<div class="modal fade" id="modalAvviso" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Avviso di chiusura</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+      </div>
+      <div class="modal-body" id="modalAvvisoBody">
+        {% include 'partials/form_avviso.html' %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'js/gestione-avvisi.js' %}"></script>
 
 {% endblock contenuto %}

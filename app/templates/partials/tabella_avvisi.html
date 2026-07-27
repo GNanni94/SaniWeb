@@ -1,0 +1,37 @@
+<div id="tabella-avvisi">
+  {% if avvisi %}
+  <div class="table-responsive">
+    <table class="table table-striped align-middle">
+      <thead>
+        <tr>
+          <th scope="col">Data inizio</th>
+          <th scope="col">Data fine</th>
+          <th scope="col">Motivo</th>
+          <th scope="col">Attivo</th>
+          <th scope="col">Azioni</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for avviso in avvisi %}
+        <tr data-pk="{{ avviso.pk }}"
+            data-data-inizio="{{ avviso.data_inizio|date:'Y-m-d' }}"
+            data-data-fine="{{ avviso.data_fine|date:'Y-m-d' }}"
+            data-motivo="{{ avviso.motivo_chiusura }}"
+            data-attivo="{{ avviso.attivo|yesno:'true,false' }}">
+          <td>{{ avviso.data_inizio }}</td>
+          <td>{{ avviso.data_fine }}</td>
+          <td>{{ avviso.motivo_chiusura }}</td>
+          <td>{{ avviso.attivo|yesno:"Sì,No" }}</td>
+          <td>
+            <button type="button" class="btn btn-sm btn-outline-primary btn-modifica-avviso" data-url-modifica="{% url 'modifica_avviso' avviso.pk %}">Modifica</button>
+            <button type="button" class="btn btn-sm btn-outline-danger btn-elimina-avviso" data-url-elimina="{% url 'elimina_avviso' avviso.pk %}">Elimina</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-center">Nessun avviso configurato.</p>
+  {% endif %}
+</div>

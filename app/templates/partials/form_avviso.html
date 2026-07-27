@@ -1,0 +1,9 @@
+{% load crispy_forms_tags %}
+<form id="form-avviso" method="post" action="{{ azione_url }}" data-azione-nuovo="{% url 'nuovo_avviso' %}">
+  {% csrf_token %}
+  {{ form.data_inizio|as_crispy_field }}
+  {{ form.data_fine|as_crispy_field }}
+  {{ form.motivo_chiusura|as_crispy_field }}
+  {{ form.attivo|as_crispy_field }}
+  <button type="submit" class="btn btn-primary">Salva</button>
+</form>
