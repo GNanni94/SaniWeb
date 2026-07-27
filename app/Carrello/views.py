@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse
 from django.views.generic import ListView, DetailView  # new
 from django.views.generic.edit import UpdateView, DeleteView, CreateView  # new
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -6,6 +7,7 @@ from django.views.decorators.http import require_POST
 from .models import Carrello
 from Prodotti.models import Prodotto
 from django.contrib import messages
+from django.utils.http import url_has_allowed_host_and_scheme
 from typing import Any, Dict
 from Preventivo.forms import DettaglioPreventivoForm
 from Preventivo.models import Preventivo, Dettaglio_Preventivo, Elementi_Preventivo
@@ -30,7 +32,16 @@ class CarrelloListView(LoginRequiredMixin, ListView):
         for elemento in elementi_carrello_utente:
             elemento.form = CarrelloForm(instance=elemento)
         context["object_list"] = elementi_carrello_utente
-        context["preventivo"] = DettaglioPreventivoForm()
+        # Precompilazione da un "Riusa preventivo" (vedi
+        # Preventivo/views.py:aggiungi_preventivo_al_carrello): valori letti
+        # una sola volta e rimossi dalla sessione, cosi' non restano a
+        # sporcare visite successive alla pagina del carrello
+        initial = {}
+        if 'messaggio_precompilato' in self.request.session:
+            initial['messaggio'] = self.request.session.pop('messaggio_precompilato')
+        if 'luogo_precompilato' in self.request.session:
+            initial['luogo'] = self.request.session.pop('luogo_precompilato')
+        context["preventivo"] = DettaglioPreventivoForm(initial=initial)
         context["totale_elementi_carrello"] = sum([elemento.quantita for elemento in elementi_carrello_utente])
         return context
 
@@ -48,8 +59,23 @@ def aggiungi_prodotti_al_carrello(request, prodottoId):
         elemento_carrello.quantita += 1
         elemento_carrello.save()
         messages.success(request, 'Carrello aggiornato!')
-        return redirect(prodotto) 
-    return redirect('login')     
+        # Torna alla pagina di provenienza (stessa pagina di paginazione/
+        # ricerca/sottocategoria, con l'ancora sul prodotto appena aggiunto)
+        # invece che sempre alla pagina base della categoria: altrimenti si
+        # perde la posizione in cui si stava navigando ("sembra riportare su")
+        referer = request.META.get('HTTP_REFERER')
+        if referer and url_has_allowed_host_and_scheme(referer, allowed_hosts={request.get_host()}):
+            return redirect(f"{referer}#prodotto-{prodottoId}")
+        return redirect(prodotto)
+    # Richiesta in background (vedi "aggiungi-al-carrello.js"): un redirect
+    # verrebbe seguito automaticamente da "fetch" fino alla pagina di login,
+    # risultando comunque in una risposta 200 (quella pagina) - indistinguibile
+    # lato JS da un'aggiunta riuscita. Un 401 esplicito, mai un codice di
+    # successo, elimina l'ambiguita' e lascia al JS decidere cosa fare
+    # (portare l'utente al login)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return HttpResponse(status=401)
+    return redirect('login')
 
 @require_POST
 def elimina_elementi_dal_carrello(request, carrelloId):

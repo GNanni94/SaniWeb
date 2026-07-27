@@ -7,144 +7,96 @@
 
 <div class="container">
 
-    <div class="row">
-        <div class="col-12 py-5">
-            <div class="text-center">
-                <h1 class="fw-bold mb-0">{{nome_categoria}}</h1>
-            </div>
-        </div>
+    <div class="d-flex align-items-center position-relative pt-5 pb-3">
+        <a href="{% url 'catalogo' %}" class="btn btn-navbar btn-sm position-absolute start-0" title="Torna al catalogo">
+            <i class="bi bi-arrow-left"></i>
+            <span class="d-none d-md-inline">Torna al catalogo</span>
+        </a>
+        <h1 class="fw-bold mb-0 mx-auto">
+            <a href="{% url 'dettaglio_categoria' categoria_pk %}" class="titolo-categoria-link" id="titoloCategoriaLink">{{nome_categoria}}</a>
+        </h1>
     </div>
 
     {% if not user.is_authenticated %}
-    <div class="row">
-        <div class="col-12 d-flex justify-content-center card-control-alert">
-            {% include 'partials/alert_preventivo.html' %}
-        </div>
+    <div class="d-flex justify-content-center card-control-alert pt-4">
+        {% include 'partials/alert_preventivo.html' %}
     </div>
     {% endif %}
 
-    <div class="row">
+    <div class="py-3 d-flex flex-nowrap align-items-center justify-content-between gap-2">
 
-        <div class="col-12 py-3 d-flex flex-nowrap align-items-center justify-content-between gap-2">
-
-            <div class="card-control-ricerca flex-grow-1 flex-shrink-1" style="max-width: 12rem;">
-                <form class="input-group rounded w-100" action="{% url 'search_prodotto' categoria_pk %}">
-                    <input type="text" name="query" id="prodottiCardSearch" class="form-control rounded" placeholder="Search" aria-label="Search"
-                        aria-describedby="search-addon" />
-                    <span class="input-group-text border-0" id="search-addon">
-                        <i class="fas fa-search"></i>
-                    </span>
-                </form>
-            </div>
-
-            {% if sottocategorie|length > 0 %}
-            <div class="card-control-filtro flex-grow-1 flex-shrink-1" style="max-width: 28rem;">
-                <select id="prodottiCardFiltro" class="form-select" onchange="if (this.value) window.location.href = this.value;">
-                    <option value="{% url 'dettaglio_categoria' categoria_pk %}">Lista completa</option>
-                    {% for sottocategoria in sottocategorie %}
-                        <option value="{% url 'dettaglio_sottocategoria' sottocategoria.categoria_id sottocategoria.codice_sottocategoria %}"
-                            {% if sottocategoria.codice_sottocategoria == sottocategoria_corrente_pk %}selected{% endif %}>
-                            {{ sottocategoria.nome_sottocategoria }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            {% endif %}
-
-        </div>
-
-        <div class="col-12">
-
-            <div class="row">
-
-                {% for x in prodotti %}
-                <div class="col-6 col-xl-4 col-xxl-4 card-deck py-4 " >
-
-                    <div class="card" style="height: 100%;">
-                        <img src="{{x.immagine_rel.immagine}}" class="card-img-top" style="max-height: 200px; width:100%; object-fit: contain;padding-top:3vh;" alt="...">
-                        <div class="card-body">
-                            <div class="row py-2"> 
-                                <div class="col-8"> 
-                                    <p class="card-text">{{x.codice_prodotto}}</p>
-                                </div>
-                                <div class="col-4"> 
-                                    <h6 class="card-title float-end">{{x.unita_di_misura}}</h6>
-                                </div>
-                            </div>
-                            <!--<p class="card-text">{{x.codice_prodotto}}</p> -->
-                            <h6 class="card-title">{{x.nome_prodotto}}</h6>
-                            {% if x.descrizione %}
-
-                                <h6 class="card-title">{{x.descrizione}}</h6>
-                            {% endif%}
-                            {% if x.precursore %}
-                                <a class="btn btn-navbar btn-sm" href="{{x.precursore.url}}" target="_blank">
-                                    <i class="bi bi-filetype-pdf"></i> <small>Normativa Precursori</small>
-                                </a>
-                            {% endif%}
-                            <!--<h6 class="card-title">{{x.unita_di_misura}}</h6>-->
-                        </div>
-    
-                        <div class="card-footer">
-                            <div class="d-flex justify-content-center align-items-center gap-2">
-                                {% if x.scheda_rel.scheda %}
-                                    <a class="btn btn-success"
-                                        href="{{x.scheda_rel.scheda}}" target="_blank"><small>Scheda Tecnica</small></a>
-                                {% endif %}
-                                <a class="btn btn-navbar" href="{% url 'aggiungi_prodotti' x.pk %}" title="Aggiungi al preventivo">
-                                    Aggiungi al preventivo
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
+        {% if sottocategorie|length > 0 %}
+        <div class="card-control-filtro flex-grow-1 flex-shrink-1" style="max-width: 14rem;" id="filtroProdottiWrapper">
+            <select id="prodottiCardFiltro" class="form-select">
+                <option value="{% url 'dettaglio_categoria' categoria_pk %}">Tutte le sottocategorie</option>
+                {% for sottocategoria in sottocategorie %}
+                    <option value="{% url 'dettaglio_sottocategoria' sottocategoria.categoria_id sottocategoria.codice_sottocategoria %}"
+                        {% if sottocategoria.codice_sottocategoria == sottocategoria_corrente_pk %}selected{% endif %}>
+                        {{ sottocategoria.nome_sottocategoria }}
+                    </option>
                 {% endfor %}
-
-
-
-            </div>
-
+            </select>
+            <i class="bi bi-funnel filtro-icon-overlay" aria-hidden="true"></i>
         </div>
+        {% endif %}
 
-        <div class="col-12 py-4">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination justify-content-center">
-                  {% if prodotti.has_previous %}
-                    <li class="page-item"><a class="page-link" href="?page={{ prodotti.previous_page_number }}">&laquo;</a></li>
-                  {% else %}
-                    <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
-                  {% endif %}
-
-                  {% if prodotti.paginator.num_pages <= 3 %}
-                    {% for p in prodotti.paginator.page_range %}
-                      <li class="page-item {% if p == prodotti.number %}active{% endif %}"><a class="page-link" href="?page={{ p }}">{{ p }}</a></li>
-                    {% endfor %}
-                  {% else %}
-                    <li class="page-item {% if prodotti.number == 1 %}active{% endif %}"><a class="page-link" href="?page=1">1</a></li>
-                    {% if prodotti.number == 1 %}
-                      <li class="page-item"><a class="page-link" href="?page=2">2</a></li>
-                      <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
-                    {% elif prodotti.number == prodotti.paginator.num_pages %}
-                      <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
-                    {% else %}
-                      <li class="page-item active"><a class="page-link" href="?page={{ prodotti.number }}">{{ prodotti.number }}</a></li>
-                      <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
-                    {% endif %}
-                    <li class="page-item {% if prodotti.number == prodotti.paginator.num_pages %}active{% endif %}"><a class="page-link" href="?page={{ prodotti.paginator.num_pages }}">{{ prodotti.paginator.num_pages }}</a></li>
-                  {% endif %}
-
-                  {% if prodotti.has_next %}
-                    <li class="page-item"><a class="page-link" href="?page={{ prodotti.next_page_number }}">&raquo;</a></li>
-                  {% else %}
-                    <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
-                  {% endif %}
-                </ul>
-            </nav>
+        <div class="card-control-ricerca flex-grow-1 flex-shrink-1" style="max-width: 12rem;" id="ricercaProdottiWrapper">
+            <form class="input-group w-100 ricerca-form" id="ricercaProdottiForm" action="{% url 'search_prodotto' categoria_pk %}">
+                <input type="hidden" name="sottocategoria" id="ricercaSottocategoriaHidden" value="{{ sottocategoria_corrente_pk|default_if_none:'' }}">
+                <input type="text" name="query" id="prodottiCardSearch" class="form-control" placeholder="Search" aria-label="Search"
+                    aria-describedby="search-addon" />
+                <button type="button" class="input-group-text border-0 ricerca-toggle-btn" id="search-addon"
+                    aria-expanded="false" aria-controls="prodottiCardSearch" title="Cerca" aria-label="Cerca">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
         </div>
 
     </div>
+
+    {% include 'partials/griglia_prodotti.html' %}
+
 </div>
 
+<script src="{% static 'js/aggiungi-al-carrello.js' %}"></script>
+<script src="{% static 'js/filtro-prodotti-ajax.js' %}"></script>
+
+<script>
+(function () {
+    var wrapper = document.getElementById('ricercaProdottiWrapper');
+    var form = document.getElementById('ricercaProdottiForm');
+    var toggleBtn = document.getElementById('search-addon');
+    var input = document.getElementById('prodottiCardSearch');
+    if (!wrapper || !form || !toggleBtn || !input) {
+        return;
+    }
+
+    // Sotto i 576px la lente ha un doppio ruolo, a seconda dello stato:
+    // - campo chiuso: il click lo apre e ci mette il focus
+    // - campo gia' aperto: il click invia la ricerca (la lente si comporta
+    //   come il bottone "invia" di un search box classico)
+    toggleBtn.addEventListener('click', function () {
+        if (!wrapper.classList.contains('ricerca-espansa')) {
+            wrapper.classList.add('ricerca-espansa');
+            toggleBtn.setAttribute('aria-expanded', 'true');
+            input.focus();
+            return;
+        }
+        form.requestSubmit();
+    });
+
+    // Richiude il campo se si clicca fuori mentre e' vuoto, cosi' la lente
+    // torna alla posizione chiusa senza dover cancellare a mano il testo
+    document.addEventListener('click', function (event) {
+        if (!wrapper.classList.contains('ricerca-espansa') || wrapper.contains(event.target)) {
+            return;
+        }
+        if (input.value.trim() === '') {
+            wrapper.classList.remove('ricerca-espansa');
+            toggleBtn.setAttribute('aria-expanded', 'false');
+        }
+    });
+})();
+</script>
 
 {% endblock %}

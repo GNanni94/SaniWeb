@@ -1,0 +1,23 @@
+{% comment %}
+Logo "Aggiungi al preventivo" - Variante A (claude_design/Creazione bottoni e
+loghi.zip): foglio con angolo piegato + badge "+" in basso a destra, pensato
+per un bottone pieno dello stesso blu della navbar (var(--color-primary)).
+Colori adattati al progetto (var(--color-primary) invece dell'oklch del
+mockup, il resto - bianco - invariato).
+
+Parametri:
+- url (obbligatorio): destinazione del link
+- css_class (opzionale): classi aggiuntive sull'<a>, oltre a "btn btn-navbar"
+{% endcomment %}
+<a class="btn btn-navbar {{ css_class }}" href="{{ url }}" title="Aggiungi al preventivo">
+    <svg width="20" height="20" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <path d="M16 6 H40 L48 14 V58 H16 Z" fill="white" fill-opacity="0.15" stroke="white" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M40 6 V14 H48 Z" fill="white" fill-opacity="0.3" stroke="white" stroke-width="3" stroke-linejoin="round"/>
+        <line x1="21" y1="24" x2="37" y2="24" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="21" y1="31" x2="37" y2="31" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="21" y1="38" x2="32" y2="38" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="47" cy="49" r="12" fill="white"/>
+        <line x1="47" y1="42" x2="47" y2="56" stroke="var(--color-primary)" stroke-width="3.4" stroke-linecap="round"/>
+        <line x1="40" y1="49" x2="54" y2="49" stroke="var(--color-primary)" stroke-width="3.4" stroke-linecap="round"/>
+    </svg>
+</a>

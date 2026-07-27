@@ -1,3 +1,133 @@
+/* Card prodotto (prodotti_card.html): refresh visivo da design handoff
+   (vedi claude_design/) - bordo blu navbar sottile, angoli piu' arrotondati,
+   ombra a doppio strato che si accentua al hover con un leggero sollevamento.
+   Selettore con due classi (stessa specificita' di ".card" da sola, ma vince
+   sempre a prescindere dall'ordine di caricamento dei fogli di stile) -
+   stesso pattern gia' usato in documenti.css per ".card.card-documento" */
+.card.card-prodotto {
+  border: 1.5px solid var(--color-primary);
+  border-radius: 16px;
+  /* "overflow: hidden" fa si' che il footer (che non ha un proprio
+     border-radius) venga comunque tagliato secondo l'angolo arrotondato
+     della card, senza bisogno di calcolarlo a mano su di lui */
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 8px 24px rgba(0, 0, 0, .08);
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+
+.card.card-prodotto:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .08), 0 14px 32px rgba(0, 0, 0, .14);
+  transform: translateY(-2px);
+}
+
+/* Zona immagine: padding asimmetrico (meno in basso, per avvicinare il
+   contenuto del corpo sotto), altezza fissa - "object-fit: contain" (non
+   "cover") perche' le foto prodotto reali hanno proporzioni molto diverse
+   tra loro (da 0.36 a 2.0 larghezza/altezza, vedi verifica fatta a parte) e
+   non vanno tagliate */
+.card.card-prodotto .card-prodotto-img-wrap {
+  padding: 28px 28px 8px 28px;
+}
+
+.card.card-prodotto .card-img-top {
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+}
+
+.card.card-prodotto .card-prodotto-body {
+  padding: 4px 24px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card.card-prodotto .card-prodotto-riga-codice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card.card-prodotto .card-prodotto-codice {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: var(--color-text);
+}
+
+/* Badge unita' di misura: solo testo nero, senza pillola colorata visibile
+   (scelta esplicita dell'utente in fase di revisione del design - vedi nota
+   nel README dello handoff). Padding/border-radius a pillola mantenuti
+   comunque per lo spazio/allineamento, anche se lo sfondo e' trasparente */
+.card.card-prodotto .card-prodotto-badge-unita {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: #000;
+  background-color: transparent;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.card.card-prodotto .card-prodotto-titolo {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.35;
+  font-weight: 650;
+  color: var(--color-text);
+}
+
+.card.card-prodotto .card-prodotto-descrizione {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+/* Bottoni documento (Scheda Tecnica / Normativa): stesso verde di Bootstrap
+   gia' in uso altrove nel progetto (".btn-success"), solo con padding/raggio/
+   dimensione testo specifici del design invece delle taglie standard di
+   Bootstrap */
+.card.card-prodotto .card-prodotto-btn-doc {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+/* Il footer della card e' interamente il bottone "Aggiungi al preventivo"
+   (niente piu' bordo/sfondo grigio di default, ne' padding proprio - vedi
+   "p-0" in prodotti_card.html): ".card-footer-btn" ne riempie tutta l'area,
+   bordo a bordo, quindi l'intero footer risulta cliccabile. Gli angoli in
+   basso non vanno arrotondati qui (li assorbe l'"overflow: hidden" della
+   card, vedi sopra) */
+.card.card-prodotto .card-footer {
+  border-top: 0;
+}
+
+.card.card-prodotto .card-footer-btn {
+  display: block;
+  width: 100%;
+  padding: 15px 20px;
+  background-color: var(--color-primary);
+  color: var(--color-text-light);
+  text-align: center;
+  text-decoration: none;
+  font-size: 14.5px;
+  font-weight: 650;
+  letter-spacing: .01em;
+  transition: background-color .15s ease;
+}
+
+.card.card-prodotto .card-footer-btn:hover,
+.card.card-prodotto .card-footer-btn:focus {
+  background-color: var(--color-primary-dark);
+  color: var(--color-text-light);
+}
+
 /* Tabella prodotti (DataTables): nasconde la tabella (senza toglierla dal
    flusso, "visibility" non "display", altrimenti DataTables non riuscirebbe
    a misurarne le colonne durante l'inizializzazione) finche' DataTables non
@@ -149,10 +279,68 @@
   height: calc(1.5em + 0.75rem + 4px);
 }
 
+/* Toglie il glow azzurro che Bootstrap mette di default su ".form-control:focus":
+   sotto i 576px il bordo destro del campo e' impostato a 0 per fondersi con la
+   lente accanto (vedi sotto), ma il box-shadow del focus segue comunque il
+   perimetro intero dell'elemento e ricreava li' una riga verticale visibile */
+#prodottiCardSearch:focus {
+  box-shadow: none;
+}
+
 #prodottiCardFiltro {
   border-color: var(--color-primary);
   border-width: 2px;
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%231B5AA0' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* Ricerca da sm in su (>=576px, complementare alla media query "max-width:
+   575.98px" sopra, che riguarda solo il comportamento animato da telefono):
+   qui il campo resta sempre aperto, quindi l'icona lente non ha bisogno di
+   essere un bottone "attaccato" separato - la si ingloba dentro il campo
+   stesso, sovrapposta in posizione assoluta, per un look da singola casella
+   di ricerca invece di campo+bottone affiancati */
+@media (min-width: 576px) {
+  #ricercaProdottiWrapper .ricerca-form {
+    position: relative;
+  }
+
+  #ricercaProdottiWrapper #prodottiCardSearch {
+    /* Angoli tutti arrotondati (non solo a sinistra): Bootstrap toglierebbe
+       di suo quelli destri perche' l'input non e' l'ultimo figlio
+       dell'".input-group" - qui invece deve sembrare un campo a se stante,
+       dato che il bottone non e' piu' visivamente "attaccato" */
+    border-radius: var(--bs-border-radius) !important;
+    /* Spazio a destra per non far scorrere il testo sotto l'icona */
+    padding-right: 2.25rem;
+  }
+
+  #ricercaProdottiWrapper .ricerca-toggle-btn {
+    position: absolute;
+    top: 50%;
+    right: .25rem;
+    transform: translateY(-50%);
+    z-index: 5;
+    background-color: transparent !important;
+    border: 0 !important;
+    padding: 0 .5rem;
+    color: var(--color-primary);
+  }
+}
+
+/* Titolo pagina prodotti a card (prodotti_card.html): blu navbar invece del
+   nero di default, e cliccabile per tornare alla lista completa della
+   categoria (utile soprattutto quando si e' filtrati su una sottocategoria o
+   si sta guardando un risultato di ricerca) */
+.titolo-categoria-link,
+.titolo-categoria-link:hover,
+.titolo-categoria-link:focus {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.titolo-categoria-link:hover,
+.titolo-categoria-link:focus {
+  text-decoration: none;
 }
 
 /* Ricerca/filtro prodotti (prodotti_card.html): "flex-shrink-1" di Bootstrap
@@ -164,6 +352,222 @@
 .card-control-ricerca,
 .card-control-filtro {
   min-width: 0;
+}
+
+/* Icona a imbuto del filtro: esiste solo per il comportamento "solo icona"
+   da telefono (vedi sotto), su schermi piu' larghi la select resta quella
+   di sempre (testo/freccina visibili, nessuna icona sopra) */
+.filtro-icon-overlay {
+  display: none;
+}
+
+/* Sotto i 576px ("telefono", stessa soglia usata altrove nel sito - vedi
+   prodotti_tabella.html) il campo di ricerca parte chiuso (larghezza 0,
+   solo la lente e' visibile) e si apre al click sulla lente stessa.
+   Le varie soluzioni provate in precedenza (bordo/sfondo animati
+   separatamente su campo e lente, poi un "tappo" dedicato per l'angolo
+   sinistro) creavano tutte lo stesso tipo di difetto su Safari/WebKit: due
+   o piu' elementi con un proprio bordo che devono combaciare pixel a pixel
+   per sembrare un'unica forma, con una sottile riga bianca nel punto di
+   giunzione se la riga cade su una posizione verticale frazionaria (bug non
+   riproducibile su Chrome/devtools). Qui invece il bordo/sfondo della
+   "pillola" vive su un solo elemento (vedi ".ricerca-form" sotto), che la
+   ritaglia con "overflow: hidden": campo e lente al suo interno non hanno
+   alcun bordo proprio, quindi non c'e' piu' nulla con cui disallinearsi. Da
+   sm in su il campo resta sempre aperto come prima (nessuna di queste
+   regole si applica) */
+@media (max-width: 575.98px) {
+  /* La classe Bootstrap ".flex-grow-1" (sempre attiva, vedi HTML) farebbe
+     crescere il wrapper anche da chiuso per riempire lo spazio libero nella
+     riga - spazio che ora e' molto piu' ampio da quando il filtro accanto e'
+     diventato una semplice icona fissa (42px) invece di una select larga.
+     Il risultato sarebbe una lente "appesa" a sinistra dentro un
+     contenitore invisibile molto piu' largo di lei, non aderente al bordo
+     destro della riga.
+     Il wrapper ha quindi una larghezza esplicita che passa da chiuso
+     (larghezza della pillola chiusa, solo bottone+bordo) ad aperto (12rem,
+     lo stesso valore gia' usato come "max-width" in linea nell'HTML) -
+     "width", non "flex-grow": animare "flex-grow" direttamente non e'
+     affidabile su Safari/WebKit (verificato con una registrazione da
+     iPhone: l'animazione scattava di colpo, senza fotogrammi intermedi,
+     mentre su Chrome risultava fluida), mentre "width" si anima in modo
+     affidabile ovunque */
+  #ricercaProdottiWrapper {
+    flex-grow: 0 !important;
+    /* 40px = bottone (36px) + i due bordi della pillola (2px per lato) -
+       deve combaciare esattamente: essendo il campo sempre "flex-grow:1"
+       (vedi sotto), qualunque px di troppo qui verrebbe "riempito" dal
+       campo anche da chiuso, mostrando un residuo al posto dell'icona
+       pulita. 40px totali = stessa altezza di "#filtroProdottiWrapper" qui
+       sotto, per restare allineati nella riga */
+    width: 40px;
+    transition: width .3s ease;
+  }
+
+  #ricercaProdottiWrapper.ricerca-espansa {
+    width: 12rem;
+  }
+
+  /* Segue lo schema del design handoff (claude_design/Creazione bottoni e
+     loghi.zip, "Tasto Cerca"): un solo elemento con bordo (la "pillola" qui
+     sotto), non piu' pezzi separati (tappo + campo + lente) che devono
+     combaciare pixel a pixel per sembrare un'unica forma. I tentativi
+     precedenti (tappo dedicato per l'angolo sinistro, bordi indipendenti su
+     campo e lente) creavano tutti lo stesso tipo di difetto: su Safari/
+     WebKit (non riproducibile in Chrome/devtools) la posizione verticale
+     frazionaria della riga arrotonda i bordi di due elementi adiacenti in
+     modo leggermente diverso, lasciando uno spiraglio di sub-pixel in cui
+     traspare lo sfondo bianco della pagina - visibile come una sottile riga
+     verticale nel punto di giunzione. Con un solo bordo (su questo
+     contenitore) e "overflow: hidden" a ritagliare lo spigolo del bottone
+     dentro, non c'e' piu' nessun secondo bordo con cui poter disallinearsi */
+  #ricercaProdottiWrapper .ricerca-form {
+    flex-wrap: nowrap;
+    align-items: center;
+    height: 40px;
+    border: 2px solid var(--color-primary);
+    border-radius: var(--bs-border-radius);
+    overflow: hidden;
+    /* Da chiuso lo sfondo blu della pillola coincide col bottone (bordo
+       "invisibile" perche' dello stesso colore): sembra un quadrato blu
+       pieno, non un campo con dentro un bottone */
+    background-color: var(--color-primary);
+    transition: background-color .3s ease;
+  }
+
+  #ricercaProdottiWrapper.ricerca-espansa .ricerca-form {
+    background-color: var(--color-bg);
+  }
+
+  #ricercaProdottiWrapper #prodottiCardSearch {
+    /* Nessun bordo/sfondo proprio: li disegna solo ".ricerca-form" qui
+       sopra, il campo si limita a "galleggiarci" dentro come testo */
+    border: 0 !important;
+    border-radius: 0 !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    height: auto;
+    margin-left: 0 !important;
+    /* "flex-grow:1" e "width:1%" sono costanti, non piu' condizionati da
+       ".ricerca-espansa" (a differenza di prima): e' il wrapper (vedi sopra)
+       ad animare la propria larghezza, e il campo si limita a riempire
+       SEMPRE lo spazio che di volta in volta resta libero dopo il bottone -
+       da chiuso (wrapper 44px = bottone+bordo, zero spazio libero) questo
+       spazio e' automaticamente zero, da aperto cresce con il wrapper.
+       "width:1%" (lo stesso trucco usato da Bootstrap in
+       ".input-group>.form-control"), non "100%" ne' "auto": serve una
+       flex-basis "quasi zero" cosi' e' solo "flex-grow" a decidere la
+       larghezza, altrimenti (100%/auto ignorano lo spazio del fratello
+       flex) andrebbe a capo */
+    flex-grow: 1;
+    width: 1%;
+    min-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    /* Il testo del campo non deve comparire di scatto insieme all'apertura
+       (resterebbe "incollato" al bordo del bottone finche' non c'e' ancora
+       spazio): sfasato con un ritardo cosi' compare solo quando il campo ha
+       gia' un minimo di spazio in cui stare */
+    opacity: 0;
+    transition: padding .3s ease, opacity .2s ease .1s;
+  }
+
+  #ricercaProdottiWrapper.ricerca-espansa #prodottiCardSearch {
+    padding-left: .75rem;
+    padding-right: .75rem;
+    opacity: 1;
+  }
+
+  /* Sfondo blu navbar (non il bianco/grigio di default) e icona bianca
+     sopra, stesso stile del bottone Login/Carrello nella navbar. Nessun
+     bordo proprio (lo disegna ".ricerca-form" attorno a tutto): la lente si
+     limita a cambiare l'arrotondamento degli angoli sinistri, che
+     ".ricerca-form" ritaglia comunque col proprio "overflow: hidden", quindi
+     nessun rischio di disallineamento.
+     Raggio "calc(var(--bs-border-radius) - 2px)", non lo stesso raggio del
+     contenitore: il bottone e' rientrato di 2px (lo spessore del bordo della
+     pillola) rispetto all'angolo esterno, quindi la sua curva deve essere
+     piu' stretta di quei 2px per combaciare esattamente con quella che
+     ".ricerca-form" ritaglia - stesso calcolo gia' usato altrove nel sito
+     per lo stesso motivo (vedi "#dropdownCategorie .dropdown-item" in
+     navbar.css). Con lo stesso raggio del contenitore, l'angolo del bottone
+     "arrotonda troppo presto" e lascia scoperto un piccolo triangolo nella
+     curva del contenitore, dello stesso colore del contenitore invece che
+     del bottone - invisibile da chiuso (stesso blu), ma visibile da aperto
+     (contenitore bianco, angolo del bottone dovrebbe restare blu fino in
+     fondo alla curva) */
+  #ricercaProdottiWrapper .ricerca-toggle-btn {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
+    border: 0 !important;
+    border-radius: calc(var(--bs-border-radius) - 2px) !important;
+    transition: border-radius .3s ease;
+    padding: 0 !important;
+    /* Toglie il rettangolo grigio/nero che Chrome/Safari mobile mostrano di
+       default al tocco */
+    -webkit-tap-highlight-color: transparent;
+    /* Bootstrap mette "margin-left: -1px" sugli elementi "collegati" di un
+       ".input-group" (per sovrapporre i bordi adiacenti): qui non serve (il
+       bordo lo gestisce solo ".ricerca-form"), e sposterebbe il bottone 1px
+       fuori dal form, che con "overflow: hidden" ne taglierebbe via un pezzo */
+    margin-left: 0 !important;
+  }
+
+  #ricercaProdottiWrapper.ricerca-espansa .ricerca-toggle-btn {
+    /* Angoli sinistri squadrati (si fondono col campo aperto accanto),
+       destri arrotondati - stesso principio del design handoff. Raggio
+       ridotto di 2px sui destri per lo stesso motivo spiegato sopra */
+    border-radius: 0 calc(var(--bs-border-radius) - 2px) calc(var(--bs-border-radius) - 2px) 0 !important;
+  }
+
+  /* Filtro sottocategoria: sotto i 576px resta sempre e solo l'icona a
+     imbuto (niente animazione di apertura come la ricerca). La <select> e'
+     ancora li' e resta completamente funzionante (stesse opzioni, stesso
+     "onchange" che naviga alla sottocategoria scelta) ma diventa invisibile
+     e ridimensionata a icona: il testo e' trasparente, la freccina di
+     default rimossa, e ci si "clicca sopra" nel senso letterale, perche' e'
+     lei stessa a ricevere il tocco (non un bottone finto/separato) - cosi'
+     il menu nativo con l'elenco delle sottocategorie si apre da solo, senza
+     bisogno di JS apposito */
+  #filtroProdottiWrapper {
+    position: relative;
+    flex-grow: 0 !important;
+    flex-basis: 42px; /* stessa larghezza della lente chiusa, per coerenza */
+    max-width: 42px !important;
+  }
+
+  #filtroProdottiWrapper #prodottiCardFiltro {
+    width: 100%;
+    height: calc(1.5em + 0.75rem + 4px); /* stessa altezza della ricerca */
+    color: transparent;
+    background-color: var(--color-primary); /* stesso blu navbar della lente */
+    background-image: none !important; /* toglie la freccina SVG di default */
+    padding: 0;
+    text-align: center;
+  }
+
+  /* Stesso glow di focus di Bootstrap gia' tolto sopra per ".form-control"
+     (qui l'equivalente per ".form-select"): al tocco, essendo ora un'icona
+     piccola, si vedeva come un'ombra sproporzionata intorno al quadratino */
+  #filtroProdottiWrapper #prodottiCardFiltro:focus {
+    box-shadow: none;
+  }
+
+  #filtroProdottiWrapper .filtro-icon-overlay {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--color-text-light); /* bianca, sopra lo sfondo blu navbar della select */
+    pointer-events: none; /* il tocco deve arrivare alla <select> sotto */
+  }
 }
 
 /* Tabella prodotti (DataTables): paginazione sempre centrata orizzontalmente
@@ -262,4 +666,12 @@
 
 #listProdottiTable_wrapper .dtr-details > li .dtr-data {
   text-align: center;
+}
+
+/* Griglia prodotti: leggero dimming durante il caricamento AJAX (vedi
+   filtro-prodotti-ajax.js), per dare un feedback immediato che il click
+   e' stato registrato mentre si aspetta la risposta */
+#listaProdottiContainer.lista-prodotti-in-caricamento {
+  opacity: 0.5;
+  transition: opacity .15s ease;
 }

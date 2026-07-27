@@ -36,7 +36,7 @@
             </thead>
             <tbody>
                 {% for x in prodotti %}
-                <tr>
+                <tr id="prodotto-{{ x.pk }}">
                     <td>{{x.codice_prodotto}}</td>
                     <td>
                         <div class="d-flex align-items-center">
@@ -51,10 +51,8 @@
                                     </a>
                                 {% endif %}
                             </span>
-                            <a class="btn btn-navbar btn-sm d-sm-none ms-2 flex-shrink-0" href="{% url 'aggiungi_prodotti' x.pk%}"
-                                title="Aggiungi al preventivo">
-                                <i class="bi bi-receipt"></i>
-                            </a>
+                            {% url 'aggiungi_prodotti' x.pk as url_aggiungi_preventivo %}
+                            {% include 'partials/bottone_aggiungi_preventivo.html' with url=url_aggiungi_preventivo css_class="btn-sm d-sm-none ms-2 flex-shrink-0" %}
                         </div>
                     </td>
                     <td>{{x.unita_di_misura}}</td>
@@ -160,7 +158,7 @@ $(document).ready(function () {
             // applicazione della traduzione italiana caricata dall'url
             // (la tabella torna in inglese). Personalizzazioni del testo
             // vanno fatte via JS in "initComplete", non qui
-            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/it-IT.json"
+            "url": "{% static 'vendor/datatables/i18n/it-IT.json' %}"
         },
         "initComplete": function () {
             var api = this.api();
@@ -291,9 +289,10 @@ $(document).ready(function () {
     });
 });
 
-  
+
 
 </script>
 
+<script src="{% static 'js/aggiungi-al-carrello.js' %}"></script>
 
 {% endblock contenuto %}

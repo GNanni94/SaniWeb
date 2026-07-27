@@ -31,6 +31,54 @@
   color: #fff;
 }
 
+/* Variante come ".btn-navbar" ma con bordo bianco invece che dello stesso
+   blu dello sfondo: usata per il bottone "Preventivo" nella navbar
+   (base.html), dove altrimenti (bordo blu su sfondo blu navbar) non
+   si distinguerebbe */
+.btn.btn-navbar-bordo-bianco {
+  background-color: var(--color-primary);
+  border-color: var(--color-text-light);
+  color: var(--color-text-light);
+}
+
+.btn.btn-navbar-bordo-bianco:hover,
+.btn.btn-navbar-bordo-bianco:focus {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-text-light);
+  color: var(--color-text-light);
+}
+
+/* Variante "invertita" di ".btn-navbar": sfondo bianco, testo/icona blu
+   navbar invece del contrario. L'icona (bootstrap-icons, font) segue
+   "color" come il testo, nessuna regola separata necessaria per colorarla */
+.btn.btn-navbar-invertito {
+  background-color: var(--color-bg);
+  border-color: var(--color-bg);
+  color: var(--color-primary);
+}
+
+.btn.btn-navbar-invertito:hover,
+.btn.btn-navbar-invertito:focus {
+  background-color: var(--color-bg-alt);
+  border-color: var(--color-bg-alt);
+  color: var(--color-primary-dark);
+}
+
+/* Sfondo trasparente (si vede il blu della navbar dietro), bordo e testo
+   bianchi - usata per il bottone "Preventivo" nella navbar (base.html) */
+.btn.btn-navbar-trasparente {
+  background-color: transparent;
+  border-color: var(--color-text-light);
+  color: var(--color-text-light);
+}
+
+.btn.btn-navbar-trasparente:hover,
+.btn.btn-navbar-trasparente:focus {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-text-light);
+  color: var(--color-text-light);
+}
+
 /* Variante colore tabella (stesso blu della navbar), da usare su <thead>
    come le varianti ".table-light"/".table-dark" gia' pronte di Bootstrap -
    stessa struttura di variabili CSS di quelle (--bs-table-*), cosi' resta

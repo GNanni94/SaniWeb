@@ -6,6 +6,7 @@ from .models import Preventivo, Elementi_Preventivo
 from .forms import DettaglioPreventivoForm
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
 from typing import Any, Dict
 from InvioEmail.views import emailPreventivo
 from django.core.paginator import Paginator
@@ -52,6 +53,26 @@ def crea_ordine_da_carrello(request):
         
         return redirect('lista_ordini')
 
+def aggiungi_preventivo_al_carrello(request, pk):
+    if request.user.is_authenticated:
+        # Stesso filtro di proprieta' di PreventivoDetailView: un cliente puo'
+        # riutilizzare solo i propri preventivi passati, non quelli altrui
+        preventivo = get_object_or_404(Preventivo, pk=pk, cliente=request.user)
+        for elemento_preventivo in preventivo.elementi_preventivo.all():
+            elemento_carrello, created = Carrello.objects.get_or_create(cliente=request.user, prodotto=elemento_preventivo.prodotto)
+            elemento_carrello.quantita += elemento_preventivo.quantita
+            elemento_carrello.save()
+        # Il carrello non ha campi messaggio/luogo (appartengono al
+        # Dettaglio_Preventivo, creato solo quando si conferma "Richiedi
+        # preventivo"): li passiamo in sessione cosi' CarrelloListView puo'
+        # precompilare il form con i valori del vecchio preventivo
+        dettaglio_preventivo = preventivo.dettaglio_preventivo
+        request.session['messaggio_precompilato'] = dettaglio_preventivo.messaggio
+        request.session['luogo_precompilato'] = dettaglio_preventivo.luogo
+        messages.success(request, 'Articoli aggiunti al carrello! Puoi aggiungerne altri prima di richiedere il nuovo preventivo.')
+        return redirect('carrello')
+    return redirect('login')
+
 class PreventivoDetailView(LoginRequiredMixin, ListView):
     model = Preventivo
     template_name = "dettaglio_preventivo.html"
@@ -61,12 +82,14 @@ class PreventivoDetailView(LoginRequiredMixin, ListView):
         # quelli di altri clienti: prima non c'era alcun filtro sul
         # proprietario, bastava cambiare il pk nell'URL per vedere prodotti,
         # quantita' e dati di un preventivo altrui
-        preventivo = get_object_or_404(Preventivo, pk=self.kwargs['pk'], cliente=self.request.user)
-        object_list = preventivo.elementi_preventivo.all()
+        self.preventivo = get_object_or_404(Preventivo, pk=self.kwargs['pk'], cliente=self.request.user)
+        object_list = self.preventivo.elementi_preventivo.all()
         return object_list
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["totale_elementi_ordine"] = sum([elemento.quantita for elemento in self.object_list])
+        context["preventivo"] = self.preventivo
+        context["dettaglio_preventivo"] = self.preventivo.dettaglio_preventivo
         return context
         

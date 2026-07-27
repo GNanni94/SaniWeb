@@ -14,6 +14,23 @@
   <meta name="description" content="Sito web della ditta Saniscope-chimica per la vendita di prodotti chimici">
   <meta name="keywords" content="proditti chimici, piscina, carta, detersivi ">
 
+  {% comment %}
+  Due varianti (chiara/scura) selezionate dal browser in base al tema di
+  sistema/browser (prefers-color-scheme): la versione "dark" usa
+  logo_invertito.png (esagono bianco, gia' usato sulla navbar blu), piu'
+  leggibile su una tab del browser molto scura rispetto alla versione
+  normale (esagono blu, pensata per tab chiare)
+  {% endcomment %}
+  <link rel="icon" href="{% static 'favicon/favicon.ico' %}" sizes="any" media="(prefers-color-scheme: light)">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-16x16.png' %}" media="(prefers-color-scheme: light)">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}" media="(prefers-color-scheme: light)">
+
+  <link rel="icon" href="{% static 'favicon/favicon-dark.ico' %}" sizes="any" media="(prefers-color-scheme: dark)">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-16x16-dark.png' %}" media="(prefers-color-scheme: dark)">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32-dark.png' %}" media="(prefers-color-scheme: dark)">
+
+  <link rel="apple-touch-icon" href="{% static 'favicon/apple-touch-icon.png' %}">
+
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
@@ -72,7 +89,7 @@
 </head>
 
 <nav class="navbar navbar-expand-xxl site-navbar">
-  <div class="container-fluid ">
+  <div class="container-fluid position-relative">
     {% comment %}
     Da telefono (menu collassato) la riga in alto va hamburger (sinistra) /
     logo+titolo (centro) / icona profilo (destra, sempre visibile, fuori dal
@@ -81,19 +98,56 @@
     Bootstrap) l'ordine torna quello originale: logo, poi link+Preventivo,
     poi profilo, tutti sulla stessa riga (vedi "order-xxl-*")
     {% endcomment %}
-    <button class="navbar-toggler border order-1" type="button" data-bs-toggle="collapse"
+    <button class="navbar-toggler order-1" type="button" data-bs-toggle="collapse"
       data-bs-target="#navbarSupportedContent" aria-controls="#navbarSupportedContent" aria-expanded="false"
       aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <a class="navbar-brand d-inline-flex align-items-center order-2 order-xxl-1 flex-grow-1 flex-xxl-grow-0 justify-content-center justify-content-xxl-start me-0 me-xxl-3" href="{% url 'home' %}">
-      <img src="{% static 'logo/logo_invertito.png' %}" alt="Logo" width="44" height="38" class="me-2">
-      <h2 class="mb-0">SaniScope-chimica</h2>
+    <a class="navbar-brand d-inline-flex align-items-center order-2 order-xxl-1 flex-grow-1 flex-xxl-grow-0 justify-content-center justify-content-xxl-start ms-2 me-2 ms-xxl-0 me-xxl-3" href="{% url 'home' %}">
+      <img src="{% static 'logo/logo_invertito.png' %}" alt="Logo" width="44" height="38" class="d-none d-xxl-inline me-xxl-2">
+      {% comment %}
+      Sotto i 360px non c'e' spazio sufficiente per "SaniScope-chimica"
+      leggibile senza andare a capo (verificato): sotto quella soglia si
+      mostra il solo logo al posto del testo (vedi navbar.css)
+      {% endcomment %}
+      <img src="{% static 'logo/logo_invertito.png' %}" alt="Logo" width="32" height="28" class="logo-icona-schermo-piccolo d-xxl-none">
+      <h2 class="mb-0 fs-5 d-xxl-none logo-testo-mobile">SaniScope-chimica</h2>
+      <h2 class="mb-0 d-none d-xxl-inline">SaniScope-chimica</h2>
     </a>
 
+    {% comment %}
+    Wrapper unico (order-3/order-xxl-3) per tutto cio' che sta a destra sulla
+    riga in alto da telefono, cosi' lo spazio tra hamburger e questo gruppo
+    (justify-content: space-between di Bootstrap sul .container-fluid) resta
+    un singolo gap, senza interferire con il logo centrato in absolute nel
+    mezzo. Contenuto diverso in base al login:
+    - anonimo: Login/Registrati, visibili solo da telefono (d-xxl-none) -
+      da desktop restano dove erano prima, dentro il menu hamburger
+    - autenticato: bottone Preventivo (solo icona, nuovo, visibile solo da
+      telefono) a sinistra dell'icona profilo (quella invece era gia'
+      sempre visibile, invariata)
+    {% endcomment %}
+    <div class="d-flex align-items-center gap-2 order-3 order-xxl-3">
+    {% if not user.is_authenticated %}
+    <div class="d-flex d-xxl-none gap-2">
+      <a href="{% url 'login' %}" class="btn btn-navbar-trasparente btn-sm border-0" title="Login" aria-label="Login">
+        <i class="bi bi-box-arrow-in-right icona-dimensione-hamburger"></i>
+      </a>
+      <a href="{% url 'signup' %}" class="btn btn-navbar-trasparente btn-sm border-0" title="Registrati" aria-label="Registrati">
+        <i class="bi bi-person-plus icona-dimensione-hamburger"></i>
+      </a>
+    </div>
+    {% endif %}
+
+    {% if user.is_authenticated and carrello_ha_prodotti %}
+    <a href="{% url 'carrello' %}" class="btn btn-navbar-trasparente btn-sm border-0 d-xxl-none" title="Preventivo" aria-label="Preventivo">
+      <i class="bi bi-file-text-fill fs-2"></i>
+    </a>
+    {% endif %}
+
     {% if user.is_authenticated %}
-    <div class="dropdown order-3 order-xxl-3">
+    <div class="dropdown">
       <a class="d-flex align-items-center text-decoration-none" id="dropdownUser1"
       data-bs-toggle="dropdown" aria-expanded="false">
         <i class="bi bi-person-fill text-white icon-lg fs-2"> </i>
@@ -128,9 +182,10 @@
       </ul>
     </div>
     {% endif %}
+    </div>
 
     <div class="collapse navbar-collapse order-4 order-xxl-2" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+      <ul class="navbar-nav me-auto mb-0">
         <li class="nav-item">
           <a class="nav-link fs-6" href="{% url 'storia_azienda' %}">
             Azienda
@@ -158,27 +213,28 @@
 
 
 
-      <span class="navbar-text">
+      <span class="navbar-text d-none d-xxl-inline">
 
 				{% if user.is_authenticated %}
 
 					{% comment %}
-					ms-0/ms-xxl-3: da telefono (menu collassato) il bottone parte dallo
-					stesso bordo sinistro delle voci del menu sopra (Azienda, Catalogo,
-					...); da desktop (xxl+) resta il margine originale che lo stacca
-					dai link della navbar
+					Visibile solo da desktop (d-none d-xxl-inline-flex): da telefono
+					c'e' gia' la versione solo-icona sempre visibile a sinistra
+					dell'icona profilo (vedi sopra) - qui altrimenti comparirebbe
+					una seconda volta aprendo il menu hamburger. Mostrato solo se il
+					carrello ha almeno un prodotto (carrello_ha_prodotti, context
+					processor - vedi Carrello/context_processors.py)
 					{% endcomment %}
-					<a href="{% url 'carrello' %}" class="btn btn-light-custom ms-0 ms-xxl-3 me-3 d-inline-flex align-items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-              class="bi bi-cart3" viewBox="0 0 16 16">
-              <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l.84 4.479 9.144-.459L13.89 4H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
-            </svg>
+					{% if carrello_ha_prodotti %}
+					<a href="{% url 'carrello' %}" class="btn btn-navbar-trasparente ms-xxl-3 me-3 d-none d-xxl-inline-flex align-items-center gap-2">
+            <i class="bi bi-file-text"></i>
             Preventivo
 					</a>
+					{% endif %}
 
 				{% else %}
 
-				<div class="d-inline-flex gap-3">
+				<div class="d-none d-xxl-inline-flex gap-3">
 					<a href="{% url 'login' %}" class="btn btn-light-custom">
 						Login
 					</a>
@@ -198,7 +254,7 @@
 
 
 
-<body>
+<body data-login-url="{% url 'login' %}">
 
 
 

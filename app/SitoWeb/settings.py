@@ -94,7 +94,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'Prodotti.views.catalogo_home',
-                
+                'Carrello.context_processors.carrello_ha_prodotti',
             ],
         },
     },

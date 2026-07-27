@@ -4,18 +4,61 @@
   position: relative;
 }
 
+/* Stessa dimensione (30px, misurata) dell'icona del bottone hamburger, per
+   le icone di Login/Registrati da telefono */
+.icona-dimensione-hamburger {
+  font-size: 30px;
+}
+
+/* Bootstrap mette di suo un bordo su ".navbar-toggler" (rgba(0,0,0,.15),
+   indipendente dalla classe utility ".border"): lo togliamo esplicitamente */
+.navbar-toggler {
+  border: none;
+}
+
+/* Sotto i 380px il testo "SaniScope-chimica" non entra piu' su una riga
+   sola insieme a hamburger e bottoni/icone a destra (soglia comprensiva
+   delle icone Login/Registrati a 30px): sotto quella soglia si mostra il
+   solo logo al posto del testo (vedi ".logo-icona-schermo-piccolo"/
+   ".logo-testo-mobile" in base.html), che e' molto piu' stretto */
+.logo-icona-schermo-piccolo {
+  display: none;
+}
+
+@media (max-width: 379.98px) {
+  .logo-icona-schermo-piccolo {
+    display: inline;
+  }
+
+  .logo-testo-mobile {
+    display: none;
+  }
+}
+
 /* Sotto la soglia xxl (hamburger attivo): il pannello del menu e' sempre
    in overlay (assoluto), anche durante l'animazione di apertura di Bootstrap,
    cosi' scivola sopra il contenuto invece di spingerlo giu' senza scatti */
 @media (max-width: 1399.98px) {
   #navbarSupportedContent {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 8px); /* un po' di distacco dalla navbar, invece di toccarla */
     left: 0;
-    width: 100%;
+    /* Larga solo quanto la voce piu' lunga (es. "Documenti"), non un
+       riquadro pieno che copre tutta la larghezza dello schermo */
+    width: fit-content;
+    max-width: 100%; /* rete di sicurezza: mai piu' largo dello schermo */
     background-color: var(--color-primary);
     z-index: 1030;
     padding: 0 1rem; /* niente padding-bottom qui: essendo l'elemento la cui altezza viene animata, un padding verticale lascerebbe un pezzetto di sfondo residuo quando l'altezza arriva a 0 (vedi padding-bottom spostato su .navbar-text) */
+    /* Solo l'angolo in basso a destra arrotondato */
+    border-radius: 0 0 .5rem 0;
+  }
+
+  /* Piu' spazio tra una voce e l'altra (Azienda, Catalogo, Documenti,
+     Contatti), per non rischiare di toccarne una per sbaglio invece
+     dell'altra */
+  #navbarSupportedContent .navbar-nav {
+    gap: .5rem;
   }
 
   /* L'icona profilo e' sempre visibile in alto a destra (fuori dal menu
@@ -31,28 +74,15 @@
     height: auto !important;
   }
 
-  /* Padding-bottom spostato qui (invece che su #navbarSupportedContent):
-     essendo un elemento interno non animato, viene tagliato via pulito
-     da overflow:hidden durante la chiusura, senza lasciare residui blu.
-     display:block e' necessario perche' .navbar-text di default e' uno
-     <span> inline: senza, il suo padding verticale non verrebbe conteggiato
-     nell'altezza del pannello (height:auto) e i bottoni sporgerebbero fuori
-     dal blu */
-  #navbarSupportedContent .navbar-text {
-    display: block;
-    padding-bottom: 1rem;
-  }
-
   /* Rallenta leggermente la discesa dello sfondo blu del menu hamburger,
      cosi' da lasciare respiro prima che compaiano le voci sotto */
   #navbarSupportedContent.collapsing {
     transition: height .3s ease; /* uguale alla durata del fade dei contenuti, cosi' allo sfondo (che si riduce sia in apertura che in chiusura) non resta un pezzetto visibile dopo che voci/bottoni sono gia' scomparsi */
   }
 
-  /* Stato di partenza delle voci del menu e dei bottoni
-     Login/Registrati nascosto, prima che lo sfondo abbia finito di scendere */
-  #navbarSupportedContent .navbar-nav > .nav-item,
-  #navbarSupportedContent .navbar-text {
+  /* Stato di partenza delle voci del menu, prima che lo sfondo abbia
+     finito di scendere */
+  #navbarSupportedContent .navbar-nav > .nav-item {
     opacity: 0; /* invisibile all'inizio (0 = trasparente, 1 = visibile) */
     transform: translateY(-1px); /* punto di partenza: 1px piu' in alto della posizione finale */
     transition: opacity .08s ease, transform .08s ease; /* durata (.08s) e velocita' (ease) con cui opacity e transform passano dal valore di partenza a quello finale: piu' e' bassa, piu' la comparsa di ogni singola voce e' immediata */
@@ -63,16 +93,14 @@
      imposta aria-expanded="true" subito all'avvio dell'apertura, non a fine
      animazione come .show - cosi' le voci iniziano a comparire mentre lo
      sfondo blu sta ancora scendendo, non dopo */
-  .navbar-toggler[aria-expanded="true"] ~ #navbarSupportedContent .navbar-nav > .nav-item,
-  .navbar-toggler[aria-expanded="true"] ~ #navbarSupportedContent .navbar-text {
+  .navbar-toggler[aria-expanded="true"] ~ #navbarSupportedContent .navbar-nav > .nav-item {
     opacity: 1; /* completamente visibile */
     transform: translateY(0); /* posizione verticale definitiva, nessuno spostamento */
   }
 
   /* Alla chiusura (aria-expanded torna a "false" subito) scompaiono
      tutti insieme, senza sfasamento */
-  .navbar-toggler[aria-expanded="false"] ~ #navbarSupportedContent .navbar-nav > .nav-item,
-  .navbar-toggler[aria-expanded="false"] ~ #navbarSupportedContent .navbar-text {
+  .navbar-toggler[aria-expanded="false"] ~ #navbarSupportedContent .navbar-nav > .nav-item {
     transition-delay: 0s; /* nessuna attesa: si nascondono tutti insieme appena parte la chiusura */
   }
 
@@ -82,16 +110,12 @@
   #navbarSupportedContent .navbar-nav > .nav-item:nth-child(2) { transition-delay: .06s; } /* Catalogo */
   #navbarSupportedContent .navbar-nav > .nav-item:nth-child(3) { transition-delay: .09s; } /* Documenti */
   #navbarSupportedContent .navbar-nav > .nav-item:nth-child(4) { transition-delay: .12s; } /* Contatti */
-
-  /* I bottoni Login/Registrati (o carrello/profilo se loggato) compaiono per ultimi */
-  #navbarSupportedContent .navbar-text { transition-delay: .15s; } /* attesa minima: compaiono subito dopo le voci del menu */
 }
 
 /* Disattiva l'animazione a comparsa per chi ha impostato la preferenza
    di sistema per ridurre le animazioni */
 @media (prefers-reduced-motion: reduce) {
-  #navbarSupportedContent .navbar-nav > .nav-item,
-  #navbarSupportedContent .navbar-text {
+  #navbarSupportedContent .navbar-nav > .nav-item {
     transition: none;
     opacity: 1;
     transform: none;
@@ -103,6 +127,12 @@
    quindi il colore va aggiornato qui a mano se cambia lo sfondo della navbar. */
 .navbar-toggler-icon {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23FFFFFF' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Toglie l'anello luminoso (box-shadow) che Bootstrap mette di default sul
+   bottone hamburger quando riceve il focus al click */
+.navbar-toggler:focus {
+  box-shadow: none;
 }
 
 .site-navbar .nav-link,
@@ -142,8 +172,10 @@
 }
 
 #dropdownCategorie .dropdown-item:hover,
-#dropdownCategorie .dropdown-item:focus {
+#dropdownCategorie .dropdown-item:focus,
+#dropdownCategorie .dropdown-item:active {
   color: var(--color-primary); /* testo blu (colore navbar) per evidenziare la voce selezionata */
+  background-color: transparent; /* ":active" (click) ha di suo uno sfondo blu pieno in Bootstrap: lo neutralizziamo per restare coerenti con :hover/:focus */
   border-color: var(--color-primary); /* contorno blu (stesso blu della navbar) attorno alla voce sotto il mouse, senza riempire lo sfondo di grigio */
 }
 
@@ -191,3 +223,4 @@
   border: 1px solid var(--color-bg);
   color: var(--color-text);
 }
+

@@ -43,3 +43,7 @@ web/
 #file .md
 *.md
 Docs/
+
+claude_design/
+
+.superpowers/

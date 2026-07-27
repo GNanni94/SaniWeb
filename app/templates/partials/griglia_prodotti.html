@@ -1,0 +1,83 @@
+<div id="listaProdottiContainer" data-sottocategoria="{{ sottocategoria_corrente_pk|default_if_none:'' }}" data-nome-categoria="{{ nome_categoria }}">
+    <div class="row">
+
+        {% for x in prodotti %}
+        <div class="col-6 col-xl-4 col-xxl-4 card-deck py-4 " id="prodotto-{{ x.pk }}">
+
+            <div class="card card-prodotto" style="height: 100%;">
+                <div class="card-prodotto-img-wrap">
+                    <img src="{{x.immagine_rel.immagine}}" class="card-img-top" alt="...">
+                </div>
+                <div class="card-body card-prodotto-body">
+                    <div class="card-prodotto-riga-codice">
+                        <span class="card-prodotto-codice">{{x.codice_prodotto}}</span>
+                        <span class="card-prodotto-badge-unita">{{x.unita_di_misura}}</span>
+                    </div>
+                    <h3 class="card-prodotto-titolo">{{x.nome_prodotto}}</h3>
+                    {% if x.descrizione %}
+                        <p class="card-prodotto-descrizione text-muted">{{x.descrizione}}</p>
+                    {% endif%}
+                    {% if x.scheda_rel.scheda or x.precursore %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% if x.scheda_rel.scheda %}
+                                <a class="btn btn-success card-prodotto-btn-doc" href="{{x.scheda_rel.scheda}}" target="_blank">
+                                    <i class="bi bi-filetype-pdf"></i> Scheda Tecnica
+                                </a>
+                            {% endif %}
+                            {% if x.precursore %}
+                                <a class="btn btn-success card-prodotto-btn-doc" href="{{x.precursore.url}}" target="_blank">
+                                    <i class="bi bi-filetype-pdf"></i> Normativa
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif%}
+                </div>
+
+                <div class="card-footer p-0">
+                    <a class="card-footer-btn" href="{% url 'aggiungi_prodotti' x.pk %}" title="Aggiungi al preventivo">
+                        Aggiungi al preventivo
+                    </a>
+                </div>
+            </div>
+
+        </div>
+        {% endfor %}
+
+    </div>
+
+    <div class="py-4">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+              {% if prodotti.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ prodotti.previous_page_number }}{{ extra_querystring }}">&laquo;</a></li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+              {% endif %}
+
+              {% if prodotti.paginator.num_pages <= 3 %}
+                {% for p in prodotti.paginator.page_range %}
+                  <li class="page-item {% if p == prodotti.number %}active{% endif %}"><a class="page-link" href="?page={{ p }}{{ extra_querystring }}">{{ p }}</a></li>
+                {% endfor %}
+              {% else %}
+                <li class="page-item {% if prodotti.number == 1 %}active{% endif %}"><a class="page-link" href="?page=1{{ extra_querystring }}">1</a></li>
+                {% if prodotti.number == 1 %}
+                  <li class="page-item"><a class="page-link" href="?page=2{{ extra_querystring }}">2</a></li>
+                  <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                {% elif prodotti.number == prodotti.paginator.num_pages %}
+                  <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                {% else %}
+                  <li class="page-item active"><a class="page-link" href="?page={{ prodotti.number }}{{ extra_querystring }}">{{ prodotti.number }}</a></li>
+                  <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                {% endif %}
+                <li class="page-item {% if prodotti.number == prodotti.paginator.num_pages %}active{% endif %}"><a class="page-link" href="?page={{ prodotti.paginator.num_pages }}{{ extra_querystring }}">{{ prodotti.paginator.num_pages }}</a></li>
+              {% endif %}
+
+              {% if prodotti.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ prodotti.next_page_number }}{{ extra_querystring }}">&raquo;</a></li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+              {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
