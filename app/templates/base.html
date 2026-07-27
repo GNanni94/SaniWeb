@@ -6,13 +6,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-	<meta http-equiv="Pragma" content="no-cache" />
-	<meta http-equiv="Expires" content="0" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="author" content="Giulio Nannicini">
   <meta name="description" content="Sito web della ditta Saniscope-chimica per la vendita di prodotti chimici">
-  <meta name="keywords" content="proditti chimici, piscina, carta, detersivi ">
+
+  {% comment %}
+  Open Graph: come appare il sito quando un link viene condiviso su
+  WhatsApp/Facebook/LinkedIn ecc. "og:url" punta sempre alla home (non alla
+  pagina corrente) su richiesta esplicita, non con request.build_absolute_uri
+  {% endcomment %}
+  <meta property="og:title" content="SaniScope-chimica">
+  <meta property="og:description" content="Sito web della ditta Saniscope-chimica per la vendita di prodotti chimici">
+  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'logo/saniscope_logo.jpg' %}">
+  <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{% url 'home' %}">
+  <meta property="og:type" content="website">
+
+  {% comment %}
+  Dati strutturati LocalBusiness (schema.org, JSON-LD): stessi dati gia'
+  presenti nel footer (indirizzo, telefono, email), qui in un formato che
+  Google puo' leggere senza ambiguita' - puo' mostrarli direttamente nel
+  risultato di ricerca/Google Maps invece di doverli "indovinare" dal testo
+  della pagina. Coordinate GPS riprese dal link Google Maps gia' presente
+  nel footer (vedi "destination=..." piu' sotto)
+  {% endcomment %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Saniscope-chimica",
+    "image": "{{ request.scheme }}://{{ request.get_host }}{% static 'logo/saniscope_logo.jpg' %}",
+    "telephone": "+39 055 980308",
+    "faxNumber": "+39 055 981450",
+    "email": "info@saniscope-chimica.it",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Via A. Burzagli 83",
+      "postalCode": "52025",
+      "addressLocality": "Montevarchi",
+      "addressRegion": "AR",
+      "addressCountry": "IT"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 43.528066,
+      "longitude": 11.562978
+    },
+    "url": "{{ request.scheme }}://{{ request.get_host }}{% url 'home' %}"
+  }
+  </script>
 
   {% comment %}
   Due varianti (chiara/scura) selezionate dal browser in base al tema di
@@ -256,7 +296,7 @@
 
 <body data-login-url="{% url 'login' %}">
 
-
+{% include 'partials/avviso_chiusura.html' %}
 
 
 
