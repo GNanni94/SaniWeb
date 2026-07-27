@@ -1,8 +1,13 @@
+from django.db import DatabaseError
+
 from .models import AvvisoChiusura
 
 
 def avviso_chiusura(request):
-    fase, avviso = AvvisoChiusura.corrente()
+    try:
+        fase, avviso = AvvisoChiusura.corrente()
+    except DatabaseError:
+        return {"avviso_fase": None, "avviso_testo": None}
     if fase == "preavviso":
         return {"avviso_fase": "preavviso", "avviso_testo": avviso.testo_preavviso()}
     if fase == "chiusura":

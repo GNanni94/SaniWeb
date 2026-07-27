@@ -1,9 +1,13 @@
 import datetime
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.db import DatabaseError
 from django.test import TestCase
 from django.urls import reverse
 
+from .context_processors import avviso_chiusura
 from .models import AvvisoChiusura
 
 
@@ -34,6 +38,14 @@ class AvvisoChiusuraTestoTest(TestCase):
 
 
 class AvvisoChiusuraCorrenteTest(TestCase):
+    def setUp(self):
+        # La migrazione 0003 semina in modo permanente l'avviso reale delle
+        # ferie estive 2026 (vedi AvvisoFerieEstive2026MigrationTest): questi
+        # test verificano la logica di corrente() su scenari isolati e
+        # devono quindi partire da una tabella vuota, indipendentemente dai
+        # dati creati dalle migrazioni.
+        AvvisoChiusura.objects.all().delete()
+
     def test_nessun_avviso_restituisce_none(self):
         fase, avviso = AvvisoChiusura.corrente(oggi=datetime.date(2026, 1, 1))
         self.assertIsNone(fase)
@@ -85,6 +97,12 @@ class AvvisoChiusuraCorrenteTest(TestCase):
 
 
 class AvvisoChiusuraIntegrazioneHomeTest(TestCase):
+    def setUp(self):
+        # Vedi commento in AvvisoChiusuraCorrenteTest.setUp: l'avviso reale
+        # seminato dalla migrazione 0003 userebbe la data odierna reale e
+        # falserebbe lo scenario "nessun avviso attivo".
+        AvvisoChiusura.objects.all().delete()
+
     def test_banner_chiusura_visibile_se_avviso_in_corso(self):
         oggi = datetime.date.today()
         _crea_avviso(oggi - datetime.timedelta(days=1), oggi + datetime.timedelta(days=1))
@@ -114,3 +132,40 @@ class AvvisoChiusuraLinkNavbarTest(TestCase):
         self.client.force_login(utente)
         response = self.client.get(reverse('home'))
         self.assertNotContains(response, reverse('admin:Avvisi_avvisochiusura_changelist'))
+
+
+class AvvisoChiusuraContextProcessorFailSoftTest(TestCase):
+    def test_errore_db_restituisce_nessun_avviso_senza_sollevare(self):
+        with patch.object(AvvisoChiusura, "corrente", side_effect=DatabaseError("no such table")):
+            contesto = avviso_chiusura(None)
+        self.assertEqual(contesto, {"avviso_fase": None, "avviso_testo": None})
+
+
+class AvvisoChiusuraValidazioneTest(TestCase):
+    def test_data_fine_precedente_data_inizio_solleva_validation_error(self):
+        avviso = AvvisoChiusura(
+            data_inizio=datetime.date(2026, 8, 23),
+            data_fine=datetime.date(2026, 8, 7),
+            motivo_chiusura="ferie estive",
+        )
+        with self.assertRaises(ValidationError):
+            avviso.full_clean()
+
+    def test_date_valide_non_sollevano(self):
+        avviso = AvvisoChiusura(
+            data_inizio=datetime.date(2026, 8, 7),
+            data_fine=datetime.date(2026, 8, 23),
+            motivo_chiusura="ferie estive",
+        )
+        avviso.full_clean()
+
+
+class AvvisoFerieEstive2026MigrationTest(TestCase):
+    def test_record_ferie_estive_2026_creato_dalla_migrazione(self):
+        self.assertTrue(
+            AvvisoChiusura.objects.filter(
+                data_inizio=datetime.date(2026, 8, 7),
+                data_fine=datetime.date(2026, 8, 23),
+                motivo_chiusura="ferie estive",
+            ).exists()
+        )

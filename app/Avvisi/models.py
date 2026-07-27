@@ -1,5 +1,6 @@
 import datetime
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.formats import date_format
@@ -10,12 +11,20 @@ GIORNI_PREAVVISO = 14
 class AvvisoChiusura(models.Model):
     data_inizio = models.DateField()
     data_fine = models.DateField()
-    motivo_chiusura = models.CharField(max_length=200)
+    motivo_chiusura = models.CharField(
+        max_length=200,
+        help_text='Minuscolo, completa la frase "...chiusa dal X al Y compresi per ___" (es. "ferie estive", "festività natalizie").',
+    )
     attivo = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = "Avviso di chiusura"
         verbose_name_plural = "Avvisi di chiusura"
+        ordering = ("-data_inizio",)
+
+    def clean(self):
+        if self.data_fine < self.data_inizio:
+            raise ValidationError({"data_fine": "La data di fine non può precedere la data di inizio."})
 
     def __str__(self):
         return f"{self.motivo_chiusura} ({self.data_inizio} - {self.data_fine})"
