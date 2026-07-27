@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block titolo %} Avvisi di chiusura {% endblock titolo %}
+
+{% block contenuto %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center py-5">Avvisi di chiusura</h1>
+        </div>
+    </div>
+
+    {% comment %}
+    Pagina provvisoria di sola lettura: la gestione interattiva (creazione/
+    modifica come pop-up) arriva in un secondo momento
+    {% endcomment %}
+    <p class="text-center mb-4">La gestione completa arriverà a breve. Per ora, elenco di sola lettura degli avvisi configurati.</p>
+
+    {% if avvisi %}
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Data inizio</th>
+                    <th scope="col">Data fine</th>
+                    <th scope="col">Motivo</th>
+                    <th scope="col">Attivo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for avviso in avvisi %}
+                <tr>
+                    <td>{{ avviso.data_inizio }}</td>
+                    <td>{{ avviso.data_fine }}</td>
+                    <td>{{ avviso.motivo_chiusura }}</td>
+                    <td>{{ avviso.attivo|yesno:"Sì,No" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-center">Nessun avviso configurato.</p>
+    {% endif %}
+</div>
+
+{% endblock contenuto %}

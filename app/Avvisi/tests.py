@@ -119,19 +119,45 @@ class AvvisoChiusuraIntegrazioneHomeTest(TestCase):
 
 
 class AvvisoChiusuraLinkNavbarTest(TestCase):
-    def test_link_admin_visibile_per_utente_staff(self):
+    def test_link_gestione_visibile_per_utente_staff(self):
         User = get_user_model()
         staff = User.objects.create_user(username="staffuser", email="staff@example.com", password="testpass123", is_staff=True)
         self.client.force_login(staff)
         response = self.client.get(reverse('home'))
-        self.assertContains(response, reverse('admin:Avvisi_avvisochiusura_changelist'))
+        self.assertContains(response, reverse('gestione_avvisi'))
 
-    def test_link_admin_non_visibile_per_utente_normale(self):
+    def test_link_gestione_non_visibile_per_utente_normale(self):
         User = get_user_model()
         utente = User.objects.create_user(username="utentenormale", email="utente@example.com", password="testpass123")
         self.client.force_login(utente)
         response = self.client.get(reverse('home'))
-        self.assertNotContains(response, reverse('admin:Avvisi_avvisochiusura_changelist'))
+        self.assertNotContains(response, reverse('gestione_avvisi'))
+
+
+class AvvisoChiusuraGestionePageTest(TestCase):
+    def test_pagina_visibile_per_utente_staff(self):
+        User = get_user_model()
+        staff = User.objects.create_user(username="staffuser2", email="staff2@example.com", password="testpass123", is_staff=True)
+        avviso = AvvisoChiusura.objects.create(
+            data_inizio=datetime.date(2026, 8, 7),
+            data_fine=datetime.date(2026, 8, 23),
+            motivo_chiusura="ferie estive",
+        )
+        self.client.force_login(staff)
+        response = self.client.get(reverse('gestione_avvisi'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "ferie estive")
+
+    def test_pagina_non_accessibile_per_utente_normale(self):
+        User = get_user_model()
+        utente = User.objects.create_user(username="utentenormale2", email="utente2@example.com", password="testpass123")
+        self.client.force_login(utente)
+        response = self.client.get(reverse('gestione_avvisi'))
+        self.assertNotEqual(response.status_code, 200)
+
+    def test_pagina_richiede_login_per_utente_anonimo(self):
+        response = self.client.get(reverse('gestione_avvisi'))
+        self.assertNotEqual(response.status_code, 200)
 
 
 class AvvisoChiusuraContextProcessorFailSoftTest(TestCase):

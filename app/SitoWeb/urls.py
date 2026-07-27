@@ -34,5 +34,6 @@ urlpatterns = [
     path("cliente/", include("Utente.urls")),
     path("carrello/", include("Carrello.urls")),
     path("preventivo/", include("Preventivo.urls")),
+    path("avvisi/", include("Avvisi.urls")),
 
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
