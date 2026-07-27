@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'Carrello.apps.CarrelloConfig',
     'Preventivo.apps.PreventivoConfig',
     'Utente.apps.UtenteConfig',
+    'Avvisi.apps.AvvisiConfig',
     'crispy_forms',
     'crispy_bootstrap5',
     'phonenumber_field',
