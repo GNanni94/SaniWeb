@@ -44,6 +44,7 @@
             f.elements['data_fine'].value = riga.dataset.dataFine;
             f.elements['motivo_chiusura'].value = riga.dataset.motivo;
             f.elements['attivo'].checked = riga.dataset.attivo === 'true';
+            modalBootstrap.show();
             return;
         }
         var btnElimina = event.target.closest('.btn-elimina-avviso');
