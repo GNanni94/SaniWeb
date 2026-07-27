@@ -260,6 +260,28 @@ class NuovoAvvisoViewTest(TestCase):
         response = self.client.get(reverse("nuovo_avviso"))
         self.assertEqual(response.status_code, 405)
 
+    def test_post_non_ajax_valido_reindirizza_a_gestione_avvisi(self):
+        # Nessun header X-Requested-With: simula un form sottomesso come
+        # navigazione vera (es. JS non caricato). Deve ricevere un
+        # redirect alla pagina completa (POST-redirect-GET), non il
+        # frammento nudo tabella_avvisi.html
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse("nuovo_avviso"),
+            data={"data_inizio": "2026-12-24", "data_fine": "2027-01-06", "motivo_chiusura": "festivita natalizie"},
+        )
+        self.assertRedirects(response, reverse("gestione_avvisi"))
+        self.assertTrue(AvvisoChiusura.objects.filter(motivo_chiusura="festivita natalizie").exists())
+
+    def test_post_non_ajax_non_valido_reindirizza_a_gestione_avvisi(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse("nuovo_avviso"),
+            data={"data_inizio": "2027-01-06", "data_fine": "2026-12-24", "motivo_chiusura": "festivita natalizie"},
+        )
+        self.assertRedirects(response, reverse("gestione_avvisi"))
+        self.assertFalse(AvvisoChiusura.objects.filter(motivo_chiusura="festivita natalizie").exists())
+
 
 class ModificaAvvisoViewTest(TestCase):
     def setUp(self):
@@ -298,6 +320,40 @@ class ModificaAvvisoViewTest(TestCase):
         response = self.client.post(reverse("modifica_avviso", args=[self.avviso.pk]), data={}, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         self.assertEqual(response.status_code, 302)
 
+    def test_post_non_ajax_valido_reindirizza_a_gestione_avvisi(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse("modifica_avviso", args=[self.avviso.pk]),
+            data={"data_inizio": "2026-08-08", "data_fine": "2026-08-24", "motivo_chiusura": "ferie estive prolungate"},
+        )
+        self.assertRedirects(response, reverse("gestione_avvisi"))
+        self.avviso.refresh_from_db()
+        self.assertEqual(self.avviso.motivo_chiusura, "ferie estive prolungate")
+
+    def test_post_non_ajax_non_valido_reindirizza_a_gestione_avvisi(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse("modifica_avviso", args=[self.avviso.pk]),
+            data={"data_inizio": "2026-08-23", "data_fine": "2026-08-07", "motivo_chiusura": "x"},
+        )
+        self.assertRedirects(response, reverse("gestione_avvisi"))
+        self.avviso.refresh_from_db()
+        self.assertEqual(self.avviso.motivo_chiusura, "ferie estive")
+
+    def test_pk_inesistente_risponde_404(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse("modifica_avviso", args=[999999]),
+            data={"data_inizio": "2026-08-08", "data_fine": "2026-08-24", "motivo_chiusura": "x"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_risponde_405(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("modifica_avviso", args=[self.avviso.pk]))
+        self.assertEqual(response.status_code, 405)
+
 
 class EliminaAvvisoViewTest(TestCase):
     def setUp(self):
@@ -320,3 +376,53 @@ class EliminaAvvisoViewTest(TestCase):
         response = self.client.post(reverse("elimina_avviso", args=[self.avviso.pk]), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         self.assertEqual(response.status_code, 302)
         self.assertTrue(AvvisoChiusura.objects.filter(pk=self.avviso.pk).exists())
+
+    def test_post_non_ajax_reindirizza_a_gestione_avvisi(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(reverse("elimina_avviso", args=[self.avviso.pk]))
+        self.assertRedirects(response, reverse("gestione_avvisi"))
+        self.assertFalse(AvvisoChiusura.objects.filter(pk=self.avviso.pk).exists())
+
+    def test_pk_inesistente_risponde_404(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(reverse("elimina_avviso", args=[999999]), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_risponde_405(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("elimina_avviso", args=[self.avviso.pk]))
+        self.assertEqual(response.status_code, 405)
+
+
+class AvvisoChiusuraGestionePageContrattoJsTest(TestCase):
+    # Guardia di regressione per il contratto tra il template e
+    # gestione-avvisi.js: se uno di questi id/attributi data-* viene
+    # rinominato in un file senza aggiornare l'altro, il popup si rompe
+    # silenziosamente (nessun test Python lo segnalerebbe altrimenti, vedi
+    # il bug "Modifica non apre il modal" gia' capitato in questo progetto)
+    def setUp(self):
+        User = get_user_model()
+        self.staff = User.objects.create_user(username="staffcontratto", email="staffcontratto@example.com", password="testpass123", is_staff=True)
+        AvvisoChiusura.objects.all().delete()
+        _crea_avviso(datetime.date(2026, 8, 7), datetime.date(2026, 8, 23))
+
+    def test_pagina_contiene_id_ed_attributi_richiesti_dal_js(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("gestione_avvisi"))
+        self.assertEqual(response.status_code, 200)
+        stringhe_richieste = [
+            'id="tabella-avvisi"',
+            'id="modalAvviso"',
+            'id="modalAvvisoBody"',
+            'id="btnNuovoAvviso"',
+            'id="form-avviso"',
+            'data-data-inizio="',
+            'data-data-fine="',
+            'data-motivo="',
+            'data-attivo="',
+            'data-url-modifica="',
+            'data-url-elimina="',
+            'data-azione-nuovo="',
+        ]
+        for stringa in stringhe_richieste:
+            self.assertContains(response, stringa)

@@ -12,6 +12,12 @@
         return;
     }
     var modalBootstrap = new bootstrap.Modal(modalEl);
+    // Snapshot del form vuoto (form_avviso.html non compilato) cosi'
+    // "+ Nuovo avviso" puo' sempre ripartire da uno stato pulito, invece
+    // di affidarsi a f.reset() - che dopo un errore di validazione
+    // ripristinerebbe i valori (invalidi) appena sottomessi, non un form
+    // vuoto, perche' il form ri-renderizzato dal server e' "bound"
+    var formInizialeHTML = modalBody.innerHTML;
 
     function formCorrente() {
         return document.getElementById('form-avviso');
@@ -19,12 +25,7 @@
 
     if (btnNuovo) {
         btnNuovo.addEventListener('click', function () {
-            var f = formCorrente();
-            if (!f) {
-                return;
-            }
-            f.reset();
-            f.action = f.dataset.azioneNuovo;
+            modalBody.innerHTML = formInizialeHTML;
         });
     }
 
@@ -91,11 +92,17 @@
                 if (response.ok) {
                     sostituisciTabella(html);
                     modalBootstrap.hide();
-                } else {
+                } else if (response.status === 400) {
                     // "html" qui e' gia' il partial form_avviso.html con
                     // gli errori: sostituisce il contenuto del modal, che
                     // resta aperto
                     modalBody.innerHTML = html;
+                } else {
+                    // Qualunque altro errore (403 CSRF scaduto, 404, 500,
+                    // ...) non porta un frammento form_avviso.html
+                    // affidabile: iniettarlo nel modal lo romperebbe. Un
+                    // reload riporta l'utente a uno stato coerente.
+                    window.location.reload();
                 }
             });
         }).catch(function () {
@@ -118,6 +125,12 @@
             return response.text().then(function (html) {
                 if (response.ok) {
                     sostituisciTabella(html);
+                } else {
+                    // Eliminazione fallita (record gia' rimosso da
+                    // un'altra scheda, permessi scaduti, errore server...):
+                    // un reload mostra lo stato reale invece di lasciare
+                    // la riga a schermo senza alcun feedback
+                    window.location.reload();
                 }
             });
         }).catch(function () {
