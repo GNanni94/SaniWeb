@@ -1,6 +1,7 @@
 import datetime
 
 from django.test import TestCase
+from django.urls import reverse
 
 from .models import AvvisoChiusura
 
@@ -80,3 +81,19 @@ class AvvisoChiusuraCorrenteTest(TestCase):
         fase, scelto = AvvisoChiusura.corrente(oggi=datetime.date(2026, 8, 20))
         self.assertEqual(fase, "chiusura")
         self.assertEqual(scelto, in_corso)
+
+
+class AvvisoChiusuraIntegrazioneHomeTest(TestCase):
+    def test_banner_chiusura_visibile_se_avviso_in_corso(self):
+        oggi = datetime.date.today()
+        _crea_avviso(oggi - datetime.timedelta(days=1), oggi + datetime.timedelta(days=1))
+        response = self.client.get(reverse('home'))
+        # L'apostrofo in "L'azienda" viene sempre restituito da Django come
+        # &#x27; (autoescape del template): si verifica quindi la parte di
+        # testo dopo l'apostrofo, che comunque distingue univocamente la
+        # fase "chiusura" (testo rosso) da "preavviso" ("sarà chiusa").
+        self.assertContains(response, "azienda è chiusa dal")
+
+    def test_nessun_banner_se_nessun_avviso_attivo(self):
+        response = self.client.get(reverse('home'))
+        self.assertNotContains(response, 'id="avvisoChiusura"')

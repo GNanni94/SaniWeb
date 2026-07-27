@@ -1,17 +1,16 @@
-{% if avviso_chiusura == 'preavviso' %}
+{% if avviso_fase == 'preavviso' %}
 <div class="alert alert-warning alert-dismissible fade show mb-0 rounded-0 text-center" role="alert" id="avvisoChiusura">
-    Avviso: l'azienda sarà chiusa dal 7 al 23 agosto compresi.
+    {{ avviso_testo }}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi"></button>
 </div>
-{% elif avviso_chiusura == 'chiusura' %}
+{% elif avviso_fase == 'chiusura' %}
 <div class="alert alert-danger alert-dismissible fade show mb-0 rounded-0 text-center" role="alert" id="avvisoChiusura">
-    L'azienda è chiusa dal 7 al 23 agosto compresi.<br>
-    Le richieste ricevute in questo periodo verranno gestite al nostro rientro.
+    {{ avviso_testo }}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi"></button>
 </div>
 {% endif %}
 
-{% if avviso_chiusura %}
+{% if avviso_fase %}
 <script>
 (function () {
     var banner = document.getElementById('avvisoChiusura');
@@ -19,9 +18,9 @@
         return;
     }
     // Chiave diversa per "preavviso" e "chiusura": chiudere il banner
-    // giallo prima del 7/08 non deve sopprimere anche quello rosso quando
-    // compare - sono due messaggi diversi
-    var chiave = 'avvisoChiusuraChiuso-{{ avviso_chiusura }}';
+    // giallo prima dell'inizio della chiusura non deve sopprimere anche
+    // quello rosso quando compare - sono due messaggi diversi
+    var chiave = 'avvisoChiusuraChiuso-{{ avviso_fase }}';
     if (sessionStorage.getItem(chiave) === '1') {
         banner.remove();
         return;

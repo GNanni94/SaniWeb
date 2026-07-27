@@ -96,7 +96,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'Prodotti.views.catalogo_home',
                 'Carrello.context_processors.carrello_ha_prodotti',
-                'SitoWeb.context_processors.avviso_chiusura',
+                'Avvisi.context_processors.avviso_chiusura',
             ],
         },
     },
