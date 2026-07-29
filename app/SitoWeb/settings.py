@@ -38,6 +38,18 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS").split(" ")
 
+# Redirect 301 automatico (via CommonMiddleware, gia' attivo) dal dominio
+# senza www alla versione con www: prima non esisteva nessun redirect tra
+# le due versioni, che venivano servite in modo identico - causa sia della
+# doppia indicizzazione su Google (risultato organico su una versione,
+# scheda Google Business Profile sull'altra) sia di possibili incongruenze
+# di dominio canonico. Letto da env (come DEBUG) invece di dedurlo da
+# DEBUG/ambiente: ne' "dev" (localhost, nessuna versione "www.") ne'
+# "staging" (dominio proprio, senza versione "www.") hanno un host "www."
+# verso cui reindirizzare - solo il dominio pubblico di produzione ce l'ha,
+# quindi va abilitato esplicitamente solo in .env.prod
+PREPEND_WWW = os.environ.get("PREPEND_WWW", "0") in ("1", "True", "true", "TRUE")
+
 # "not DEBUG" (non fisso a True): in dev il sito gira su HTTP semplice
 # (localhost, non HTTPS) - un cookie "Secure" non verrebbe rimandato
 # indietro dal browser su una connessione non cifrata, rompendo il login in
