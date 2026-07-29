@@ -21,7 +21,14 @@
           <td>{{ avviso.data_inizio }}</td>
           <td>{{ avviso.data_fine }}</td>
           <td>{{ avviso.motivo_chiusura }}</td>
-          <td>{{ avviso.attivo|yesno:"Sì,No" }}</td>
+          <td>
+            <div class="form-check form-switch">
+              <input class="form-check-input toggle-attivo-avviso" type="checkbox" role="switch"
+                     data-url-toggle="{% url 'toggle_avviso' avviso.pk %}"
+                     {% if avviso.attivo %}checked{% endif %}
+                     aria-label="Attivo">
+            </div>
+          </td>
           <td>
             <button type="button" class="btn btn-sm btn-outline-primary btn-modifica-avviso" data-url-modifica="{% url 'modifica_avviso' avviso.pk %}">Modifica</button>
             <button type="button" class="btn btn-sm btn-outline-danger btn-elimina-avviso" data-url-elimina="{% url 'elimina_avviso' avviso.pk %}">Elimina</button>

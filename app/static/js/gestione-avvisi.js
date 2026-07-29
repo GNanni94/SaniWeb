@@ -53,8 +53,16 @@
             if (!window.confirm('Eliminare questo avviso?')) {
                 return;
             }
-            eliminaAvviso(btnElimina.dataset.urlElimina);
+            postConCsrfESostituisciTabella(btnElimina.dataset.urlElimina);
         }
+    });
+
+    tabellaContainer.addEventListener('change', function (event) {
+        var toggle = event.target.closest('.toggle-attivo-avviso');
+        if (!toggle) {
+            return;
+        }
+        postConCsrfESostituisciTabella(toggle.dataset.urlToggle);
     });
 
     // Delegazione sul body del modal (non sul form direttamente): il form
@@ -110,7 +118,7 @@
         });
     }
 
-    function eliminaAvviso(url) {
+    function postConCsrfESostituisciTabella(url) {
         var f = formCorrente();
         var corpo = new FormData();
         var tokenInput = f ? f.querySelector('[name=csrfmiddlewaretoken]') : null;
@@ -126,10 +134,10 @@
                 if (response.ok) {
                     sostituisciTabella(html);
                 } else {
-                    // Eliminazione fallita (record gia' rimosso da
+                    // Richiesta fallita (record gia' rimosso/modificato da
                     // un'altra scheda, permessi scaduti, errore server...):
                     // un reload mostra lo stato reale invece di lasciare
-                    // la riga a schermo senza alcun feedback
+                    // la pagina senza alcun feedback
                     window.location.reload();
                 }
             });

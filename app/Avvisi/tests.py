@@ -423,6 +423,56 @@ class AvvisoChiusuraGestionePageContrattoJsTest(TestCase):
             'data-url-modifica="',
             'data-url-elimina="',
             'data-azione-nuovo="',
+            'toggle-attivo-avviso',
+            'data-url-toggle="',
         ]
         for stringa in stringhe_richieste:
             self.assertContains(response, stringa)
+
+
+class ToggleAvvisoViewTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.staff = User.objects.create_user(username="stafftoggle", email="stafftoggle@example.com", password="testpass123", is_staff=True)
+        AvvisoChiusura.objects.all().delete()
+        self.avviso = _crea_avviso(datetime.date(2026, 8, 7), datetime.date(2026, 8, 23), attivo=True)
+
+    def test_post_inverte_attivo_da_true_a_false(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(reverse("toggle_avviso", args=[self.avviso.pk]), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 200)
+        self.avviso.refresh_from_db()
+        self.assertFalse(self.avviso.attivo)
+
+    def test_post_inverte_attivo_da_false_a_true(self):
+        self.avviso.attivo = False
+        self.avviso.save()
+        self.client.force_login(self.staff)
+        response = self.client.post(reverse("toggle_avviso", args=[self.avviso.pk]), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 200)
+        self.avviso.refresh_from_db()
+        self.assertTrue(self.avviso.attivo)
+
+    def test_utente_normale_non_autorizzato(self):
+        User = get_user_model()
+        utente = User.objects.create_user(username="normaletoggle", email="normaletoggle@example.com", password="testpass123")
+        self.client.force_login(utente)
+        response = self.client.post(reverse("toggle_avviso", args=[self.avviso.pk]), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 302)
+        self.avviso.refresh_from_db()
+        self.assertTrue(self.avviso.attivo)
+
+    def test_get_risponde_405(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("toggle_avviso", args=[self.avviso.pk]))
+        self.assertEqual(response.status_code, 405)
+
+    def test_pk_sconosciuto_risponde_404(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(reverse("toggle_avviso", args=[99999]), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 404)
+
+    def test_post_non_ajax_fa_redirect_a_gestione_avvisi(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(reverse("toggle_avviso", args=[self.avviso.pk]))
+        self.assertRedirects(response, reverse("gestione_avvisi"))

@@ -77,3 +77,12 @@ def elimina_avviso(request, pk):
     avviso = get_object_or_404(AvvisoChiusura, pk=pk)
     avviso.delete()
     return _risposta_tabella(request)
+
+
+@staff_richiesto
+@require_POST
+def toggle_avviso(request, pk):
+    avviso = get_object_or_404(AvvisoChiusura, pk=pk)
+    avviso.attivo = not avviso.attivo
+    avviso.save()
+    return _risposta_tabella(request)
