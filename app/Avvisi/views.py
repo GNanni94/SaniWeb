@@ -84,5 +84,8 @@ def elimina_avviso(request, pk):
 def toggle_avviso(request, pk):
     avviso = get_object_or_404(AvvisoChiusura, pk=pk)
     avviso.attivo = not avviso.attivo
-    avviso.save()
+    # "update_fields": scrive sul database solo questo campo, cosi' un
+    # salvataggio concorrente su un altro campo dello stesso avviso (es. dal
+    # pop-up Modifica) non viene sovrascritto per sbaglio da qui
+    avviso.save(update_fields=["attivo"])
     return _risposta_tabella(request)

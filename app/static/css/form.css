@@ -73,6 +73,12 @@
   display: none;
 }
 
+/* Stesso ragionamento sopra, applicato ai campi del form di
+   creazione/modifica avviso di chiusura (gestione_avvisi.html) */
+#form-avviso .asteriskField {
+  display: none;
+}
+
 /* crispy-forms genera un unico div con label sopra l'input: qui li
    affianchiamo (etichetta a sinistra, box a destra) - non ottenibile con le
    sole utility Bootstrap perche' non possiamo assegnare classi al div

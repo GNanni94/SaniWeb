@@ -62,7 +62,18 @@
         if (!toggle) {
             return;
         }
-        postConCsrfESostituisciTabella(toggle.dataset.urlToggle);
+        var pk = toggle.closest('tr').dataset.pk;
+        postConCsrfESostituisciTabella(toggle.dataset.urlToggle, function () {
+            // Ripristina il focus da tastiera sullo stesso toggle: la
+            // tabella e' stata appena ricostruita da zero (nuovi elementi,
+            // anche se sembrano identici), quindi il browser sposterebbe
+            // altrimenti il focus in cima alla pagina - scomodo per chi
+            // naviga solo da tastiera e vuole togglare piu' righe di fila
+            var nuovoToggle = tabellaContainer.querySelector('tr[data-pk="' + pk + '"] .toggle-attivo-avviso');
+            if (nuovoToggle) {
+                nuovoToggle.focus();
+            }
+        });
     });
 
     // Delegazione sul body del modal (non sul form direttamente): il form
@@ -118,7 +129,7 @@
         });
     }
 
-    function postConCsrfESostituisciTabella(url) {
+    function postConCsrfESostituisciTabella(url, alSuccesso) {
         var f = formCorrente();
         var corpo = new FormData();
         var tokenInput = f ? f.querySelector('[name=csrfmiddlewaretoken]') : null;
@@ -133,6 +144,9 @@
             return response.text().then(function (html) {
                 if (response.ok) {
                     sostituisciTabella(html);
+                    if (alSuccesso) {
+                        alSuccesso();
+                    }
                 } else {
                     // Richiesta fallita (record gia' rimosso/modificato da
                     // un'altra scheda, permessi scaduti, errore server...):
