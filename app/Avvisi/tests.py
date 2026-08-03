@@ -120,19 +120,19 @@ class AvvisoChiusuraIntegrazioneHomeTest(TestCase):
 
 
 class AvvisoChiusuraLinkNavbarTest(TestCase):
-    def test_link_gestione_visibile_per_utente_staff(self):
+    def test_link_dashboard_visibile_per_utente_staff(self):
         User = get_user_model()
         staff = User.objects.create_user(username="staffuser", email="staff@example.com", password="testpass123", is_staff=True)
         self.client.force_login(staff)
         response = self.client.get(reverse('home'))
-        self.assertContains(response, reverse('gestione_avvisi'))
+        self.assertContains(response, reverse('dashboard_admin'))
 
-    def test_link_gestione_non_visibile_per_utente_normale(self):
+    def test_link_dashboard_non_visibile_per_utente_normale(self):
         User = get_user_model()
         utente = User.objects.create_user(username="utentenormale", email="utente@example.com", password="testpass123")
         self.client.force_login(utente)
         response = self.client.get(reverse('home'))
-        self.assertNotContains(response, reverse('gestione_avvisi'))
+        self.assertNotContains(response, reverse('dashboard_admin'))
 
 
 class AvvisoChiusuraGestionePageTest(TestCase):

@@ -211,3 +211,33 @@ class DashboardAdminViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, reverse("gestione_avvisi"))
         self.assertContains(response, reverse("dashboard_prodotti_senza_immagine"))
+
+
+class DashboardIconNavbarTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.staff = User.objects.create_user(
+            username="staffnav1", email="staffnav1@example.com", password="testpass123", is_staff=True
+        )
+        self.utente = User.objects.create_user(
+            username="normalenav1", email="normalenav1@example.com", password="testpass123"
+        )
+
+    def test_icona_dashboard_visibile_per_staff(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, reverse("dashboard_admin"))
+
+    def test_icona_dashboard_non_visibile_per_utente_normale(self):
+        self.client.force_login(self.utente)
+        response = self.client.get(reverse("home"))
+        self.assertNotContains(response, reverse("dashboard_admin"))
+
+    def test_icone_sincronizzazione_e_gestione_avvisi_non_sono_piu_dirette(self):
+        # Le due icone dirette sono state sostituite dall'icona unica:
+        # sincronizzazione non e' piu' raggiungibile dal dropdown (resta
+        # raggiungibile solo dalla pagina prodotti-senza-immagine), e il
+        # link ad avvisi passa ora dalla dashboard
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("home"))
+        self.assertNotContains(response, reverse("sincronizzazione"))

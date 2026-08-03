@@ -196,16 +196,12 @@
         <li class="bg-light py-2 px-3 d-flex align-items-center justify-content-center gap-2">
           {% if user.is_staff %}
           {% comment %}
-          Solo per l'admin (is_staff): al posto della voce testuale
-          "Sincronizzazione immagini e schede" in mezzo alla lista, un'icona
-          (stesso blu della navbar) a sinistra dell'email, qui nella riga di
-          intestazione del menu
+          Solo per l'admin (is_staff): icona unica verso la dashboard
+          admin (hub con le sezioni Avvisi e Prodotti), a sinistra
+          dell'email, qui nella riga di intestazione del menu
           {% endcomment %}
-          <a href="{% url 'sincronizzazione' %}" title="Sincronizzazione immagini e schede" class="d-inline-flex">
-            <i class="bi bi-arrow-repeat fs-5" style="color: var(--color-primary);"></i>
-          </a>
-          <a href="{% url 'gestione_avvisi' %}" title="Avvisi di chiusura" class="d-inline-flex">
-            <i class="bi bi-megaphone fs-5" style="color: var(--color-primary);"></i>
+          <a href="{% url 'dashboard_admin' %}" title="Dashboard admin" class="d-inline-flex">
+            <i class="bi bi-speedometer2 fs-5" style="color: var(--color-primary);"></i>
           </a>
           {% endif %}
           <span>{{ user.email }}</span>
