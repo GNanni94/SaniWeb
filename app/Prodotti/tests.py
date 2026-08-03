@@ -1,7 +1,8 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Categoria, Prodotto, Sottocategoria
+from .models import Categoria, Prodotto, Sottocategoria, ImmaginiArticolo, DEFAULT_IMMAGINE_ARTICOLO
+from .views import ConfiguraImmaginiArticoli
 
 
 class ProdottiCardGrigliaTest(TestCase):
@@ -87,3 +88,22 @@ class ProdottiCardGrigliaRicercaTest(TestCase):
         self.assertContains(response, "Sgrassatore Cucina")
         self.assertContains(response, 'id="listaProdottiContainer"')
         self.assertNotContains(response, 'site-footer')
+
+
+class ConfiguraImmaginiArticoliTest(TestCase):
+    def test_placeholder_usa_la_costante_condivisa(self):
+        categoria = Categoria.objects.create(nome_categoria="Detersivi")
+        Prodotto.objects.bulk_create([
+            Prodotto(
+                codice_prodotto="C900",
+                nome_prodotto="Prodotto di test",
+                unita_di_misura="LT",
+                categoria=categoria,
+            ),
+        ])
+        prodotto = Prodotto.objects.get(codice_prodotto="C900")
+
+        ConfiguraImmaginiArticoli()
+
+        immagine_articolo = ImmaginiArticolo.objects.get(articolo=prodotto)
+        self.assertEqual(immagine_articolo.immagine.name, DEFAULT_IMMAGINE_ARTICOLO)

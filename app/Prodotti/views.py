@@ -1,7 +1,7 @@
 from typing import Any
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView
-from .models import Categoria, Prodotto, Sottocategoria, ImmaginiArticolo, SchedeTecniche
+from .models import Categoria, Prodotto, Sottocategoria, ImmaginiArticolo, SchedeTecniche, DEFAULT_IMMAGINE_ARTICOLO
 from django.template import loader
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
@@ -221,7 +221,7 @@ def ConfiguraImmaginiArticoli():
     for articolo in articoli:
         immagine_articolo = ImmaginiArticolo()
         immagine_articolo.articolo = articolo
-        immagine_articolo.immagine = "/media/default_immagine_articolo/saniscope_logo 2.png"
+        immagine_articolo.immagine = DEFAULT_IMMAGINE_ARTICOLO
         immagine_articolo.save()
         
 #ConfiguraImmaginiArticoli()

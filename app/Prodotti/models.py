@@ -6,6 +6,9 @@ from django.urls import reverse
 
 
 # Create your models here.
+DEFAULT_IMMAGINE_ARTICOLO = "/media/default_immagine_articolo/saniscope_logo 2.png"
+
+
 class Categoria(models.Model):
     nome_categoria=models.CharField(max_length=30, blank=True)
     immagine_categoria = models.ImageField(upload_to='immagini_categoria/', default ="logo/saniscope_logo 2.png")
