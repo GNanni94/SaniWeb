@@ -1,8 +1,8 @@
-import os
 from functools import wraps
 from typing import Any
 
 from django import forms
+from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ValidationError
 from django.db.models import Q
@@ -46,7 +46,10 @@ def dashboard_admin(request):
 @dashboard_richiesto
 def dashboard_prodotti_senza_immagine(request):
     prodotti = Prodotto.objects.filter(
-        Q(immagine_rel__isnull=True) | Q(immagine_rel__immagine=DEFAULT_IMMAGINE_ARTICOLO)
+        Q(immagine_rel__isnull=True)
+        | Q(immagine_rel__immagine=DEFAULT_IMMAGINE_ARTICOLO)
+        | Q(immagine_rel__immagine='')
+        | Q(immagine_rel__immagine__isnull=True)
     ).order_by('codice_prodotto')
     return render(request, 'dashboard_prodotti_senza_immagine.html', {'prodotti': prodotti})
 
@@ -61,7 +64,20 @@ def carica_immagine_prodotto(request, pk):
     except ValidationError as errore:
         return JsonResponse({'ok': False, 'error': errore.messages[0]}, status=400)
 
-    estensione = os.path.splitext(file.name)[1]
+    # L'estensione va derivata dal formato immagine effettivamente
+    # validato da Pillow (file.image.format, popolato da
+    # forms.ImageField().clean() sopra), non dal nome file fornito dal
+    # client: altrimenti un file rinominato x.html contenente byte GIF
+    # validi verrebbe salvato e servito come .html dalla stessa origine.
+    ESTENSIONE_PER_FORMATO = {
+        'JPEG': '.jpg',
+        'PNG': '.png',
+        'GIF': '.gif',
+        'WEBP': '.webp',
+    }
+    estensione = ESTENSIONE_PER_FORMATO.get(file.image.format)
+    if estensione is None:
+        return JsonResponse({'ok': False, 'error': 'Formato immagine non supportato.'}, status=400)
     file.name = f"{prodotto.codice_prodotto}{estensione}"
 
     immagine_articolo, _ = ImmaginiArticolo.objects.get_or_create(articolo=prodotto)
@@ -79,4 +95,20 @@ def carica_immagine_prodotto(request, pk):
 
     immagine_articolo.immagine = file
     immagine_articolo.save()
+
+    # I template che mostrano l'immagine prodotto (griglia_prodotti.html,
+    # carrello.html, dettaglio_preventivo.html) stampano il valore del
+    # campo direttamente, senza `.url` - funziona solo perche' le righe
+    # create dallo script di sincronizzazione bulk (configuraImmagini in
+    # Prodotti/views.py) vi scrivono un path assoluto letterale invece del
+    # nome relativo standard di Django. Il nome salvato va riscritto nello
+    # stesso formato per restare compatibile.
+    # Nota: settings.MEDIA_URL in settings.py e' 'media/' (senza slash
+    # iniziale), ma Django antepone automaticamente lo script prefix
+    # quando lo si legge tramite l'oggetto settings (vedi
+    # LazySettings._add_script_prefix), quindi a runtime vale gia'
+    # '/media/'. lstrip('/') garantisce un solo slash iniziale in
+    # entrambi i casi, evitando un doppio slash.
+    immagine_articolo.immagine.name = f"/{settings.MEDIA_URL.lstrip('/')}{immagine_articolo.immagine.name}"
+    immagine_articolo.save(update_fields=['immagine'])
     return JsonResponse({'ok': True})

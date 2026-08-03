@@ -1,8 +1,13 @@
+import os
+import tempfile
+from unittest import mock
+
 from django.test import TestCase
 from django.urls import reverse
 
+from SitoWeb import settings as sitoweb_settings
 from .models import Categoria, Prodotto, Sottocategoria, ImmaginiArticolo, DEFAULT_IMMAGINE_ARTICOLO
-from .views import ConfiguraImmaginiArticoli
+from .views import ConfiguraImmaginiArticoli, configuraImmagini
 
 
 class ProdottiCardGrigliaTest(TestCase):
@@ -107,3 +112,42 @@ class ConfiguraImmaginiArticoliTest(TestCase):
 
         immagine_articolo = ImmaginiArticolo.objects.get(articolo=prodotto)
         self.assertEqual(immagine_articolo.immagine.name, DEFAULT_IMMAGINE_ARTICOLO)
+
+
+class ConfiguraImmaginiTest(TestCase):
+    # Regressione per il bug C2 della review finale: configuraImmagini()
+    # scansionava os.getcwd() + "/media/immagini_articoli/" invece di
+    # settings.MEDIA_ROOT (che punta a mediafiles/), quindi lo script di
+    # sincronizzazione non trovava mai i file caricati manualmente e li
+    # sovrascriveva silenziosamente con il placeholder.
+    #
+    # Nota: Prodotti/views.py importa le settings con
+    # "from SitoWeb import settings" (il modulo grezzo, non
+    # django.conf.settings), quindi @override_settings non ha effetto su
+    # settings.MEDIA_ROOT com'e' visto da configuraImmagini() - va
+    # patchato direttamente l'attributo sul modulo SitoWeb.settings.
+    def test_configura_immagini_legge_da_media_root_non_da_cwd(self):
+        media_root = tempfile.mkdtemp()
+
+        categoria = Categoria.objects.create(nome_categoria="Detersivi")
+        Prodotto.objects.bulk_create([
+            Prodotto(
+                codice_prodotto="C901",
+                nome_prodotto="Prodotto sincronizzazione",
+                unita_di_misura="LT",
+                categoria=categoria,
+            ),
+        ])
+        prodotto = Prodotto.objects.get(codice_prodotto="C901")
+        ImmaginiArticolo.objects.create(articolo=prodotto, immagine=DEFAULT_IMMAGINE_ARTICOLO)
+
+        cartella_immagini = os.path.join(media_root, "immagini_articoli")
+        os.makedirs(cartella_immagini, exist_ok=True)
+        with open(os.path.join(cartella_immagini, "C901.jpg"), "wb") as f:
+            f.write(b"contenuto finto, il nome file e' l'unica cosa che conta qui")
+
+        with mock.patch.object(sitoweb_settings, "MEDIA_ROOT", media_root):
+            configuraImmagini()
+
+        immagine_articolo = ImmaginiArticolo.objects.get(articolo=prodotto)
+        self.assertEqual(immagine_articolo.immagine.name, "/media/immagini_articoli/C901.jpg")

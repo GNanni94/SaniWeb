@@ -228,7 +228,7 @@ def ConfiguraImmaginiArticoli():
 
 #INSERIMENTO IMMAGINI
 def configuraImmagini():
-    immagini = os.listdir(os.getcwd() + "/media/immagini_articoli/")
+    immagini = os.listdir(os.path.join(settings.MEDIA_ROOT, "immagini_articoli"))
     for immagine in immagini:
         posizione_dot = immagine.find('.')
         nome_immagine = immagine[:posizione_dot]
@@ -250,7 +250,7 @@ def ConfiguraSchedeArticoli():
 #ConfiguraSchedeArticoli()
         
 def configuraSchede():
-    schede = os.listdir(os.getcwd() + "/media/schede_tecniche/")
+    schede = os.listdir(os.path.join(settings.MEDIA_ROOT, "schede_tecniche"))
     for scheda in schede:
         posizione_dot = scheda.find('.')
         nome_scheda = scheda[:posizione_dot]
