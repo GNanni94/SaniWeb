@@ -107,7 +107,24 @@ class CaricaImmagineProdottoViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"ok": True})
         immagine_articolo = ImmaginiArticolo.objects.get(articolo=self.prodotto)
-        self.assertTrue(immagine_articolo.immagine.name.endswith("C010.gif"))
+        self.assertEqual(immagine_articolo.immagine.name, "immagini_articoli/C010.gif")
+
+    def test_secondo_upload_sovrascrive_e_mantiene_il_nome_esatto(self):
+        self.client.force_login(self.staff)
+        primo_file = SimpleUploadedFile("primo.gif", GIF_1PX, content_type="image/gif")
+        self.client.post(
+            reverse("carica_immagine_prodotto", args=[self.prodotto.pk]),
+            data={"immagine": primo_file},
+        )
+        secondo_file = SimpleUploadedFile("secondo.gif", GIF_1PX, content_type="image/gif")
+        response = self.client.post(
+            reverse("carica_immagine_prodotto", args=[self.prodotto.pk]),
+            data={"immagine": secondo_file},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"ok": True})
+        immagine_articolo = ImmaginiArticolo.objects.get(articolo=self.prodotto)
+        self.assertEqual(immagine_articolo.immagine.name, "immagini_articoli/C010.gif")
 
     def test_upload_file_non_immagine_risponde_400_e_non_crea_nulla(self):
         self.client.force_login(self.staff)

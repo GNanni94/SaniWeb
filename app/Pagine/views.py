@@ -60,6 +60,18 @@ def carica_immagine_prodotto(request, pk):
     file.name = f"{prodotto.codice_prodotto}{estensione}"
 
     immagine_articolo, _ = ImmaginiArticolo.objects.get_or_create(articolo=prodotto)
+
+    # Se un file esiste già esattamente al percorso di destinazione (es. un
+    # caricamento precedente per lo stesso prodotto), va rimosso prima del
+    # salvataggio: altrimenti lo storage aggiungerebbe un suffisso casuale
+    # al nome per evitare la collisione, rompendo silenziosamente il
+    # matching per nome file usato dallo script di sincronizzazione
+    # bulk (configuraImmagini in Prodotti/views.py).
+    campo_immagine = immagine_articolo._meta.get_field('immagine')
+    percorso_destinazione = campo_immagine.generate_filename(immagine_articolo, file.name)
+    if campo_immagine.storage.exists(percorso_destinazione):
+        campo_immagine.storage.delete(percorso_destinazione)
+
     immagine_articolo.immagine = file
     immagine_articolo.save()
     return JsonResponse({'ok': True})
