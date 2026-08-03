@@ -58,3 +58,86 @@ class DashboardProdottiSenzaImmagineViewTest(TestCase):
         self.client.force_login(self.staff)
         response = self.client.get(reverse("dashboard_prodotti_senza_immagine"))
         self.assertContains(response, "Nessun prodotto senza immagine.")
+
+
+import tempfile
+
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
+
+GIF_1PX = (
+    b'GIF87a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\xff\xff\xff\x21\xf9'
+    b'\x04\x01\x00\x00\x00\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00'
+    b'\x02\x02\x44\x01\x00\x3b'
+)
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class CaricaImmagineProdottoViewTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.staff = User.objects.create_user(
+            username="staffimg1", email="staffimg1@example.com", password="testpass123", is_staff=True
+        )
+        self.utente = User.objects.create_user(
+            username="normaleimg1", email="normaleimg1@example.com", password="testpass123"
+        )
+        categoria = Categoria.objects.create(nome_categoria="Detersivi")
+        Prodotto.objects.bulk_create([
+            Prodotto(codice_prodotto="C010", nome_prodotto="Sgrassatore", unita_di_misura="LT", categoria=categoria),
+        ])
+        self.prodotto = Prodotto.objects.get(codice_prodotto="C010")
+
+    def test_anonimo_reindirizzato_al_login(self):
+        file = SimpleUploadedFile("foto.gif", GIF_1PX, content_type="image/gif")
+        response = self.client.post(
+            reverse("carica_immagine_prodotto", args=[self.prodotto.pk]),
+            data={"immagine": file},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith(reverse("login")))
+
+    def test_upload_valido_rinomina_il_file_e_crea_immaginiarticolo(self):
+        self.client.force_login(self.staff)
+        file = SimpleUploadedFile("foto_qualsiasi.gif", GIF_1PX, content_type="image/gif")
+        response = self.client.post(
+            reverse("carica_immagine_prodotto", args=[self.prodotto.pk]),
+            data={"immagine": file},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"ok": True})
+        immagine_articolo = ImmaginiArticolo.objects.get(articolo=self.prodotto)
+        self.assertTrue(immagine_articolo.immagine.name.endswith("C010.gif"))
+
+    def test_upload_file_non_immagine_risponde_400_e_non_crea_nulla(self):
+        self.client.force_login(self.staff)
+        file = SimpleUploadedFile("documento.txt", b"non e' un'immagine", content_type="text/plain")
+        response = self.client.post(
+            reverse("carica_immagine_prodotto", args=[self.prodotto.pk]),
+            data={"immagine": file},
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(ImmaginiArticolo.objects.filter(articolo=self.prodotto).exists())
+
+    def test_utente_normale_non_autorizzato(self):
+        self.client.force_login(self.utente)
+        file = SimpleUploadedFile("foto.gif", GIF_1PX, content_type="image/gif")
+        response = self.client.post(
+            reverse("carica_immagine_prodotto", args=[self.prodotto.pk]),
+            data={"immagine": file},
+        )
+        self.assertRedirects(response, reverse("home"))
+
+    def test_get_risponde_405(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("carica_immagine_prodotto", args=[self.prodotto.pk]))
+        self.assertEqual(response.status_code, 405)
+
+    def test_pk_sconosciuto_risponde_404(self):
+        self.client.force_login(self.staff)
+        file = SimpleUploadedFile("foto.gif", GIF_1PX, content_type="image/gif")
+        response = self.client.post(
+            reverse("carica_immagine_prodotto", args=[999999]),
+            data={"immagine": file},
+        )
+        self.assertEqual(response.status_code, 404)

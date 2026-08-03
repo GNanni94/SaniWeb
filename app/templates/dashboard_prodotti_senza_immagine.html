@@ -12,11 +12,14 @@
         </div>
         <div class="col-12">
 
+            <form id="csrf-dashboard-prodotti">{% csrf_token %}</form>
+
             <table class="table {% if not prodotti %}d-none{% endif %}" id="tabella-prodotti-senza-immagine">
                 <thead>
                     <tr>
                         <th scope="col">Codice</th>
                         <th scope="col">Nome</th>
+                        <th scope="col">Immagine</th>
                     </tr>
                 </thead>
                 <tbody id="corpo-tabella-prodotti-senza-immagine">
@@ -24,6 +27,13 @@
                     <tr data-pk="{{ prodotto.pk }}">
                         <td>{{ prodotto.codice_prodotto }}</td>
                         <td>{{ prodotto.nome_prodotto }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <input type="file" accept="image/*" class="form-control form-control-sm w-auto input-immagine-prodotto">
+                                <button type="button" class="btn btn-sm btn-primary btn-carica-immagine-prodotto" data-url-carica="{% url 'carica_immagine_prodotto' prodotto.pk %}">Carica</button>
+                            </div>
+                            <div class="text-danger small errore-upload-prodotto"></div>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
