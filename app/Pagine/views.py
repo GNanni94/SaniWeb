@@ -39,6 +39,11 @@ def dashboard_richiesto(view_func):
 
 
 @dashboard_richiesto
+def dashboard_admin(request):
+    return render(request, 'dashboard_admin.html')
+
+
+@dashboard_richiesto
 def dashboard_prodotti_senza_immagine(request):
     prodotti = Prodotto.objects.filter(
         Q(immagine_rel__isnull=True) | Q(immagine_rel__immagine=DEFAULT_IMMAGINE_ARTICOLO)

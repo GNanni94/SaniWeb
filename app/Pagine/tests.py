@@ -183,3 +183,31 @@ class DashboardProdottiSenzaImmagineContrattoJsTest(TestCase):
         self.assertContains(response, 'errore-upload-prodotto')
         self.assertContains(response, 'data-url-carica="')
         self.assertContains(response, 'dashboard-prodotti-immagini.js')
+
+
+class DashboardAdminViewTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.staff = User.objects.create_user(
+            username="staffdash1", email="staffdash1@example.com", password="testpass123", is_staff=True
+        )
+        self.utente = User.objects.create_user(
+            username="normaledash1", email="normaledash1@example.com", password="testpass123"
+        )
+
+    def test_anonimo_reindirizzato_al_login(self):
+        response = self.client.get(reverse("dashboard_admin"))
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith(reverse("login")))
+
+    def test_utente_normale_reindirizzato_alla_home(self):
+        self.client.force_login(self.utente)
+        response = self.client.get(reverse("dashboard_admin"))
+        self.assertRedirects(response, reverse("home"))
+
+    def test_staff_vede_le_due_card(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("dashboard_admin"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, reverse("gestione_avvisi"))
+        self.assertContains(response, reverse("dashboard_prodotti_senza_immagine"))

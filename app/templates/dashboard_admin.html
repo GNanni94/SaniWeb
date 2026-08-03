@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block titolo %} Dashboard admin {% endblock titolo %}
+
+{% block contenuto %}
+
+<div class="container">
+    <div class="row py-5">
+        <div class="col-12">
+            <h1 class="mb-4">Dashboard admin</h1>
+        </div>
+        <div class="col-12 col-md-6 mb-4">
+            <a href="{% url 'gestione_avvisi' %}" class="card text-decoration-none h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Gestione Avvisi</h5>
+                    <p class="card-text text-body-secondary">Crea, modifica ed elimina gli avvisi di chiusura.</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-12 col-md-6 mb-4">
+            <a href="{% url 'dashboard_prodotti_senza_immagine' %}" class="card text-decoration-none h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Gestione Prodotti</h5>
+                    <p class="card-text text-body-secondary">Trova e carica le immagini mancanti dei prodotti.</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock contenuto %}
