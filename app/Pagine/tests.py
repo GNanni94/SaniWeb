@@ -158,3 +158,28 @@ class CaricaImmagineProdottoViewTest(TestCase):
             data={"immagine": file},
         )
         self.assertEqual(response.status_code, 404)
+
+
+class DashboardProdottiSenzaImmagineContrattoJsTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.staff = User.objects.create_user(
+            username="staffdash3", email="staffdash3@example.com", password="testpass123", is_staff=True
+        )
+        categoria = Categoria.objects.create(nome_categoria="Detersivi")
+        Prodotto.objects.bulk_create([
+            Prodotto(codice_prodotto="C030", nome_prodotto="Detergente vetri", unita_di_misura="LT", categoria=categoria),
+        ])
+
+    def test_markup_richiesto_dal_js_e_presente(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("dashboard_prodotti_senza_immagine"))
+        self.assertContains(response, 'id="corpo-tabella-prodotti-senza-immagine"')
+        self.assertContains(response, 'id="tabella-prodotti-senza-immagine"')
+        self.assertContains(response, 'id="messaggio-nessun-prodotto"')
+        self.assertContains(response, 'id="csrf-dashboard-prodotti"')
+        self.assertContains(response, 'btn-carica-immagine-prodotto')
+        self.assertContains(response, 'input-immagine-prodotto')
+        self.assertContains(response, 'errore-upload-prodotto')
+        self.assertContains(response, 'data-url-carica="')
+        self.assertContains(response, 'dashboard-prodotti-immagini.js')
