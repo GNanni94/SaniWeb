@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titolo %} Prodotti senza immagine {% endblock titolo %}
+
+{% block contenuto %}
+
+<div class="container">
+    <div class="row py-5">
+        <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+            <h1 class="mb-0">Prodotti senza immagine</h1>
+            <a href="{% url 'sincronizzazione' %}" class="btn btn-outline-primary btn-sm">Sincronizza immagini e schede</a>
+        </div>
+        <div class="col-12">
+
+            <table class="table {% if not prodotti %}d-none{% endif %}" id="tabella-prodotti-senza-immagine">
+                <thead>
+                    <tr>
+                        <th scope="col">Codice</th>
+                        <th scope="col">Nome</th>
+                    </tr>
+                </thead>
+                <tbody id="corpo-tabella-prodotti-senza-immagine">
+                    {% for prodotto in prodotti %}
+                    <tr data-pk="{{ prodotto.pk }}">
+                        <td>{{ prodotto.codice_prodotto }}</td>
+                        <td>{{ prodotto.nome_prodotto }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p id="messaggio-nessun-prodotto" class="{% if prodotti %}d-none{% endif %}">Nessun prodotto senza immagine.</p>
+
+        </div>
+    </div>
+</div>
+
+{% endblock contenuto %}
