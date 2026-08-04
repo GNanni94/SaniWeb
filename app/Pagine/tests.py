@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from Prodotti.models import Categoria, ImmaginiArticolo, Prodotto, DEFAULT_IMMAGINE_ARTICOLO
+from Prodotti.models import Categoria, ImmaginiArticolo, Prodotto, Sottocategoria, DEFAULT_IMMAGINE_ARTICOLO
 
 
 class DashboardProdottiSenzaImmagineViewTest(TestCase):
@@ -84,6 +84,34 @@ class DashboardProdottiSenzaImmagineViewTest(TestCase):
         self.client.force_login(self.staff)
         response = self.client.get(reverse("dashboard_prodotti_senza_immagine"))
         self.assertContains(response, "Nessun prodotto senza immagine.")
+
+    def test_categoria_e_sottocategoria_compaiono_in_lista(self):
+        sottocategoria = Sottocategoria(
+            nome_sottocategoria="Sgrassatori", categoria=self.categoria, codice_sottocategoria=101
+        )
+        Sottocategoria.objects.bulk_create([sottocategoria])
+        Prodotto.objects.bulk_create([
+            Prodotto(
+                codice_prodotto="C025",
+                nome_prodotto="Sgrassatore universale",
+                unita_di_misura="LT",
+                categoria=self.categoria,
+                sottocategoria=sottocategoria,
+            ),
+        ])
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("dashboard_prodotti_senza_immagine"))
+        self.assertContains(response, "Detersivi")
+        self.assertContains(response, "Sgrassatori")
+
+    def test_prodotto_senza_categoria_ne_sottocategoria_mostra_trattino(self):
+        Prodotto.objects.bulk_create([
+            Prodotto(codice_prodotto="C026", nome_prodotto="Prodotto senza categoria", unita_di_misura="LT"),
+        ])
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("dashboard_prodotti_senza_immagine"))
+        self.assertContains(response, "Prodotto senza categoria")
+        self.assertContains(response, "<td>-</td>")
 
 
 import tempfile
@@ -258,10 +286,18 @@ class DashboardProdottiSenzaImmagineContrattoJsTest(TestCase):
         self.assertContains(response, 'id="tabella-prodotti-senza-immagine"')
         self.assertContains(response, 'id="messaggio-nessun-prodotto"')
         self.assertContains(response, 'id="csrf-dashboard-prodotti"')
-        self.assertContains(response, 'btn-carica-immagine-prodotto')
-        self.assertContains(response, 'input-immagine-prodotto')
-        self.assertContains(response, 'errore-upload-prodotto')
         self.assertContains(response, 'data-url-carica="')
+        self.assertContains(response, 'data-codice="')
+        self.assertContains(response, 'data-nome="')
+        self.assertContains(response, 'id="modalCaricaImmagineProdotto"')
+        self.assertContains(response, 'id="modalCaricaImmagineProdottoTitolo"')
+        self.assertContains(response, 'id="modalCaricaImmagineProdottoInfo"')
+        self.assertContains(response, 'id="inputImmagineProdottoModal"')
+        self.assertContains(response, 'id="btnScegliImmagineProdotto"')
+        self.assertContains(response, 'id="previewImmagineProdottoContainer"')
+        self.assertContains(response, 'id="previewImmagineProdotto"')
+        self.assertContains(response, 'id="erroreCaricaImmagineProdotto"')
+        self.assertContains(response, 'id="btnConfermaCaricaImmagineProdotto"')
         self.assertContains(response, 'dashboard-prodotti-immagini.js')
 
 

@@ -14,26 +14,27 @@
 
             <form id="csrf-dashboard-prodotti">{% csrf_token %}</form>
 
-            <table class="table {% if not prodotti %}d-none{% endif %}" id="tabella-prodotti-senza-immagine">
+            <table class="table table-bordered table-sm table-hover text-center align-middle {% if not prodotti %}d-none{% endif %}" id="tabella-prodotti-senza-immagine">
                 <thead>
                     <tr>
                         <th scope="col">Codice</th>
                         <th scope="col">Nome</th>
-                        <th scope="col">Immagine</th>
+                        <th scope="col">Categoria</th>
+                        <th scope="col">Sottocategoria</th>
                     </tr>
                 </thead>
                 <tbody id="corpo-tabella-prodotti-senza-immagine">
                     {% for prodotto in prodotti %}
-                    <tr data-pk="{{ prodotto.pk }}">
+                    <tr data-pk="{{ prodotto.pk }}"
+                        data-codice="{{ prodotto.codice_prodotto }}"
+                        data-nome="{{ prodotto.nome_prodotto }}"
+                        data-url-carica="{% url 'carica_immagine_prodotto' prodotto.pk %}"
+                        role="button"
+                        style="cursor: pointer;">
                         <td>{{ prodotto.codice_prodotto }}</td>
                         <td>{{ prodotto.nome_prodotto }}</td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="file" accept="image/*" class="form-control form-control-sm w-auto input-immagine-prodotto">
-                                <button type="button" class="btn btn-sm btn-primary btn-carica-immagine-prodotto" data-url-carica="{% url 'carica_immagine_prodotto' prodotto.pk %}">Carica</button>
-                            </div>
-                            <div class="text-danger small errore-upload-prodotto"></div>
-                        </td>
+                        <td>{{ prodotto.categoria.nome_categoria|default:"-" }}</td>
+                        <td>{{ prodotto.sottocategoria.nome_sottocategoria|default:"-" }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -42,6 +43,32 @@
 
         </div>
     </div>
+</div>
+
+<div class="modal fade" id="modalCaricaImmagineProdotto" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalCaricaImmagineProdottoTitolo">Carica immagine</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-3" id="modalCaricaImmagineProdottoInfo"></p>
+
+        <input type="file" accept="image/*" class="d-none" id="inputImmagineProdottoModal">
+        <button type="button" class="btn btn-navbar" id="btnScegliImmagineProdotto">Scegli immagine</button>
+
+        <div class="mt-3 text-center d-none" id="previewImmagineProdottoContainer">
+          <img id="previewImmagineProdotto" class="img-fluid rounded" style="max-height: 200px;" alt="Anteprima">
+        </div>
+
+        <div class="text-danger small mt-2" id="erroreCaricaImmagineProdotto"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-navbar" id="btnConfermaCaricaImmagineProdotto" disabled>Conferma</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="{% static 'js/dashboard-prodotti-immagini.js' %}"></script>

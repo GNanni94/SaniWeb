@@ -45,7 +45,7 @@ def dashboard_admin(request):
 
 @dashboard_richiesto
 def dashboard_prodotti_senza_immagine(request):
-    prodotti = Prodotto.objects.filter(
+    prodotti = Prodotto.objects.select_related('categoria', 'sottocategoria').filter(
         Q(immagine_rel__isnull=True)
         | Q(immagine_rel__immagine=DEFAULT_IMMAGINE_ARTICOLO)
         | Q(immagine_rel__immagine='')
