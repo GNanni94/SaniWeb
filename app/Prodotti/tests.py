@@ -151,3 +151,27 @@ class ConfiguraImmaginiTest(TestCase):
 
         immagine_articolo = ImmaginiArticolo.objects.get(articolo=prodotto)
         self.assertEqual(immagine_articolo.immagine.name, "/media/immagini_articoli/C901.jpg")
+
+
+class ProdottoOrdinamentoDefaultTest(TestCase):
+    # Regressione: senza un ordinamento di default sul modello, la
+    # paginazione (Paginator, usata da CatalogoListView/SottocategoriaListView
+    # per elencare i prodotti di una categoria) non ha alcuna garanzia di
+    # ordine consistente tra una query e l'altra (PostgreSQL puo' scegliere
+    # piani diversi per una query con LIMIT rispetto a una senza) - un
+    # prodotto puo' quindi risultare assente dalla pagina attesa pur
+    # esistendo nella categoria. Riprodotto in produzione con la categoria
+    # "carta": il prodotto D0071 (9° per codice_prodotto) non compariva in
+    # pagina 1 (paginate_by=9) nonostante ci stesse per posizione.
+    def test_prodotto_ha_ordinamento_di_default_per_codice(self):
+        self.assertEqual(Prodotto._meta.ordering, ['codice_prodotto'])
+
+    def test_dettaglio_categoria_elenca_i_prodotti_in_ordine_di_codice(self):
+        categoria = Categoria.objects.create(nome_categoria="Carta")
+        Prodotto.objects.bulk_create([
+            Prodotto(codice_prodotto="D0192", nome_prodotto="Prodotto Ultimo", unita_di_misura="PZ", categoria=categoria),
+            Prodotto(codice_prodotto="D0057", nome_prodotto="Prodotto Primo", unita_di_misura="PZ", categoria=categoria),
+        ])
+        response = self.client.get(reverse('dettaglio_categoria', args=[categoria.pk]))
+        contenuto = response.content.decode()
+        self.assertLess(contenuto.index("Prodotto Primo"), contenuto.index("Prodotto Ultimo"))

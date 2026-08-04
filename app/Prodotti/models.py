@@ -78,6 +78,7 @@ class Prodotto(models.Model):
         db_table="Prodotto"
         verbose_name = "Prodotto"
         verbose_name_plural ="Prodotti"
+        ordering = ['codice_prodotto']
 
 
 class ImmaginiArticolo(models.Model):
