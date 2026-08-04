@@ -1,16 +1,27 @@
 // Upload manuale dell'immagine di un prodotto dalla dashboard admin:
-// invio via fetch (niente reload pagina), la riga sparisce dalla
-// tabella in caso di successo - stesso pattern gia' usato in
-// gestione-avvisi.js (token CSRF letto da un campo nascosto gia'
-// presente nella pagina)
+// click su una riga apre un pop-up con anteprima (FileReader, lato
+// client, nessuna richiesta di rete) prima di confermare l'upload via
+// fetch - stesso pattern AJAX gia' usato in gestione-avvisi.js (token
+// CSRF letto da un campo nascosto gia' presente nella pagina)
 (function () {
     var tabellaContainer = document.getElementById('corpo-tabella-prodotti-senza-immagine');
     var tabella = document.getElementById('tabella-prodotti-senza-immagine');
     var messaggioVuoto = document.getElementById('messaggio-nessun-prodotto');
     var formCsrf = document.getElementById('csrf-dashboard-prodotti');
-    if (!tabellaContainer || !tabella || !messaggioVuoto || !formCsrf) {
+    var modalEl = document.getElementById('modalCaricaImmagineProdotto');
+    var modalInfo = document.getElementById('modalCaricaImmagineProdottoInfo');
+    var input = document.getElementById('inputImmagineProdottoModal');
+    var btnScegli = document.getElementById('btnScegliImmagineProdotto');
+    var previewContainer = document.getElementById('previewImmagineProdottoContainer');
+    var preview = document.getElementById('previewImmagineProdotto');
+    var errore = document.getElementById('erroreCaricaImmagineProdotto');
+    var btnConferma = document.getElementById('btnConfermaCaricaImmagineProdotto');
+    if (!tabellaContainer || !tabella || !messaggioVuoto || !formCsrf || !modalEl || !modalInfo
+        || !input || !btnScegli || !previewContainer || !preview || !errore || !btnConferma) {
         return;
     }
+    var modalBootstrap = new bootstrap.Modal(modalEl);
+    var rigaCorrente = null;
 
     function tokenCsrf() {
         var tokenInput = formCsrf.querySelector('[name=csrfmiddlewaretoken]');
@@ -18,24 +29,48 @@
     }
 
     tabellaContainer.addEventListener('click', function (event) {
-        var bottone = event.target.closest('.btn-carica-immagine-prodotto');
-        if (!bottone) {
+        var riga = event.target.closest('tr');
+        if (!riga) {
             return;
         }
-        var riga = bottone.closest('tr');
-        var input = riga.querySelector('.input-immagine-prodotto');
-        var errore = riga.querySelector('.errore-upload-prodotto');
+        rigaCorrente = riga;
+        modalInfo.textContent = riga.dataset.nome + ' (' + riga.dataset.codice + ')';
+        input.value = '';
+        preview.src = '';
+        previewContainer.classList.add('d-none');
+        errore.textContent = '';
+        btnConferma.disabled = true;
+        btnConferma.dataset.urlCarica = riga.dataset.urlCarica;
+        modalBootstrap.show();
+    });
+
+    btnScegli.addEventListener('click', function () {
+        input.click();
+    });
+
+    input.addEventListener('change', function () {
         if (!input.files.length) {
-            errore.textContent = 'Seleziona un file prima di caricare.';
             return;
         }
         errore.textContent = '';
+        var lettore = new FileReader();
+        lettore.onload = function () {
+            preview.src = lettore.result;
+            previewContainer.classList.remove('d-none');
+            btnConferma.disabled = false;
+        };
+        lettore.readAsDataURL(input.files[0]);
+    });
 
+    btnConferma.addEventListener('click', function () {
+        if (!input.files.length || !rigaCorrente) {
+            return;
+        }
         var corpo = new FormData();
         corpo.append('csrfmiddlewaretoken', tokenCsrf());
         corpo.append('immagine', input.files[0]);
 
-        fetch(bottone.dataset.urlCarica, {
+        fetch(btnConferma.dataset.urlCarica, {
             method: 'POST',
             body: corpo,
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
@@ -48,7 +83,10 @@
                     errore.textContent = dati.error || 'Caricamento fallito.';
                     return;
                 }
-                riga.remove();
+                modalBootstrap.hide();
+                var rigaDaRimuovere = rigaCorrente;
+                rigaCorrente = null;
+                rigaDaRimuovere.remove();
                 if (!tabellaContainer.querySelector('tr')) {
                     tabella.classList.add('d-none');
                     messaggioVuoto.classList.remove('d-none');
