@@ -101,7 +101,7 @@ class DashboardProdottiSenzaImmagineViewTest(TestCase):
         ])
         self.client.force_login(self.staff)
         response = self.client.get(reverse("dashboard_prodotti_senza_immagine"))
-        self.assertContains(response, "Detersivi")
+        self.assertContains(response, '<th scope="col">Categoria</th>')
         self.assertContains(response, "Sgrassatori")
 
     def test_prodotto_senza_categoria_ne_sottocategoria_mostra_trattino(self):
@@ -111,7 +111,7 @@ class DashboardProdottiSenzaImmagineViewTest(TestCase):
         self.client.force_login(self.staff)
         response = self.client.get(reverse("dashboard_prodotti_senza_immagine"))
         self.assertContains(response, "Prodotto senza categoria")
-        self.assertContains(response, "<td>-</td>")
+        self.assertEqual(response.content.decode().count("<td>-</td>"), 2)
 
 
 import tempfile

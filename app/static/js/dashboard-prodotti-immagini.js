@@ -28,11 +28,7 @@
         return tokenInput ? tokenInput.value : '';
     }
 
-    tabellaContainer.addEventListener('click', function (event) {
-        var riga = event.target.closest('tr');
-        if (!riga) {
-            return;
-        }
+    function apriModal(riga) {
         rigaCorrente = riga;
         modalInfo.textContent = riga.dataset.nome + ' (' + riga.dataset.codice + ')';
         input.value = '';
@@ -42,6 +38,26 @@
         btnConferma.disabled = true;
         btnConferma.dataset.urlCarica = riga.dataset.urlCarica;
         modalBootstrap.show();
+    }
+
+    tabellaContainer.addEventListener('click', function (event) {
+        var riga = event.target.closest('tr');
+        if (!riga) {
+            return;
+        }
+        apriModal(riga);
+    });
+
+    tabellaContainer.addEventListener('keydown', function (event) {
+        if (event.key !== 'Enter' && event.key !== ' ') {
+            return;
+        }
+        var riga = event.target.closest('tr');
+        if (!riga) {
+            return;
+        }
+        event.preventDefault();
+        apriModal(riga);
     });
 
     btnScegli.addEventListener('click', function () {
@@ -59,6 +75,9 @@
             previewContainer.classList.remove('d-none');
             btnConferma.disabled = false;
         };
+        lettore.onerror = function () {
+            errore.textContent = 'Impossibile leggere il file, riprova.';
+        };
         lettore.readAsDataURL(input.files[0]);
     });
 
@@ -69,6 +88,8 @@
         var corpo = new FormData();
         corpo.append('csrfmiddlewaretoken', tokenCsrf());
         corpo.append('immagine', input.files[0]);
+
+        btnConferma.disabled = true;
 
         fetch(btnConferma.dataset.urlCarica, {
             method: 'POST',
@@ -81,6 +102,7 @@
             .then(function (dati) {
                 if (!dati.ok) {
                     errore.textContent = dati.error || 'Caricamento fallito.';
+                    btnConferma.disabled = false;
                     return;
                 }
                 modalBootstrap.hide();
@@ -94,6 +116,7 @@
             })
             .catch(function () {
                 errore.textContent = 'Errore di rete, riprova.';
+                btnConferma.disabled = false;
             });
     });
 })();

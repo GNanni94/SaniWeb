@@ -29,7 +29,7 @@
                         data-codice="{{ prodotto.codice_prodotto }}"
                         data-nome="{{ prodotto.nome_prodotto }}"
                         data-url-carica="{% url 'carica_immagine_prodotto' prodotto.pk %}"
-                        role="button"
+                        tabindex="0"
                         style="cursor: pointer;">
                         <td>{{ prodotto.codice_prodotto }}</td>
                         <td>{{ prodotto.nome_prodotto }}</td>
@@ -45,7 +45,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalCaricaImmagineProdotto" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalCaricaImmagineProdotto" tabindex="-1" aria-hidden="true" aria-labelledby="modalCaricaImmagineProdottoTitolo">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
