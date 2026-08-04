@@ -1,14 +1,25 @@
 <div id="tabella-avvisi">
   {% if avvisi %}
   <div class="table-responsive">
-    <table class="table table-striped align-middle">
+    {% comment %}
+    Niente "table-bordered" qui: applicarlo all'intera tabella e poi
+    togliere il bordo solo alla cella Azioni con "border-0" non basta,
+    perche' la riga orizzontale della <tr> e il bordo della cella Stato
+    accanto restano visibili comunque. Il bordo viene invece aggiunto a
+    mano (utility "border" di Bootstrap) solo alle celle delle 4 colonne
+    vere. La colonna Azioni ha comunque bisogno di "border-0": la classe
+    base ".table" di Bootstrap (indipendente da "table-bordered") imposta
+    di suo un bordo inferiore su ogni cella della tabella, quindi va
+    azzerato esplicitamente anche qui.
+    {% endcomment %}
+    <table class="table table-sm table-hover text-center align-middle">
       <thead>
         <tr>
-          <th scope="col">Data inizio</th>
-          <th scope="col">Data fine</th>
-          <th scope="col">Motivo</th>
-          <th scope="col">Attivo</th>
-          <th scope="col">Azioni</th>
+          <th scope="col" class="border">Inizio</th>
+          <th scope="col" class="border">Fine</th>
+          <th scope="col" class="border">Motivo</th>
+          <th scope="col" class="border-0 bg-transparent text-nowrap" style="width: 1%;"></th>
+          <th scope="col" class="border-0 bg-transparent text-nowrap" style="width: 1%;"></th>
         </tr>
       </thead>
       <tbody>
@@ -18,20 +29,24 @@
             data-data-fine="{{ avviso.data_fine|date:'Y-m-d' }}"
             data-motivo="{{ avviso.motivo_chiusura }}"
             data-attivo="{{ avviso.attivo|yesno:'true,false' }}">
-          <td>{{ avviso.data_inizio }}</td>
-          <td>{{ avviso.data_fine }}</td>
-          <td>{{ avviso.motivo_chiusura }}</td>
-          <td>
-            <div class="form-check form-switch">
+          <td class="border">{{ avviso.data_inizio|date:"d F" }}</td>
+          <td class="border">{{ avviso.data_fine|date:"d F" }}</td>
+          <td class="border">{{ avviso.motivo_chiusura }}</td>
+          <td class="border-0 bg-transparent">
+            <div class="form-check form-switch d-flex justify-content-center">
               <input class="form-check-input toggle-attivo-avviso" type="checkbox" role="switch"
                      data-url-toggle="{% url 'toggle_avviso' avviso.pk %}"
                      {% if avviso.attivo %}checked{% endif %}
                      aria-label="Attivo">
             </div>
           </td>
-          <td>
-            <button type="button" class="btn btn-sm btn-outline-primary btn-modifica-avviso" data-url-modifica="{% url 'modifica_avviso' avviso.pk %}">Modifica</button>
-            <button type="button" class="btn btn-sm btn-outline-danger btn-elimina-avviso" data-url-elimina="{% url 'elimina_avviso' avviso.pk %}">Elimina</button>
+          <td class="border-0 bg-transparent text-nowrap" style="width: 1%;">
+            <button type="button" class="btn btn-sm btn-outline-navbar btn-modifica-avviso" data-url-modifica="{% url 'modifica_avviso' avviso.pk %}" title="Modifica" aria-label="Modifica">
+              <i class="bi bi-pencil-square"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger btn-elimina-avviso" data-url-elimina="{% url 'elimina_avviso' avviso.pk %}" title="Elimina" aria-label="Elimina">
+              <i class="bi bi-trash"></i>
+            </button>
           </td>
         </tr>
         {% endfor %}
