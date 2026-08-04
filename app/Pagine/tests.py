@@ -85,6 +85,51 @@ class DashboardProdottiSenzaImmagineViewTest(TestCase):
         response = self.client.get(reverse("dashboard_prodotti_senza_immagine"))
         self.assertContains(response, "Nessun prodotto senza immagine.")
 
+    def test_prodotto_chimico_gruppo_zero_non_compare_in_lista(self):
+        categoria_chimici = Categoria.objects.create(nome_categoria="Prodotti Chimici")
+        Prodotto.objects.bulk_create([
+            Prodotto(
+                codice_prodotto="C027",
+                nome_prodotto="Chimico gruppo zero",
+                unita_di_misura="LT",
+                categoria=categoria_chimici,
+                gruppo=0,
+            ),
+        ])
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("dashboard_prodotti_senza_immagine"))
+        self.assertNotContains(response, "Chimico gruppo zero")
+
+    def test_prodotto_chimico_gruppo_vuoto_non_compare_in_lista(self):
+        categoria_chimici = Categoria.objects.create(nome_categoria="Prodotti Chimici")
+        Prodotto.objects.bulk_create([
+            Prodotto(
+                codice_prodotto="C029",
+                nome_prodotto="Chimico gruppo vuoto",
+                unita_di_misura="LT",
+                categoria=categoria_chimici,
+                gruppo=None,
+            ),
+        ])
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("dashboard_prodotti_senza_immagine"))
+        self.assertNotContains(response, "Chimico gruppo vuoto")
+
+    def test_prodotto_chimico_gruppo_diverso_da_zero_compare_in_lista(self):
+        categoria_chimici = Categoria.objects.create(nome_categoria="Prodotti Chimici")
+        Prodotto.objects.bulk_create([
+            Prodotto(
+                codice_prodotto="C028",
+                nome_prodotto="Chimico gruppo uno",
+                unita_di_misura="LT",
+                categoria=categoria_chimici,
+                gruppo=1,
+            ),
+        ])
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("dashboard_prodotti_senza_immagine"))
+        self.assertContains(response, "Chimico gruppo uno")
+
     def test_categoria_e_sottocategoria_compaiono_in_lista(self):
         sottocategoria = Sottocategoria(
             nome_sottocategoria="Sgrassatori", categoria=self.categoria, codice_sottocategoria=101
@@ -101,7 +146,7 @@ class DashboardProdottiSenzaImmagineViewTest(TestCase):
         ])
         self.client.force_login(self.staff)
         response = self.client.get(reverse("dashboard_prodotti_senza_immagine"))
-        self.assertContains(response, '<th scope="col">Categoria</th>')
+        self.assertContains(response, 'id="colonnaCategoria"')
         self.assertContains(response, "Sgrassatori")
 
     def test_prodotto_senza_categoria_ne_sottocategoria_mostra_trattino(self):
@@ -289,13 +334,19 @@ class DashboardProdottiSenzaImmagineContrattoJsTest(TestCase):
         self.assertContains(response, 'data-url-carica="')
         self.assertContains(response, 'data-codice="')
         self.assertContains(response, 'data-nome="')
+        self.assertContains(response, 'data-unita-di-misura="')
+        self.assertContains(response, 'data-descrizione="')
         self.assertContains(response, 'id="modalCaricaImmagineProdotto"')
         self.assertContains(response, 'id="modalCaricaImmagineProdottoTitolo"')
-        self.assertContains(response, 'id="modalCaricaImmagineProdottoInfo"')
         self.assertContains(response, 'id="inputImmagineProdottoModal"')
         self.assertContains(response, 'id="btnScegliImmagineProdotto"')
-        self.assertContains(response, 'id="previewImmagineProdottoContainer"')
+        self.assertContains(response, 'id="previewProdottoCodice"')
+        self.assertContains(response, 'id="previewProdottoUnita"')
+        self.assertContains(response, 'id="previewProdottoTitolo"')
+        self.assertContains(response, 'id="previewProdottoDescrizione"')
         self.assertContains(response, 'id="previewImmagineProdotto"')
+        self.assertContains(response, 'data-default-src="')
+        self.assertContains(response, 'id="colonnaCategoria"')
         self.assertContains(response, 'id="erroreCaricaImmagineProdotto"')
         self.assertContains(response, 'id="btnConfermaCaricaImmagineProdotto"')
         self.assertContains(response, 'dashboard-prodotti-immagini.js')

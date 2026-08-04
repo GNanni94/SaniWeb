@@ -19,7 +19,7 @@
                     <tr>
                         <th scope="col">Codice</th>
                         <th scope="col">Nome</th>
-                        <th scope="col">Categoria</th>
+                        <th scope="col" id="colonnaCategoria" tabindex="0" aria-sort="none" style="cursor: pointer;">Categoria <i class="bi bi-arrow-down-up" aria-hidden="true"></i></th>
                         <th scope="col">Sottocategoria</th>
                     </tr>
                 </thead>
@@ -28,6 +28,8 @@
                     <tr data-pk="{{ prodotto.pk }}"
                         data-codice="{{ prodotto.codice_prodotto }}"
                         data-nome="{{ prodotto.nome_prodotto }}"
+                        data-unita-di-misura="{{ prodotto.unita_di_misura }}"
+                        data-descrizione="{{ prodotto.descrizione|default:'' }}"
                         data-url-carica="{% url 'carica_immagine_prodotto' prodotto.pk %}"
                         tabindex="0"
                         style="cursor: pointer;">
@@ -47,25 +49,43 @@
 
 <div class="modal fade" id="modalCaricaImmagineProdotto" tabindex="-1" aria-hidden="true" aria-labelledby="modalCaricaImmagineProdottoTitolo">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
+    <div class="modal-content" style="border: 2px solid var(--color-primary);">
       <div class="modal-header">
         <h5 class="modal-title" id="modalCaricaImmagineProdottoTitolo">Carica immagine</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
       </div>
       <div class="modal-body">
-        <p class="mb-3" id="modalCaricaImmagineProdottoInfo"></p>
-
         <input type="file" accept="image/*" class="d-none" id="inputImmagineProdottoModal">
-        <button type="button" class="btn btn-navbar" id="btnScegliImmagineProdotto">Scegli immagine</button>
-
-        <div class="mt-3 text-center d-none" id="previewImmagineProdottoContainer">
-          <img id="previewImmagineProdotto" class="img-fluid rounded" style="max-height: 200px;" alt="Anteprima">
+        <div class="d-flex justify-content-between mb-3">
+          <button type="button" class="btn btn-navbar" id="btnScegliImmagineProdotto">Scegli immagine</button>
+          <button type="button" class="btn btn-navbar" id="btnConfermaCaricaImmagineProdotto" disabled>Conferma</button>
         </div>
 
-        <div class="text-danger small mt-2" id="erroreCaricaImmagineProdotto"></div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-navbar" id="btnConfermaCaricaImmagineProdotto" disabled>Conferma</button>
+        <div class="text-danger small mb-2" id="erroreCaricaImmagineProdotto"></div>
+
+        {% comment %}
+        Stessa card del catalogo (partials/griglia_prodotti.html,
+        classi definite in prodotti.css, gia' caricato in ogni pagina
+        via base.html): la preview non e' un'immagine isolata ma
+        l'anteprima della card cosi' com'e' vista dal cliente. Lo slot
+        immagine mostra da subito il placeholder di default (quello che
+        il prodotto ha davvero finche' non gli viene caricata un'immagine
+        propria), sostituito dall'anteprima del file scelto una volta
+        selezionato.
+        {% endcomment %}
+        <div class="card card-prodotto mx-auto" style="max-width: 260px;">
+          <div class="card-prodotto-img-wrap">
+            <img id="previewImmagineProdotto" class="card-img-top" src="{{ default_immagine_articolo }}" data-default-src="{{ default_immagine_articolo }}" alt="Anteprima">
+          </div>
+          <div class="card-body card-prodotto-body">
+            <div class="card-prodotto-riga-codice">
+              <span class="card-prodotto-codice" id="previewProdottoCodice"></span>
+              <span class="card-prodotto-badge-unita" id="previewProdottoUnita"></span>
+            </div>
+            <h3 class="card-prodotto-titolo" id="previewProdottoTitolo"></h3>
+            <p class="card-prodotto-descrizione text-muted d-none" id="previewProdottoDescrizione"></p>
+          </div>
+        </div>
       </div>
     </div>
   </div>

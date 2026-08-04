@@ -50,8 +50,14 @@ def dashboard_prodotti_senza_immagine(request):
         | Q(immagine_rel__immagine=DEFAULT_IMMAGINE_ARTICOLO)
         | Q(immagine_rel__immagine='')
         | Q(immagine_rel__immagine__isnull=True)
+    ).exclude(
+        Q(categoria__nome_categoria__iexact="prodotti chimici")
+        & (Q(gruppo=0) | Q(gruppo__isnull=True))
     ).order_by('codice_prodotto')
-    return render(request, 'dashboard_prodotti_senza_immagine.html', {'prodotti': prodotti})
+    return render(request, 'dashboard_prodotti_senza_immagine.html', {
+        'prodotti': prodotti,
+        'default_immagine_articolo': DEFAULT_IMMAGINE_ARTICOLO,
+    })
 
 
 @dashboard_richiesto
