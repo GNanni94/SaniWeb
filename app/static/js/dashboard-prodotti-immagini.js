@@ -130,40 +130,47 @@
             });
     });
 
-    // Ordinamento per colonna Categoria: indipendente dal resto (guardia
-    // separata), cosi' se questo elemento manca il resto della pagina
-    // (apertura del pop-up, upload) continua a funzionare comunque.
-    var colonnaCategoria = document.getElementById('colonnaCategoria');
-    if (colonnaCategoria) {
-        var ordineCategoriaAscendente = true;
+    // Ordinamento per colonna (Codice, Categoria, ...): ogni colonna
+    // ordinabile e' indipendente dal resto (guardia separata sull'elemento),
+    // cosi' se uno di questi header manca il resto della pagina (apertura
+    // del pop-up, upload) continua a funzionare comunque.
+    function abilitaOrdinamentoColonna(idIntestazione, indiceColonna) {
+        var intestazione = document.getElementById(idIntestazione);
+        if (!intestazione) {
+            return;
+        }
+        var ascendente = true;
 
-        function ordinaPerCategoria() {
+        function ordina() {
             var righe = Array.prototype.slice.call(tabellaContainer.querySelectorAll('tr'));
             righe.sort(function (a, b) {
-                var categoriaA = a.children[2].textContent.trim().toLowerCase();
-                var categoriaB = b.children[2].textContent.trim().toLowerCase();
-                if (categoriaA < categoriaB) {
-                    return ordineCategoriaAscendente ? -1 : 1;
+                var valoreA = a.children[indiceColonna].textContent.trim().toLowerCase();
+                var valoreB = b.children[indiceColonna].textContent.trim().toLowerCase();
+                if (valoreA < valoreB) {
+                    return ascendente ? -1 : 1;
                 }
-                if (categoriaA > categoriaB) {
-                    return ordineCategoriaAscendente ? 1 : -1;
+                if (valoreA > valoreB) {
+                    return ascendente ? 1 : -1;
                 }
                 return 0;
             });
             righe.forEach(function (riga) {
                 tabellaContainer.appendChild(riga);
             });
-            colonnaCategoria.setAttribute('aria-sort', ordineCategoriaAscendente ? 'ascending' : 'descending');
-            ordineCategoriaAscendente = !ordineCategoriaAscendente;
+            intestazione.setAttribute('aria-sort', ascendente ? 'ascending' : 'descending');
+            ascendente = !ascendente;
         }
 
-        colonnaCategoria.addEventListener('click', ordinaPerCategoria);
-        colonnaCategoria.addEventListener('keydown', function (event) {
+        intestazione.addEventListener('click', ordina);
+        intestazione.addEventListener('keydown', function (event) {
             if (event.key !== 'Enter' && event.key !== ' ') {
                 return;
             }
             event.preventDefault();
-            ordinaPerCategoria();
+            ordina();
         });
     }
+
+    abilitaOrdinamentoColonna('colonnaCodice', 0);
+    abilitaOrdinamentoColonna('colonnaCategoria', 2);
 })();

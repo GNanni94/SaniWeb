@@ -346,6 +346,7 @@ class DashboardProdottiSenzaImmagineContrattoJsTest(TestCase):
         self.assertContains(response, 'id="previewProdottoDescrizione"')
         self.assertContains(response, 'id="previewImmagineProdotto"')
         self.assertContains(response, 'data-default-src="')
+        self.assertContains(response, 'id="colonnaCodice"')
         self.assertContains(response, 'id="colonnaCategoria"')
         self.assertContains(response, 'id="erroreCaricaImmagineProdotto"')
         self.assertContains(response, 'id="btnConfermaCaricaImmagineProdotto"')
