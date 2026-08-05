@@ -40,11 +40,22 @@ document.addEventListener('click', function (event) {
             if (!response.ok) {
                 throw new Error('Errore aggiunta al carrello');
             }
-            link.innerHTML = '<i class="bi bi-check-lg"></i> Aggiunto';
-            setTimeout(function () {
-                link.innerHTML = originalHTML;
-                link.dataset.aggiungiInCorso = 'false';
-            }, 1200);
+            return response.text().then(function (html) {
+                // Il corpo della risposta e' ora il widget del carrello
+                // fluttuante gia' aggiornato (vedi
+                // "aggiungi_prodotti_al_carrello" in Carrello/views.py):
+                // lo si passa a carrello-flottante.js, che sostituisce il
+                // contenitore - stesso identico meccanismo usato quando
+                // l'azione parte dal pannello stesso
+                if (window.aggiornaCarrelloFlottante) {
+                    window.aggiornaCarrelloFlottante(html);
+                }
+                link.innerHTML = '<i class="bi bi-check-lg"></i> Aggiunto';
+                setTimeout(function () {
+                    link.innerHTML = originalHTML;
+                    link.dataset.aggiungiInCorso = 'false';
+                }, 1200);
+            });
         })
         .catch(function () {
             // Fallback: se la richiesta in background fallisce, si naviga
