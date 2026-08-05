@@ -12,10 +12,18 @@ from typing import Any, Dict
 from Preventivo.forms import DettaglioPreventivoForm
 from Preventivo.models import Preventivo, Dettaglio_Preventivo, Elementi_Preventivo
 from .forms import CarrelloForm
+from .context_processors import carrello_ha_prodotti as contesto_widget_carrello
 import json
 import logging
 
 logger = logging.getLogger(__name__)
+
+def _e_richiesta_in_background(request):
+    return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+
+def _render_widget_carrello_flottante(request):
+    return render(request, 'partials/carrello_flottante.html', contesto_widget_carrello(request))
 
 # Create your views here.
 class CarrelloListView(LoginRequiredMixin, ListView):
@@ -59,6 +67,8 @@ def aggiungi_prodotti_al_carrello(request, prodottoId):
         elemento_carrello.quantita += 1
         elemento_carrello.save()
         messages.success(request, 'Carrello aggiornato!')
+        if _e_richiesta_in_background(request):
+            return _render_widget_carrello_flottante(request)
         # Torna alla pagina di provenienza (stessa pagina di paginazione/
         # ricerca/sottocategoria, con l'ancora sul prodotto appena aggiunto)
         # invece che sempre alla pagina base della categoria: altrimenti si
@@ -73,7 +83,7 @@ def aggiungi_prodotti_al_carrello(request, prodottoId):
     # lato JS da un'aggiunta riuscita. Un 401 esplicito, mai un codice di
     # successo, elimina l'ambiguita' e lascia al JS decidere cosa fare
     # (portare l'utente al login)
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+    if _e_richiesta_in_background(request):
         return HttpResponse(status=401)
     return redirect('login')
 
@@ -86,6 +96,8 @@ def elimina_elementi_dal_carrello(request, carrelloId):
         # l'elemento di carrello di un altro cliente
         Carrello.objects.filter(id = carrelloId, cliente = request.user).delete()
         logger.info(f"Effettuata richiesta eliminazione elemento carrello {carrelloId} utente {request.user.pk}")
+    if _e_richiesta_in_background(request):
+        return _render_widget_carrello_flottante(request)
     return redirect('carrello')
 
 @require_POST
@@ -122,7 +134,9 @@ def aumenta_quantita_carrello(request, carrelloId):
         elemento_carrello.quantita += 1
         elemento_carrello.save()
         logger.info(f"Effettuata richiesta aumento quantita prodotto {elemento_carrello.prodotto.pk} carrello {carrelloId} utente {request.user.pk}")
-    return redirect('carrello')      
+    if _e_richiesta_in_background(request):
+        return _render_widget_carrello_flottante(request)
+    return redirect('carrello')
 
 
 @require_POST
@@ -138,5 +152,7 @@ def diminuisci_quantita_carrello(request, carrelloId):
             elemento_carrello.quantita -= 1
             elemento_carrello.save()
         logger.info(f"Effettuata richiesta aumento quantita prodotto {elemento_carrello.prodotto.pk} carrello {carrelloId} utente {request.user.pk}")
-        
-    return redirect('carrello')      
+
+    if _e_richiesta_in_background(request):
+        return _render_widget_carrello_flottante(request)
+    return redirect('carrello')

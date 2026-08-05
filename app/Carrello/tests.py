@@ -90,3 +90,65 @@ class CarrelloFlottanteWidgetTest(TestCase):
         self.client.force_login(self.utente)
         response = self.client.get(reverse("carrello"))
         self.assertNotContains(response, 'id="carrelloFlottante"')
+
+
+class CarrelloFlottanteAjaxViewsTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.utente = User.objects.create_user(
+            username="utenteflottante3", email="utenteflottante3@example.com", password="testpass123"
+        )
+        self.categoria = Categoria.objects.create(nome_categoria="Detersivi")
+        Prodotto.objects.bulk_create([
+            Prodotto(codice_prodotto="F003", nome_prodotto="Sgrassatore forte", unita_di_misura="LT", categoria=self.categoria),
+        ])
+        self.prodotto = Prodotto.objects.get(codice_prodotto="F003")
+        self.client.force_login(self.utente)
+
+    def test_aggiungi_con_ajax_restituisce_widget_aggiornato(self):
+        response = self.client.get(
+            reverse("aggiungi_prodotti", args=[self.prodotto.pk]),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Sgrassatore forte")
+        self.assertContains(response, 'id="badgeCarrelloFlottante"')
+
+    def test_aggiungi_senza_ajax_continua_a_fare_redirect(self):
+        response = self.client.get(reverse("aggiungi_prodotti", args=[self.prodotto.pk]))
+        self.assertEqual(response.status_code, 302)
+
+    def test_elimina_con_ajax_restituisce_widget_vuoto(self):
+        elemento = Carrello.objects.create(cliente=self.utente, prodotto=self.prodotto, quantita=1)
+        response = self.client.post(
+            reverse("elimina_prodotti", args=[elemento.pk]),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'id="carrelloFlottante"')
+
+    def test_elimina_senza_ajax_continua_a_fare_redirect(self):
+        elemento = Carrello.objects.create(cliente=self.utente, prodotto=self.prodotto, quantita=1)
+        response = self.client.post(reverse("elimina_prodotti", args=[elemento.pk]))
+        self.assertRedirects(response, reverse("carrello"))
+
+    def test_aumenta_con_ajax_restituisce_quantita_aggiornata(self):
+        elemento = Carrello.objects.create(cliente=self.utente, prodotto=self.prodotto, quantita=1)
+        response = self.client.post(
+            reverse("aumenta_quantita", args=[elemento.pk]),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, ">2<")
+        elemento.refresh_from_db()
+        self.assertEqual(elemento.quantita, 2)
+
+    def test_diminuisci_con_ajax_sotto_1_rimuove_e_svuota_widget(self):
+        elemento = Carrello.objects.create(cliente=self.utente, prodotto=self.prodotto, quantita=1)
+        response = self.client.post(
+            reverse("diminuisci_quantita", args=[elemento.pk]),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'id="carrelloFlottante"')
+        self.assertFalse(Carrello.objects.filter(pk=elemento.pk).exists())
