@@ -96,8 +96,15 @@ def elimina_elementi_dal_carrello(request, carrelloId):
         # l'elemento di carrello di un altro cliente
         Carrello.objects.filter(id = carrelloId, cliente = request.user).delete()
         logger.info(f"Effettuata richiesta eliminazione elemento carrello {carrelloId} utente {request.user.pk}")
+        if _e_richiesta_in_background(request):
+            return _render_widget_carrello_flottante(request)
+        return redirect('carrello')
+    # Utente anonimo (es. sessione scaduta a pagina aperta) + richiesta in
+    # background: stesso ragionamento di "aggiungi_prodotti_al_carrello" qui
+    # sopra - un 401 esplicito evita che "fetch" scambi per un successo una
+    # risposta 200 col widget carrello vuoto (nulla e' stato eliminato)
     if _e_richiesta_in_background(request):
-        return _render_widget_carrello_flottante(request)
+        return HttpResponse(status=401)
     return redirect('carrello')
 
 @require_POST

@@ -137,7 +137,7 @@
     logo+titolo (centro) / icona profilo (destra, sempre visibile, fuori dal
     menu hamburger) - da qui gli "order-*" su questi 3 elementi + sul menu
     collassabile sotto. Da desktop (xxl+, navbar-toggler nascosto di suo da
-    Bootstrap) l'ordine torna quello originale: logo, poi link+Preventivo,
+    Bootstrap) l'ordine torna quello originale: logo, poi link,
     poi profilo, tutti sulla stessa riga (vedi "order-xxl-*")
     {% endcomment %}
     <button class="navbar-toggler order-1" type="button" data-bs-toggle="collapse"
@@ -166,9 +166,9 @@
     mezzo. Contenuto diverso in base al login:
     - anonimo: Login/Registrati, visibili solo da telefono (d-xxl-none) -
       da desktop restano dove erano prima, dentro il menu hamburger
-    - autenticato: bottone Preventivo (solo icona, nuovo, visibile solo da
-      telefono) a sinistra dell'icona profilo (quella invece era gia'
-      sempre visibile, invariata)
+    - autenticato: solo l'icona profilo (sempre visibile, invariata) -
+      il carrello e' invece il widget flottante a parte (vedi
+      "partials/carrello_flottante.html"), non fa parte di questo wrapper
     {% endcomment %}
     <div class="d-flex align-items-center gap-2 order-3 order-xxl-3">
     {% if not user.is_authenticated %}
@@ -250,9 +250,7 @@
 
       <span class="navbar-text d-none d-xxl-inline">
 
-				{% if user.is_authenticated %}
-
-				{% else %}
+				{% if not user.is_authenticated %}
 
 				<div class="d-none d-xxl-inline-flex gap-3">
 					<a href="{% url 'login' %}" class="btn btn-light-custom">

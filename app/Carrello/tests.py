@@ -152,3 +152,17 @@ class CarrelloFlottanteAjaxViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'id="carrelloFlottante"')
         self.assertFalse(Carrello.objects.filter(pk=elemento.pk).exists())
+
+    def test_elimina_anonimo_con_ajax_restituisce_401(self):
+        # Sessione scaduta/utente anonimo + richiesta in background: deve
+        # restituire 401, non il widget vuoto (200) che il JS scambierebbe
+        # per un'eliminazione riuscita senza che nulla sia stato cancellato
+        # (vedi commento in Carrello/views.py:elimina_elementi_dal_carrello)
+        elemento = Carrello.objects.create(cliente=self.utente, prodotto=self.prodotto, quantita=1)
+        self.client.logout()
+        response = self.client.post(
+            reverse("elimina_prodotti", args=[elemento.pk]),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 401)
+        self.assertTrue(Carrello.objects.filter(pk=elemento.pk).exists())

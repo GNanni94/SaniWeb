@@ -32,9 +32,8 @@
 }
 
 /* Variante come ".btn-navbar" ma con bordo bianco invece che dello stesso
-   blu dello sfondo: usata per il bottone "Preventivo" nella navbar
-   (base.html), dove altrimenti (bordo blu su sfondo blu navbar) non
-   si distinguerebbe */
+   blu dello sfondo: per un bottone pieno su sfondo blu navbar, dove
+   altrimenti (bordo blu su sfondo blu navbar) non si distinguerebbe */
 .btn.btn-navbar-bordo-bianco {
   background-color: var(--color-primary);
   border-color: var(--color-text-light);
@@ -65,7 +64,8 @@
 }
 
 /* Sfondo trasparente (si vede il blu della navbar dietro), bordo e testo
-   bianchi - usata per il bottone "Preventivo" nella navbar (base.html) */
+   bianchi - usata per i bottoni Login/Registrati (solo icona, visibili
+   solo da telefono) nella navbar (base.html) */
 .btn.btn-navbar-trasparente {
   background-color: transparent;
   border-color: var(--color-text-light);
