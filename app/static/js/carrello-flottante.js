@@ -19,6 +19,23 @@
         return !!pannello && !pannello.classList.contains('d-none');
     }
 
+    // Il bottone (fisso in basso a destra) prende il bordo bianco non
+    // appena il footer, scorrendo, arriva dietro di lui - da quel punto in
+    // poi il footer resta sempre dietro (e' l'ultimo elemento della
+    // pagina), quindi basta confrontare il bordo superiore del footer con
+    // quello inferiore del bottone, senza bisogno di controllare anche il
+    // bordo inferiore del footer
+    function aggiornaBordoSuFooter() {
+        var bottone = document.getElementById('bottoneCarrelloFlottante');
+        var footer = document.querySelector('.site-footer');
+        if (!bottone || !footer) {
+            return;
+        }
+        var rigaFooter = footer.getBoundingClientRect();
+        var rigaBottone = bottone.getBoundingClientRect();
+        bottone.classList.toggle('su-footer', rigaFooter.top < rigaBottone.bottom);
+    }
+
     window.aggiornaCarrelloFlottante = function (html, mantieniAperto) {
         var eraAperto = mantieniAperto || pannelloAperto();
         container.innerHTML = html;
@@ -28,7 +45,16 @@
                 pannello.classList.remove('d-none');
             }
         }
+        // Il bottone appena inserito parte sempre senza ".su-footer": va
+        // ricalcolato subito, altrimenti resterebbe senza bordo finche' non
+        // arriva il prossimo scroll/resize anche se la pagina e' gia' ferma
+        // sul footer
+        aggiornaBordoSuFooter();
     };
+
+    aggiornaBordoSuFooter();
+    window.addEventListener('scroll', aggiornaBordoSuFooter, { passive: true });
+    window.addEventListener('resize', aggiornaBordoSuFooter);
 
     container.addEventListener('click', function (event) {
         var bottone = event.target.closest('#bottoneCarrelloFlottante');

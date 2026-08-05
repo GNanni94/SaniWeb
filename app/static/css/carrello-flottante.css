@@ -20,6 +20,15 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* Quando il footer (stesso blu scuro della navbar, var(--color-primary-dark)
+   - vedi main.css ".site-footer") scorre dietro al bottone fisso, il blu del
+   bottone (var(--color-primary), molto simile) si confonderebbe con lo
+   sfondo: il bordo bianco lo separa visivamente. Classe attivata via JS
+   (carrello-flottante.js) confrontando le posizioni di bottone e footer */
+#bottoneCarrelloFlottante.su-footer {
+  border: 2px solid var(--color-bg);
+}
+
 #badgeCarrelloFlottante {
   position: absolute;
   top: -0.25rem;
