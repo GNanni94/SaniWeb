@@ -1,0 +1,19 @@
+/* Card dei prodotti nel carrello (carrello.html, dentro #colonnaListaCarrello):
+   bordo dello stesso blu della navbar per farla risaltare, come le altre card
+   con lo stesso trattamento nel sito (dettaglio_preventivo.html,
+   dashboard_admin.html, ecc.) */
+#colonnaListaCarrello .card {
+  border: 2px solid var(--color-primary);
+}
+
+/* Immagine del prodotto nella card del carrello: altezza massima per non far
+   sballare le proporzioni della card quando l'immagine e' molto alta */
+#colonnaListaCarrello .card img {
+  max-height: 170px;
+}
+
+/* Card del form "Richiedi preventivo" nel carrello: stesso bordo blu delle
+   card della lista prodotti qui sopra */
+#cardFormPreventivo {
+  border: 2px solid var(--color-primary);
+}
