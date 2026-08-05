@@ -1,0 +1,42 @@
+/* Bottone e pannello del carrello fluttuante (widget globale, incluso in
+   base.html su tutte le pagine tranne carrello.html): fisso in basso a
+   destra, sopra la navbar (z-index 1030/1031, vedi navbar.css) ma sotto
+   il pop-up dei cookie (z-index 2000, vedi cookiebanner/vanilla.html) -
+   quando il banner cookie e' aperto copre comunque tutto lo schermo (vedi
+   #cookiebannerModal), nascondendo anche questo widget senza bisogno di
+   altri accorgimenti */
+#carrelloFlottante {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1040;
+}
+
+#bottoneCarrelloFlottante {
+  position: relative;
+  width: 3.5rem;
+  height: 3.5rem;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+#badgeCarrelloFlottante {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+}
+
+#pannelloCarrelloFlottante {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.75rem);
+  width: 320px;
+  max-width: calc(100vw - 2rem);
+  max-height: 60vh;
+  overflow-y: auto;
+  background: #fff;
+  border: 2px solid var(--color-primary);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 0 20px 4px rgba(0, 0, 0, 0.2);
+}

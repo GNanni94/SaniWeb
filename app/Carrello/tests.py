@@ -59,3 +59,34 @@ class CarrelloHaProdottiContextProcessorTest(TestCase):
         self.assertFalse(contesto["carrello_ha_prodotti"])
         self.assertEqual(contesto["totale_elementi_carrello"], 0)
         self.assertEqual(list(contesto["elementi_carrello_utente"]), [])
+
+
+class CarrelloFlottanteWidgetTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.utente = User.objects.create_user(
+            username="utenteflottante2", email="utenteflottante2@example.com", password="testpass123"
+        )
+        self.categoria = Categoria.objects.create(nome_categoria="Detersivi")
+        Prodotto.objects.bulk_create([
+            Prodotto(codice_prodotto="F002", nome_prodotto="Detergente multiuso", unita_di_misura="LT", categoria=self.categoria),
+        ])
+        self.prodotto = Prodotto.objects.get(codice_prodotto="F002")
+
+    def test_widget_assente_se_carrello_vuoto(self):
+        self.client.force_login(self.utente)
+        response = self.client.get(reverse("home"))
+        self.assertNotContains(response, 'id="carrelloFlottante"')
+
+    def test_widget_presente_se_carrello_ha_prodotti(self):
+        Carrello.objects.create(cliente=self.utente, prodotto=self.prodotto, quantita=2)
+        self.client.force_login(self.utente)
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, 'id="carrelloFlottante"')
+        self.assertContains(response, "Detergente multiuso")
+
+    def test_widget_assente_sulla_pagina_carrello(self):
+        Carrello.objects.create(cliente=self.utente, prodotto=self.prodotto, quantita=2)
+        self.client.force_login(self.utente)
+        response = self.client.get(reverse("carrello"))
+        self.assertNotContains(response, 'id="carrelloFlottante"')

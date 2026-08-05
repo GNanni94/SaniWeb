@@ -116,6 +116,7 @@
   <link href="{% static 'css/documenti.css' %}" rel="stylesheet" type="text/css" />
   <link href="{% static 'css/form.css' %}" rel="stylesheet" type="text/css" />
   <link href="{% static 'css/carrello.css' %}" rel="stylesheet" type="text/css" />
+  <link href="{% static 'css/carrello-flottante.css' %}" rel="stylesheet" type="text/css" />
   <link href="{% static 'css/contatti.css' %}" rel="stylesheet" type="text/css" />
   <link href="{% static 'css/varie.css' %}" rel="stylesheet" type="text/css" />
   <link href="{% static 'css/navbar.css' %}" rel="stylesheet" type="text/css" />
@@ -179,12 +180,6 @@
         <i class="bi bi-person-plus icona-dimensione-hamburger"></i>
       </a>
     </div>
-    {% endif %}
-
-    {% if user.is_authenticated and carrello_ha_prodotti %}
-    <a href="{% url 'carrello' %}" class="btn btn-navbar-trasparente btn-sm border-0 d-xxl-none" title="Preventivo" aria-label="Preventivo">
-      <i class="bi bi-file-text-fill fs-2"></i>
-    </a>
     {% endif %}
 
     {% if user.is_authenticated %}
@@ -256,21 +251,6 @@
       <span class="navbar-text d-none d-xxl-inline">
 
 				{% if user.is_authenticated %}
-
-					{% comment %}
-					Visibile solo da desktop (d-none d-xxl-inline-flex): da telefono
-					c'e' gia' la versione solo-icona sempre visibile a sinistra
-					dell'icona profilo (vedi sopra) - qui altrimenti comparirebbe
-					una seconda volta aprendo il menu hamburger. Mostrato solo se il
-					carrello ha almeno un prodotto (carrello_ha_prodotti, context
-					processor - vedi Carrello/context_processors.py)
-					{% endcomment %}
-					{% if carrello_ha_prodotti %}
-					<a href="{% url 'carrello' %}" class="btn btn-navbar-trasparente ms-xxl-3 me-3 d-none d-xxl-inline-flex align-items-center gap-2">
-            <i class="bi bi-file-text"></i>
-            Preventivo
-					</a>
-					{% endif %}
 
 				{% else %}
 
@@ -381,6 +361,12 @@
       <div class="footer-copyright text-center py-5">© Saniscope-chimica</div>
     </div>
   </footer>
+
+  <div id="carrelloFlottanteContainer">
+    {% if request.resolver_match.url_name != 'carrello' %}
+    {% include 'partials/carrello_flottante.html' %}
+    {% endif %}
+  </div>
 
 {% cookiebanner_modal 'vanilla' %}
 
