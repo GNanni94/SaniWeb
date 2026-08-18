@@ -1,4 +1,4 @@
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm, PasswordResetForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm
 from django.forms import ModelForm
 from .models import Cliente, Messaggi, Registrati
 from phonenumber_field.formfields import PhoneNumberField
@@ -117,17 +117,50 @@ class ClienteCreationForm(UserCreationForm):
 
 
 
-class ClienteChangeForm(UserChangeForm):
+class ProfiloForm(ModelForm):
     class Meta:
         model = Registrati
-        fields = (  
+        fields = (
+            "email",
             "first_name",
             "cognome_ragione_sociale",
             "codiceFiscale_PartitaIVA",
             "indirizzo",
             "citta",
             "telefono",
-        )  
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Email (credenziale di login) e codice fiscale/partita IVA (dato
+        # fiscale, riferito anche dai preventivi gia' emessi - vedi
+        # Preventivo.cliente) non vanno modificati liberamente dal cliente:
+        # "disabled" (non solo "readonly" via HTML) fa si' che Django ignori
+        # anche un eventuale valore diverso inviato manipolando la POST,
+        # usando comunque il valore gia' salvato
+        self.fields["email"].disabled = True
+        self.fields["codiceFiscale_PartitaIVA"].disabled = True
+        # "required" tolto solo qui (il modello resta obbligatorio): un
+        # campo disabled prende comunque sempre il valore gia' salvato,
+        # quindi l'asterisco "obbligatorio" di crispy-forms non avrebbe
+        # senso su un campo che l'utente non puo' lasciare vuoto perche' non
+        # puo' proprio modificarlo
+        self.fields["email"].required = False
+        self.fields["codiceFiscale_PartitaIVA"].required = False
+
+        # Azienda (first_name vuoto, vedi Registrati.is_azienda): "Nome" non
+        # esiste per un'azienda, va disabilitato oltre che nascosto nel
+        # template (profilo.html) - altrimenti resterebbe comunque
+        # modificabile manipolando la POST, facendo risultare l'account
+        # "privato" a sorpresa. "cognome_ragione_sociale" e' lo stesso campo
+        # per entrambe le tipologie, cambia solo l'etichetta mostrata
+        if self.instance.is_azienda:
+            self.fields["first_name"].disabled = True
+            self.fields["first_name"].required = False
+            self.fields["cognome_ragione_sociale"].label = "Ragione sociale"
+        else:
+            self.fields["cognome_ragione_sociale"].label = "Cognome"
+
 
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class':'form-control'}))

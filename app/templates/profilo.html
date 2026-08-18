@@ -18,11 +18,13 @@
                     {{ form.email|as_crispy_field }}
                 </div>
                 
+                {% if not object.is_azienda %}
                 <div class="col-md-6">
                     {{ form.first_name|as_crispy_field }}
                 </div>
-                
-                <div class="col-md-6" >
+                {% endif %}
+
+                <div class="col-12{% if not object.is_azienda %} col-md-6{% endif %}">
                     {{ form.cognome_ragione_sociale|as_crispy_field }}
                 </div>
 
@@ -44,7 +46,7 @@
 
                     
                 <div class="col-12 text-center">
-                    <button class="btn btn-success w-30 "  type="submit">Salva Modifiche</button>
+                    <button class="btn btn-navbar" type="submit">Salva Modifiche</button>
                 </div>
             </form>
 

@@ -1,7 +1,6 @@
 from django.forms import BaseModelForm
 from django.shortcuts import render, redirect, HttpResponse
-from django.views.generic import TemplateView
-from .forms import ClienteForm, MessaggioForm
+from .forms import ClienteForm, MessaggioForm, ProfiloForm
 from .models import Cliente, Richiesta_messaggio, Registrati
 from Preventivo.models import Preventivo
 from django.views.generic import CreateView, DeleteView, UpdateView
@@ -68,10 +67,6 @@ class SignUpView(CreateView):
 
         return response
 
-class ProfiloView (TemplateView):
-    
-    template_name = "profilo.html"
-
 class UtenteDeleteView (LoginRequiredMixin, DeleteView):
     template_name = "conferma_cancellazione_profilo.html"
     success_url = reverse_lazy('home')
@@ -102,6 +97,7 @@ class UtenteDeleteView (LoginRequiredMixin, DeleteView):
 class Profilo(LoginRequiredMixin, UpdateView):
 
     model = Registrati
+    form_class = ProfiloForm
     template_name = "profilo.html"
     success_url=reverse_lazy("home")
 
@@ -112,14 +108,4 @@ class Profilo(LoginRequiredMixin, UpdateView):
         # utente - potenzialmente un modo per rubare l'account cambiandone
         # l'email e poi usando "password dimenticata"
         return Registrati.objects.filter(pk=self.request.user.pk)
-
-    fields = [
-            "email",
-            "first_name",
-            "cognome_ragione_sociale",
-            "codiceFiscale_PartitaIVA",
-            "indirizzo",
-            "citta",
-            "telefono",
-    ] 
   
