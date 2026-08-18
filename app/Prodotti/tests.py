@@ -2,6 +2,7 @@ import os
 import tempfile
 from unittest import mock
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
@@ -175,3 +176,47 @@ class ProdottoOrdinamentoDefaultTest(TestCase):
         response = self.client.get(reverse('dettaglio_categoria', args=[categoria.pk]))
         contenuto = response.content.decode()
         self.assertLess(contenuto.index("Prodotto Primo"), contenuto.index("Prodotto Ultimo"))
+
+
+class ProdottiPrecursoreVisibilitaTest(TestCase):
+    # Regressione per la richiesta: gli utenti anonimi devono vedere nel
+    # catalogo anche i prodotti soggetti alla normativa precursori; se
+    # invece effettuano il login con un account che non e' un'azienda,
+    # quegli stessi prodotti devono sparire. Staff/superuser/azienda li
+    # vedono sempre, loggati o meno.
+    def setUp(self):
+        self.categoria = Categoria.objects.create(nome_categoria="Detersivi")
+        Prodotto.objects.bulk_create([
+            Prodotto(
+                codice_prodotto="C700",
+                nome_prodotto="Prodotto Con Precursore",
+                unita_di_misura="LT",
+                categoria=self.categoria,
+                precursore="documenti/Regolamento-2019-1148_esplosivi.pdf",
+            ),
+        ])
+        User = get_user_model()
+        self.privato = User.objects.create_user(
+            username="privato@example.com", email="privato@example.com", password="testpass123",
+            first_name="Mario", cognome_ragione_sociale="Rossi",
+            codiceFiscale_PartitaIVA="RSSMRA80A01H501U",
+        )
+        self.azienda = User.objects.create_user(
+            username="azienda@example.com", email="azienda@example.com", password="testpass123",
+            first_name="", cognome_ragione_sociale="Chimica SRL",
+            codiceFiscale_PartitaIVA="12345678901",
+        )
+
+    def test_utente_anonimo_vede_il_prodotto_con_precursore(self):
+        response = self.client.get(reverse('dettaglio_categoria', args=[self.categoria.pk]))
+        self.assertContains(response, "Prodotto Con Precursore")
+
+    def test_utente_loggato_non_azienda_non_vede_il_prodotto_con_precursore(self):
+        self.client.force_login(self.privato)
+        response = self.client.get(reverse('dettaglio_categoria', args=[self.categoria.pk]))
+        self.assertNotContains(response, "Prodotto Con Precursore")
+
+    def test_utente_azienda_vede_il_prodotto_con_precursore(self):
+        self.client.force_login(self.azienda)
+        response = self.client.get(reverse('dettaglio_categoria', args=[self.categoria.pk]))
+        self.assertContains(response, "Prodotto Con Precursore")

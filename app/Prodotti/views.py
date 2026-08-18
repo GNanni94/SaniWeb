@@ -19,11 +19,12 @@ def catalogo_home(request):
     }
 
 def _mostra_precursori(user):
-    # Solo gli utenti azienda possono vedere i prodotti soggetti alla
-    # normativa precursori (vedi Registrati.is_azienda); staff/superuser
-    # li vedono comunque, anche nel catalogo pubblico
+    # Gli utenti anonimi vedono i prodotti soggetti alla normativa
+    # precursori nel catalogo pubblico; se pero' effettuano il login con
+    # un account che non e' un'azienda (vedi Registrati.is_azienda), quei
+    # prodotti spariscono. Staff/superuser li vedono sempre.
     if not user.is_authenticated:
-        return False
+        return True
     return user.is_staff or user.is_superuser or user.is_azienda
 
 def _filtra_precursori(queryset, user):
