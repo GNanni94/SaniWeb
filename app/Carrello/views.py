@@ -70,7 +70,7 @@ def aggiungi_prodotti_al_carrello(request, prodottoId):
         if prodotto.precursore and not mostra_precursori(request.user):
             if _e_richiesta_in_background(request):
                 return HttpResponse(status=403)
-            messages.error(request, 'Prodotto riservato ai clienti azienda.')
+            messages.error(request, 'Prodotto riservato ai clienti azienda.', extra_tags='precursore-riservato')
             referer = request.META.get('HTTP_REFERER')
             if referer and url_has_allowed_host_and_scheme(referer, allowed_hosts={request.get_host()}):
                 return redirect(referer)

@@ -215,6 +215,13 @@ class AggiungiProdottoConPrecursoreTest(TestCase):
 
     def test_utente_azienda_puo_aggiungere_prodotto_con_precursore(self):
         self.client.force_login(self.azienda)
-        response = self.client.get(reverse("aggiungi_prodotti", args=[self.prodotto.pk]))
-        self.assertEqual(response.status_code, 302)
+        response = self.client.get(reverse("aggiungi_prodotti", args=[self.prodotto.pk]), follow=True)
+        self.assertTrue(response.redirect_chain)
         self.assertTrue(Carrello.objects.filter(cliente=self.azienda, prodotto=self.prodotto).exists())
+        self.assertNotContains(response, 'id="modalAvvisoPrecursore"')
+
+    def test_utente_non_azienda_vede_il_popup_di_avviso_dopo_il_redirect(self):
+        self.client.force_login(self.privato)
+        response = self.client.get(reverse("aggiungi_prodotti", args=[self.prodotto.pk]), follow=True)
+        self.assertContains(response, 'id="modalAvvisoPrecursore"')
+        self.assertContains(response, 'Prodotto riservato ai clienti azienda.')

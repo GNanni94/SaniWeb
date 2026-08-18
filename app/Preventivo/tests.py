@@ -73,6 +73,15 @@ class AggiungiPreventivoAlCarrelloConPrecursoreTest(TestCase):
         self.assertTrue(Carrello.objects.filter(cliente=self.azienda, prodotto=self.prodotto_precursore).exists())
         self.assertTrue(Carrello.objects.filter(cliente=self.azienda, prodotto=self.prodotto_normale).exists())
 
+    def test_non_azienda_vede_il_popup_di_avviso_dopo_il_redirect(self):
+        preventivo = self._crea_preventivo_con_entrambi_i_prodotti(self.privato)
+        self.client.force_login(self.privato)
+
+        response = self.client.get(reverse("aggiungi_preventivo_al_carrello", args=[preventivo.pk]), follow=True)
+
+        self.assertContains(response, 'id="modalAvvisoPrecursore"')
+        self.assertContains(response, 'non sono stati aggiunti al carrello')
+
 
 @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
 class CreaOrdineDaCarrelloConPrecursoreTest(TestCase):
@@ -136,6 +145,14 @@ class CreaOrdineDaCarrelloConPrecursoreTest(TestCase):
         corpo_email = mail.outbox[0].body
         self.assertNotIn("P800", corpo_email)
         self.assertIn("P801", corpo_email)
+
+    def test_non_azienda_vede_il_popup_di_avviso_dopo_il_redirect(self):
+        self.client.force_login(self.privato)
+
+        response = self.client.post(reverse("crea_ordine"), {"messaggio": "Test", "luogo": "Test"}, follow=True)
+
+        self.assertContains(response, 'id="modalAvvisoPrecursore"')
+        self.assertContains(response, 'non sono stati inclusi nella richiesta')
 
     def test_azienda_ottiene_entrambi_i_prodotti_nell_ordine(self):
         Carrello.objects.filter(cliente=self.privato).delete()

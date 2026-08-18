@@ -61,7 +61,7 @@ def crea_ordine_da_carrello(request):
             elemento_ordine.save()
             elementi_inclusi.append(elemento_carrello)
         if len(elementi_inclusi) < len(carrello):
-            messages.warning(request, 'Uno o piu\' prodotti riservati ai clienti azienda non sono stati inclusi nella richiesta.')
+            messages.warning(request, 'Uno o piu\' prodotti riservati ai clienti azienda non sono stati inclusi nella richiesta.', extra_tags='precursore-riservato')
         # L'email allo staff riporta solo gli elementi effettivamente
         # inclusi nell'ordine (elementi_inclusi), non l'intero carrello:
         # altrimenti un prodotto con precursore scartato qui sopra
@@ -91,7 +91,7 @@ def aggiungi_preventivo_al_carrello(request, pk):
             elemento_carrello.quantita += elemento_preventivo.quantita
             elemento_carrello.save()
         if almeno_un_elemento_saltato:
-            messages.warning(request, 'Uno o piu\' prodotti riservati ai clienti azienda non sono stati aggiunti al carrello.')
+            messages.warning(request, 'Uno o piu\' prodotti riservati ai clienti azienda non sono stati aggiunti al carrello.', extra_tags='precursore-riservato')
         # Il carrello non ha campi messaggio/luogo (appartengono al
         # Dettaglio_Preventivo, creato solo quando si conferma "Richiedi
         # preventivo"): li passiamo in sessione cosi' CarrelloListView puo'
