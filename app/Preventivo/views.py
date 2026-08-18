@@ -46,10 +46,28 @@ def crea_ordine_da_carrello(request):
         dettaglio_form.save_m2m()
 
         carrello = Carrello.objects.filter(cliente = request.user)
+        # Punto di enforcement per i precursori: qui, non nei singoli punti
+        # di mutazione del carrello (aumenta_quantita_carrello,
+        # settaggio_quantita), perche' e' qui che il carrello diventa
+        # davvero una richiesta d'ordine. Una riga di carrello con
+        # precursore non consentito (es. rimasta da prima di questo
+        # controllo) viene scartata invece di diventare una riga
+        # dell'ordine - vedi design del 2026-08-18
+        elementi_inclusi = []
         for elemento_carrello in carrello:
+            if elemento_carrello.prodotto.precursore and not mostra_precursori(request.user):
+                continue
             elemento_ordine = Elementi_Preventivo.objects.create(preventivo = preventivo, prodotto = elemento_carrello.prodotto, quantita = elemento_carrello.quantita)
             elemento_ordine.save()
-        emailPreventivo(request, carrello, dettaglio_preventivo, preventivo)
+            elementi_inclusi.append(elemento_carrello)
+        if len(elementi_inclusi) < len(carrello):
+            messages.warning(request, 'Uno o piu\' prodotti riservati ai clienti azienda non sono stati inclusi nella richiesta.')
+        # L'email allo staff riporta solo gli elementi effettivamente
+        # inclusi nell'ordine (elementi_inclusi), non l'intero carrello:
+        # altrimenti un prodotto con precursore scartato qui sopra
+        # resterebbe comunque visibile allo staff, che potrebbe evaderlo
+        # manualmente aggirando cosi' il blocco
+        emailPreventivo(request, elementi_inclusi, dettaglio_preventivo, preventivo)
         carrello.delete()
         
         return redirect('lista_ordini')
