@@ -166,3 +166,55 @@ class CarrelloFlottanteAjaxViewsTest(TestCase):
         )
         self.assertEqual(response.status_code, 401)
         self.assertTrue(Carrello.objects.filter(pk=elemento.pk).exists())
+
+
+class AggiungiProdottoConPrecursoreTest(TestCase):
+    # Regressione: un utente loggato ma non azienda poteva aggiungere al
+    # carrello un prodotto con precursore conoscendone il PK (es. visto nel
+    # catalogo mentre era ancora anonimo), anche se quel prodotto non
+    # compare piu' nel suo catalogo dopo il login - vedi review finale del
+    # 2026-08-18 sulla visibilita' dei precursori agli anonimi.
+    def setUp(self):
+        self.categoria = Categoria.objects.create(nome_categoria="Detersivi")
+        Prodotto.objects.bulk_create([
+            Prodotto(
+                codice_prodotto="F700",
+                nome_prodotto="Prodotto Con Precursore",
+                unita_di_misura="LT",
+                categoria=self.categoria,
+                precursore="documenti/Regolamento-2019-1148_esplosivi.pdf",
+            ),
+        ])
+        self.prodotto = Prodotto.objects.get(codice_prodotto="F700")
+        User = get_user_model()
+        self.privato = User.objects.create_user(
+            username="privatocarrello@example.com", email="privatocarrello@example.com", password="testpass123",
+            first_name="Mario", cognome_ragione_sociale="Rossi",
+            codiceFiscale_PartitaIVA="RSSMRA80A01H501U",
+        )
+        self.azienda = User.objects.create_user(
+            username="aziendacarrello@example.com", email="aziendacarrello@example.com", password="testpass123",
+            first_name="", cognome_ragione_sociale="Chimica SRL",
+            codiceFiscale_PartitaIVA="12345678901",
+        )
+
+    def test_utente_non_azienda_non_puo_aggiungere_prodotto_con_precursore_ajax(self):
+        self.client.force_login(self.privato)
+        response = self.client.get(
+            reverse("aggiungi_prodotti", args=[self.prodotto.pk]),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(Carrello.objects.filter(cliente=self.privato, prodotto=self.prodotto).exists())
+
+    def test_utente_non_azienda_non_puo_aggiungere_prodotto_con_precursore(self):
+        self.client.force_login(self.privato)
+        response = self.client.get(reverse("aggiungi_prodotti", args=[self.prodotto.pk]))
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Carrello.objects.filter(cliente=self.privato, prodotto=self.prodotto).exists())
+
+    def test_utente_azienda_puo_aggiungere_prodotto_con_precursore(self):
+        self.client.force_login(self.azienda)
+        response = self.client.get(reverse("aggiungi_prodotti", args=[self.prodotto.pk]))
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Carrello.objects.filter(cliente=self.azienda, prodotto=self.prodotto).exists())

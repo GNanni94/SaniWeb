@@ -5,7 +5,7 @@ from django.views.generic.edit import UpdateView, DeleteView, CreateView  # new
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.http import require_POST
 from .models import Carrello
-from Prodotti.models import Prodotto
+from Prodotti.models import Prodotto, mostra_precursori
 from django.contrib import messages
 from django.utils.http import url_has_allowed_host_and_scheme
 from typing import Any, Dict
@@ -62,6 +62,19 @@ def elementi_carrello(request):
 def aggiungi_prodotti_al_carrello(request, prodottoId):
     prodotto = get_object_or_404(Prodotto, pk=prodottoId)
     if request.user.is_authenticated:
+        # Il prodotto puo' essere sparito dal catalogo dell'utente (vedi
+        # Prodotti/views.py:_filtra_precursori) tra quando ne ha visto il
+        # PK (es. da anonimo, prima del login) e questa richiesta: senza
+        # questo controllo l'aggiunta al carrello aggirava comunque il
+        # filtro del catalogo
+        if prodotto.precursore and not mostra_precursori(request.user):
+            if _e_richiesta_in_background(request):
+                return HttpResponse(status=403)
+            messages.error(request, 'Prodotto riservato ai clienti azienda.')
+            referer = request.META.get('HTTP_REFERER')
+            if referer and url_has_allowed_host_and_scheme(referer, allowed_hosts={request.get_host()}):
+                return redirect(referer)
+            return redirect(prodotto)
         logger.info(f"Richiesta aggiunta prodotto {prodottoId} al carrello dell'utente {request.user.pk}")
         elemento_carrello, created = Carrello.objects.get_or_create(cliente = request.user , prodotto = prodotto)
         elemento_carrello.quantita += 1

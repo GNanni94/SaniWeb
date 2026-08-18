@@ -9,6 +9,19 @@ from django.urls import reverse
 DEFAULT_IMMAGINE_ARTICOLO = "/media/default_immagine_articolo/saniscope_logo 2.png"
 
 
+def mostra_precursori(user):
+    # Gli utenti anonimi vedono i prodotti soggetti alla normativa
+    # precursori nel catalogo pubblico; se pero' effettuano il login con
+    # un account che non e' un'azienda (vedi Registrati.is_azienda), quei
+    # prodotti spariscono. Staff/superuser li vedono sempre.
+    # Pubblica (senza "_"): usata anche da Carrello/views.py e
+    # Preventivo/views.py per bloccare l'aggiunta al carrello di prodotti
+    # con precursore, non solo la loro visibilita' nel catalogo.
+    if not user.is_authenticated:
+        return True
+    return user.is_staff or user.is_superuser or user.is_azienda
+
+
 class Categoria(models.Model):
     nome_categoria=models.CharField(max_length=30, blank=True)
     immagine_categoria = models.ImageField(upload_to='immagini_categoria/', default ="logo/saniscope_logo 2.png")

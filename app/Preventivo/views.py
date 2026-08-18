@@ -2,6 +2,7 @@ from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from Carrello.models import Carrello
+from Prodotti.models import mostra_precursori
 from .models import Preventivo, Elementi_Preventivo
 from .forms import DettaglioPreventivoForm
 from django.views.generic import ListView
@@ -58,10 +59,21 @@ def aggiungi_preventivo_al_carrello(request, pk):
         # Stesso filtro di proprieta' di PreventivoDetailView: un cliente puo'
         # riutilizzare solo i propri preventivi passati, non quelli altrui
         preventivo = get_object_or_404(Preventivo, pk=pk, cliente=request.user)
+        almeno_un_elemento_saltato = False
         for elemento_preventivo in preventivo.elementi_preventivo.all():
+            # Un vecchio preventivo puo' contenere un prodotto con
+            # precursore richiesto prima che questo controllo esistesse:
+            # va saltato qui, non solo bloccato in
+            # Carrello/views.py:aggiungi_prodotti_al_carrello, altrimenti
+            # "Riusa preventivo" aggirerebbe comunque quel blocco
+            if elemento_preventivo.prodotto.precursore and not mostra_precursori(request.user):
+                almeno_un_elemento_saltato = True
+                continue
             elemento_carrello, created = Carrello.objects.get_or_create(cliente=request.user, prodotto=elemento_preventivo.prodotto)
             elemento_carrello.quantita += elemento_preventivo.quantita
             elemento_carrello.save()
+        if almeno_un_elemento_saltato:
+            messages.warning(request, 'Uno o piu\' prodotti riservati ai clienti azienda non sono stati aggiunti al carrello.')
         # Il carrello non ha campi messaggio/luogo (appartengono al
         # Dettaglio_Preventivo, creato solo quando si conferma "Richiedi
         # preventivo"): li passiamo in sessione cosi' CarrelloListView puo'

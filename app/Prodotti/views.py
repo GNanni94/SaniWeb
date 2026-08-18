@@ -1,7 +1,7 @@
 from typing import Any
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView
-from .models import Categoria, Prodotto, Sottocategoria, ImmaginiArticolo, SchedeTecniche, DEFAULT_IMMAGINE_ARTICOLO
+from .models import Categoria, Prodotto, Sottocategoria, ImmaginiArticolo, SchedeTecniche, DEFAULT_IMMAGINE_ARTICOLO, mostra_precursori
 from django.template import loader
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
@@ -18,17 +18,8 @@ def catalogo_home(request):
         'categoria': Categoria.objects.all()
     }
 
-def _mostra_precursori(user):
-    # Gli utenti anonimi vedono i prodotti soggetti alla normativa
-    # precursori nel catalogo pubblico; se pero' effettuano il login con
-    # un account che non e' un'azienda (vedi Registrati.is_azienda), quei
-    # prodotti spariscono. Staff/superuser li vedono sempre.
-    if not user.is_authenticated:
-        return True
-    return user.is_staff or user.is_superuser or user.is_azienda
-
 def _filtra_precursori(queryset, user):
-    if _mostra_precursori(user):
+    if mostra_precursori(user):
         return queryset
     return queryset.filter(Q(precursore__isnull=True) | Q(precursore=''))
 
