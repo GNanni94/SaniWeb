@@ -36,18 +36,10 @@
       </form>
     </div>
     <div id="cookiebannerModalFooter">
-      {% if cb_settings.footer_text %}
-        <p class="text-left">{{ cb_settings.footer_text|safe }}</p>
-      {% endif %}
       <input type="submit" name="enable_all" class="cookiebannerSubmit btn"
              value="Accetta tutti">
       <input type="submit" name="save" class="cookiebannerSubmit btn"
              value="Salva">
-      <nav id="cookiebannerModalFooterLinks">
-        {% for link in cb_settings.footer_links %}
-          <span class="nav-item"><a class="nav-link" href="{{ link.href }}">{{ link.title }}</a></span>
-        {% endfor %}
-      </nav>
     </div>
   </div>
 </div>
@@ -177,10 +169,6 @@
     text-align: right;
   }
 
-  #cookiebannerModalFooter .text-left {
-    text-align: left;
-  }
-
   .cookiebannerSubmit.btn {
     font-size: 1.2rem;
     margin: 0.2em;
@@ -188,15 +176,6 @@
     background-color: var(--color-highlight);
     color: var(--color-button-fg);
     border: 0;
-  }
-
-  #cookiebannerModalFooterLinks {
-    text-align: left;
-    min-height: auto;
-    margin-bottom: auto;
-    display: inline-block;
-    float: left;
-    padding: 1rem 0;
   }
 
   .cookiebannerH4 {

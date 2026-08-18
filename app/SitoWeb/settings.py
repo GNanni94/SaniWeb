@@ -213,6 +213,7 @@ COOKIEBANNER = {
             "id": "essential",
             "name": _("Essenziali"),
             "description": _("I cookie essenziali permettono il funzionamento di questa pagina."),
+            "optional": False,
             "cookies": [
                 {
                     "pattern": "cookiebanner",
@@ -231,6 +232,7 @@ COOKIEBANNER = {
         {
             "id": "analytics",
             "name": _("Analitici"),
+            "description": _("I cookie analitici raccolgono informazioni in forma aggregata su come i visitatori usano il sito."),
             "optional": True,
             "cookies": [
                 {
