@@ -20,6 +20,8 @@ SitoWeb/__pycache__/
 Utente/__pycache__/
 Utente/migrations/__pycache__/
 
+app/Avvisi/__pycache__/
+app/Avvisi/migrations/__pycache__/
 app/Carrello/__pycache__/
 app/Carrello/migrations/__pycache__/
 app/InvioEmail/__pycache__/
