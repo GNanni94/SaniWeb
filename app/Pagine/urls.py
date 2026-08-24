@@ -5,10 +5,12 @@ from .views import (
     carica_immagine_prodotto,
     dashboard_admin,
     dashboard_prodotti_senza_immagine,
+    elimina_categoria,
     elimina_documento,
     gestione_documenti,
     modifica_documento,
     nuovo_documento,
+    rinomina_categoria,
 )
 from Utente import views, urls
 
@@ -26,4 +28,6 @@ urlpatterns = [
     path("dashboard/documenti/nuovo/", nuovo_documento, name="nuovo_documento"),
     path("dashboard/documenti/<int:pk>/modifica/", modifica_documento, name="modifica_documento"),
     path("dashboard/documenti/<int:pk>/elimina/", elimina_documento, name="elimina_documento"),
+    path("dashboard/documenti/categorie/<int:pk>/rinomina/", rinomina_categoria, name="rinomina_categoria"),
+    path("dashboard/documenti/categorie/<int:pk>/elimina/", elimina_categoria, name="elimina_categoria"),
 ]

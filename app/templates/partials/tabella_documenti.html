@@ -1,48 +1,154 @@
-<div id="tabella-documenti">
-  {% if documenti %}
-  <div class="table-responsive">
-    {% comment %}
-    Stesso schema di tabella_avvisi.html: niente "table-bordered"
-    sull'intera tabella (romperebbe il bordo della colonna Azioni), bordo
-    aggiunto a mano solo alle celle delle colonne vere.
-    {% endcomment %}
-    <table class="table table-sm table-hover text-center align-middle">
-      <thead>
-        <tr>
-          <th scope="col" class="border">Nome</th>
-          <th scope="col" class="border">Categoria</th>
-          <th scope="col" class="border-0 bg-transparent text-nowrap" style="width: 1%;"></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for documento in documenti %}
-        <tr data-pk="{{ documento.pk }}"
-            data-nome-file="{{ documento.nome_file }}"
-            data-categoria-pk="{{ documento.categoria_id|default:'' }}">
-          <td class="border">
-            {% if documento.file %}
-            <a href="{{ documento.file.url }}" target="_blank" class="text-reset text-decoration-none">{{ documento.nome_file }}</a>
-            {% else %}
-            {{ documento.nome_file }}
-            {% endif %}
-          </td>
-          <td class="border">{{ documento.categoria.nome_categoria|default:"-" }}</td>
-          <td class="border-0 bg-transparent text-nowrap" style="width: 1%;">
-            <button type="button" class="btn btn-sm btn-outline-navbar btn-modifica-documento" data-url-modifica="{% url 'modifica_documento' documento.pk %}" title="Modifica" aria-label="Modifica">
-              <i class="bi bi-pencil-square"></i>
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-danger btn-elimina-documento" data-url-elimina="{% url 'elimina_documento' documento.pk %}" title="Elimina" aria-label="Elimina">
-              <i class="bi bi-trash"></i>
-            </button>
-          </td>
-        </tr>
+<div class="row">
+  <div class="col-12 col-md-4 mb-4 mb-md-0">
+    <div class="rounded p-2 pt-3 position-relative" style="border: 2px solid var(--color-primary);">
+      {% comment %}
+      Icona cartella con badge del numero di categorie, sovrapposta al
+      bordo in alto a sinistra del riquadro (non semplicemente dentro):
+      "position-absolute" con offset negativo la mette a cavallo della
+      linea del bordo, "background-color: var(--color-bg)" (bianco, stesso
+      sfondo della pagina) copre il tratto di bordo sotto di lei cosi'
+      sembra "interrotto" invece di passarci dietro - stesso principio di
+      una legend che taglia il bordo di un fieldset. Il badge del conteggio
+      resta sovrapposto all'icona con lo stesso schema Bootstrap gia' usato
+      per "badgeCarrelloFlottante" sul bottone del carrello, niente CSS
+      custom. Il numero iniziale arriva dal server ("categorie" e' gia'
+      valutata qui sotto dal ciclo, "|length" non fa query aggiuntive);
+      dopo un refresh AJAX lo ricalcola il JS (gestione-documenti.js,
+      aggiornaNumeroCategorie) contando i bottoni appena ricevuti, invece
+      di aggiungere un altro pezzo da estrarre dalla risposta.
+      {% endcomment %}
+      <span class="position-absolute d-inline-flex px-1" style="top: -1.9rem; left: 0.75rem; background-color: var(--color-bg);">
+        <span class="position-relative d-inline-flex">
+          <i class="bi bi-folder fs-1" style="color: var(--color-primary);"></i>
+          {% comment %}
+          Numero centrato dentro la sagoma della cartella (non piu' un
+          badge sovrapposto all'angolo): "bi-folder" e' un'icona a contorno
+          (non "-fill"), l'interno resta dello sfondo della pagina, quindi
+          il testo blu navbar ci si legge sopra senza bisogno di badge/
+          sfondo proprio. "top-50 start-50 translate-middle" centra
+          rispetto all'intera icona.
+          {% endcomment %}
+          <span id="numeroCategorieDocumenti" class="position-absolute top-50 start-50 translate-middle fw-bold small" style="color: var(--color-primary);">{{ categorie|length }}</span>
+        </span>
+      </span>
+      {% comment %}
+      Stessa tecnica dell'icona cartella sopra ma speculare, a cavallo del
+      bordo in alto a destra: rinomina/elimina la categoria attualmente
+      selezionata (evidenziata in blu, vedi documenti.css), non una
+      categoria per riga - niente bottone dentro bottone (vedi sotto).
+      Disabilitati finche' non si seleziona una categoria, vedi
+      gestione-documenti.js/applicaFiltroCategoria.
+      {% endcomment %}
+      {% comment %}
+      "top" meno negativo che per la cartella sopra (-1.2rem invece di
+      -1.9rem): "bi-pencil-square"/"bi-trash" sono molto piu' piccole
+      ("fs-5") di "bi-folder" ("fs-1"), quindi con lo stesso offset
+      resterebbero staccate dal bordo invece di essere a cavallo come lei -
+      questo valore le riporta visivamente allo stesso "affondo" nel bordo
+      {% endcomment %}
+      <span class="position-absolute d-inline-flex px-1" style="top: -1rem; right: 0.75rem; background-color: var(--color-bg);">
+        <button type="button" id="btnRinominaCategoria" class="btn btn-sm p-0 border-0 me-2" disabled title="Rinomina categoria" aria-label="Rinomina categoria">
+          <i class="bi bi-pencil-square fs-5" style="color: var(--color-primary);"></i>
+        </button>
+        <button type="button" id="btnEliminaCategoria" class="btn btn-sm p-0 border-0" disabled title="Elimina categoria" aria-label="Elimina categoria">
+          <i class="bi bi-trash fs-5" style="color: var(--bs-danger);"></i>
+        </button>
+      </span>
+      {% comment %}
+      Elenco categorie con conteggio documenti (badge): cliccabile, filtra la
+      tabella a destra lato client (vedi gestione-documenti.js,
+      applicaFiltroCategoria) - "num_documenti" arriva gia' annotato dalla
+      vista (_categorie_con_conteggio in Pagine/views.py), niente query
+      aggiuntive lato template. "div" con "role=button" invece di un vero
+      "button": deve poter contenere l'input di rinomina (vedi sotto), e un
+      <input> dentro un <button> non e' HTML valido - "tabindex" e il
+      gestore "keydown" in gestione-documenti.js restituiscono
+      l'accessibilita' da tastiera che un bottone avrebbe di suo.
+      {% endcomment %}
+      <div id="listaCategorieDocumenti" class="list-group">
+        {% for categoria in categorie %}
+        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+             role="button" tabindex="0"
+             data-categoria-pk="{{ categoria.pk }}"
+             data-nome-categoria="{{ categoria.nome_categoria }}"
+             data-url-rinomina-categoria="{% url 'rinomina_categoria' categoria.pk %}"
+             data-url-elimina-categoria="{% url 'elimina_categoria' categoria.pk %}">
+          <span class="testo-categoria">{{ categoria.nome_categoria }}</span>
+          <input type="text" class="form-control form-control-sm d-none input-rinomina-categoria" value="{{ categoria.nome_categoria }}">
+          {% comment %}
+          Stesso schema "numero dentro l'icona" gia' usato per la cartella
+          in alto (icona a contorno "bi-file-earmark", non "-fill": interno
+          libero per il testo, colorata blu navbar come il numero sopra).
+          {% endcomment %}
+          <span class="position-relative d-inline-flex">
+            <i class="bi bi-file-earmark fs-5" style="color: var(--color-primary);"></i>
+            <span class="position-absolute top-50 start-50 translate-middle fw-bold numero-documenti-categoria" style="color: var(--color-primary); font-size: .6rem;">{{ categoria.num_documenti }}</span>
+          </span>
+        </div>
         {% endfor %}
-      </tbody>
-    </table>
+      </div>
+    </div>
   </div>
-  {% else %}
-  <p class="text-center">Nessun documento configurato.</p>
-  {% endif %}
+  <div class="col-12 col-md-8">
+    <div class="rounded p-3" style="border: 2px solid var(--color-primary);">
+    <div id="tabella-documenti">
+      {% if documenti %}
+      <div class="table-responsive">
+        {% comment %}
+        Stesso schema di tabella_avvisi.html: niente "table-bordered"
+        sull'intera tabella (romperebbe il bordo della colonna Azioni), bordo
+        aggiunto a mano solo alle celle delle colonne vere.
+        {% endcomment %}
+        <table class="table table-sm table-hover text-center align-middle">
+          <thead>
+            <tr>
+              <th scope="col" class="border">Nome</th>
+              <th scope="col" class="border-0 bg-transparent text-nowrap" style="width: 1%;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for documento in documenti %}
+            <tr data-pk="{{ documento.pk }}"
+                data-nome-file="{{ documento.nome_file }}"
+                data-categoria-pk="{{ documento.categoria_id|default:'' }}"
+                data-file-url="{% if documento.file %}{{ documento.file.url }}{% endif %}">
+              <td class="border">
+                {% if documento.file %}
+                <a href="{{ documento.file.url }}" target="_blank" class="text-reset text-decoration-none">{{ documento.nome_file }}</a>
+                {% else %}
+                {{ documento.nome_file }}
+                {% endif %}
+              </td>
+              <td class="border-0 bg-transparent text-nowrap" style="width: 1%;">
+                <button type="button" class="btn btn-sm btn-outline-navbar btn-modifica-documento" data-url-modifica="{% url 'modifica_documento' documento.pk %}" title="Modifica" aria-label="Modifica">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger btn-elimina-documento" data-url-elimina="{% url 'elimina_documento' documento.pk %}" title="Elimina" aria-label="Elimina">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-center">Nessun documento configurato.</p>
+      {% endif %}
+    </div>
+    {% comment %}
+    Stati puramente client-side (nessun dato server coinvolto), gestiti da
+    gestione-documenti.js/applicaFiltroCategoria: quale mostrare dipende
+    solo da "e' selezionata una categoria?" e "ha documenti?" - non da cosa
+    ha renderizzato il server qui sopra. Restano fuori da "#tabella-documenti"
+    apposta, cosi' un refresh AJAX (che sostituisce solo l'innerHTML di
+    quell'id) non li tocca: lo stato del filtro lo ripristina il JS dopo
+    ogni refresh (vedi sostituisciTabella), non il server.
+    {% endcomment %}
+    <p id="messaggioSelezionaCategoria" class="text-center text-muted">Seleziona una categoria per vedere i documenti.</p>
+    <p id="messaggioNessunDocumentoCategoria" class="text-center text-muted d-none">Nessun documento in questa categoria.</p>
+    </div>
+  </div>
 </div>
 
 {% comment %}

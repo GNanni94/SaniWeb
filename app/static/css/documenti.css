@@ -29,3 +29,37 @@
 .card.card-documento .card-footer {
   border-top-color: #fff;
 }
+
+/* Categoria selezionata nella colonna sinistra di gestione_documenti.html
+   (partials/tabella_documenti.html, evidenziata in JS da
+   gestione-documenti.js/applicaFiltroCategoria con la classe ".active" di
+   Bootstrap): stesso blu della navbar invece dell'azzurro "primary" di
+   default di Bootstrap, coerente col resto del sito */
+#listaCategorieDocumenti .list-group-item.active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* L'icona "bi-file-earmark" e il numero al suo interno hanno un colore blu
+   navbar impostato inline (stesso sfondo pagina attorno, vedi
+   tabella_documenti.html) per leggersi sullo sfondo bianco di riposo: una
+   volta selezionata la categoria lo sfondo del bottone diventa blu navbar
+   (sopra), quindi vanno ribaltati in bianco per restare leggibili.
+   "!important" necessario per vincere lo "style" inline, piu' specifico di
+   qualunque selettore in un foglio esterno */
+#listaCategorieDocumenti .list-group-item.active i,
+#listaCategorieDocumenti .list-group-item.active span {
+  color: #fff !important;
+}
+
+/* Bottoni Rinomina/Elimina categoria (tabella_documenti.html): disabilitati
+   finche' non si seleziona una categoria (gestione-documenti.js,
+   applicaFiltroCategoria), ma senza l'opacita' ridotta di default di
+   Bootstrap per i bottoni disabilitati - risultava "sbiadita". Restano a
+   piena opacita' e con lo stesso colore (matita blu navbar, cestino rosso)
+   anche da disabilitati, comunque distinguibili come "non cliccabili" dal
+   cursore */
+#btnRinominaCategoria:disabled,
+#btnEliminaCategoria:disabled {
+  opacity: 1;
+}

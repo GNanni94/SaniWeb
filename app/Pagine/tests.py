@@ -608,6 +608,26 @@ class GestioneDocumentiViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Certificato ISO")
 
+    def test_colonna_categorie_mostra_il_conteggio_corretto(self):
+        categoria = _crea_categoria_file(nome="Certificazioni")
+        _crea_documento(nome_file="Certificato ISO", categoria=categoria)
+        _crea_documento(nome_file="Certificato Qualita", categoria=categoria)
+        altra_categoria = _crea_categoria_file(nome="Normative")
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("gestione_documenti"))
+        contenuto = response.content.decode()
+        self.assertIn('data-categoria-pk="%d"' % categoria.pk, contenuto)
+        indice_categoria = contenuto.index('data-categoria-pk="%d"' % categoria.pk)
+        indice_prossimo_bottone = contenuto.index("</button>", indice_categoria)
+        blocco_categoria = contenuto[indice_categoria:indice_prossimo_bottone]
+        self.assertIn("bi-file", blocco_categoria)
+        self.assertIn("2", blocco_categoria)
+        indice_altra = contenuto.index('data-categoria-pk="%d"' % altra_categoria.pk)
+        indice_prossimo_bottone_altra = contenuto.index("</button>", indice_altra)
+        blocco_altra_categoria = contenuto[indice_altra:indice_prossimo_bottone_altra]
+        self.assertIn("bi-file", blocco_altra_categoria)
+        self.assertIn("0", blocco_altra_categoria)
+
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class NuovoDocumentoViewTest(TestCase):
@@ -786,6 +806,127 @@ class EliminaDocumentoViewTest(TestCase):
         self.assertEqual(response.status_code, 405)
 
 
+class RinominaCategoriaViewTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.staff = User.objects.create_user(
+            username="staffcat1", email="staffcat1@example.com", password="testpass123", is_staff=True
+        )
+        self.categoria = _crea_categoria_file(nome="Certificazioni")
+
+    def test_post_valido_rinomina_categoria(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse("rinomina_categoria", args=[self.categoria.pk]),
+            data={"nome_categoria": "Certificazioni ISO"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.categoria.refresh_from_db()
+        self.assertEqual(self.categoria.nome_categoria, "Certificazioni ISO")
+
+    def test_nome_vuoto_risponde_400_e_non_modifica(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse("rinomina_categoria", args=[self.categoria.pk]),
+            data={"nome_categoria": "   "},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.categoria.refresh_from_db()
+        self.assertEqual(self.categoria.nome_categoria, "Certificazioni")
+
+    def test_nome_duplicato_case_insensitive_risponde_400_e_non_modifica(self):
+        _crea_categoria_file(nome="Normative")
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse("rinomina_categoria", args=[self.categoria.pk]),
+            data={"nome_categoria": "normative"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.categoria.refresh_from_db()
+        self.assertEqual(self.categoria.nome_categoria, "Certificazioni")
+
+    def test_utente_normale_non_autorizzato(self):
+        User = get_user_model()
+        utente = User.objects.create_user(username="normalecat1", email="normalecat1@example.com", password="testpass123")
+        self.client.force_login(utente)
+        response = self.client.post(
+            reverse("rinomina_categoria", args=[self.categoria.pk]),
+            data={"nome_categoria": "Altro nome"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 302)
+        self.categoria.refresh_from_db()
+        self.assertEqual(self.categoria.nome_categoria, "Certificazioni")
+
+    def test_pk_inesistente_risponde_404(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse("rinomina_categoria", args=[999999]),
+            data={"nome_categoria": "Altro nome"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_risponde_405(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("rinomina_categoria", args=[self.categoria.pk]))
+        self.assertEqual(response.status_code, 405)
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class EliminaCategoriaViewTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.staff = User.objects.create_user(
+            username="staffcat2", email="staffcat2@example.com", password="testpass123", is_staff=True
+        )
+        self.categoria = _crea_categoria_file(nome="Certificazioni")
+
+    def test_post_elimina_categoria_vuota(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse("elimina_categoria", args=[self.categoria.pk]), HTTP_X_REQUESTED_WITH="XMLHttpRequest"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(CategoriaFile.objects.filter(pk=self.categoria.pk).exists())
+
+    def test_post_elimina_categoria_cancella_anche_i_documenti_e_i_file_fisici(self):
+        documento = _crea_documento(nome_file="Certificato ISO", categoria=self.categoria)
+        percorso_file = documento.file.path
+        self.assertTrue(os.path.exists(percorso_file))
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse("elimina_categoria", args=[self.categoria.pk]), HTTP_X_REQUESTED_WITH="XMLHttpRequest"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(CategoriaFile.objects.filter(pk=self.categoria.pk).exists())
+        self.assertFalse(File.objects.filter(pk=documento.pk).exists())
+        self.assertFalse(os.path.exists(percorso_file))
+
+    def test_utente_normale_non_autorizzato(self):
+        User = get_user_model()
+        utente = User.objects.create_user(username="normalecat2", email="normalecat2@example.com", password="testpass123")
+        self.client.force_login(utente)
+        response = self.client.post(
+            reverse("elimina_categoria", args=[self.categoria.pk]), HTTP_X_REQUESTED_WITH="XMLHttpRequest"
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(CategoriaFile.objects.filter(pk=self.categoria.pk).exists())
+
+    def test_pk_inesistente_risponde_404(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(reverse("elimina_categoria", args=[999999]), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_risponde_405(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("elimina_categoria", args=[self.categoria.pk]))
+        self.assertEqual(response.status_code, 405)
+
+
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class GestioneDocumentiContrattoJsTest(TestCase):
     # Guardia di regressione per il contratto tra il template e
@@ -808,12 +949,21 @@ class GestioneDocumentiContrattoJsTest(TestCase):
             'id="modalDocumentoBody"',
             'id="btnNuovoDocumento"',
             'id="form-documento"',
+            'id="listaCategorieDocumenti"',
+            'id="numeroCategorieDocumenti"',
+            'id="messaggioSelezionaCategoria"',
+            'id="messaggioNessunDocumentoCategoria"',
             'data-nome-file="',
             'data-categoria-pk="',
             'data-url-modifica="',
             'data-url-elimina="',
             'btn-modifica-documento',
             'btn-elimina-documento',
+            'id="btnRinominaCategoria"',
+            'id="btnEliminaCategoria"',
+            'data-nome-categoria="',
+            'data-url-rinomina-categoria="',
+            'data-url-elimina-categoria="',
         ]
         for stringa in stringhe_richieste:
             self.assertContains(response, stringa)

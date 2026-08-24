@@ -6,7 +6,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ValidationError
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -154,20 +154,25 @@ def _is_ajax_request_documenti(request):
     return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
 
+def _categorie_con_conteggio():
+    # "num_documenti": usato sia dalla colonna sinistra (badge con il
+    # conteggio accanto a ogni categoria) sia, indirettamente, come elenco
+    # aggiornato di categorie per lo snapshot del form vuoto - vedi
+    # commento su "opzioniCategoriaAggiornate" in tabella_documenti.html
+    return CategoriaFile.objects.annotate(num_documenti=Count('file_cat')).order_by('nome_categoria')
+
+
 def _risposta_tabella_documenti(request):
     if not _is_ajax_request_documenti(request):
         # Nessun JS e form comunque sottomesso come navigazione vera: un
         # frammento nudo sarebbe una pagina rotta, si torna alla pagina
         # completa (POST-redirect-GET)
         return redirect('gestione_documenti')
-    documenti = File.objects.select_related('categoria').all()
-    # Elenco aggiornato delle categorie, incluso in ogni risposta: senza
-    # questo il JS (gestione-documenti.js) non avrebbe modo di sapere che
-    # una categoria e' stata appena creata (es. da "categoria_nuova"), e lo
-    # snapshot del form vuoto usato da "+ Nuovo documento" continuerebbe a
-    # mostrare l'elenco categorie di quando la pagina e' stata caricata
-    categorie = CategoriaFile.objects.all()
-    return render(request, 'partials/tabella_documenti.html', {'documenti': documenti, 'categorie': categorie})
+    documenti = File.objects.select_related('categoria').order_by('nome_file')
+    return render(request, 'partials/tabella_documenti.html', {
+        'documenti': documenti,
+        'categorie': _categorie_con_conteggio(),
+    })
 
 
 def _risposta_form_documento_errori(request, form, azione_url):
@@ -181,13 +186,13 @@ def _risposta_form_documento_errori(request, form, azione_url):
 
 @dashboard_richiesto
 def gestione_documenti(request):
-    documenti = File.objects.select_related('categoria').all()
+    documenti = File.objects.select_related('categoria').order_by('nome_file')
     form = DocumentoForm()
     return render(request, 'gestione_documenti.html', {
         'documenti': documenti,
         'form': form,
         'azione_url': reverse('nuovo_documento'),
-        'categorie': CategoriaFile.objects.all(),
+        'categorie': _categorie_con_conteggio(),
     })
 
 
@@ -222,4 +227,38 @@ def elimina_documento(request, pk):
         # orfano su disco
         documento.file.delete(save=False)
     documento.delete()
+    return _risposta_tabella_documenti(request)
+
+
+@dashboard_richiesto
+@require_POST
+def rinomina_categoria(request, pk):
+    categoria = get_object_or_404(CategoriaFile, pk=pk)
+    nuovo_nome = request.POST.get('nome_categoria', '').strip()
+    if not nuovo_nome:
+        if not _is_ajax_request_documenti(request):
+            return redirect('gestione_documenti')
+        return JsonResponse({'errore': "Il nome della categoria non puo' essere vuoto."}, status=400)
+    if CategoriaFile.objects.filter(nome_categoria__iexact=nuovo_nome).exclude(pk=categoria.pk).exists():
+        if not _is_ajax_request_documenti(request):
+            return redirect('gestione_documenti')
+        return JsonResponse({'errore': "Esiste gia' una categoria con questo nome."}, status=400)
+    categoria.nome_categoria = nuovo_nome
+    categoria.save()
+    return _risposta_tabella_documenti(request)
+
+
+@dashboard_richiesto
+@require_POST
+def elimina_categoria(request, pk):
+    categoria = get_object_or_404(CategoriaFile, pk=pk)
+    # Elimina anche i documenti della categoria (non solo la riga: come in
+    # elimina_documento, il file fisico va cancellato esplicitamente,
+    # altrimenti resta orfano su disco - la CASCADE del ForeignKey
+    # cancellerebbe solo le righe File, non i file su storage)
+    for documento in categoria.file_cat.all():
+        if documento.file:
+            documento.file.delete(save=False)
+        documento.delete()
+    categoria.delete()
     return _risposta_tabella_documenti(request)

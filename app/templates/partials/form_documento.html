@@ -5,7 +5,22 @@
   <div id="campoCategoriaNuova">
     {{ form.categoria_nuova|as_crispy_field }}
   </div>
-  {{ form.file|as_crispy_field }}
+  <div id="campoFile">
+    {{ form.file|as_crispy_field }}
+  </div>
+  {% comment %}
+  Mostrato solo in modifica (vedi gestione-documenti.js,
+  impostaCampoFileEsistente) al posto del campo file sopra, che in quel
+  caso viene disabilitato: il file non e' sostituibile da qui, l'input
+  disabilitato non viene inviato con il form e il server mantiene quello
+  gia' salvato (Pagine/forms.py, DocumentoForm.clean_file)
+  {% endcomment %}
+  <div id="campoFileAttuale" class="mb-3 d-none">
+    <label class="form-label">File attuale</label>
+    <div>
+      <a id="linkFileAttuale" href="#" target="_blank" class="text-reset"></a>
+    </div>
+  </div>
   {{ form.nome_file|as_crispy_field }}
   <button type="submit" class="btn btn-navbar">Salva</button>
 </form>
