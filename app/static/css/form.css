@@ -79,6 +79,35 @@
   display: none;
 }
 
+/* Checkbox "Attivo" del form avviso: blu navbar invece del blu "primary"
+   di default di Bootstrap, per coerenza col resto del sito. Le variabili
+   CSS di Bootstrap (non le proprieta' dirette) vanno sovrascritte, sono
+   loro stesse a determinare colore di sfondo/bordo da spuntata e l'anello
+   del focus - stesso blu (27, 90, 160 = var(--color-primary)) gia' usato
+   per il glow di "#form-login .form-control:focus" qui sopra */
+#form-avviso .form-check-input:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+#form-avviso .form-check-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
+}
+
+/* Stesso ragionamento sopra, applicato all'interruttore "Attivo" nella
+   lista degli avvisi (tabella_avvisi.html): stesso tipo di controllo, ma
+   fuori da "#form-avviso" (vive nella tabella, non nel form del pop-up) */
+.toggle-attivo-avviso:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.toggle-attivo-avviso:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
+}
+
 /* Stesso ragionamento sopra, applicato ai campi del form di
    creazione/modifica documento (gestione_documenti.html) - "Nome file" e
    "File" restano obbligatori, solo l'asterisco viene nascosto */
