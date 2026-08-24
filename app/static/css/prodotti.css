@@ -544,6 +544,46 @@
     border-radius: 0 calc(var(--bs-border-radius) - 2px) calc(var(--bs-border-radius) - 2px) 0 !important;
   }
 
+  /* dashboard_prodotti_senza_immagine.html: la lente qui sopra e' un
+     quadrato fisso 36x36 (piu' i 2px di bordo per lato della pillola
+     intorno, vedi ".ricerca-form" e il wrapper sopra), piu' grande della
+     freccia "indietro" accanto (".btn.btn-navbar.btn-sm", vedi HTML) - qui
+     la si rimpicciolisce alla stessa altezza di un ".btn-sm" invece di
+     ingrandire la freccia, per restare in linea con lo spirito "risparmia
+     spazio da telefono" di tutta questa riga di controlli.
+     Vanno ridotti TUTTI E TRE gli elementi (wrapper, pillola, bottone): il
+     bottone da solo non basta perche' condivide lo stesso colore di sfondo
+     della pillola che lo contiene (vedi sopra, "sembra un quadrato blu
+     pieno") - restringendo solo lui, la pillola attorno resterebbe comunque
+     40x40 e il quadrato visibile risulterebbe invariato.
+     Selettori per id del wrapper (".ricercaCodiceWrapper", non
+     ".ricercaProdottiWrapper"/".ricerca-a-comparsa" da soli) apposta:
+     stessa specificita' delle regole 40x40/36x36 qui sopra, quindi vincono
+     solo perche' dichiarate dopo nel foglio di stile - lasciano INVARIATA
+     la lente di prodotti_card.html, che non ha questo id.
+     Altezza/larghezza calcolate dalla formula di ".btn-sm" di Bootstrap
+     (non misurate a mano): padding-y-sm (.25rem per lato) + line-height
+     (1.5 * font-size-sm .875rem) + border (1px per lato) = "1.8125rem + 2px"
+     per bottone e freccia; pillola/wrapper hanno in piu' i 2px di bordo per
+     lato della pillola stessa (stesso "+4px" della formula 40px=36+4 vista
+     sopra) - stesso principio del calc gia' usato per "#prodottiCardSearch"
+     piu' in alto nel file */
+  #ricercaCodiceWrapper {
+    width: calc(1.8125rem + 6px);
+  }
+
+  #ricercaCodiceWrapper .ricerca-form {
+    height: calc(1.8125rem + 6px);
+  }
+
+  #ricercaCodiceWrapper .ricerca-toggle-btn {
+    width: calc(1.8125rem + 2px);
+    height: calc(1.8125rem + 2px);
+    /* Anche l'icona (dimensionata in "em" da Bootstrap Icons) deve rimpicciolirsi
+       di conseguenza, stessa taglia usata dentro un ".btn-sm" */
+    font-size: .875rem;
+  }
+
   /* Filtro sottocategoria: sotto i 576px resta sempre e solo l'icona a
      imbuto (niente animazione di apertura come la ricerca). La <select> e'
      ancora li' e resta completamente funzionante (stesse opzioni, stesso
