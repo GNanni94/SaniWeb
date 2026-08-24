@@ -148,31 +148,43 @@ def settaggio_quantita(request, carrelloId):
 
 @require_POST
 def aumenta_quantita_carrello(request, carrelloId):
-    elemento_carrello = get_object_or_404(Carrello, pk=carrelloId, cliente_id=request.user.pk)
+    # is_authenticated va controllato PRIMA della query: un utente anonimo
+    # (es. sessione scaduta a pagina aperta) farebbe comunque sollevare
+    # Http404 a get_object_or_404 (nessuna riga ha "cliente_id=None"),
+    # restituendo un 404 semplice invece del 401 esplicito richiesto qui
+    # sotto per le richieste in background - stesso ragionamento gia'
+    # applicato a elimina_elementi_dal_carrello
     if request.user.is_authenticated:
+        elemento_carrello = get_object_or_404(Carrello, pk=carrelloId, cliente=request.user)
         logger.info(f"Richiesta aumento quantita prodotto {elemento_carrello.prodotto.pk} carrello {carrelloId} utente {request.user.pk}")
         elemento_carrello.quantita += 1
         elemento_carrello.save()
         logger.info(f"Effettuata richiesta aumento quantita prodotto {elemento_carrello.prodotto.pk} carrello {carrelloId} utente {request.user.pk}")
+        if _e_richiesta_in_background(request):
+            return _render_widget_carrello_flottante(request)
+        return redirect('carrello')
     if _e_richiesta_in_background(request):
-        return _render_widget_carrello_flottante(request)
+        return HttpResponse(status=401)
     return redirect('carrello')
 
 
 @require_POST
 def diminuisci_quantita_carrello(request, carrelloId):
-    elemento_carrello = get_object_or_404(Carrello, pk=carrelloId, cliente_id=request.user.pk)
+    # Stesso ragionamento di aumenta_quantita_carrello qui sopra
     if request.user.is_authenticated:
+        elemento_carrello = get_object_or_404(Carrello, pk=carrelloId, cliente=request.user)
         logger.info(f"Richiesta diminuzione quantita prodotto {elemento_carrello.prodotto.pk} carrello {carrelloId} utente {request.user.pk}")
         quantita = elemento_carrello.quantita
         if quantita == 1:
             logger.debug(f"Eliminato il prodotto {elemento_carrello.prodotto.pk} carrello {carrelloId} utente {request.user.pk} perchè andava sotto l'1")
             elemento_carrello.delete()
-        else:    
+        else:
             elemento_carrello.quantita -= 1
             elemento_carrello.save()
         logger.info(f"Effettuata richiesta aumento quantita prodotto {elemento_carrello.prodotto.pk} carrello {carrelloId} utente {request.user.pk}")
-
+        if _e_richiesta_in_background(request):
+            return _render_widget_carrello_flottante(request)
+        return redirect('carrello')
     if _e_richiesta_in_background(request):
-        return _render_widget_carrello_flottante(request)
+        return HttpResponse(status=401)
     return redirect('carrello')

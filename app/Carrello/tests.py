@@ -167,6 +167,32 @@ class CarrelloFlottanteAjaxViewsTest(TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertTrue(Carrello.objects.filter(pk=elemento.pk).exists())
 
+    def test_aumenta_anonimo_con_ajax_restituisce_401(self):
+        # Stessa regressione di test_elimina_anonimo_con_ajax_restituisce_401:
+        # prima del fix, "get_object_or_404(..., cliente_id=request.user.pk)"
+        # girava prima del controllo is_authenticated - per un anonimo
+        # (pk None) non trova mai la riga e solleva Http404, un 404 semplice
+        # invece del 401 esplicito promesso dal commento della vista
+        elemento = Carrello.objects.create(cliente=self.utente, prodotto=self.prodotto, quantita=1)
+        self.client.logout()
+        response = self.client.post(
+            reverse("aumenta_quantita", args=[elemento.pk]),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 401)
+        elemento.refresh_from_db()
+        self.assertEqual(elemento.quantita, 1)
+
+    def test_diminuisci_anonimo_con_ajax_restituisce_401(self):
+        elemento = Carrello.objects.create(cliente=self.utente, prodotto=self.prodotto, quantita=1)
+        self.client.logout()
+        response = self.client.post(
+            reverse("diminuisci_quantita", args=[elemento.pk]),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 401)
+        self.assertTrue(Carrello.objects.filter(pk=elemento.pk).exists())
+
 
 class AggiungiProdottoConPrecursoreTest(TestCase):
     # Regressione: un utente loggato ma non azienda poteva aggiungere al
