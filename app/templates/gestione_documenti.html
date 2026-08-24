@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titolo %} Gestione Documenti {% endblock titolo %}
+
+{% block contenuto %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-12 py-5">
+            <div class="d-flex align-items-center position-relative">
+                <a href="{% url 'dashboard_admin' %}" class="btn btn-navbar btn-sm position-absolute start-0" title="Torna alla dashboard">
+                    <i class="bi bi-arrow-left"></i>
+                    <span class="d-none d-md-inline">Torna alla dashboard</span>
+                </a>
+                <h1 class="mb-0 mx-auto">Gestione Documenti</h1>
+                <button type="button" class="btn btn-navbar btn-sm position-absolute end-0" data-bs-toggle="modal" data-bs-target="#modalDocumento" id="btnNuovoDocumento" title="Nuovo documento">
+                    <i class="bi bi-plus-lg"></i>
+                    <span class="d-none d-md-inline">Nuovo documento</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {% include 'partials/tabella_documenti.html' %}
+</div>
+
+<div class="modal fade" id="modalDocumento" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Documento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+      </div>
+      <div class="modal-body" id="modalDocumentoBody">
+        {% include 'partials/form_documento.html' %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'js/gestione-documenti.js' %}"></script>
+
+{% endblock contenuto %}

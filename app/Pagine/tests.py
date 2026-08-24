@@ -156,7 +156,10 @@ class DashboardProdottiSenzaImmagineViewTest(TestCase):
         self.client.force_login(self.staff)
         response = self.client.get(reverse("dashboard_prodotti_senza_immagine"))
         self.assertContains(response, "Prodotto senza categoria")
-        self.assertEqual(response.content.decode().count("<td>-</td>"), 2)
+        # Colonna Categoria: cella semplice. Sottocategoria: nascosta sotto i
+        # 576px ("d-none d-sm-table-cell", vedi dashboard_prodotti_senza_immagine.html)
+        self.assertContains(response, "<td>-</td>", count=1)
+        self.assertContains(response, '<td class="d-none d-sm-table-cell">-</td>', count=1)
 
 
 import tempfile
@@ -373,12 +376,13 @@ class DashboardAdminViewTest(TestCase):
         response = self.client.get(reverse("dashboard_admin"))
         self.assertRedirects(response, reverse("home"))
 
-    def test_staff_vede_le_due_card(self):
+    def test_staff_vede_le_tre_card(self):
         self.client.force_login(self.staff)
         response = self.client.get(reverse("dashboard_admin"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, reverse("gestione_avvisi"))
         self.assertContains(response, reverse("dashboard_prodotti_senza_immagine"))
+        self.assertContains(response, reverse("gestione_documenti"))
 
 
 class DashboardIconNavbarTest(TestCase):
@@ -409,3 +413,327 @@ class DashboardIconNavbarTest(TestCase):
         self.client.force_login(self.staff)
         response = self.client.get(reverse("home"))
         self.assertNotContains(response, reverse("sincronizzazione"))
+
+
+import os
+import tempfile
+
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
+
+from .forms import DocumentoForm
+from .models import CategoriaFile, File
+
+PDF_MINIMO = b"%PDF-1.4\n%\xe2\xe3\xcf\xd3\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF"
+
+
+def _crea_categoria_file(nome="Certificazioni"):
+    return CategoriaFile.objects.create(nome_categoria=nome)
+
+
+def _crea_documento(nome_file="Certificato qualita", categoria=None):
+    if categoria is None:
+        categoria = _crea_categoria_file()
+    file = SimpleUploadedFile("certificato.pdf", PDF_MINIMO, content_type="application/pdf")
+    return File.objects.create(nome_file=nome_file, categoria=categoria, file=file)
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class DocumentoFormTest(TestCase):
+    def setUp(self):
+        self.categoria = _crea_categoria_file()
+
+    def test_form_valido_con_categoria_esistente(self):
+        file = SimpleUploadedFile("doc.pdf", PDF_MINIMO, content_type="application/pdf")
+        form = DocumentoForm(
+            data={"nome_file": "Politica qualita", "categoria": self.categoria.pk},
+            files={"file": file},
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_form_valido_con_categoria_nuova_la_crea(self):
+        file = SimpleUploadedFile("doc.pdf", PDF_MINIMO, content_type="application/pdf")
+        form = DocumentoForm(
+            data={"nome_file": "Politica qualita", "categoria": "", "categoria_nuova": "Normative"},
+            files={"file": file},
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        documento = form.save()
+        self.assertEqual(documento.categoria.nome_categoria, "Normative")
+
+    def test_categoria_nuova_gia_esistente_case_insensitive_non_duplica(self):
+        file = SimpleUploadedFile("doc.pdf", PDF_MINIMO, content_type="application/pdf")
+        form = DocumentoForm(
+            data={"nome_file": "Politica qualita", "categoria": "", "categoria_nuova": "certificazioni"},
+            files={"file": file},
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        documento = form.save()
+        self.assertEqual(documento.categoria_id, self.categoria.pk)
+        self.assertEqual(CategoriaFile.objects.count(), 1)
+
+    def test_nessuna_categoria_ne_nuova_non_valido(self):
+        file = SimpleUploadedFile("doc.pdf", PDF_MINIMO, content_type="application/pdf")
+        form = DocumentoForm(
+            data={"nome_file": "Politica qualita", "categoria": ""},
+            files={"file": file},
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("categoria_nuova", form.errors)
+
+    def test_nome_file_vuoto_non_valido(self):
+        file = SimpleUploadedFile("doc.pdf", PDF_MINIMO, content_type="application/pdf")
+        form = DocumentoForm(
+            data={"nome_file": "", "categoria": self.categoria.pk},
+            files={"file": file},
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("nome_file", form.errors)
+
+    def test_file_non_pdf_rifiutato_anche_con_estensione_pdf(self):
+        # Stessa rigidita' gia' usata per le immagini prodotto
+        # (carica_immagine_prodotto): il contenuto va validato sui byte
+        # veri, non fidandosi del nome file/estensione forniti dal client
+        file = SimpleUploadedFile("doc.pdf", b"non e' un pdf", content_type="application/pdf")
+        form = DocumentoForm(
+            data={"nome_file": "Politica qualita", "categoria": self.categoria.pk},
+            files={"file": file},
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("file", form.errors)
+
+    def test_modifica_senza_nuovo_file_mantiene_quello_esistente(self):
+        documento = _crea_documento(categoria=self.categoria)
+        nome_file_originale = documento.file.name
+        form = DocumentoForm(
+            data={"nome_file": "Nome aggiornato", "categoria": self.categoria.pk},
+            files={},
+            instance=documento,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        aggiornato = form.save()
+        self.assertEqual(aggiornato.file.name, nome_file_originale)
+        self.assertEqual(aggiornato.nome_file, "Nome aggiornato")
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class GestioneDocumentiViewTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.staff = User.objects.create_user(
+            username="staffdoc1", email="staffdoc1@example.com", password="testpass123", is_staff=True
+        )
+        self.utente = User.objects.create_user(
+            username="normaledoc1", email="normaledoc1@example.com", password="testpass123"
+        )
+
+    def test_anonimo_reindirizzato_al_login(self):
+        response = self.client.get(reverse("gestione_documenti"))
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith(reverse("login")))
+
+    def test_utente_normale_reindirizzato_alla_home(self):
+        self.client.force_login(self.utente)
+        response = self.client.get(reverse("gestione_documenti"))
+        self.assertRedirects(response, reverse("home"))
+
+    def test_pagina_visibile_per_staff_e_mostra_i_documenti(self):
+        _crea_documento(nome_file="Certificato ISO")
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("gestione_documenti"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Certificato ISO")
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class NuovoDocumentoViewTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.staff = User.objects.create_user(
+            username="staffdoc2", email="staffdoc2@example.com", password="testpass123", is_staff=True
+        )
+        self.utente = User.objects.create_user(
+            username="normaledoc2", email="normaledoc2@example.com", password="testpass123"
+        )
+        self.categoria = _crea_categoria_file()
+
+    def test_post_valido_crea_documento_e_risponde_con_tabella_aggiornata(self):
+        self.client.force_login(self.staff)
+        file = SimpleUploadedFile("doc.pdf", PDF_MINIMO, content_type="application/pdf")
+        response = self.client.post(
+            reverse("nuovo_documento"),
+            data={"nome_file": "Certificato ISO", "categoria": self.categoria.pk, "file": file},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Certificato ISO")
+        self.assertTrue(File.objects.filter(nome_file="Certificato ISO").exists())
+
+    def test_post_con_categoria_nuova_la_crea_e_associa(self):
+        self.client.force_login(self.staff)
+        file = SimpleUploadedFile("doc.pdf", PDF_MINIMO, content_type="application/pdf")
+        response = self.client.post(
+            reverse("nuovo_documento"),
+            data={"nome_file": "Normativa X", "categoria": "", "categoria_nuova": "Normative", "file": file},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        documento = File.objects.get(nome_file="Normativa X")
+        self.assertEqual(documento.categoria.nome_categoria, "Normative")
+
+    def test_post_non_valido_non_crea_nulla_e_risponde_con_form_errori(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse("nuovo_documento"),
+            data={"nome_file": "Documento senza file", "categoria": self.categoria.pk},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(File.objects.filter(nome_file="Documento senza file").exists())
+
+    def test_utente_normale_non_autorizzato(self):
+        self.client.force_login(self.utente)
+        response = self.client.post(reverse("nuovo_documento"), data={}, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 302)
+
+    def test_get_risponde_405(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("nuovo_documento"))
+        self.assertEqual(response.status_code, 405)
+
+    def test_post_non_ajax_valido_reindirizza_a_gestione_documenti(self):
+        self.client.force_login(self.staff)
+        file = SimpleUploadedFile("doc.pdf", PDF_MINIMO, content_type="application/pdf")
+        response = self.client.post(
+            reverse("nuovo_documento"),
+            data={"nome_file": "Certificato ISO", "categoria": self.categoria.pk, "file": file},
+        )
+        self.assertRedirects(response, reverse("gestione_documenti"))
+        self.assertTrue(File.objects.filter(nome_file="Certificato ISO").exists())
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class ModificaDocumentoViewTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.staff = User.objects.create_user(
+            username="staffdoc3", email="staffdoc3@example.com", password="testpass123", is_staff=True
+        )
+        self.categoria = _crea_categoria_file()
+        self.documento = _crea_documento(nome_file="Certificato ISO", categoria=self.categoria)
+
+    def test_post_valido_aggiorna_documento_esistente(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse("modifica_documento", args=[self.documento.pk]),
+            data={"nome_file": "Certificato ISO aggiornato", "categoria": self.categoria.pk},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.documento.refresh_from_db()
+        self.assertEqual(self.documento.nome_file, "Certificato ISO aggiornato")
+
+    def test_post_non_valido_non_modifica_nulla(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse("modifica_documento", args=[self.documento.pk]),
+            data={"nome_file": "", "categoria": self.categoria.pk},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.documento.refresh_from_db()
+        self.assertEqual(self.documento.nome_file, "Certificato ISO")
+
+    def test_utente_normale_non_autorizzato(self):
+        User = get_user_model()
+        utente = User.objects.create_user(username="normaledoc3", email="normaledoc3@example.com", password="testpass123")
+        self.client.force_login(utente)
+        response = self.client.post(
+            reverse("modifica_documento", args=[self.documento.pk]), data={}, HTTP_X_REQUESTED_WITH="XMLHttpRequest"
+        )
+        self.assertEqual(response.status_code, 302)
+
+    def test_pk_inesistente_risponde_404(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse("modifica_documento", args=[999999]),
+            data={"nome_file": "x", "categoria": self.categoria.pk},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_risponde_405(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("modifica_documento", args=[self.documento.pk]))
+        self.assertEqual(response.status_code, 405)
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class EliminaDocumentoViewTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.staff = User.objects.create_user(
+            username="staffdoc4", email="staffdoc4@example.com", password="testpass123", is_staff=True
+        )
+        self.categoria = _crea_categoria_file()
+        self.documento = _crea_documento(nome_file="Certificato ISO", categoria=self.categoria)
+
+    def test_post_elimina_documento_e_cancella_il_file_fisico(self):
+        self.client.force_login(self.staff)
+        percorso_file = self.documento.file.path
+        self.assertTrue(os.path.exists(percorso_file))
+        response = self.client.post(reverse("elimina_documento", args=[self.documento.pk]), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(File.objects.filter(pk=self.documento.pk).exists())
+        self.assertFalse(os.path.exists(percorso_file))
+
+    def test_utente_normale_non_autorizzato(self):
+        User = get_user_model()
+        utente = User.objects.create_user(username="normaledoc4", email="normaledoc4@example.com", password="testpass123")
+        self.client.force_login(utente)
+        response = self.client.post(reverse("elimina_documento", args=[self.documento.pk]), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(File.objects.filter(pk=self.documento.pk).exists())
+
+    def test_pk_inesistente_risponde_404(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(reverse("elimina_documento", args=[999999]), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_risponde_405(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("elimina_documento", args=[self.documento.pk]))
+        self.assertEqual(response.status_code, 405)
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class GestioneDocumentiContrattoJsTest(TestCase):
+    # Guardia di regressione per il contratto tra il template e
+    # gestione-documenti.js: stesso spirito di
+    # AvvisoChiusuraGestionePageContrattoJsTest in Avvisi/tests.py
+    def setUp(self):
+        User = get_user_model()
+        self.staff = User.objects.create_user(
+            username="staffdoccontratto", email="staffdoccontratto@example.com", password="testpass123", is_staff=True
+        )
+        _crea_documento(nome_file="Certificato ISO")
+
+    def test_pagina_contiene_id_ed_attributi_richiesti_dal_js(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("gestione_documenti"))
+        self.assertEqual(response.status_code, 200)
+        stringhe_richieste = [
+            'id="tabella-documenti"',
+            'id="modalDocumento"',
+            'id="modalDocumentoBody"',
+            'id="btnNuovoDocumento"',
+            'id="form-documento"',
+            'data-nome-file="',
+            'data-categoria-pk="',
+            'data-url-modifica="',
+            'data-url-elimina="',
+            'btn-modifica-documento',
+            'btn-elimina-documento',
+        ]
+        for stringa in stringhe_richieste:
+            self.assertContains(response, stringa)

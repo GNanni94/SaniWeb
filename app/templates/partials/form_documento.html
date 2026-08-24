@@ -1,0 +1,11 @@
+{% load crispy_forms_tags %}
+<form id="form-documento" method="post" action="{{ azione_url }}" enctype="multipart/form-data" data-azione-nuovo="{% url 'nuovo_documento' %}">
+  {% csrf_token %}
+  {{ form.categoria|as_crispy_field }}
+  <div id="campoCategoriaNuova">
+    {{ form.categoria_nuova|as_crispy_field }}
+  </div>
+  {{ form.file|as_crispy_field }}
+  {{ form.nome_file|as_crispy_field }}
+  <button type="submit" class="btn btn-navbar">Salva</button>
+</form>

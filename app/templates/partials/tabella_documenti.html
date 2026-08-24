@@ -1,0 +1,46 @@
+<div id="tabella-documenti">
+  {% if documenti %}
+  <div class="table-responsive">
+    {% comment %}
+    Stesso schema di tabella_avvisi.html: niente "table-bordered"
+    sull'intera tabella (romperebbe il bordo della colonna Azioni), bordo
+    aggiunto a mano solo alle celle delle colonne vere.
+    {% endcomment %}
+    <table class="table table-sm table-hover text-center align-middle">
+      <thead>
+        <tr>
+          <th scope="col" class="border">Nome</th>
+          <th scope="col" class="border">Categoria</th>
+          <th scope="col" class="border-0 bg-transparent text-nowrap" style="width: 1%;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for documento in documenti %}
+        <tr data-pk="{{ documento.pk }}"
+            data-nome-file="{{ documento.nome_file }}"
+            data-categoria-pk="{{ documento.categoria_id|default:'' }}">
+          <td class="border">
+            {% if documento.file %}
+            <a href="{{ documento.file.url }}" target="_blank" class="text-reset text-decoration-none">{{ documento.nome_file }}</a>
+            {% else %}
+            {{ documento.nome_file }}
+            {% endif %}
+          </td>
+          <td class="border">{{ documento.categoria.nome_categoria|default:"-" }}</td>
+          <td class="border-0 bg-transparent text-nowrap" style="width: 1%;">
+            <button type="button" class="btn btn-sm btn-outline-navbar btn-modifica-documento" data-url-modifica="{% url 'modifica_documento' documento.pk %}" title="Modifica" aria-label="Modifica">
+              <i class="bi bi-pencil-square"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger btn-elimina-documento" data-url-elimina="{% url 'elimina_documento' documento.pk %}" title="Elimina" aria-label="Elimina">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-center">Nessun documento configurato.</p>
+  {% endif %}
+</div>

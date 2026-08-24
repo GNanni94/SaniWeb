@@ -8,10 +8,12 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView
 
 from Prodotti.models import DEFAULT_IMMAGINE_ARTICOLO, ImmaginiArticolo, Prodotto
+from .forms import DocumentoForm
 from .models import File, CategoriaFile
 
 # Create your views here.
@@ -118,3 +120,75 @@ def carica_immagine_prodotto(request, pk):
     immagine_articolo.immagine.name = f"/{settings.MEDIA_URL.lstrip('/')}{immagine_articolo.immagine.name}"
     immagine_articolo.save(update_fields=['immagine'])
     return JsonResponse({'ok': True})
+
+
+def _is_ajax_request_documenti(request):
+    # Stesso pattern gia' usato in Avvisi/views.py e Prodotti/views.py:
+    # l'header lo manda il fetch() del JS (vedi
+    # app/static/js/gestione-documenti.js), mai un browser in una
+    # richiesta di navigazione normale
+    return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+
+def _risposta_tabella_documenti(request):
+    if not _is_ajax_request_documenti(request):
+        # Nessun JS e form comunque sottomesso come navigazione vera: un
+        # frammento nudo sarebbe una pagina rotta, si torna alla pagina
+        # completa (POST-redirect-GET)
+        return redirect('gestione_documenti')
+    documenti = File.objects.select_related('categoria').all()
+    return render(request, 'partials/tabella_documenti.html', {'documenti': documenti})
+
+
+def _risposta_form_documento_errori(request, form, azione_url):
+    if not _is_ajax_request_documenti(request):
+        return redirect('gestione_documenti')
+    return render(request, 'partials/form_documento.html', {
+        'form': form,
+        'azione_url': azione_url,
+    }, status=400)
+
+
+@dashboard_richiesto
+def gestione_documenti(request):
+    documenti = File.objects.select_related('categoria').all()
+    form = DocumentoForm()
+    return render(request, 'gestione_documenti.html', {
+        'documenti': documenti,
+        'form': form,
+        'azione_url': reverse('nuovo_documento'),
+    })
+
+
+@dashboard_richiesto
+@require_POST
+def nuovo_documento(request):
+    form = DocumentoForm(request.POST, request.FILES)
+    if form.is_valid():
+        form.save()
+        return _risposta_tabella_documenti(request)
+    return _risposta_form_documento_errori(request, form, reverse('nuovo_documento'))
+
+
+@dashboard_richiesto
+@require_POST
+def modifica_documento(request, pk):
+    documento = get_object_or_404(File, pk=pk)
+    form = DocumentoForm(request.POST, request.FILES, instance=documento)
+    if form.is_valid():
+        form.save()
+        return _risposta_tabella_documenti(request)
+    return _risposta_form_documento_errori(request, form, reverse('modifica_documento', args=[pk]))
+
+
+@dashboard_richiesto
+@require_POST
+def elimina_documento(request, pk):
+    documento = get_object_or_404(File, pk=pk)
+    if documento.file:
+        # Django non cancella il file fisico dallo storage quando si
+        # elimina la riga: va fatto esplicitamente, altrimenti resta
+        # orfano su disco
+        documento.file.delete(save=False)
+    documento.delete()
+    return _risposta_tabella_documenti(request)

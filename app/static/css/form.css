@@ -79,6 +79,13 @@
   display: none;
 }
 
+/* Stesso ragionamento sopra, applicato ai campi del form di
+   creazione/modifica documento (gestione_documenti.html) - "Nome file" e
+   "File" restano obbligatori, solo l'asterisco viene nascosto */
+#form-documento .asteriskField {
+  display: none;
+}
+
 /* crispy-forms genera un unico div con label sopra l'input: qui li
    affianchiamo (etichetta a sinistra, box a destra) - non ottenibile con le
    sole utility Bootstrap perche' non possiamo assegnare classi al div
