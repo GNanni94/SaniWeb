@@ -6,11 +6,18 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-12 d-flex justify-content-between align-items-center py-5">
-            <h1 class="mb-0">Avvisi di chiusura</h1>
-            <button type="button" class="btn btn-navbar" data-bs-toggle="modal" data-bs-target="#modalAvviso" id="btnNuovoAvviso">
-                Nuovo avviso
-            </button>
+        <div class="col-12 py-5">
+            <div class="d-flex align-items-center position-relative">
+                <a href="{% url 'dashboard_admin' %}" class="btn btn-navbar btn-sm position-absolute start-0" title="Torna alla dashboard">
+                    <i class="bi bi-arrow-left"></i>
+                    <span class="d-none d-md-inline">Torna alla dashboard</span>
+                </a>
+                <h1 class="mb-0 mx-auto">Avvisi di chiusura</h1>
+                <button type="button" class="btn btn-navbar position-absolute end-0" data-bs-toggle="modal" data-bs-target="#modalAvviso" id="btnNuovoAvviso" title="Nuovo avviso">
+                    <i class="bi bi-plus-lg"></i>
+                    <span class="d-none d-md-inline">Nuovo avviso</span>
+                </button>
+            </div>
         </div>
     </div>
 
