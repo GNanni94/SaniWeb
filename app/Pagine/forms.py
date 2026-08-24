@@ -41,8 +41,13 @@ class DocumentoForm(forms.ModelForm):
         return file
 
     def save(self, commit=True):
+        # La select ha sempre la priorita': "categoria_nuova" va letto solo
+        # se non e' stata scelta una categoria esistente, altrimenti un
+        # testo dimenticato li' (il JS toglie solo la classe "d-none" al
+        # cambio di "categoria", non lo svuota mai) sovrascriverebbe la
+        # scelta appena fatta nella select
         categoria_nuova = self.cleaned_data.get("categoria_nuova", "").strip()
-        if categoria_nuova:
+        if not self.cleaned_data.get("categoria") and categoria_nuova:
             categoria, _ = CategoriaFile.objects.get_or_create(
                 nome_categoria__iexact=categoria_nuova,
                 defaults={"nome_categoria": categoria_nuova},

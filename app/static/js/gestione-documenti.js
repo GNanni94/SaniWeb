@@ -98,17 +98,39 @@
         salvaDocumento(f);
     });
 
+    // Riporta nello snapshot del form vuoto (usato da "+ Nuovo documento")
+    // le stesse opzioni della select "categoria" appena ricevute dal
+    // server: senza questo, una categoria creata al volo (campo "Nome
+    // categoria" in form_documento.html) resterebbe invisibile li' finche'
+    // non si ricarica l'intera pagina - lo snapshot e' catturato una sola
+    // volta all'avvio (vedi sopra) e altrimenti non si aggiorna mai da solo
+    function aggiornaOpzioniCategoriaNelFormVuoto(opzioniHTML) {
+        var tmp = document.createElement('div');
+        tmp.innerHTML = formInizialeHTML;
+        var select = tmp.querySelector('#id_categoria');
+        if (!select) {
+            return;
+        }
+        select.innerHTML = opzioniHTML;
+        formInizialeHTML = tmp.innerHTML;
+    }
+
     function sostituisciTabella(html) {
         var tmp = document.createElement('div');
         tmp.innerHTML = html.trim();
-        var nuovoContenuto = tmp.firstElementChild;
-        if (!nuovoContenuto || nuovoContenuto.id !== 'tabella-documenti') {
+        var nuovoContenuto = tmp.querySelector('#tabella-documenti');
+        if (!nuovoContenuto) {
             // Risposta inattesa (es. pagina di login intera): fallback a
             // un reload completo invece di lasciare la pagina incoerente
             window.location.reload();
             return;
         }
         tabellaContainer.innerHTML = nuovoContenuto.innerHTML;
+
+        var opzioniCategoria = tmp.querySelector('#opzioniCategoriaAggiornate');
+        if (opzioniCategoria) {
+            aggiornaOpzioniCategoriaNelFormVuoto(opzioniCategoria.innerHTML);
+        }
     }
 
     function salvaDocumento(f) {

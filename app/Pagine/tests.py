@@ -184,6 +184,15 @@ BMP_1PX = (
     b'\x00\x00\x00\x00\x00\xff\x00'
 )
 
+# Immagine PNG 1x1 valida, usata per verificare il caso "riupload in un
+# formato diverso da quello precedente" (es. GIF poi PNG per lo stesso
+# prodotto)
+PNG_1PX = (
+    b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01'
+    b'\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\x0cIDATx\x9cc\xf8\xff\xff'
+    b'?\x00\x05\xfe\x02\xfe\r\xefF\xb8\x00\x00\x00\x00IEND\xaeB`\x82'
+)
+
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class CaricaImmagineProdottoViewTest(TestCase):
@@ -238,6 +247,37 @@ class CaricaImmagineProdottoViewTest(TestCase):
         self.assertEqual(response.json(), {"ok": True})
         immagine_articolo = ImmaginiArticolo.objects.get(articolo=self.prodotto)
         self.assertEqual(immagine_articolo.immagine.name, "/media/immagini_articoli/C010.gif")
+
+    def test_secondo_upload_in_formato_diverso_rimuove_il_file_vecchio(self):
+        # Regressione: un riupload che cambia formato (qui GIF poi PNG)
+        # salva il nuovo file sotto un nome diverso (estensione diversa) -
+        # se il vecchio non viene ripulito resta orfano su disco, e la
+        # sincronizzazione bulk (configuraImmagini in Prodotti/views.py, che
+        # riscansiona la cartella e abbina per prefisso codice_prodotto) puo'
+        # ripuntare il prodotto al file vecchio in base all'ordine restituito
+        # da os.listdir()
+        import os
+
+        self.client.force_login(self.staff)
+        primo_file = SimpleUploadedFile("primo.gif", GIF_1PX, content_type="image/gif")
+        self.client.post(
+            reverse("carica_immagine_prodotto", args=[self.prodotto.pk]),
+            data={"immagine": primo_file},
+        )
+        immagine_articolo = ImmaginiArticolo.objects.get(articolo=self.prodotto)
+        percorso_vecchio = immagine_articolo.immagine.storage.path("immagini_articoli/C010.gif")
+        self.assertTrue(os.path.exists(percorso_vecchio))
+
+        secondo_file = SimpleUploadedFile("secondo.png", PNG_1PX, content_type="image/png")
+        response = self.client.post(
+            reverse("carica_immagine_prodotto", args=[self.prodotto.pk]),
+            data={"immagine": secondo_file},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"ok": True})
+        immagine_articolo.refresh_from_db()
+        self.assertEqual(immagine_articolo.immagine.name, "/media/immagini_articoli/C010.png")
+        self.assertFalse(os.path.exists(percorso_vecchio), "il vecchio C010.gif doveva essere rimosso")
 
     def test_upload_valido_il_src_nella_griglia_prodotti_e_un_percorso_assoluto_media(self):
         # Regressione per il bug C1 della review finale: i template che
@@ -472,6 +512,27 @@ class DocumentoFormTest(TestCase):
         self.assertEqual(documento.categoria_id, self.categoria.pk)
         self.assertEqual(CategoriaFile.objects.count(), 1)
 
+    def test_categoria_esistente_selezionata_ha_priorita_su_nuova_residua(self):
+        # Regressione: se si scrive testo in "Nome categoria" e poi si
+        # ripensa selezionando una categoria gia' esistente dalla select,
+        # deve vincere la scelta della select - il campo "categoria_nuova"
+        # resta valorizzato nel DOM (il JS toglie solo la classe "d-none",
+        # non lo svuota) ma va ignorato quando una categoria e' selezionata
+        altra_categoria = _crea_categoria_file(nome="Normative")
+        file = SimpleUploadedFile("doc.pdf", PDF_MINIMO, content_type="application/pdf")
+        form = DocumentoForm(
+            data={
+                "nome_file": "Politica qualita",
+                "categoria": altra_categoria.pk,
+                "categoria_nuova": "Testo dimenticato nel campo",
+            },
+            files={"file": file},
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        documento = form.save()
+        self.assertEqual(documento.categoria_id, altra_categoria.pk)
+        self.assertEqual(CategoriaFile.objects.count(), 2)
+
     def test_nessuna_categoria_ne_nuova_non_valido(self):
         file = SimpleUploadedFile("doc.pdf", PDF_MINIMO, content_type="application/pdf")
         form = DocumentoForm(
@@ -580,6 +641,22 @@ class NuovoDocumentoViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         documento = File.objects.get(nome_file="Normativa X")
         self.assertEqual(documento.categoria.nome_categoria, "Normative")
+
+    def test_risposta_include_le_opzioni_categoria_aggiornate(self):
+        # Regressione: senza questo elenco nella risposta, il JS non ha modo
+        # di aggiornare lo snapshot del form vuoto usato da "+ Nuovo
+        # documento" - la categoria appena creata resterebbe invisibile in
+        # quella select finche' non si ricarica l'intera pagina
+        self.client.force_login(self.staff)
+        file = SimpleUploadedFile("doc.pdf", PDF_MINIMO, content_type="application/pdf")
+        response = self.client.post(
+            reverse("nuovo_documento"),
+            data={"nome_file": "Normativa X", "categoria": "", "categoria_nuova": "Normative", "file": file},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="opzioniCategoriaAggiornate"')
+        self.assertContains(response, "Normative")
 
     def test_post_non_valido_non_crea_nulla_e_risponde_con_form_errori(self):
         self.client.force_login(self.staff)

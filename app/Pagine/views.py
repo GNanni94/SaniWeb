@@ -1,3 +1,4 @@
+import os
 from functools import wraps
 from typing import Any
 
@@ -91,15 +92,38 @@ def carica_immagine_prodotto(request, pk):
     immagine_articolo, _ = ImmaginiArticolo.objects.get_or_create(articolo=prodotto)
 
     # Se un file esiste già esattamente al percorso di destinazione (es. un
-    # caricamento precedente per lo stesso prodotto), va rimosso prima del
-    # salvataggio: altrimenti lo storage aggiungerebbe un suffisso casuale
-    # al nome per evitare la collisione, rompendo silenziosamente il
-    # matching per nome file usato dallo script di sincronizzazione
-    # bulk (configuraImmagini in Prodotti/views.py).
+    # caricamento precedente per lo stesso prodotto nello stesso formato),
+    # va rimosso prima del salvataggio: altrimenti lo storage aggiungerebbe
+    # un suffisso casuale al nome per evitare la collisione, rompendo
+    # silenziosamente il matching per nome file usato dallo script di
+    # sincronizzazione bulk (configuraImmagini in Prodotti/views.py).
     campo_immagine = immagine_articolo._meta.get_field('immagine')
     percorso_destinazione = campo_immagine.generate_filename(immagine_articolo, file.name)
     if campo_immagine.storage.exists(percorso_destinazione):
         campo_immagine.storage.delete(percorso_destinazione)
+
+    # Un caricamento precedente in un FORMATO diverso (es. prima .jpg, ora
+    # .png) lascerebbe altrimenti quel vecchio file orfano su disco - il
+    # controllo sopra non lo trova perche' cerca solo al nuovo percorso di
+    # destinazione. configuraImmagini() (Prodotti/views.py) fa match per
+    # solo prefisso "codice_prodotto" su tutti i file della cartella: se il
+    # vecchio file resta, la sincronizzazione bulk puo' ripuntare
+    # l'immagine del prodotto su di lui in base all'ordine (non garantito)
+    # restituito da os.listdir().
+    cartella_immagini = os.path.dirname(percorso_destinazione)
+    nome_nuovo_file = os.path.basename(percorso_destinazione)
+    # La cartella potrebbe non esistere ancora (primo upload in assoluto in
+    # questo MEDIA_ROOT, es. nei test): "storage.exists" funziona anche per
+    # le directory, non solo per i file
+    if not campo_immagine.storage.exists(cartella_immagini):
+        nomi_file_esistenti = []
+    else:
+        _, nomi_file_esistenti = campo_immagine.storage.listdir(cartella_immagini)
+    for nome_file in nomi_file_esistenti:
+        if nome_file == nome_nuovo_file:
+            continue
+        if os.path.splitext(nome_file)[0] == prodotto.codice_prodotto:
+            campo_immagine.storage.delete(os.path.join(cartella_immagini, nome_file))
 
     immagine_articolo.immagine = file
     immagine_articolo.save()
@@ -137,7 +161,13 @@ def _risposta_tabella_documenti(request):
         # completa (POST-redirect-GET)
         return redirect('gestione_documenti')
     documenti = File.objects.select_related('categoria').all()
-    return render(request, 'partials/tabella_documenti.html', {'documenti': documenti})
+    # Elenco aggiornato delle categorie, incluso in ogni risposta: senza
+    # questo il JS (gestione-documenti.js) non avrebbe modo di sapere che
+    # una categoria e' stata appena creata (es. da "categoria_nuova"), e lo
+    # snapshot del form vuoto usato da "+ Nuovo documento" continuerebbe a
+    # mostrare l'elenco categorie di quando la pagina e' stata caricata
+    categorie = CategoriaFile.objects.all()
+    return render(request, 'partials/tabella_documenti.html', {'documenti': documenti, 'categorie': categorie})
 
 
 def _risposta_form_documento_errori(request, form, azione_url):
@@ -157,6 +187,7 @@ def gestione_documenti(request):
         'documenti': documenti,
         'form': form,
         'azione_url': reverse('nuovo_documento'),
+        'categorie': CategoriaFile.objects.all(),
     })
 
 

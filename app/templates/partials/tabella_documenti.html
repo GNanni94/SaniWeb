@@ -44,3 +44,20 @@
   <p class="text-center">Nessun documento configurato.</p>
   {% endif %}
 </div>
+
+{% comment %}
+Elenco aggiornato delle categorie, sempre presente in questa risposta
+(anche quando questo partial e' incluso nella pagina intera, dove
+"categorie" arriva nel context di gestione_documenti): serve solo al JS
+(gestione-documenti.js, sostituisciTabella) per tenere aggiornata la
+select "categoria" dello snapshot del form vuoto usato da "+ Nuovo
+documento", altrimenti una categoria creata al volo (form_documento.html,
+campo "Nome categoria") resterebbe invisibile li' finche' non si
+ricarica l'intera pagina.
+{% endcomment %}
+<select id="opzioniCategoriaAggiornate" class="d-none">
+  <option value="">+ Nuova categoria</option>
+  {% for categoria in categorie %}
+  <option value="{{ categoria.pk }}">{{ categoria.nome_categoria }}</option>
+  {% endfor %}
+</select>
