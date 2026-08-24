@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
+from django.db import connection
 from django.test import RequestFactory, TestCase
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
 from Prodotti.models import Categoria, Prodotto
@@ -113,6 +115,27 @@ class CarrelloFlottanteAjaxViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Sgrassatore forte")
         self.assertContains(response, 'id="badgeCarrelloFlottante"')
+
+    def test_aggiungi_con_ajax_interroga_gli_elementi_carrello_una_sola_volta(self):
+        # Regressione: _render_widget_carrello_flottante (Carrello/views.py)
+        # passava esplicitamente il context di "carrello_ha_prodotti" a
+        # render() - ma essendo anche registrato globalmente come context
+        # processor (settings.py), Django lo rieseguiva comunque una
+        # seconda volta durante il render, raddoppiando la query su Carrello
+        with CaptureQueriesContext(connection) as catturate:
+            self.client.get(
+                reverse("aggiungi_prodotti", args=[self.prodotto.pk]),
+                HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+            )
+        # Query specifica di "carrello_ha_prodotti" (list + select_related +
+        # ordinamento sugli elementi carrello dell'utente): distinta dalla
+        # query del get_or_create (che filtra anche per prodotto_id, senza
+        # ORDER BY ne' JOIN su Prodotto) fatta dalla view stessa
+        select_elementi_carrello = [
+            q for q in catturate.captured_queries
+            if '"Carrello"' in q["sql"] and 'INNER JOIN "Prodotto"' in q["sql"] and "ORDER BY" in q["sql"]
+        ]
+        self.assertEqual(len(select_elementi_carrello), 1, [q["sql"] for q in select_elementi_carrello])
 
     def test_aggiungi_senza_ajax_continua_a_fare_redirect(self):
         response = self.client.get(reverse("aggiungi_prodotti", args=[self.prodotto.pk]))

@@ -52,6 +52,20 @@
         tabella.classList.toggle('d-none', nessunProdotto || visibili === 0);
         messaggioVuoto.classList.toggle('d-none', !nessunProdotto);
         messaggioNessunRisultato.classList.toggle('d-none', nessunProdotto || visibili !== 0);
+
+        // Nasconde anche la pillola di ricerca quando l'ultimo prodotto
+        // viene rimosso (upload riuscito senza ricaricare la pagina): senza
+        // questo restava visibile, diversamente da un caricamento fresco
+        // della stessa pagina ormai vuota (vedi "{% if not prodotti %}" nel
+        // template). Da telefono, se la ricerca e' gia' attiva (campo
+        // spostato dentro l'intestazione, vedi "attivaRicercaMobile" sotto)
+        // la pillola resta cosi' com'e' - questa funzione gira anche ad
+        // ogni carattere digitato li' dentro, un "toggle" incondizionato la
+        // farebbe ricomparire per errore mentre si sta ancora scrivendo
+        var ricercaMobileAttiva = colonnaCodiceTh.contains(inputRicerca);
+        if (!ricercaMobileAttiva) {
+            ricercaWrapper.classList.toggle('d-none', nessunProdotto);
+        }
     }
 
     inputRicerca.addEventListener('input', applicaFiltroRicerca);

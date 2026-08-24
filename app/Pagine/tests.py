@@ -447,9 +447,12 @@ class DashboardIconNavbarTest(TestCase):
 
     def test_icone_sincronizzazione_e_gestione_avvisi_non_sono_piu_dirette(self):
         # Le due icone dirette sono state sostituite dall'icona unica:
-        # sincronizzazione non e' piu' raggiungibile dal dropdown (resta
-        # raggiungibile solo dalla pagina prodotti-senza-immagine), e il
-        # link ad avvisi passa ora dalla dashboard
+        # sincronizzazione non e' piu' raggiungibile dal dropdown ne' da
+        # nessun'altra pagina (il bottone "Sincronizza immagini e schede" e'
+        # stato tolto anche da dashboard_prodotti_senza_immagine.html, unico
+        # posto da cui restava raggiungibile - vista/url tenuti per un uso
+        # futuro, scelta esplicita: vedi Prodotti/views.py:sincronizzazione),
+        # e il link ad avvisi passa ora dalla dashboard
         self.client.force_login(self.staff)
         response = self.client.get(reverse("home"))
         self.assertNotContains(response, reverse("sincronizzazione"))

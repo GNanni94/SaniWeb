@@ -12,7 +12,6 @@ from typing import Any, Dict
 from Preventivo.forms import DettaglioPreventivoForm
 from Preventivo.models import Preventivo, Dettaglio_Preventivo, Elementi_Preventivo
 from .forms import CarrelloForm
-from .context_processors import carrello_ha_prodotti as contesto_widget_carrello
 import json
 import logging
 
@@ -23,7 +22,11 @@ def _e_richiesta_in_background(request):
 
 
 def _render_widget_carrello_flottante(request):
-    return render(request, 'partials/carrello_flottante.html', contesto_widget_carrello(request))
+    # Nessun context esplicito da passare: "carrello_ha_prodotti" e' gia'
+    # registrato globalmente come context processor (settings.py), quindi
+    # render() lo esegue comunque da solo - passarlo qui a mano duplicava
+    # la query sugli elementi del carrello ad ogni azione AJAX
+    return render(request, 'partials/carrello_flottante.html')
 
 # Create your views here.
 class CarrelloListView(LoginRequiredMixin, ListView):

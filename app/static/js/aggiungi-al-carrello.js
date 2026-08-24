@@ -58,8 +58,16 @@ document.addEventListener('click', function (event) {
             });
         })
         .catch(function () {
-            // Fallback: se la richiesta in background fallisce, si naviga
-            // normalmente (redirect pieno, gestito lato server)
-            window.location.href = link.href;
+            // Non si puo' distinguere in modo affidabile, da una fetch
+            // fallita, se la richiesta non e' mai arrivata al server oppure
+            // se e' arrivata e ha gia' aggiunto il prodotto ma solo la
+            // risposta si e' persa (connessione caduta, timeout): ri-
+            // navigare sullo stesso link (che aggiunge di nuovo il
+            // prodotto, essendo una GET senza @require_POST) rischierebbe
+            // di raddoppiare la quantita' in quest'ultimo caso. Un reload
+            // mostra invece lo stato reale del carrello qualunque esso sia
+            // - stesso principio gia' usato per gli errori imprevisti in
+            // gestione-avvisi.js/gestione-documenti.js
+            window.location.reload();
         });
 });
