@@ -128,6 +128,56 @@
   color: var(--color-text-light);
 }
 
+/* Paginazione della griglia a card (prodotti_card.html/griglia_prodotti.html):
+   stessi identici valori gia' usati per ".paginate_button" di DataTables in
+   prodotti_tabella.html piu' sotto (colori, raggio, ombra all'hover, ecc.),
+   scelta esplicita dell'utente per farle sembrare visivamente la stessa
+   componente pur essendo generate da HTML/markup diversi (qui Bootstrap
+   ".pagination" server-side con page reload reale, li' DataTables lato
+   client) - selettore per id ("#paginazioneGrigliaProdotti", solo su questo
+   "<nav>") apposta, altrimenti la stessa ".pagination"/".page-link" di
+   Bootstrap usata in preventivo.html cambierebbe aspetto anche li' */
+#paginazioneGrigliaProdotti .page-link {
+  margin: 0 2px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 4px !important; /* !important: Bootstrap squadra di suo gli angoli esterni di primo/ultimo elemento */
+  background-color: transparent;
+  color: rgb(79, 79, 79);
+  font-family: Roboto, sans-serif;
+  font-size: 14.4px;
+  line-height: 23.04px;
+  transition: 0.3s linear;
+}
+
+#paginazioneGrigliaProdotti .page-item:not(.disabled):not(.active) .page-link:hover {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, .2), 0 6px 20px 0 rgba(0, 0, 0, .19);
+  background-color: rgba(0, 0, 0, 0.06);
+  color: #000;
+}
+
+#paginazioneGrigliaProdotti .page-item.active .page-link {
+  background-color: rgb(18, 102, 241);
+  color: #fff;
+}
+
+#paginazioneGrigliaProdotti .page-item.disabled .page-link {
+  color: rgb(117, 117, 117);
+  cursor: default;
+}
+
+/* L'unico elemento disabilitato che deve restare visibile e' l'ellissi
+   "..." in mezzo alla lista (stile ripreso da ".dataTables_paginate
+   .ellipsis" li' sotto): Precedente/Successivo disabilitati (sempre primo e
+   ultimo elemento della lista, vedi griglia_prodotti.html) vanno invece
+   nascosti del tutto, stesso comportamento di ".paginate_button.previous/
+   .next.disabled" in prodotti_tabella.html invece di restare visibili in
+   grigio come farebbe Bootstrap di suo */
+#paginazioneGrigliaProdotti .page-item:first-child.disabled,
+#paginazioneGrigliaProdotti .page-item:last-child.disabled {
+  display: none;
+}
+
 /* Tabella prodotti (DataTables): nasconde la tabella (senza toglierla dal
    flusso, "visibility" non "display", altrimenti DataTables non riuscirebbe
    a misurarne le colonne durante l'inizializzazione) finche' DataTables non
