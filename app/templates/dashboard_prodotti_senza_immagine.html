@@ -6,9 +6,23 @@
 
 <div class="container">
     <div class="row py-5">
-        <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
-            <h1 class="mb-0">Prodotti senza immagine</h1>
-            <a href="{% url 'sincronizzazione' %}" class="btn btn-outline-primary btn-sm">Sincronizza immagini e schede</a>
+        <div class="col-12 mb-4">
+            <div class="d-flex align-items-center position-relative">
+                <a href="{% url 'dashboard_admin' %}" class="btn btn-navbar btn-sm position-absolute start-0" title="Torna alla dashboard">
+                    <i class="bi bi-arrow-left"></i>
+                    <span class="d-none d-md-inline">Torna alla dashboard</span>
+                </a>
+                <h1 class="mb-0 mx-auto">Prodotti senza immagine</h1>
+                <div class="ricerca-a-comparsa position-absolute top-50 end-0 translate-middle-y {% if not prodotti %}d-none{% endif %}" id="ricercaCodiceWrapper">
+                    <div class="input-group w-100 ricerca-form">
+                        <input type="text" class="form-control ricerca-a-comparsa-input" id="inputCercaCodiceProdotto" placeholder="Inserisci codice" aria-label="Cerca per codice prodotto" aria-describedby="toggleRicercaCodiceProdotto">
+                        <button type="button" class="input-group-text border-0 ricerca-toggle-btn" id="toggleRicercaCodiceProdotto"
+                            aria-expanded="false" aria-controls="inputCercaCodiceProdotto" title="Cerca" aria-label="Cerca">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="col-12">
 
@@ -17,10 +31,10 @@
             <table class="table table-bordered table-sm table-hover text-center align-middle {% if not prodotti %}d-none{% endif %}" id="tabella-prodotti-senza-immagine">
                 <thead class="table-navbar align-middle">
                     <tr>
-                        <th scope="col" id="colonnaCodice" tabindex="0" aria-sort="none" style="cursor: pointer;">Codice <i class="bi bi-arrow-down-up" aria-hidden="true"></i></th>
+                        <th scope="col" id="colonnaCodice" tabindex="0" aria-sort="none" style="cursor: pointer;"><span id="testoColonnaCodice">Codice <i class="bi bi-arrow-down-up d-none d-sm-inline" aria-hidden="true"></i></span></th>
                         <th scope="col">Nome</th>
-                        <th scope="col" id="colonnaCategoria" tabindex="0" aria-sort="none" style="cursor: pointer;">Categoria <i class="bi bi-arrow-down-up" aria-hidden="true"></i></th>
-                        <th scope="col">Sottocategoria</th>
+                        <th scope="col" id="colonnaCategoria" tabindex="0" aria-sort="none" style="cursor: pointer;">Categoria <i class="bi bi-arrow-down-up d-none d-sm-inline" aria-hidden="true"></i></th>
+                        <th scope="col" class="d-none d-sm-table-cell">Sottocategoria</th>
                     </tr>
                 </thead>
                 <tbody id="corpo-tabella-prodotti-senza-immagine">
@@ -36,12 +50,13 @@
                         <td>{{ prodotto.codice_prodotto }}</td>
                         <td>{{ prodotto.nome_prodotto }}</td>
                         <td>{{ prodotto.categoria.nome_categoria|default:"-" }}</td>
-                        <td>{{ prodotto.sottocategoria.nome_sottocategoria|default:"-" }}</td>
+                        <td class="d-none d-sm-table-cell">{{ prodotto.sottocategoria.nome_sottocategoria|default:"-" }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
             <p id="messaggio-nessun-prodotto" class="{% if prodotti %}d-none{% endif %}">Nessun prodotto senza immagine.</p>
+            <p id="messaggio-nessun-risultato-ricerca" class="d-none">Nessun prodotto trovato con questo codice.</p>
 
         </div>
     </div>

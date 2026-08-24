@@ -7,6 +7,12 @@
     var tabellaContainer = document.getElementById('corpo-tabella-prodotti-senza-immagine');
     var tabella = document.getElementById('tabella-prodotti-senza-immagine');
     var messaggioVuoto = document.getElementById('messaggio-nessun-prodotto');
+    var inputRicerca = document.getElementById('inputCercaCodiceProdotto');
+    var messaggioNessunRisultato = document.getElementById('messaggio-nessun-risultato-ricerca');
+    var ricercaWrapper = document.getElementById('ricercaCodiceWrapper');
+    var ricercaToggleBtn = document.getElementById('toggleRicercaCodiceProdotto');
+    var colonnaCodiceTh = document.getElementById('colonnaCodice');
+    var testoColonnaCodice = document.getElementById('testoColonnaCodice');
     var formCsrf = document.getElementById('csrf-dashboard-prodotti');
     var modalEl = document.getElementById('modalCaricaImmagineProdotto');
     var previewCodice = document.getElementById('previewProdottoCodice');
@@ -18,13 +24,86 @@
     var preview = document.getElementById('previewImmagineProdotto');
     var errore = document.getElementById('erroreCaricaImmagineProdotto');
     var btnConferma = document.getElementById('btnConfermaCaricaImmagineProdotto');
-    if (!tabellaContainer || !tabella || !messaggioVuoto || !formCsrf || !modalEl || !previewCodice
+    if (!tabellaContainer || !tabella || !messaggioVuoto || !inputRicerca || !messaggioNessunRisultato
+        || !ricercaWrapper || !ricercaToggleBtn || !colonnaCodiceTh || !testoColonnaCodice
+        || !formCsrf || !modalEl || !previewCodice
         || !previewUnita || !previewTitolo || !previewDescrizione
         || !input || !btnScegli || !preview || !errore || !btnConferma) {
         return;
     }
     var modalBootstrap = new bootstrap.Modal(modalEl);
     var rigaCorrente = null;
+
+    // Filtro live per codice prodotto (match "contiene", case-insensitive):
+    // riusata anche dopo un upload riuscito (che rimuove una riga), cosi'
+    // il conteggio di righe visibili resta corretto anche a filtro attivo
+    function applicaFiltroRicerca() {
+        var testo = inputRicerca.value.trim().toLowerCase();
+        var righe = tabellaContainer.querySelectorAll('tr');
+        var visibili = 0;
+        righe.forEach(function (riga) {
+            var corrisponde = riga.dataset.codice.toLowerCase().indexOf(testo) !== -1;
+            riga.classList.toggle('d-none', !corrisponde);
+            if (corrisponde) {
+                visibili++;
+            }
+        });
+        var nessunProdotto = righe.length === 0;
+        tabella.classList.toggle('d-none', nessunProdotto || visibili === 0);
+        messaggioVuoto.classList.toggle('d-none', !nessunProdotto);
+        messaggioNessunRisultato.classList.toggle('d-none', nessunProdotto || visibili !== 0);
+    }
+
+    inputRicerca.addEventListener('input', applicaFiltroRicerca);
+
+    // Posizione originale del campo (dentro la pillola vicino al titolo),
+    // per poterlo rimettere li' esattamente quando si esce dalla ricerca
+    var inputHomeParent = inputRicerca.parentNode;
+    var inputHomeNextSibling = inputRicerca.nextSibling;
+    var sogliaTelefono = window.matchMedia('(max-width: 575.98px)');
+
+    // Da telefono il tasto lente sparisce e il campo si sposta dentro
+    // l'intestazione della tabella, al posto della scritta "Codice" (dove
+    // c'e' piu' spazio per scrivere): da desktop il campo e' invece gia'
+    // sempre aperto vicino al titolo (vedi CSS ">= 576px" in prodotti.css),
+    // quindi li' la lente resta puramente decorativa
+    function attivaRicercaMobile() {
+        testoColonnaCodice.classList.add('d-none');
+        colonnaCodiceTh.appendChild(inputRicerca);
+        ricercaWrapper.classList.add('d-none');
+        inputRicerca.focus();
+    }
+
+    function disattivaRicercaMobile() {
+        inputHomeParent.insertBefore(inputRicerca, inputHomeNextSibling);
+        ricercaWrapper.classList.remove('d-none');
+        testoColonnaCodice.classList.remove('d-none');
+    }
+
+    ricercaToggleBtn.addEventListener('click', function () {
+        if (!sogliaTelefono.matches) {
+            inputRicerca.focus();
+            return;
+        }
+        attivaRicercaMobile();
+    });
+
+    // Richiude il campo (e lo riporta vicino al titolo) se si clicca fuori
+    // mentre e' vuoto - stesso "if vuoto" gia' usato altrove nel sito (vedi
+    // prodotti_card.html), qui pero' il click che apre la ricerca (sul
+    // tasto lente) va escluso esplicitamente: altrimenti lo stesso click
+    // che ha appena spostato il campo nella colonna lo richiuderebbe
+    // all'istante, perche' l'evento arriva su questo listener subito dopo
+    document.addEventListener('click', function (event) {
+        if (!colonnaCodiceTh.contains(inputRicerca)
+            || event.target === inputRicerca
+            || ricercaToggleBtn.contains(event.target)) {
+            return;
+        }
+        if (inputRicerca.value.trim() === '') {
+            disattivaRicercaMobile();
+        }
+    });
 
     function tokenCsrf() {
         var tokenInput = formCsrf.querySelector('[name=csrfmiddlewaretoken]');
@@ -119,10 +198,7 @@
                 var rigaDaRimuovere = rigaCorrente;
                 rigaCorrente = null;
                 rigaDaRimuovere.remove();
-                if (!tabellaContainer.querySelector('tr')) {
-                    tabella.classList.add('d-none');
-                    messaggioVuoto.classList.remove('d-none');
-                }
+                applicaFiltroRicerca();
             })
             .catch(function () {
                 errore.textContent = 'Errore di rete, riprova.';
@@ -161,9 +237,22 @@
             ascendente = !ascendente;
         }
 
-        intestazione.addEventListener('click', ordina);
+        // Guardia sul campo di ricerca: da telefono puo' finire dentro
+        // questa stessa intestazione (colonnaCodice, vedi
+        // "attivaRicercaMobile" sopra), quindi click/tasti fatti per
+        // scrivere nel campo (spazio, invio) non devono ri-ordinare la
+        // tabella ne' bloccare la digitazione
+        intestazione.addEventListener('click', function (event) {
+            if (event.target.tagName === 'INPUT') {
+                return;
+            }
+            ordina();
+        });
         intestazione.addEventListener('keydown', function (event) {
             if (event.key !== 'Enter' && event.key !== ' ') {
+                return;
+            }
+            if (event.target.tagName === 'INPUT') {
                 return;
             }
             event.preventDefault();

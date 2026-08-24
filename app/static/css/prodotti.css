@@ -265,6 +265,13 @@
 /* Stesso stile (bordo blu navbar) applicato ai controlli di ricerca/filtro
    della pagina prodotti a card (vedi prodotti_card.html), per coerenza con
    la tabella qui sopra. Selettori per id per lo stesso motivo spiegato li' */
+/* ".ricerca-a-comparsa"/".ricerca-a-comparsa-input" nei selettori ":is(...)"
+   di questo blocco (fino alla fine della media query sotto i 576px piu' in
+   basso) sono l'aggancio riusabile dello stesso componente "lente che si
+   espande in pillola da telefono" su altre pagine (es.
+   dashboard_prodotti_senza_immagine.html) che non hanno gli id
+   "#ricercaProdottiWrapper"/"#prodottiCardSearch" di prodotti_card.html:
+   aggiunta puramente additiva, non cambia nulla per gli id esistenti */
 /* height: a parita' di padding/line-height/bordo, Chrome calcola l'altezza
    di un <input> in base alle metriche del font invece che dal line-height
    dichiarato (a differenza di <select>, che lo rispetta) - risultato,
@@ -273,7 +280,7 @@
    il box-model dichiarato (line-height 1.5 di Bootstrap + padding .75rem
    totale + i 2px di bordo per lato impostati qui sotto) forzando un'altezza
    esplicita che Chrome non ricalcola a modo suo */
-#prodottiCardSearch {
+:is(#prodottiCardSearch, .ricerca-a-comparsa-input) {
   border-color: var(--color-primary);
   border-width: 2px;
   height: calc(1.5em + 0.75rem + 4px);
@@ -283,7 +290,7 @@
    sotto i 576px il bordo destro del campo e' impostato a 0 per fondersi con la
    lente accanto (vedi sotto), ma il box-shadow del focus segue comunque il
    perimetro intero dell'elemento e ricreava li' una riga verticale visibile */
-#prodottiCardSearch:focus {
+:is(#prodottiCardSearch, .ricerca-a-comparsa-input):focus {
   box-shadow: none;
 }
 
@@ -300,11 +307,11 @@
    stesso, sovrapposta in posizione assoluta, per un look da singola casella
    di ricerca invece di campo+bottone affiancati */
 @media (min-width: 576px) {
-  #ricercaProdottiWrapper .ricerca-form {
+  :is(#ricercaProdottiWrapper, .ricerca-a-comparsa) .ricerca-form {
     position: relative;
   }
 
-  #ricercaProdottiWrapper #prodottiCardSearch {
+  :is(#ricercaProdottiWrapper, .ricerca-a-comparsa) :is(#prodottiCardSearch, .ricerca-a-comparsa-input) {
     /* Angoli tutti arrotondati (non solo a sinistra): Bootstrap toglierebbe
        di suo quelli destri perche' l'input non e' l'ultimo figlio
        dell'".input-group" - qui invece deve sembrare un campo a se stante,
@@ -314,7 +321,7 @@
     padding-right: 2.25rem;
   }
 
-  #ricercaProdottiWrapper .ricerca-toggle-btn {
+  :is(#ricercaProdottiWrapper, .ricerca-a-comparsa) .ricerca-toggle-btn {
     position: absolute;
     top: 50%;
     right: .25rem;
@@ -324,6 +331,17 @@
     border: 0 !important;
     padding: 0 .5rem;
     color: var(--color-primary);
+  }
+
+  /* "#ricercaProdottiWrapper" prende la sua larghezza da "flex-grow" (e'
+     figlio di un ".d-flex" in prodotti_card.html) + il "max-width: 12rem"
+     inline nell'HTML. ".ricerca-a-comparsa" invece e' pensato anche per usi
+     "position: absolute" (es. dashboard_prodotti_senza_immagine.html, non
+     dentro un contesto flex) dove "flex-grow" non ha alcun effetto: qui
+     serve quindi una larghezza esplicita perche' il campo non resti
+     "shrink-to-fit" ridotto al minimo */
+  .ricerca-a-comparsa {
+    width: 12rem;
   }
 }
 
@@ -392,7 +410,7 @@
      iPhone: l'animazione scattava di colpo, senza fotogrammi intermedi,
      mentre su Chrome risultava fluida), mentre "width" si anima in modo
      affidabile ovunque */
-  #ricercaProdottiWrapper {
+  :is(#ricercaProdottiWrapper, .ricerca-a-comparsa) {
     flex-grow: 0 !important;
     /* 40px = bottone (36px) + i due bordi della pillola (2px per lato) -
        deve combaciare esattamente: essendo il campo sempre "flex-grow:1"
@@ -404,7 +422,7 @@
     transition: width .3s ease;
   }
 
-  #ricercaProdottiWrapper.ricerca-espansa {
+  :is(#ricercaProdottiWrapper, .ricerca-a-comparsa).ricerca-espansa {
     width: 12rem;
   }
 
@@ -421,7 +439,7 @@
      verticale nel punto di giunzione. Con un solo bordo (su questo
      contenitore) e "overflow: hidden" a ritagliare lo spigolo del bottone
      dentro, non c'e' piu' nessun secondo bordo con cui poter disallinearsi */
-  #ricercaProdottiWrapper .ricerca-form {
+  :is(#ricercaProdottiWrapper, .ricerca-a-comparsa) .ricerca-form {
     flex-wrap: nowrap;
     align-items: center;
     height: 40px;
@@ -435,11 +453,11 @@
     transition: background-color .3s ease;
   }
 
-  #ricercaProdottiWrapper.ricerca-espansa .ricerca-form {
+  :is(#ricercaProdottiWrapper, .ricerca-a-comparsa).ricerca-espansa .ricerca-form {
     background-color: var(--color-bg);
   }
 
-  #ricercaProdottiWrapper #prodottiCardSearch {
+  :is(#ricercaProdottiWrapper, .ricerca-a-comparsa) :is(#prodottiCardSearch, .ricerca-a-comparsa-input) {
     /* Nessun bordo/sfondo proprio: li disegna solo ".ricerca-form" qui
        sopra, il campo si limita a "galleggiarci" dentro come testo */
     border: 0 !important;
@@ -472,7 +490,7 @@
     transition: padding .3s ease, opacity .2s ease .1s;
   }
 
-  #ricercaProdottiWrapper.ricerca-espansa #prodottiCardSearch {
+  :is(#ricercaProdottiWrapper, .ricerca-a-comparsa).ricerca-espansa :is(#prodottiCardSearch, .ricerca-a-comparsa-input) {
     padding-left: .75rem;
     padding-right: .75rem;
     opacity: 1;
@@ -496,7 +514,7 @@
      del bottone - invisibile da chiuso (stesso blu), ma visibile da aperto
      (contenitore bianco, angolo del bottone dovrebbe restare blu fino in
      fondo alla curva) */
-  #ricercaProdottiWrapper .ricerca-toggle-btn {
+  :is(#ricercaProdottiWrapper, .ricerca-a-comparsa) .ricerca-toggle-btn {
     flex: none;
     width: 36px;
     height: 36px;
@@ -519,7 +537,7 @@
     margin-left: 0 !important;
   }
 
-  #ricercaProdottiWrapper.ricerca-espansa .ricerca-toggle-btn {
+  :is(#ricercaProdottiWrapper, .ricerca-a-comparsa).ricerca-espansa .ricerca-toggle-btn {
     /* Angoli sinistri squadrati (si fondono col campo aperto accanto),
        destri arrotondati - stesso principio del design handoff. Raggio
        ridotto di 2px sui destri per lo stesso motivo spiegato sopra */
