@@ -157,7 +157,7 @@
 }
 
 #paginazioneGrigliaProdotti .page-item.active .page-link {
-  background-color: rgb(18, 102, 241);
+  background-color: var(--color-primary);
   color: #fff;
 }
 
@@ -799,7 +799,7 @@
 }
 
 #listProdottiTable_wrapper .paginate_button.current {
-  background: rgb(18, 102, 241);
+  background: var(--color-primary);
   color: #fff !important;
 }
 
