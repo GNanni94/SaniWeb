@@ -389,6 +389,14 @@
   display: contents;
 }
 
+/* Stesso raggruppamento, per la ricerca/filtro di prodotti_tabella.html
+   (costruiti via JS in "initComplete", non nel markup statico come sopra -
+   vedi prodotti_tabella.html) - id diverso apposta, cosi' le due pagine
+   restano indipendenti l'una dall'altra */
+#controlliRicercaFiltroTabellaWrapper {
+  display: contents;
+}
+
 /* Sotto i 576px ("telefono", stessa soglia usata altrove nel sito - vedi
    prodotti_tabella.html) il campo di ricerca parte chiuso (larghezza 0,
    solo la lente e' visibile) e si apre al click sulla lente stessa.
@@ -554,44 +562,49 @@
     border-radius: 0 calc(var(--bs-border-radius) - 2px) calc(var(--bs-border-radius) - 2px) 0 !important;
   }
 
-  /* dashboard_prodotti_senza_immagine.html: la lente qui sopra e' un
-     quadrato fisso 36x36 (piu' i 2px di bordo per lato della pillola
-     intorno, vedi ".ricerca-form" e il wrapper sopra), piu' grande della
-     freccia "indietro" accanto (".btn.btn-navbar.btn-sm", vedi HTML) - qui
-     la si rimpicciolisce alla stessa altezza di un ".btn-sm" invece di
-     ingrandire la freccia, per restare in linea con lo spirito "risparmia
-     spazio da telefono" di tutta questa riga di controlli.
-     Vanno ridotti TUTTI E TRE gli elementi (wrapper, pillola, bottone): il
-     bottone da solo non basta perche' condivide lo stesso colore di sfondo
-     della pillola che lo contiene (vedi sopra, "sembra un quadrato blu
-     pieno") - restringendo solo lui, la pillola attorno resterebbe comunque
-     40x40 e il quadrato visibile risulterebbe invariato.
-     Selettori per id del wrapper (".ricercaCodiceWrapper", non
-     ".ricercaProdottiWrapper"/".ricerca-a-comparsa" da soli) apposta:
-     stessa specificita' delle regole 40x40/36x36 qui sopra, quindi vincono
-     solo perche' dichiarate dopo nel foglio di stile - lasciano INVARIATA
-     la lente di prodotti_card.html, che non ha questo id.
-     Altezza/larghezza calcolate dalla formula di ".btn-sm" di Bootstrap
-     (non misurate a mano): padding-y-sm (.25rem per lato) + line-height
-     (1.5 * font-size-sm .875rem) + border (1px per lato) = "1.8125rem + 2px"
-     per bottone e freccia; pillola/wrapper hanno in piu' i 2px di bordo per
-     lato della pillola stessa (stesso "+4px" della formula 40px=36+4 vista
-     sopra) - stesso principio del calc gia' usato per "#prodottiCardSearch"
-     piu' in alto nel file */
+  /* dashboard_prodotti_senza_immagine.html: da telefono la lente diventa un
+     bottone fluttuante fisso in basso a sinistra, stesso stile/dimensione
+     (cerchio 3.5rem) di prodotti_card.html/prodotti_tabella.html - non piu'
+     un'icona piccola vicino al titolo che spostava il campo dentro
+     l'intestazione della tabella (vecchio comportamento, rimosso insieme
+     alla logica in dashboard-prodotti-immagini.js). "!important" su
+     "position"/"top"/"right"/"transform" necessario: "position-absolute"/
+     "top-50"/"end-0"/"translate-middle-y" (classi Bootstrap nell'HTML,
+     pensate per il posizionamento decorativo da desktop) sono TUTTE
+     "!important" di loro in Bootstrap 5, altrimenti vincerebbero sempre
+     loro a prescindere da specificita'/ordine di questa regola. Selettore
+     per id (non ".ricerca-a-comparsa" da sola) apposta, lascia invariate
+     le altre pagine che condividono quella classe */
   #ricercaCodiceWrapper {
-    width: calc(1.8125rem + 6px);
+    position: fixed !important;
+    left: 1rem;
+    bottom: 1rem;
+    top: auto !important;
+    right: auto !important;
+    transform: none !important;
+    z-index: 1040;
+    width: 3.5rem;
   }
 
   #ricercaCodiceWrapper .ricerca-form {
-    height: calc(1.8125rem + 6px);
+    height: 3.5rem;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
   }
 
   #ricercaCodiceWrapper .ricerca-toggle-btn {
-    width: calc(1.8125rem + 2px);
-    height: calc(1.8125rem + 2px);
-    /* Anche l'icona (dimensionata in "em" da Bootstrap Icons) deve rimpicciolirsi
-       di conseguenza, stessa taglia usata dentro un ".btn-sm" */
-    font-size: .875rem;
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  /* Bordo bianco sopra il footer di pagina quando il cerchio ci finisce
+     sopra scorrendo (".su-sfondo-blu" impostata via JS in
+     dashboard-prodotti-immagini.js) - stesso principio di
+     prodotti_card.html/prodotti_tabella.html. Qui non ci sono card con un
+     proprio footer blu (questa pagina mostra una tabella), solo il footer
+     di pagina */
+  #ricercaCodiceWrapper.su-sfondo-blu .ricerca-form {
+    border-color: var(--color-bg);
   }
 
   /* Filtro sottocategoria: sotto i 576px resta sempre e solo l'icona a
@@ -738,6 +751,68 @@
      "!important" di suo (utility di spaziatura), senza vincerebbe sempre
      lei a prescindere dall'ordine/specificita' di questa regola */
   #rigaControlliRicercaFiltro {
+    padding: 0 !important;
+  }
+
+  /* Stesso trattamento "bottoni fluttuanti impilati" di prodotti_card.html
+     qui sopra, per prodotti_tabella.html - id propri (costruiti via JS in
+     "initComplete", vedi prodotti_tabella.html), stessi valori identici
+     (cerchio ricerca 3.5rem, cerchio filtro 2.75rem, stesso ordine/gap) */
+  #controlliRicercaFiltroTabellaWrapper {
+    position: fixed;
+    left: 1rem;
+    bottom: 1rem;
+    z-index: 1040;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .75rem;
+  }
+
+  #ricercaTabellaWrapper {
+    width: 3.5rem;
+  }
+
+  #ricercaTabellaWrapper .ricerca-form {
+    height: 3.5rem;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
+  }
+
+  #ricercaTabellaWrapper .ricerca-toggle-btn {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  #filtroTabellaWrapper {
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    max-width: none !important;
+  }
+
+  #filtroTabellaWrapper #filtroSottocategoria {
+    height: 2.75rem;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
+  }
+
+  /* Bordo bianco sopra uno sfondo blu navbar (qui solo il footer di
+     pagina: prodotti_tabella.html non ha card con un proprio footer blu
+     come prodotti_card.html) - ".su-sfondo-blu" impostata via JS in
+     prodotti_tabella.html, stesso principio di sopra */
+  #ricercaTabellaWrapper.su-sfondo-blu .ricerca-form {
+    border-color: var(--color-bg);
+  }
+
+  #filtroTabellaWrapper.su-sfondo-blu #filtroSottocategoria {
+    border-color: var(--color-bg);
+  }
+
+  /* Riga svuotata da telefono (stesso motivo di "#rigaControlliRicercaFiltro"
+     sopra): niente "py-3" residuo una volta che i due controlli sono usciti
+     dal flusso */
+  #rigaControlliRicercaFiltroTabella {
     padding: 0 !important;
   }
 }

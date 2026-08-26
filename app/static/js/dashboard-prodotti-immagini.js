@@ -12,7 +12,6 @@
     var ricercaWrapper = document.getElementById('ricercaCodiceWrapper');
     var ricercaToggleBtn = document.getElementById('toggleRicercaCodiceProdotto');
     var colonnaCodiceTh = document.getElementById('colonnaCodice');
-    var testoColonnaCodice = document.getElementById('testoColonnaCodice');
     var formCsrf = document.getElementById('csrf-dashboard-prodotti');
     var modalEl = document.getElementById('modalCaricaImmagineProdotto');
     var previewCodice = document.getElementById('previewProdottoCodice');
@@ -25,7 +24,7 @@
     var errore = document.getElementById('erroreCaricaImmagineProdotto');
     var btnConferma = document.getElementById('btnConfermaCaricaImmagineProdotto');
     if (!tabellaContainer || !tabella || !messaggioVuoto || !inputRicerca || !messaggioNessunRisultato
-        || !ricercaWrapper || !ricercaToggleBtn || !colonnaCodiceTh || !testoColonnaCodice
+        || !ricercaWrapper || !ricercaToggleBtn || !colonnaCodiceTh
         || !formCsrf || !modalEl || !previewCodice
         || !previewUnita || !previewTitolo || !previewDescrizione
         || !input || !btnScegli || !preview || !errore || !btnConferma) {
@@ -53,71 +52,65 @@
         messaggioVuoto.classList.toggle('d-none', !nessunProdotto);
         messaggioNessunRisultato.classList.toggle('d-none', nessunProdotto || visibili !== 0);
 
+        // Nascondere/mostrare righe cambia l'altezza della pagina (quindi
+        // se il footer finisce sotto il cerchio fluttuante, vedi
+        // "aggiornaBordoSuSfondoBlu" piu' sotto) senza generare da solo
+        // nessun evento "scroll"/"resize" della finestra - va quindi
+        // richiamata esplicitamente anche da qui, altrimenti il bordo
+        // resterebbe quello di prima finche' non si scrolla/ridimensiona
+        aggiornaBordoSuSfondoBlu();
+
         // Nasconde anche la pillola di ricerca quando l'ultimo prodotto
         // viene rimosso (upload riuscito senza ricaricare la pagina): senza
         // questo restava visibile, diversamente da un caricamento fresco
         // della stessa pagina ormai vuota (vedi "{% if not prodotti %}" nel
-        // template). Da telefono, se la ricerca e' gia' attiva (campo
-        // spostato dentro l'intestazione, vedi "attivaRicercaMobile" sotto)
-        // la pillola resta cosi' com'e' - questa funzione gira anche ad
-        // ogni carattere digitato li' dentro, un "toggle" incondizionato la
-        // farebbe ricomparire per errore mentre si sta ancora scrivendo
-        var ricercaMobileAttiva = colonnaCodiceTh.contains(inputRicerca);
-        if (!ricercaMobileAttiva) {
-            ricercaWrapper.classList.toggle('d-none', nessunProdotto);
-        }
+        // template)
+        ricercaWrapper.classList.toggle('d-none', nessunProdotto);
     }
 
     inputRicerca.addEventListener('input', applicaFiltroRicerca);
 
-    // Posizione originale del campo (dentro la pillola vicino al titolo),
-    // per poterlo rimettere li' esattamente quando si esce dalla ricerca
-    var inputHomeParent = inputRicerca.parentNode;
-    var inputHomeNextSibling = inputRicerca.nextSibling;
-    var sogliaTelefono = window.matchMedia('(max-width: 575.98px)');
-
-    // Da telefono il tasto lente sparisce e il campo si sposta dentro
-    // l'intestazione della tabella, al posto della scritta "Codice" (dove
-    // c'e' piu' spazio per scrivere): da desktop il campo e' invece gia'
-    // sempre aperto vicino al titolo (vedi CSS ">= 576px" in prodotti.css),
-    // quindi li' la lente resta puramente decorativa
-    function attivaRicercaMobile() {
-        testoColonnaCodice.classList.add('d-none');
-        colonnaCodiceTh.appendChild(inputRicerca);
-        ricercaWrapper.classList.add('d-none');
-        inputRicerca.focus();
-    }
-
-    function disattivaRicercaMobile() {
-        inputHomeParent.insertBefore(inputRicerca, inputHomeNextSibling);
-        ricercaWrapper.classList.remove('d-none');
-        testoColonnaCodice.classList.remove('d-none');
-    }
-
+    // Da telefono la lente si apre al click e mette il focus nel campo (il
+    // filtro e' gia' live mentre si scrive, quindi un secondo click sulla
+    // lente gia' aperta non deve fare nulla). Si richiude da sola cliccando
+    // fuori se e' rimasto vuoto - stesso comportamento di prodotti_card.html/
+    // prodotti_tabella.html. Da desktop il campo e' invece gia' sempre
+    // aperto vicino al titolo (vedi CSS ">= 576px" in prodotti.css): la
+    // classe ".ricerca-espansa" aggiunta qui non ha li' alcun effetto
+    // visivo (regole solo sotto i 576px), il click si limita a mettere il
+    // focus nel campo gia' visibile
     ricercaToggleBtn.addEventListener('click', function () {
-        if (!sogliaTelefono.matches) {
-            inputRicerca.focus();
+        if (ricercaWrapper.classList.contains('ricerca-espansa')) {
             return;
         }
-        attivaRicercaMobile();
+        ricercaWrapper.classList.add('ricerca-espansa');
+        ricercaToggleBtn.setAttribute('aria-expanded', 'true');
+        inputRicerca.focus();
     });
 
-    // Richiude il campo (e lo riporta vicino al titolo) se si clicca fuori
-    // mentre e' vuoto - stesso "if vuoto" gia' usato altrove nel sito (vedi
-    // prodotti_card.html), qui pero' il click che apre la ricerca (sul
-    // tasto lente) va escluso esplicitamente: altrimenti lo stesso click
-    // che ha appena spostato il campo nella colonna lo richiuderebbe
-    // all'istante, perche' l'evento arriva su questo listener subito dopo
     document.addEventListener('click', function (event) {
-        if (!colonnaCodiceTh.contains(inputRicerca)
-            || event.target === inputRicerca
-            || ricercaToggleBtn.contains(event.target)) {
+        if (!ricercaWrapper.classList.contains('ricerca-espansa') || ricercaWrapper.contains(event.target)) {
             return;
         }
         if (inputRicerca.value.trim() === '') {
-            disattivaRicercaMobile();
+            ricercaWrapper.classList.remove('ricerca-espansa');
+            ricercaToggleBtn.setAttribute('aria-expanded', 'false');
         }
     });
+
+    // Bordo bianco (".su-sfondo-blu" in prodotti.css) quando il cerchio
+    // finisce sopra il footer di pagina - stesso principio di
+    // prodotti_card.html/prodotti_tabella.html (qui non ci sono card con un
+    // proprio footer blu, solo il footer di pagina)
+    function aggiornaBordoSuSfondoBlu() {
+        var footer = document.querySelector('.site-footer');
+        var suSfondoBlu = !!footer && footer.getBoundingClientRect().top < ricercaWrapper.getBoundingClientRect().bottom;
+        ricercaWrapper.classList.toggle('su-sfondo-blu', suSfondoBlu);
+    }
+
+    aggiornaBordoSuSfondoBlu();
+    window.addEventListener('scroll', aggiornaBordoSuSfondoBlu, { passive: true });
+    window.addEventListener('resize', aggiornaBordoSuSfondoBlu);
 
     function tokenCsrf() {
         var tokenInput = formCsrf.querySelector('[name=csrfmiddlewaretoken]');
@@ -251,22 +244,11 @@
             ascendente = !ascendente;
         }
 
-        // Guardia sul campo di ricerca: da telefono puo' finire dentro
-        // questa stessa intestazione (colonnaCodice, vedi
-        // "attivaRicercaMobile" sopra), quindi click/tasti fatti per
-        // scrivere nel campo (spazio, invio) non devono ri-ordinare la
-        // tabella ne' bloccare la digitazione
         intestazione.addEventListener('click', function (event) {
-            if (event.target.tagName === 'INPUT') {
-                return;
-            }
             ordina();
         });
         intestazione.addEventListener('keydown', function (event) {
             if (event.key !== 'Enter' && event.key !== ' ') {
-                return;
-            }
-            if (event.target.tagName === 'INPUT') {
                 return;
             }
             event.preventDefault();

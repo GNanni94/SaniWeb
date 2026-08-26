@@ -238,9 +238,20 @@ $(document).ready(function () {
                 .append($('#filtroSottocategoria').removeClass('d-none').addClass('filtro-a-comparsa-select'))
                 .append('<i class="bi bi-funnel filtro-icon-overlay" aria-hidden="true"></i>');
 
-            var $riga = $('<div class="d-flex flex-nowrap align-items-center justify-content-between gap-2 py-3"></div>')
+            // Wrapper che raggruppa i due controlli solo per poterli
+            // impilare come bottoni fluttuanti da telefono (stesso
+            // principio di "#controlliRicercaFiltroWrapper" in
+            // prodotti_card.html, id diverso per restare indipendente da
+            // quella pagina): da desktop "display: contents" (in
+            // prodotti.css) lo rende invisibile al layout, i due controlli
+            // restano quindi figli diretti della riga sotto esattamente
+            // come prima
+            var $wrapperControlli = $('<div id="controlliRicercaFiltroTabellaWrapper"></div>')
                 .append($wrapperFiltro)
                 .append($wrapperRicerca);
+
+            var $riga = $('<div id="rigaControlliRicercaFiltroTabella" class="d-flex flex-nowrap align-items-center justify-content-between gap-2 py-3"></div>')
+                .append($wrapperControlli);
             $filterDiv.before($riga);
             $filterDiv.remove();
 
@@ -280,6 +291,28 @@ $(document).ready(function () {
                     bottoneRicercaEl.setAttribute('aria-expanded', 'false');
                 }
             });
+
+            // Bordo bianco (".su-sfondo-blu" in prodotti.css) quando uno dei
+            // due cerchi finisce sopra il footer di pagina - altrimenti un
+            // cerchio blu su sfondo blu sparirebbe visivamente. Stesso
+            // principio di prodotti_card.html (li' controlla anche i footer
+            // delle card prodotto, qui non serve: questa pagina mostra una
+            // tabella, non card con un proprio footer blu)
+            var wrapperFiltroEl = document.getElementById('filtroTabellaWrapper');
+
+            function finisceSuSfondoBlu(rigaBottone) {
+                var footer = document.querySelector('.site-footer');
+                return !!footer && footer.getBoundingClientRect().top < rigaBottone.bottom;
+            }
+
+            function aggiornaBordoSuSfondoBlu() {
+                wrapperRicercaEl.classList.toggle('su-sfondo-blu', finisceSuSfondoBlu(wrapperRicercaEl.getBoundingClientRect()));
+                wrapperFiltroEl.classList.toggle('su-sfondo-blu', finisceSuSfondoBlu(wrapperFiltroEl.getBoundingClientRect()));
+            }
+
+            aggiornaBordoSuSfondoBlu();
+            window.addEventListener('scroll', aggiornaBordoSuSfondoBlu, { passive: true });
+            window.addEventListener('resize', aggiornaBordoSuSfondoBlu);
 
             // Bug osservato (Chrome, debug con l'utente): passando da desktop
             // a telefono le righe restano vuote a schermo finche' non si
