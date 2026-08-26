@@ -23,7 +23,21 @@
     </div>
     {% endif %}
 
-    <div class="py-3 d-flex flex-nowrap align-items-center justify-content-between gap-2">
+    {% comment %}
+    Da telefono questa riga resta vuota (filtro e ricerca sono usciti dal
+    flusso, diventati fluttuanti in basso a sinistra - vedi
+    "#controlliRicercaFiltroWrapper" sotto e prodotti.css), ma senza
+    "id=rigaControlliRicercaFiltro" manterrebbe comunque il suo "py-3",
+    lasciando un vuoto tra titolo e griglia prodotti
+    {% endcomment %}
+    <div id="rigaControlliRicercaFiltro" class="py-3 d-flex flex-nowrap align-items-center justify-content-between gap-2">
+        {% comment %}
+        Raggruppa filtro e ricerca solo per poterli impilare insieme come
+        bottoni fluttuanti da telefono (vedi prodotti.css): da desktop
+        "display: contents" lo rende invisibile al layout, i due controlli
+        restano quindi figli diretti di questa riga esattamente come prima
+        {% endcomment %}
+        <div id="controlliRicercaFiltroWrapper">
 
         {% if sottocategorie|length > 0 %}
         {% comment %}
@@ -58,6 +72,7 @@
             </form>
         </div>
 
+        </div>
     </div>
 
     {% include 'partials/griglia_prodotti.html' %}
@@ -73,6 +88,7 @@
     var form = document.getElementById('ricercaProdottiForm');
     var toggleBtn = document.getElementById('search-addon');
     var input = document.getElementById('prodottiCardSearch');
+    var wrapperFiltro = document.getElementById('filtroProdottiWrapper');
     if (!wrapper || !form || !toggleBtn || !input) {
         return;
     }
@@ -102,6 +118,43 @@
             toggleBtn.setAttribute('aria-expanded', 'false');
         }
     });
+
+    // Bordo bianco (".su-sfondo-blu" in prodotti.css) quando uno dei due
+    // cerchi fluttuanti finisce sopra uno sfondo blu navbar - il footer
+    // della pagina (stesso controllo del carrello flottante, vedi
+    // carrello-flottante.js) o quello di una card prodotto (blu pieno,
+    // vedi ".card-footer-btn" in prodotti.css). Le card sono su due
+    // colonne anche da telefono (griglia_prodotti.html, "col-6"), quindi
+    // qui la sovrapposizione va controllata anche in orizzontale, non solo
+    // verticale come per il footer di pagina (sempre a piena larghezza)
+    function siSovrappongono(a, b) {
+        return a.top < b.bottom && a.bottom > b.top && a.left < b.right && a.right > b.left;
+    }
+
+    function finisceSuSfondoBlu(rigaBottone) {
+        var footer = document.querySelector('.site-footer');
+        if (footer && footer.getBoundingClientRect().top < rigaBottone.bottom) {
+            return true;
+        }
+        var footerCard = document.querySelectorAll('.card.card-prodotto .card-footer-btn');
+        for (var i = 0; i < footerCard.length; i++) {
+            if (siSovrappongono(footerCard[i].getBoundingClientRect(), rigaBottone)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function aggiornaBordoSuSfondoBlu() {
+        wrapper.classList.toggle('su-sfondo-blu', finisceSuSfondoBlu(wrapper.getBoundingClientRect()));
+        if (wrapperFiltro) {
+            wrapperFiltro.classList.toggle('su-sfondo-blu', finisceSuSfondoBlu(wrapperFiltro.getBoundingClientRect()));
+        }
+    }
+
+    aggiornaBordoSuSfondoBlu();
+    window.addEventListener('scroll', aggiornaBordoSuSfondoBlu, { passive: true });
+    window.addEventListener('resize', aggiornaBordoSuSfondoBlu);
 })();
 </script>
 

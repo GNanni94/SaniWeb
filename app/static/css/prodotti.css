@@ -379,6 +379,16 @@
   display: none;
 }
 
+/* Raggruppa filtro e ricerca di prodotti_card.html (vedi sotto i 576px piu'
+   in basso, dove diventano bottoni fluttuanti impilati): da qui in su
+   "display: contents" lo rende invisibile al layout, i due bottoni restano
+   quindi figli diretti della riga che li contiene, esattamente come se
+   questo wrapper non esistesse - nessuna modifica alle classi/larghezze
+   desktop gia' esistenti su di loro */
+#controlliRicercaFiltroWrapper {
+  display: contents;
+}
+
 /* Sotto i 576px ("telefono", stessa soglia usata altrove nel sito - vedi
    prodotti_tabella.html) il campo di ricerca parte chiuso (larghezza 0,
    solo la lente e' visibile) e si apre al click sulla lente stessa.
@@ -631,6 +641,104 @@
     transform: translate(-50%, -50%);
     color: var(--color-text-light); /* bianca, sopra lo sfondo blu navbar della select */
     pointer-events: none; /* il tocco deve arrivare alla <select> sotto */
+  }
+
+  /* Filtro e ricerca di prodotti_card.html come bottoni fluttuanti impilati
+     (solo loro: selettori per id apposta, non ".ricerca-a-comparsa"/
+     ".filtro-a-comparsa" in generale, per non toccare le altre pagine che
+     condividono quelle classi) invece che nella riga sopra la tabella:
+     stesso stile del carrello flottante (#bottoneCarrelloFlottante in
+     carrello-flottante.css, cerchio/ombra), ma a sinistra invece che a
+     destra e in due misure diverse (vedi sotto). Sono sempre gli stessi
+     elementi/JS di sempre, solo raggruppati e riposizionati: "position:
+     fixed" sul wrapper li toglie entrambi dal flusso della riga (che sopra
+     i 576px li contiene ancora normalmente, vedi "display: contents" piu'
+     in alto), "flex-direction: column" li impila uno sopra l'altro.
+     "align-items: flex-start" (non "center"): il bordo sinistro di
+     entrambi resta fisso sullo stesso "left" del wrapper, cosi' la
+     ricerca - che e' piu' larga del filtro sopra di lei, ed espandendosi
+     lo diventa ancora di piu' - cresce solo verso destra invece di
+     "spostarsi" ogni volta che cambia larghezza (chiusa/aperta) per
+     restare centrata rispetto al filtro */
+  #controlliRicercaFiltroWrapper {
+    position: fixed;
+    left: 1rem;
+    bottom: 1rem;
+    z-index: 1040;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .75rem;
+  }
+
+  /* Ricerca: cerchio grande (stesso "3.5rem" del carrello flottante), per
+     darle risalto rispetto al filtro sopra di lei */
+  #ricercaProdottiWrapper {
+    width: 3.5rem;
+  }
+
+  #ricercaProdottiWrapper .ricerca-form {
+    height: 3.5rem;
+    /* "999px" invece del raggio calcolato sopra per ".ricerca-form": a
+       qualunque larghezza (chiusa quadrata o aperta a pillola) risulta
+       sempre completamente arrotondata sui due lati corti, dando il cerchio
+       da chiusa richiesto senza bisogno di una regola separata per lo
+       stato ".ricerca-espansa" */
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
+  }
+
+  #ricercaProdottiWrapper .ricerca-toggle-btn {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  /* Filtro: cerchio piu' piccolo ("2.75rem"/44px, la dimensione minima
+     comune per un tasto touch) apposta, per dare piu' risalto al cerchio
+     della ricerca sotto di lui. "flex: none" + "width/height" espliciti al
+     posto del vecchio "flex-basis"/"max-width" (pensati per una riga
+     orizzontale): qui il contenitore e' in colonna, dove "flex-basis"
+     agirebbe sull'altezza invece che sulla larghezza */
+  #filtroProdottiWrapper {
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    max-width: none !important;
+  }
+
+  #filtroProdottiWrapper #prodottiCardFiltro {
+    height: 2.75rem;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
+  }
+
+  /* Bordo bianco quando uno dei due cerchi finisce sopra uno sfondo blu
+     navbar (il footer della pagina o quello di una card prodotto, vedi
+     ".su-sfondo-blu" impostata via JS in prodotti_card.html) - altrimenti
+     un cerchio blu su sfondo blu sparirebbe visivamente. Stesso principio
+     gia' usato per il carrello flottante (".su-footer" in
+     carrello-flottante.css) */
+  #ricercaProdottiWrapper.su-sfondo-blu .ricerca-form {
+    border-color: var(--color-bg);
+  }
+
+  #filtroProdottiWrapper.su-sfondo-blu #prodottiCardFiltro {
+    border-color: var(--color-bg);
+  }
+
+  /* La riga che conteneva filtro/ricerca resta vuota da telefono (i due
+     sono usciti dal flusso, "position: fixed" - vedi sopra), ma senza
+     questa regola manterrebbe comunque il proprio "py-3" (padding sopra/
+     sotto), lasciando un vuoto tra il titolo e la griglia prodotti sotto.
+     "padding: 0", non "display: none": il wrapper fluttuante e' ancora suo
+     figlio nel DOM, nasconderla nasconderebbe anche lui nonostante sia
+     "position: fixed" (un antenato con "display: none" nasconde comunque i
+     discendenti, a prescindere dal loro posizionamento).
+     "!important" necessario: ".py-3" di Bootstrap e' a sua volta
+     "!important" di suo (utility di spaziatura), senza vincerebbe sempre
+     lei a prescindere dall'ordine/specificita' di questa regola */
+  #rigaControlliRicercaFiltro {
+    padding: 0 !important;
   }
 }
 
