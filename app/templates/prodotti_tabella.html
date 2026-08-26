@@ -6,16 +6,23 @@
 {% block contenuto %}
 
 <div class="container">
-    <div class="row py-5">
-        <div class="col-12">
-            <div class="d-flex align-items-center position-relative">
-                <a href="{% url 'catalogo' %}" class="btn btn-navbar btn-sm position-absolute start-0" title="Torna al catalogo">
-                    <i class="bi bi-arrow-left"></i>
-                    <span class="d-none d-md-inline">Torna al catalogo</span>
-                </a>
-                <h2 class="mb-0 mx-auto">{{nome_categoria}}</h2>
-            </div>
-        </div>
+    {% comment %}
+    Stessa riga titolo di prodotti_card.html: freccia "Torna al catalogo" +
+    titolo (h1, non piu' h2) cliccabile verso la categoria corrente
+    (".titolo-categoria-link", stile in prodotti.css). In prodotti_card.html
+    quel link serve a uscire da un filtro sottocategoria/risultato di
+    ricerca; qui non esiste un equivalente lato server (il filtro e' solo
+    client-side), quindi il link ricarica semplicemente la stessa pagina -
+    innocuo, ma tenuto per coerenza visiva con l'altra pagina
+    {% endcomment %}
+    <div class="d-flex align-items-center position-relative pt-5 pb-3">
+        <a href="{% url 'catalogo' %}" class="btn btn-navbar btn-sm position-absolute start-0" title="Torna al catalogo">
+            <i class="bi bi-arrow-left"></i>
+            <span class="d-none d-md-inline">Torna al catalogo</span>
+        </a>
+        <h1 class="fw-bold mb-0 mx-auto">
+            <a href="{% url 'dettaglio_categoria' categoria_pk %}" class="titolo-categoria-link">{{nome_categoria}}</a>
+        </h1>
     </div>
 
     <div class="table-responsive py-3">
@@ -24,7 +31,13 @@
             {% include 'partials/alert_preventivo.html' %}
         </div>
         {% endif %}
-        <select id="filtroSottocategoria" class="form-select form-select-sm d-none">
+        {% comment %}
+        "form-select" (non "-sm"): stessa dimensione del filtro di
+        prodotti_card.html (#prodottiCardFiltro), per restare della stessa
+        grandezza sia della ricerca qui accanto (stessa formula di altezza
+        in prodotti.css) sia del filtro dell'altra pagina
+        {% endcomment %}
+        <select id="filtroSottocategoria" class="form-select d-none">
             <option value="">Tutte le sottocategorie</option>
             {% for sc in sottocategorie %}
                 <option value="{{ sc.nome_sottocategoria }}">{{ sc.nome_sottocategoria }}</option>
@@ -169,112 +182,124 @@ $(document).ready(function () {
         "initComplete": function () {
             var api = this.api();
 
-            // Mette "Cerca:" e il filtro sottocategoria sulla stessa riga:
-            // ricerca a sinistra, filtro a destra (due contenitori
-            // ".dt-control-ricerca/-filtro" con giustificazione start/end,
-            // "flex" impostato in main.css da queste classi custom apposta,
-            // NON dall'utility ".flex-fill" di Bootstrap: quella usa
-            // "!important", che vincerebbe sempre sulla regola sotto i
-            // 576px che deve poter cambiare "flex" in base alla larghezza
-            // dello schermo).
-            // L'avviso "devi registrarti" (se presente) e' invece sulla sua
-            // riga separata, sopra questa, sotto il titolo - vedi HTML.
-            // Questa riga resta nascosta ("tabella-in-caricamento", stessa
-            // classe della tabella) finche' non e' impostata la larghezza
-            // definitiva del campo ricerca qui sotto: altrimenti si
-            // vedrebbe comparire con la larghezza di default di DataTables
-            // e poi "allungarsi" di scatto quando arriva la risincronizzazione
-            var $riga = $('<div class="dt-controls-row tabella-in-caricamento"></div>');
-            $('#listProdottiTable_filter').before($riga);
-
-            var $rigaRicerca = $('<div class="d-flex justify-content-start dt-control-ricerca"></div>');
-            $riga.append($rigaRicerca.append($('#listProdottiTable_filter')));
-
-            var $rigaFiltro = $('<div class="d-flex justify-content-end dt-control-filtro"></div>');
-            $riga.append($rigaFiltro.append($('#filtroSottocategoria').removeClass('d-none')));
-
-            // Classi Bootstrap sul campo di ricerca generato da DataTables
-            // (di suo non ha nessuna classe, solo lo stile di default della libreria),
-            // e placeholder al posto della label "Cerca:" (rimossa a mano
-            // invece di usare l'opzione "language.search", vedi nota sopra)
-            $('#listProdottiTable_filter label')
-                .contents()
-                .filter(function () { return this.nodeType === 3; })
-                .remove();
-            $('#listProdottiTable_filter input')
-                .addClass('form-control form-control-sm')
+            // Ricerca e filtro sottocategoria con lo stesso aspetto "a
+            // comparsa" di prodotti_card.html (classi ".ricerca-a-comparsa"/
+            // ".filtro-a-comparsa" riusabili in prodotti.css, gia' usate
+            // anche in dashboard_prodotti_senza_immagine.html per la
+            // ricerca): filtro a sinistra, ricerca a destra, stesso ordine
+            // di prodotti_card.html.
+            // Il campo di ricerca e' quello generato da DataTables stesso
+            // (esiste solo da qui in poi): gli si costruisce attorno la
+            // stessa struttura ".ricerca-a-comparsa > .ricerca-form >
+            // input + bottone" invece di crearne uno nuovo, cosi' resta
+            // cablato sul filtro live di DataTables che ha gia' di suo.
+            // Il filtro sottocategoria e' invece il <select> gia' presente
+            // nel template (con il proprio "change" cablato piu' sotto),
+            // solo spostato dentro il wrapper con l'icona a imbuto.
+            // A differenza di prima, questi due controlli hanno una
+            // larghezza propria fissa (non piu' agganciata a quella delle
+            // colonne), quindi non serve piu' nessuna sincronizzazione via
+            // JS: si mostrano subito, senza attendere nessun ricalcolo.
+            var $filterDiv = $('#listProdottiTable_filter');
+            var $inputRicerca = $filterDiv.find('input')
+                .attr('id', 'ricercaTabellaProdotti')
+                .removeClass()
+                .addClass('form-control ricerca-a-comparsa-input')
                 .attr('placeholder', 'Cerca...');
+            var $bottoneRicerca = $(
+                '<button type="button" class="ricerca-toggle-btn" aria-expanded="false" '
+                + 'aria-controls="ricercaTabellaProdotti" title="Cerca" aria-label="Cerca">'
+                + '<i class="bi bi-search"></i></button>'
+            );
+            // Niente "flex-grow-1" qui (a differenza del filtro sotto):
+            // ".ricerca-a-comparsa" fissa gia' da sola "width: 12rem" da
+            // 576px in su (vedi prodotti.css) - un "flex-grow" in piu' la
+            // farebbe crescere oltre, riempiendo lo spazio lasciato libero
+            // dal filtro invece di restare della stessa larghezza fissa di
+            // prodotti_card.html
+            // "input-group" oltre a "ricerca-form": e' lei (Bootstrap) a
+            // dare "display:flex" a questo contenitore, ".ricerca-form" da
+            // sola aggiunge solo le proprieta' sopra - senza, il bottone
+            // finisce in flusso a blocco sotto il campo invece che
+            // affiancato/centrato, e "overflow:hidden" lo taglia via.
+            // Stessa coppia di classi di prodotti_card.html/
+            // dashboard_prodotti_senza_immagine.html
+            var $wrapperRicerca = $('<div class="ricerca-a-comparsa flex-shrink-1" id="ricercaTabellaWrapper" style="min-width: 0;"></div>')
+                .append($('<div class="input-group ricerca-form"></div>').append($inputRicerca).append($bottoneRicerca));
 
-            // Larghezza del campo di ricerca uguale a quella della colonna
-            // "CODICE PRODOTTO" (prima colonna). Misurata con getBoundingClientRect
-            // (non jQuery outerWidth) per includere esattamente i bordi condivisi
-            // di "table-bordered" (border-collapse), e "box-sizing: border-box"
-            // forzato sull'input cosi' il valore si applica alla larghezza totale
-            // visibile, non solo al contenuto.
-            // Risincronizzata piu' volte, non solo una all'avvio: DataTables (e
-            // l'estensione Responsive) ricalcolano le larghezze delle colonne
-            // DOPO "initComplete" (es. con un reflow subito successivo), quindi
-            // una misura presa solo qui risulterebbe quasi subito superata -
-            // per questo si risincronizza anche con un breve ritardo, a ogni
-            // ridisegno della tabella ("draw.dt", es. cambio pagina/ricerca) e
-            // al resize della finestra
-            // Stesso ragionamento anche per il filtro sottocategoria, allineato
-            // pero' alla colonna "AGGIUNGI AL PREVENTIVO" (ultima, indice 4) dato
-            // che sta a destra della riga (vedi CSS ".dt-controls-row")
-            // Sotto i 576px (soglia "phone" usata anche per il responsive di
-            // DataTables piu' sopra) la colonna "CODICE PRODOTTO" e' nascosta
-            // (resta visibile solo "NOME"), quindi la sua larghezza sarebbe 0 -
-            // sincronizzarla comprimerebbe il campo ricerca a 0px. Sotto quella
-            // soglia si toglie percio' la larghezza forzata via JS e si lascia
-            // gestire a CSS (".dt-controls-row" in main.css), che sotto i 576px
-            // divide la riga a meta' tra i due controlli invece di seguire le
-            // colonne
-            var $inputRicerca = $('#listProdottiTable_filter input').css('box-sizing', 'border-box');
-            var $selectSottocategoria = $('#filtroSottocategoria').css('box-sizing', 'border-box');
-            function sincronizzaLarghezzaControlli() {
-                if (window.innerWidth <= 576) {
-                    $inputRicerca.css('width', '');
-                    $selectSottocategoria.css('width', '');
+            // Stessi "flex-grow-1 flex-shrink-1" + "max-width" inline di
+            // "#filtroProdottiWrapper" in prodotti_card.html: a differenza
+            // della ricerca sopra, ".filtro-a-comparsa" non impone una
+            // larghezza propria da desktop (solo da telefono, icona sola),
+            // quindi qui puo' restare la stessa tecnica del sorgente.
+            // "12rem", non piu' "14rem": stessa larghezza della ricerca,
+            // qui e in prodotti_card.html (vedi prodotti.css)
+            var $wrapperFiltro = $('<div class="filtro-a-comparsa flex-grow-1 flex-shrink-1" id="filtroTabellaWrapper" style="max-width: 12rem; min-width: 0;"></div>')
+                .append($('#filtroSottocategoria').removeClass('d-none').addClass('filtro-a-comparsa-select'))
+                .append('<i class="bi bi-funnel filtro-icon-overlay" aria-hidden="true"></i>');
+
+            var $riga = $('<div class="d-flex flex-nowrap align-items-center justify-content-between gap-2 py-3"></div>')
+                .append($wrapperFiltro)
+                .append($wrapperRicerca);
+            $filterDiv.before($riga);
+            $filterDiv.remove();
+
+            // La tabella resta nascosta ("tabella-in-caricamento") finche'
+            // DataTables Responsive non si e' assestata (ricalcola ancora
+            // un po' dopo "initComplete"): stesso breve ritardo di prima,
+            // non piu' legato pero' alla sincronizzazione di ricerca/filtro
+            // (che non serve piu', vedi sopra)
+            setTimeout(function () {
+                $('#listProdottiTable').removeClass('tabella-in-caricamento');
+            }, 100);
+
+            // Da telefono la lente si apre al click e mette il focus nel
+            // campo (il filtro e' gia' live mentre si scrive, quindi - a
+            // differenza di prodotti_card.html - un secondo click sulla
+            // lente gia' aperta non deve fare nulla: non c'e' nessun form
+            // da sottomettere). Si richiude da sola cliccando fuori se il
+            // campo e' rimasto vuoto, stesso comportamento di
+            // prodotti_card.html
+            var wrapperRicercaEl = document.getElementById('ricercaTabellaWrapper');
+            var bottoneRicercaEl = wrapperRicercaEl.querySelector('.ricerca-toggle-btn');
+            var inputRicercaEl = wrapperRicercaEl.querySelector('.ricerca-a-comparsa-input');
+            bottoneRicercaEl.addEventListener('click', function () {
+                if (wrapperRicercaEl.classList.contains('ricerca-espansa')) {
                     return;
                 }
-                var colonne = document.querySelectorAll('#listProdottiTable thead th');
-                var larghezzaPrima = colonne[0].getBoundingClientRect().width;
-                var larghezzaUltima = colonne[colonne.length - 1].getBoundingClientRect().width;
-                $inputRicerca.css('width', larghezzaPrima + 'px');
-                $selectSottocategoria.css('width', larghezzaUltima + 'px');
-            }
-            sincronizzaLarghezzaControlli();
-            setTimeout(function () {
-                sincronizzaLarghezzaControlli();
-                // Solo ora la larghezza e' quella definitiva: si mostrano
-                // insieme tabella e riga dei controlli (vedi commenti sopra)
-                $('#listProdottiTable, .dt-controls-row').removeClass('tabella-in-caricamento');
-            }, 100);
-            $('#listProdottiTable').on('draw.dt', sincronizzaLarghezzaControlli);
-            $(window).on('resize', sincronizzaLarghezzaControlli);
+                wrapperRicercaEl.classList.add('ricerca-espansa');
+                bottoneRicercaEl.setAttribute('aria-expanded', 'true');
+                inputRicercaEl.focus();
+            });
+            document.addEventListener('click', function (event) {
+                if (!wrapperRicercaEl.classList.contains('ricerca-espansa') || wrapperRicercaEl.contains(event.target)) {
+                    return;
+                }
+                if (inputRicercaEl.value.trim() === '') {
+                    wrapperRicercaEl.classList.remove('ricerca-espansa');
+                    bottoneRicercaEl.setAttribute('aria-expanded', 'false');
+                }
+            });
 
             // Bug osservato (Chrome, debug con l'utente): passando da desktop
-            // a telefono le righe restano vuote a schermo, da telefono a
-            // desktop ricerca/filtro collassano quasi a 0px - finche' non si
+            // a telefono le righe restano vuote a schermo finche' non si
             // ricarica la pagina. Verificato con diagnostica dal vivo: il DOM
             // e gli stili calcolati sono SEMPRE corretti (contenuto, colore,
-            // altezza, un solo elemento con quell'id) anche quando lo schermo
-            // mostra vuoto/collassato - non e' quindi un problema nei nostri
-            // dati o nel nostro CSS, ma un mancato ridisegno del browser dopo
-            // che DataTables Responsive nasconde/mostra molte celle in una
-            // volta sola al cambio di breakpoint.
+            // altezza) anche quando lo schermo mostra vuoto - non e' quindi
+            // un problema nei nostri dati o nel nostro CSS, ma un mancato
+            // ridisegno del browser dopo che DataTables Responsive nasconde/
+            // mostra molte celle in una volta sola al cambio di breakpoint.
+            // Non legato a ricerca/filtro sopra (li' il problema era solo la
+            // loro sincronizzazione di larghezza, rimossa): resta quindi
+            // invariato anche dopo la rimozione di quella sincronizzazione.
             // "responsive-resize.dt" e' l'evento che DataTables Responsive
             // lancia sulla tabella subito DOPO aver finito di ricalcolare le
             // colonne (a differenza del semplice "resize" della finestra, che
-            // puo' scattare mentre il ricalcolo e' ancora in corso, leggendo
-            // larghezze non ancora definitive - da cui il collasso di
-            // ricerca/filtro). Qui si risincronizzano le larghezze con il
-            // timing giusto, e si forza anche un ridisegno (toccare
-            // "transform" e poi toglierlo al frame successivo e' un
-            // workaround comune per bug di questo tipo nei browser Chromium)
+            // puo' scattare mentre il ricalcolo e' ancora in corso): qui si
+            // forza un ridisegno (toccare "transform" e poi toglierlo al
+            // frame successivo e' un workaround comune per bug di questo tipo
+            // nei browser Chromium)
             $('#listProdottiTable').on('responsive-resize.dt', function () {
-                sincronizzaLarghezzaControlli();
-
                 var tabella = document.getElementById('listProdottiTable');
                 tabella.style.transform = 'translateZ(0)';
                 requestAnimationFrame(function () {

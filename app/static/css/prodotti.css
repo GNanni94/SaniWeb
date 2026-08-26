@@ -213,64 +213,10 @@
   }
 }
 
-/* Tabella prodotti (DataTables): riga con "Cerca:" e il filtro
-   sottocategoria. I due contenitori sono creati via JS (vedi "initComplete"
-   in prodotti_tabella.html) come due celle che si dividono lo spazio in
-   parti uguali (flex:1 1 auto, sotto), ciascuna con la propria
-   giustificazione (start/end). L'avviso "devi registrarti" (se presente) e'
-   sulla sua riga separata sopra, non fa piu' parte di questa riga */
-#listProdottiTable_wrapper .dt-controls-row {
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-  flex-wrap: wrap;
-}
-
-/* flex:1 1 auto impostato qui (invece che con l'utility ".flex-fill" di
-   Bootstrap, che userebbe "!important") apposta: la regola sotto i 576px
-   deve poter cambiare "flex" in base alla larghezza dello schermo, e
-   "!important" vincerebbe sempre a prescindere */
-#listProdottiTable_wrapper .dt-controls-row > .dt-control-ricerca,
-#listProdottiTable_wrapper .dt-controls-row > .dt-control-filtro {
-  flex: 1 1 auto;
-}
-
-/* DataTables mette di suo un margin-top di 8px su ".dataTables_filter"
-   (il contenitore del campo ricerca), che il filtro sottocategoria non ha:
-   li faceva apparire disallineati verticalmente nella riga qui sopra */
-#listProdottiTable_wrapper .dt-controls-row #listProdottiTable_filter {
-  margin: 0;
-}
-
-/* Sotto i 576px la larghezza di ricerca e filtro non segue piu' le colonne
-   (vedi commento nel JS in prodotti_tabella.html) - si dividono la riga a
-   meta' ciascuno, sempre affiancati sulla stessa riga */
+/* Sotto i 576px resta visibile solo la colonna NOME (le altre sono
+   nascoste da DataTables Responsive), quindi l'intestazione "NOME" e'
+   ridondante - si nasconde tutta la riga di intestazione */
 @media (max-width: 575.98px) {
-  #listProdottiTable_wrapper .dt-controls-row > .dt-control-ricerca {
-    flex: 1 1 0;
-    min-width: 0;
-  }
-
-  #listProdottiTable_wrapper .dt-controls-row > .dt-control-filtro {
-    flex: 1 1 0;
-    min-width: 0;
-  }
-
-  /* La label (<label>Cerca:<input></label> generato da DataTables) e'
-     "inline-block" di suo, quindi non si allarga da sola a riempire lo
-     spazio assegnato dal flex qui sopra - va detto esplicitamente */
-  #listProdottiTable_filter label {
-    display: block;
-    width: 100%;
-  }
-
-  #listProdottiTable_filter input {
-    width: 100% !important;
-  }
-
-  /* Sotto i 576px resta visibile solo la colonna NOME (le altre sono
-     nascoste da DataTables Responsive), quindi l'intestazione "NOME" e'
-     ridondante - si nasconde tutta la riga di intestazione */
   #listProdottiTable thead {
     display: none;
   }
@@ -344,7 +290,11 @@
   box-shadow: none;
 }
 
-#prodottiCardFiltro {
+/* ".filtro-a-comparsa-select" nel selettore ":is(...)": stesso principio
+   additivo di ".ricerca-a-comparsa-input" sopra, per riusare lo stesso
+   stile su altre pagine (es. prodotti_tabella.html) che non hanno l'id
+   "#prodottiCardFiltro" di prodotti_card.html */
+:is(#prodottiCardFiltro, .filtro-a-comparsa-select) {
   border-color: var(--color-primary);
   border-width: 2px;
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%231B5AA0' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
@@ -448,7 +398,7 @@
   /* La classe Bootstrap ".flex-grow-1" (sempre attiva, vedi HTML) farebbe
      crescere il wrapper anche da chiuso per riempire lo spazio libero nella
      riga - spazio che ora e' molto piu' ampio da quando il filtro accanto e'
-     diventato una semplice icona fissa (42px) invece di una select larga.
+     diventato una semplice icona fissa (40px) invece di una select larga.
      Il risultato sarebbe una lente "appesa" a sinistra dentro un
      contenitore invisibile molto piu' largo di lei, non aderente al bordo
      destro della riga.
@@ -643,14 +593,20 @@
      lei stessa a ricevere il tocco (non un bottone finto/separato) - cosi'
      il menu nativo con l'elenco delle sottocategorie si apre da solo, senza
      bisogno di JS apposito */
-  #filtroProdottiWrapper {
+  /* ".filtro-a-comparsa"/".filtro-a-comparsa-select" negli "is(...)" di
+     questo blocco: stesso aggancio riusabile spiegato sopra per la
+     ricerca, qui per il filtro "solo icona a imbuto" da telefono (es.
+     prodotti_tabella.html, che non ha gli id "#filtroProdottiWrapper"/
+     "#prodottiCardFiltro" di prodotti_card.html) - additivo, non cambia
+     nulla per gli id esistenti */
+  :is(#filtroProdottiWrapper, .filtro-a-comparsa) {
     position: relative;
     flex-grow: 0 !important;
-    flex-basis: 42px; /* stessa larghezza della lente chiusa, per coerenza */
-    max-width: 42px !important;
+    flex-basis: 40px; /* stessa larghezza della lente chiusa, per coerenza */
+    max-width: 40px !important;
   }
 
-  #filtroProdottiWrapper #prodottiCardFiltro {
+  :is(#filtroProdottiWrapper, .filtro-a-comparsa) :is(#prodottiCardFiltro, .filtro-a-comparsa-select) {
     width: 100%;
     height: calc(1.5em + 0.75rem + 4px); /* stessa altezza della ricerca */
     color: transparent;
@@ -663,11 +619,11 @@
   /* Stesso glow di focus di Bootstrap gia' tolto sopra per ".form-control"
      (qui l'equivalente per ".form-select"): al tocco, essendo ora un'icona
      piccola, si vedeva come un'ombra sproporzionata intorno al quadratino */
-  #filtroProdottiWrapper #prodottiCardFiltro:focus {
+  :is(#filtroProdottiWrapper, .filtro-a-comparsa) :is(#prodottiCardFiltro, .filtro-a-comparsa-select):focus {
     box-shadow: none;
   }
 
-  #filtroProdottiWrapper .filtro-icon-overlay {
+  :is(#filtroProdottiWrapper, .filtro-a-comparsa) .filtro-icon-overlay {
     display: block;
     position: absolute;
     top: 50%;

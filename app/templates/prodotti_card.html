@@ -26,7 +26,13 @@
     <div class="py-3 d-flex flex-nowrap align-items-center justify-content-between gap-2">
 
         {% if sottocategorie|length > 0 %}
-        <div class="card-control-filtro flex-grow-1 flex-shrink-1" style="max-width: 14rem;" id="filtroProdottiWrapper">
+        {% comment %}
+        "max-width: 12rem", non piu' "14rem": stessa larghezza della
+        ricerca qui accanto (".ricerca-a-comparsa" in prodotti.css), cosi'
+        i due controlli sono della stessa grandezza - anche in
+        prodotti_tabella.html, che replica la stessa tecnica via JS
+        {% endcomment %}
+        <div class="card-control-filtro flex-grow-1 flex-shrink-1" style="max-width: 12rem;" id="filtroProdottiWrapper">
             <select id="prodottiCardFiltro" class="form-select">
                 <option value="{% url 'dettaglio_categoria' categoria_pk %}">Tutte le sottocategorie</option>
                 {% for sottocategoria in sottocategorie %}
