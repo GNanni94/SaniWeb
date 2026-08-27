@@ -30,7 +30,14 @@
     "id=rigaControlliRicercaFiltro" manterrebbe comunque il suo "py-3",
     lasciando un vuoto tra titolo e griglia prodotti
     {% endcomment %}
-    <div id="rigaControlliRicercaFiltro" class="py-3 d-flex flex-nowrap align-items-center justify-content-between gap-2">
+    {% comment %}
+    "justify-content-center" (non piu' "-between"): da desktop filtro e
+    ricerca agivano sulla stessa griglia sotto ma restavano agli estremi
+    opposti della riga, con un vuoto vistoso in mezzo su schermi larghi -
+    li si avvicina, centrati, cosi' si leggono come un unico blocco di
+    controlli invece di due elementi scollegati
+    {% endcomment %}
+    <div id="rigaControlliRicercaFiltro" class="py-3 d-flex flex-nowrap align-items-center justify-content-center gap-2">
         {% comment %}
         Raggruppa filtro e ricerca solo per poterli impilare insieme come
         bottoni fluttuanti da telefono (vedi prodotti.css): da desktop
@@ -48,7 +55,7 @@
         {% endcomment %}
         <div class="card-control-filtro flex-grow-1 flex-shrink-1" style="max-width: 12rem;" id="filtroProdottiWrapper">
             <select id="prodottiCardFiltro" class="form-select">
-                <option value="{% url 'dettaglio_categoria' categoria_pk %}">Tutte le sottocategorie</option>
+                <option value="{% url 'dettaglio_categoria' categoria_pk %}">MOSTRA TUTTO</option>
                 {% for sottocategoria in sottocategorie %}
                     <option value="{% url 'dettaglio_sottocategoria' sottocategoria.categoria_id sottocategoria.codice_sottocategoria %}"
                         {% if sottocategoria.codice_sottocategoria == sottocategoria_corrente_pk %}selected{% endif %}>
@@ -63,7 +70,7 @@
         <div class="card-control-ricerca flex-grow-1 flex-shrink-1" style="max-width: 12rem;" id="ricercaProdottiWrapper">
             <form class="input-group w-100 ricerca-form" id="ricercaProdottiForm" action="{% url 'search_prodotto' categoria_pk %}">
                 <input type="hidden" name="sottocategoria" id="ricercaSottocategoriaHidden" value="{{ sottocategoria_corrente_pk|default_if_none:'' }}">
-                <input type="text" name="query" id="prodottiCardSearch" class="form-control" placeholder="Search" aria-label="Search"
+                <input type="text" name="query" id="prodottiCardSearch" class="form-control" placeholder="Cerca..." aria-label="Cerca per nome o codice prodotto"
                     aria-describedby="search-addon" />
                 <button type="button" class="input-group-text border-0 ricerca-toggle-btn" id="search-addon"
                     aria-expanded="false" aria-controls="prodottiCardSearch" title="Cerca" aria-label="Cerca">
