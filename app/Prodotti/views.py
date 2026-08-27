@@ -56,6 +56,9 @@ class ProdottoListView(ListView):
         categoria = Categoria.objects.get(pk=self.kwargs['pk'])
         context['nome_categoria'] = categoria.nome_categoria
         query = self.request.GET.get('query', '')
+        # Usato dal template per il messaggio "nessun prodotto trovato"
+        # quando la ricerca non da' risultati (vedi sotto)
+        context['query'] = query
         # Se la ricerca parte da una pagina gia' filtrata per sottocategoria
         # (vedi campo nascosto "sottocategoria" nel form in prodotti_card.html),
         # il risultato resta ristretto a quella sottocategoria invece di
@@ -67,10 +70,33 @@ class ProdottoListView(ListView):
                 sottocategoria_pk = int(sottocategoria_pk_raw)
             except ValueError:
                 sottocategoria_pk = None
-        if self.object_list:
+        # Usato dal template per segnalare al JS (vedi
+        # filtro-prodotti-ajax.js) di avvisare l'utente con un toast e
+        # pulire il campo di ricerca, invece di mostrare una lista vuota
+        context['ricerca_senza_risultati'] = False
+        # "'query' in GET" (non "if self.object_list"): una ricerca senza
+        # risultati restituisce un queryset vuoto, falsy quanto il "{}"
+        # sentinella usato in get_queryset() per "nessun parametro query"
+        # (richiesta diretta all'URL, non dal form) - il vecchio controllo
+        # confondeva i due casi, lasciando "prodotti" non impostato anche
+        # per una ricerca legittima senza risultati. Il template ne aveva
+        # bisogno per decidere se mostrare la paginazione (paginator.py
+        # gestisce bene un queryset vuoto, un controllo diverso da qui non
+        # serve)
+        if 'query' in self.request.GET:
             prodotti = self.object_list.filter(categoria_id=categoria.pk)
             if sottocategoria_pk is not None:
                 prodotti = prodotti.filter(sottocategoria_id=sottocategoria_pk)
+            if query and not prodotti.exists():
+                # Nessun risultato per la ricerca (non "query" vuota, che
+                # con "icontains" corrisponderebbe comunque a tutto):
+                # invece di mostrare una lista vuota, si torna a mostrare
+                # l'intera categoria - sottocategoria inclusa, azzerata
+                # anche lei, come chiesto ("tutti i prodotti della
+                # categoria corrente")
+                context['ricerca_senza_risultati'] = True
+                sottocategoria_pk = None
+                prodotti = _filtra_precursori(Prodotto.objects.filter(categoria_id=categoria.pk), self.request.user)
             paginator = Paginator(prodotti, self.paginate_by)
             page_number = self.request.GET.get('page')
             prodotti = paginator.get_page(page_number)

@@ -95,6 +95,23 @@ class ProdottiCardGrigliaRicercaTest(TestCase):
         self.assertContains(response, 'id="listaProdottiContainer"')
         self.assertNotContains(response, 'site-footer')
 
+    def test_ricerca_senza_risultati_torna_a_mostrare_lintera_categoria(self):
+        # La griglia non resta vuota (niente piu' paginazione "rotta" per
+        # via delle variabili di contesto mancanti): torna a mostrare tutti
+        # i prodotti della categoria, con gli attributi che permettono al
+        # JS (filtro-prodotti-ajax.js) di avvisare l'utente con un toast
+        url = reverse('search_prodotto', args=[self.categoria.pk])
+        response = self.client.get(url, {'query': 'xyznonesiste'}, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-ricerca-senza-risultati="1"')
+        self.assertContains(response, 'data-messaggio-ricerca-senza-risultati="Non è presente nessun prodotto &quot;xyznonesiste&quot;."')
+        self.assertContains(response, "Sgrassatore Cucina")
+
+    def test_ricerca_con_risultati_non_segnala_ricerca_senza_risultati(self):
+        url = reverse('search_prodotto', args=[self.categoria.pk])
+        response = self.client.get(url, {'query': 'Sgrassatore'}, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertContains(response, 'data-ricerca-senza-risultati=""')
+
 
 class ConfiguraImmaginiArticoliTest(TestCase):
     def test_placeholder_usa_la_costante_condivisa(self):

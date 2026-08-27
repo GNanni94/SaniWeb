@@ -1,0 +1,25 @@
+{% comment %}
+Toast (Bootstrap 5) mostrato dal JS (filtro-prodotti-ajax.js) quando una
+ricerca non da' risultati: la griglia torna comunque a mostrare l'intera
+categoria (vedi ProdottoListView.get_context_data), il toast e' il solo
+modo in cui l'utente viene avvisato che la sua ricerca specifica non ha
+trovato nulla. "top-50 start-50 translate-middle": centrato nella pagina
+(non solo in alto), cosi' risalta di piu' rispetto al resto.
+
+File a parte apposta (non inline in prodotti_card.html): per personalizzare
+aspetto/testo/durata del toast basta modificare questo file, senza toccare
+il resto della pagina. Gli id (#toastRicercaSenzaRisultati/
+#toastRicercaSenzaRisultatiTesto) sono letti da filtro-prodotti-ajax.js,
+vanno tenuti se si modifica il markup.
+{% endcomment %}
+<div class="toast-container position-fixed top-50 start-50 translate-middle p-3" style="z-index: 1080;">
+    {% comment %}
+    Niente bottone di chiusura: il toast si chiude gia' da solo dopo
+    "data-bs-delay" (3000ms). Testo centrato ("text-center" su
+    ".toast-body", non piu' dentro un ".d-flex" - senza il bottone
+    accanto non serve piu' quel contenitore)
+    {% endcomment %}
+    <div id="toastRicercaSenzaRisultati" class="toast border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000" style="background-color: var(--color-primary); color: var(--color-text-light);">
+        <div class="toast-body text-center" id="toastRicercaSenzaRisultatiTesto"></div>
+    </div>
+</div>

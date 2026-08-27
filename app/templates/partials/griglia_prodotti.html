@@ -1,4 +1,14 @@
-<div id="listaProdottiContainer" data-sottocategoria="{{ sottocategoria_corrente_pk|default_if_none:'' }}" data-nome-categoria="{{ nome_categoria }}">
+{% comment %}
+"data-ricerca-senza-risultati"/"data-messaggio-ricerca-senza-risultati":
+impostati da ProdottoListView.get_context_data quando una ricerca non da'
+risultati (la vista torna comunque l'intera categoria, vedi li') - il JS
+(filtro-prodotti-ajax.js) li legge dopo lo swap per avvisare l'utente con
+un toast (testo gia' pronto qui, non composto in JS - stesso principio di
+"data-nome-categoria" sotto) e pulire il campo di ricerca, invece di
+lasciare capire dal solo elenco mostrato che la ricerca non ha trovato
+nulla
+{% endcomment %}
+<div id="listaProdottiContainer" data-sottocategoria="{{ sottocategoria_corrente_pk|default_if_none:'' }}" data-nome-categoria="{{ nome_categoria }}" data-ricerca-senza-risultati="{% if ricerca_senza_risultati %}1{% endif %}" data-messaggio-ricerca-senza-risultati="{% if ricerca_senza_risultati %}Non è presente nessun prodotto &quot;{{ query }}&quot;.{% endif %}">
     <div class="row">
 
         {% for x in prodotti %}
@@ -45,6 +55,7 @@
 
     </div>
 
+    {% if prodotti %}
     <div class="py-4">
         <nav aria-label="Page navigation example" id="paginazioneGrigliaProdotti">
             <ul class="pagination justify-content-center">
@@ -80,4 +91,5 @@
             </ul>
         </nav>
     </div>
+    {% endif %}
 </div>

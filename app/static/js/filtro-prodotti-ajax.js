@@ -5,8 +5,41 @@
     var container = document.getElementById('listaProdottiContainer');
     var filtro = document.getElementById('prodottiCardFiltro');
     var formRicerca = document.getElementById('ricercaProdottiForm');
+    var inputRicerca = document.getElementById('prodottiCardSearch');
+    var wrapperRicerca = document.getElementById('ricercaProdottiWrapper');
+    var toggleRicerca = document.getElementById('search-addon');
+    var toastRicercaSenzaRisultati = document.getElementById('toastRicercaSenzaRisultati');
+    var toastRicercaSenzaRisultatiTesto = document.getElementById('toastRicercaSenzaRisultatiTesto');
     if (!container) {
         return;
+    }
+
+    // Toast (Bootstrap 5, si chiude da solo - vedi "data-bs-delay" sul
+    // markup in prodotti_card.html) per la ricerca senza risultati: la
+    // griglia torna comunque a mostrare l'intera categoria (vedi
+    // ProdottoListView.get_context_data), il toast e' il solo avviso che
+    // la ricerca specifica non ha trovato nulla. Il messaggio arriva gia'
+    // pronto dal server ("data-messaggio-ricerca-senza-risultati" in
+    // griglia_prodotti.html), qui si copia soltanto - stesso principio di
+    // "data-nome-categoria" poco sopra, comporre il testo in JS invece che
+    // nel template lo renderebbe piu' scomodo da cambiare in futuro.
+    // "dopoComparsa" (chiamato su "shown.bs.toast", non subito): il campo
+    // di ricerca/filtro vanno svuotati solo DOPO che il toast e' comparso
+    // del tutto, non nello stesso istante - altrimenti sullo schermo si
+    // vede tutto cambiare in un colpo solo invece di un prima/dopo chiaro
+    function mostraToastRicercaSenzaRisultati(messaggio, dopoComparsa) {
+        if (!toastRicercaSenzaRisultati || !toastRicercaSenzaRisultatiTesto) {
+            if (dopoComparsa) {
+                dopoComparsa();
+            }
+            return;
+        }
+        toastRicercaSenzaRisultatiTesto.textContent = messaggio;
+        var toast = bootstrap.Toast.getOrCreateInstance(toastRicercaSenzaRisultati);
+        if (dopoComparsa) {
+            toastRicercaSenzaRisultati.addEventListener('shown.bs.toast', dopoComparsa, { once: true });
+        }
+        toast.show();
     }
 
     // Fix: token di sequenza al posto del guard "ignora se gia' in corso".
@@ -96,13 +129,43 @@
                     titoloLink.textContent = nuovoContenuto.dataset.nomeCategoria;
                 }
                 document.title = nuovoContenuto.dataset.nomeCategoria;
+
+                // Ricerca senza risultati (vedi ProdottoListView.
+                // get_context_data): oltre al toast, si pulisce il campo
+                // di ricerca e si riporta il filtro su "Tutte le
+                // sottocategorie", coerenti con l'intera categoria appena
+                // mostrata al posto della lista vuota
+                var urlDaMostrare = url;
+                if (nuovoContenuto.dataset.ricercaSenzaRisultati === '1') {
+                    mostraToastRicercaSenzaRisultati(nuovoContenuto.dataset.messaggioRicercaSenzaRisultati, function () {
+                        if (inputRicerca) {
+                            inputRicerca.value = '';
+                        }
+                        if (filtro) {
+                            filtro.selectedIndex = 0;
+                        }
+                        if (wrapperRicerca && wrapperRicerca.classList.contains('ricerca-espansa')) {
+                            wrapperRicerca.classList.remove('ricerca-espansa');
+                            if (toggleRicerca) {
+                                toggleRicerca.setAttribute('aria-expanded', 'false');
+                            }
+                        }
+                    });
+                    // L'URL nella barra indirizzi riflette la categoria
+                    // intera ora mostrata, non la ricerca appena fallita
+                    // (altrimenti un refresh/bookmark rifarebbe la stessa
+                    // ricerca senza risultati)
+                    if (titoloLink) {
+                        urlDaMostrare = titoloLink.href;
+                    }
+                }
                 // "replaceState", non "pushState": l'URL nella barra degli
                 // indirizzi resta corretto (condivisibile/bookmarkabile),
                 // ma senza aggiungere voci alla cronologia - un solo
                 // "indietro" del browser riporta l'utente alla pagina
                 // precedente vera (es. il Catalogo), senza tappe
                 // intermedie per ogni filtro/pagina cambiati qui
-                history.replaceState(null, '', url);
+                history.replaceState(null, '', urlDaMostrare);
                 // Solo la paginazione scrolla (in cima alla pagina, non solo
                 // all'inizio del container): il cambio filtro non deve
                 // spostare la vista, l'utente ha appena interagito col
