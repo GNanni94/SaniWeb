@@ -147,6 +147,32 @@
         });
     }
 
+    // Link del titolo ("torna alla lista completa" della stessa categoria,
+    // senza sottocategoria/ricerca): a differenza dei link di paginazione
+    // sotto, questo elemento non viene mai rigenerato da uno swap AJAX (sta
+    // fuori da "#listaProdottiContainer", il JS gli aggiorna solo il testo -
+    // vedi "caricaConAjax"), quindi un listener diretto basta, non serve
+    // delegazione. Href fisso (sempre la stessa categoria), letto ad ogni
+    // click cosi' da restare valido anche se cambiasse
+    var titoloLink = document.getElementById('titoloCategoriaLink');
+    if (titoloLink) {
+        titoloLink.addEventListener('click', function (event) {
+            event.preventDefault();
+            // Il filtro sottocategoria (fuori da "#listaProdottiContainer",
+            // come il titolo stesso) non si aggiorna da solo con lo swap
+            // della griglia: senza questo, dopo aver cliccato il titolo da
+            // una sottocategoria filtrata, la select mostrerebbe ancora
+            // quella sottocategoria anche se la griglia ora mostra la
+            // categoria intera. "selectedIndex = 0" invece di confrontare
+            // i due URL: la prima "<option>" e' sempre "Tutte le
+            // sottocategorie" (vedi prodotti_card.html)
+            if (filtro) {
+                filtro.selectedIndex = 0;
+            }
+            caricaConAjax(titoloLink.href, false);
+        });
+    }
+
     // Delegazione sul container (non sui singoli link): funziona anche sui
     // link di paginazione rigenerati dopo ogni swap di innerHTML, senza
     // dover ri-agganciare l'evento ogni volta
