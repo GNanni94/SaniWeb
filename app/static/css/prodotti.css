@@ -201,6 +201,29 @@
   text-align: center;
 }
 
+/* Bordi tondi della tabella prodotti (prodotti_tabella.html): "border-radius"
+   + "overflow: hidden" direttamente sulla "<table>" (non su un contenitore
+   attorno a lei, es. "#listProdottiTable_wrapper" generato da DataTables:
+   quello contiene anche la paginazione sotto, che deve restare fuori
+   dall'arrotondamento - un "<div>" avvolto solo attorno alla "<table>" e'
+   stato provato ma DataTables inserisce comunque il proprio wrapper, con
+   dentro anche la paginazione, esattamente nella posizione occupata dalla
+   "<table>" nel DOM, quindi finirebbe comunque dentro). Affidabile qui
+   perche' la tabella e' gia' "border-collapse: separate; border-spacing: 0"
+   (default del browser, Bootstrap non lo forza a "collapse" - verificato
+   con devtools): con "collapse" i bordi delle celle "vincono" sempre sul
+   bordo/arrotondamento della tabella stessa, indipendente dal browser */
+#listProdottiTable {
+  border-radius: .75rem;
+  overflow: hidden;
+  /* "0", non l'"1rem" di margine sotto che Bootstrap mette di default su
+     ".table": con "overflow: hidden" qui sopra (nuovo "block formatting
+     context") quel margine non collasserebbe verso l'esterno ma diventerebbe
+     spazio vuoto visibile dentro la tabella, prima dell'angolo arrotondato
+     in basso */
+  margin-bottom: 0;
+}
+
 /* Tabella prodotti (DataTables): sotto i 576px il testo "Showing x to y..."
    (con "float" di default) non ci sta piu' affiancato alla paginazione e
    va a capo in modo disordinato: lo mettiamo su una riga propria a piena
