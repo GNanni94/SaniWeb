@@ -35,12 +35,11 @@ l'h1) - per lo spazio dal contorno "a pillola" quando la riga e' fissata
 non il padding della riga.
 
 "intestazione_sticky" (opzionale, booleano): aggiunge ".intestazione-categoria-sticky"
-(prodotti.css) - usata da prodotti_card.html per tenere la riga sempre
-visibile durante lo scroll da desktop (fissata subito sotto la navbar,
-contorno "a pillola" quando e' davvero agganciata - vedi
-"#sentinellaIntestazione"/IntersectionObserver in prodotti_card.html). Non
-passata da prodotti_tabella.html: quella pagina resta con la riga nel
-normale flusso, invariata.
+(prodotti.css) - usata da prodotti_card.html e prodotti_tabella.html per
+tenere la riga sempre visibile durante lo scroll da desktop (fissata subito
+sotto la navbar, contorno "a pillola" quando e' davvero agganciata - vedi
+"#sentinellaIntestazione" nel template chiamante e lo script condiviso
+"static/js/intestazione-categoria-sticky.js").
 {% endcomment %}
 <div class="d-flex align-items-center position-relative pt-5 pb-3{% if intestazione_sticky %} intestazione-categoria-sticky{% endif %}">
     <a href="{% url 'catalogo' %}" class="btn btn-navbar btn-sm rounded-pill btn-torna-catalogo position-absolute start-0" title="Torna al catalogo">

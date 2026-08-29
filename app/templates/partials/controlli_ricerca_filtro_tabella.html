@@ -1,0 +1,39 @@
+{% comment %}
+Filtro sottocategoria di prodotti_tabella.html, passato come "controlli_template"
+a "partials/intestazione_categoria.html": da desktop finisce cosi' nella stessa
+riga del titolo, a destra - stessa tecnica di prodotti_card.html/
+"partials/controlli_ricerca_filtro_card.html" (l'h1 li' ha "mx-auto": senza
+altri margini "auto" sui controlli, lo spazio libero della riga va tutto ai
+margini dell'h1, che quindi resta centrato nello spazio a sinistra dei
+controlli mentre loro restano appiccicati al bordo destro).
+
+La select esisteva gia' nel template (prima in una riga separata sopra la
+tabella, spostata qui solo via JS in "initComplete" con un "d-none" nel
+mezzo per non farla comparire un istante nel posto sbagliato): renderizzata
+gia' qui, nella posizione finale, non serve piu' nessuno spostamento via JS.
+
+La ricerca non c'e' in questo partial: e' generata da DataTables stesso, non
+esiste finche' la tabella non si e' inizializzata - viene aggiunta qui
+accanto (dentro lo stesso "#controlliRicercaFiltroTabellaWrapper" qui sotto)
+via JS in "initComplete" (vedi prodotti_tabella.html).
+
+Raggruppati in "#controlliRicercaFiltroTabellaWrapper" solo per poterli
+impilare insieme come bottoni fluttuanti da telefono (stesso principio di
+"#controlliRicercaFiltroWrapper" in prodotti_card.html, id diverso per
+restare indipendente da quella pagina): da qui in su "display: contents" lo
+rende invisibile al layout, i due controlli restano quindi figli diretti
+della riga del titolo esattamente come se questo wrapper non esistesse.
+{% endcomment %}
+<div id="controlliRicercaFiltroTabellaWrapper">
+
+<div class="filtro-a-comparsa flex-grow-1 flex-shrink-1" style="max-width: 12rem; min-width: 0;" id="filtroTabellaWrapper">
+    <select id="filtroSottocategoria" class="form-select filtro-a-comparsa-select">
+        <option value="">Tutte le sottocategorie</option>
+        {% for sc in sottocategorie %}
+            <option value="{{ sc.nome_sottocategoria }}">{{ sc.nome_sottocategoria }}</option>
+        {% endfor %}
+    </select>
+    <i class="bi bi-funnel filtro-icon-overlay" aria-hidden="true"></i>
+</div>
+
+</div>

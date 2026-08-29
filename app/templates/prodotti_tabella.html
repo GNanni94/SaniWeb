@@ -14,9 +14,31 @@
     sottocategoria/risultato di ricerca; qui non esiste un equivalente lato
     server (il filtro e' solo client-side), quindi il link ricarica
     semplicemente la stessa pagina - innocuo, ma tenuto per coerenza visiva
-    con l'altra pagina
+    con l'altra pagina.
+    "controlli_template" e "intestazione_sticky", stessa coppia di
+    prodotti_card.html: filtro e ricerca finiscono nella stessa riga del
+    titolo, a destra, e la riga resta agganciata subito sotto la navbar
+    durante lo scroll da desktop (vedi "#sentinellaIntestazione" qui sotto e
+    lo script in fondo alla pagina)
     {% endcomment %}
-    {% include 'partials/intestazione_categoria.html' %}
+    {% comment %}
+    Sentinella con un'altezza vera (".sentinella-intestazione" in
+    prodotti.css, solo da desktop) davanti alla riga: senza, il bordo
+    superiore della riga (".intestazione-categoria-sticky" qui sotto, gia'
+    "position: sticky" di suo) si troverebbe fin da subito a ridosso della
+    navbar, quindi si aggancerebbe dopo pochissimi pixel di scroll invece di
+    scorrere normalmente insieme al resto della pagina per un tratto, come
+    una riga qualunque, finche' la navbar (fissata di suo) non la raggiunge
+    davvero. Serve anche da riferimento per l'IntersectionObserver in fondo
+    alla pagina: quando esce dalla vista la riga si sta agganciando al suo
+    posto, e viene aggiunta ".intestazione-fissata" alla riga (bordo/pillola
+    in prodotti.css). Deve stare subito PRIMA della riga nel DOM, cosi'
+    esce dalla vista esattamente nel momento giusto - stesso principio di
+    prodotti_card.html
+    {% endcomment %}
+    <div id="sentinellaIntestazione" class="sentinella-intestazione"></div>
+
+    {% include 'partials/intestazione_categoria.html' with controlli_template='partials/controlli_ricerca_filtro_tabella.html' intestazione_sticky=True %}
 
     <div class="table-responsive py-3">
         {% if not user.is_authenticated %}
@@ -24,18 +46,6 @@
             {% include 'partials/alert_preventivo.html' %}
         </div>
         {% endif %}
-        {% comment %}
-        "form-select" (non "-sm"): stessa dimensione del filtro di
-        prodotti_card.html (#prodottiCardFiltro), per restare della stessa
-        grandezza sia della ricerca qui accanto (stessa formula di altezza
-        in prodotti.css) sia del filtro dell'altra pagina
-        {% endcomment %}
-        <select id="filtroSottocategoria" class="form-select d-none">
-            <option value="">Tutte le sottocategorie</option>
-            {% for sc in sottocategorie %}
-                <option value="{{ sc.nome_sottocategoria }}">{{ sc.nome_sottocategoria }}</option>
-            {% endfor %}
-        </select>
         <table id="listProdottiTable" class="table table-bordered table-sm table-hover tabella-in-caricamento text-center align-middle">
             <thead class="table-navbar align-middle">
                 <tr>
@@ -175,24 +185,23 @@ $(document).ready(function () {
         "initComplete": function () {
             var api = this.api();
 
-            // Ricerca e filtro sottocategoria con lo stesso aspetto "a
-            // comparsa" di prodotti_card.html (classi ".ricerca-a-comparsa"/
-            // ".filtro-a-comparsa" riusabili in prodotti.css, gia' usate
-            // anche in dashboard_prodotti_senza_immagine.html per la
-            // ricerca): filtro a sinistra, ricerca a destra, stesso ordine
-            // di prodotti_card.html.
+            // Ricerca con lo stesso aspetto "a comparsa" di
+            // prodotti_card.html (classi ".ricerca-a-comparsa" riusabile in
+            // prodotti.css, gia' usata anche in
+            // dashboard_prodotti_senza_immagine.html): il filtro
+            // sottocategoria e' gia' nella riga del titolo, renderizzato
+            // lato server da "partials/controlli_ricerca_filtro_tabella.html"
+            // (passato come "controlli_template" a
+            // "partials/intestazione_categoria.html" nel template) - qui si
+            // aggiunge solo la ricerca, accanto a lui, nello stesso wrapper.
             // Il campo di ricerca e' quello generato da DataTables stesso
             // (esiste solo da qui in poi): gli si costruisce attorno la
             // stessa struttura ".ricerca-a-comparsa > .ricerca-form >
             // input + bottone" invece di crearne uno nuovo, cosi' resta
             // cablato sul filtro live di DataTables che ha gia' di suo.
-            // Il filtro sottocategoria e' invece il <select> gia' presente
-            // nel template (con il proprio "change" cablato piu' sotto),
-            // solo spostato dentro il wrapper con l'icona a imbuto.
-            // A differenza di prima, questi due controlli hanno una
-            // larghezza propria fissa (non piu' agganciata a quella delle
-            // colonne), quindi non serve piu' nessuna sincronizzazione via
-            // JS: si mostrano subito, senza attendere nessun ricalcolo.
+            // Larghezza propria fissa (non piu' agganciata a quella delle
+            // colonne), quindi non serve nessuna sincronizzazione via JS:
+            // si mostra subito, senza attendere nessun ricalcolo.
             var $filterDiv = $('#listProdottiTable_filter');
             var $inputRicerca = $filterDiv.find('input')
                 .attr('id', 'ricercaTabellaProdotti')
@@ -204,7 +213,7 @@ $(document).ready(function () {
                 + 'aria-controls="ricercaTabellaProdotti" title="Cerca" aria-label="Cerca">'
                 + '<i class="bi bi-search"></i></button>'
             );
-            // Niente "flex-grow-1" qui (a differenza del filtro sotto):
+            // Niente "flex-grow-1" qui (a differenza del filtro): la classe
             // ".ricerca-a-comparsa" fissa gia' da sola "width: 12rem" da
             // 576px in su (vedi prodotti.css) - un "flex-grow" in piu' la
             // farebbe crescere oltre, riempiendo lo spazio lasciato libero
@@ -220,32 +229,11 @@ $(document).ready(function () {
             var $wrapperRicerca = $('<div class="ricerca-a-comparsa flex-shrink-1" id="ricercaTabellaWrapper" style="min-width: 0;"></div>')
                 .append($('<div class="input-group ricerca-form"></div>').append($inputRicerca).append($bottoneRicerca));
 
-            // Stessi "flex-grow-1 flex-shrink-1" + "max-width" inline di
-            // "#filtroProdottiWrapper" in prodotti_card.html: a differenza
-            // della ricerca sopra, ".filtro-a-comparsa" non impone una
-            // larghezza propria da desktop (solo da telefono, icona sola),
-            // quindi qui puo' restare la stessa tecnica del sorgente.
-            // "12rem", non piu' "14rem": stessa larghezza della ricerca,
-            // qui e in prodotti_card.html (vedi prodotti.css)
-            var $wrapperFiltro = $('<div class="filtro-a-comparsa flex-grow-1 flex-shrink-1" id="filtroTabellaWrapper" style="max-width: 12rem; min-width: 0;"></div>')
-                .append($('#filtroSottocategoria').removeClass('d-none').addClass('filtro-a-comparsa-select'))
-                .append('<i class="bi bi-funnel filtro-icon-overlay" aria-hidden="true"></i>');
-
-            // Wrapper che raggruppa i due controlli solo per poterli
-            // impilare come bottoni fluttuanti da telefono (stesso
-            // principio di "#controlliRicercaFiltroWrapper" in
-            // prodotti_card.html, id diverso per restare indipendente da
-            // quella pagina): da desktop "display: contents" (in
-            // prodotti.css) lo rende invisibile al layout, i due controlli
-            // restano quindi figli diretti della riga sotto esattamente
-            // come prima
-            var $wrapperControlli = $('<div id="controlliRicercaFiltroTabellaWrapper"></div>')
-                .append($wrapperFiltro)
-                .append($wrapperRicerca);
-
-            var $riga = $('<div id="rigaControlliRicercaFiltroTabella" class="d-flex flex-nowrap align-items-center justify-content-between gap-2 py-3"></div>')
-                .append($wrapperControlli);
-            $filterDiv.before($riga);
+            // Aggiunta dopo il filtro (gia' presente, stesso ordine di
+            // prodotti_card.html) dentro lo stesso wrapper renderizzato dal
+            // partial, nella riga del titolo - non piu' una riga a parte
+            // sopra la tabella
+            $('#controlliRicercaFiltroTabellaWrapper').append($wrapperRicerca);
             $filterDiv.remove();
 
             // La tabella resta nascosta ("tabella-in-caricamento") finche'
@@ -333,7 +321,28 @@ $(document).ready(function () {
                 });
             });
 
+            // Icona del filtro piena ("bi-funnel-fill", contenuto bianco)
+            // solo quando e' selezionata una sottocategoria specifica, a
+            // contorno ("bi-funnel", il contenuto lascia trasparire il blu
+            // del cerchio sotto) su "Tutte le sottocategorie" - stesso
+            // comportamento di prodotti_card.html
+            // ("aggiornaClasseFiltroAttivo" in filtro-prodotti-ajax.js, non
+            // caricato qui). "selectedIndex === 0" basta a riconoscere lo
+            // stato "nessun filtro attivo": la prima "<option>" e' sempre
+            // "Tutte le sottocategorie" (vedi
+            // partials/controlli_ricerca_filtro_tabella.html)
+            var iconaFiltro = wrapperFiltroEl.querySelector('.filtro-icon-overlay');
+
+            function aggiornaClasseFiltroAttivo() {
+                var attivo = $('#filtroSottocategoria').prop('selectedIndex') !== 0;
+                iconaFiltro.classList.toggle('bi-funnel-fill', attivo);
+                iconaFiltro.classList.toggle('bi-funnel', !attivo);
+            }
+
+            aggiornaClasseFiltroAttivo();
+
             $('#filtroSottocategoria').on('change', function () {
+                aggiornaClasseFiltroAttivo();
                 var valore = $(this).val();
                 // Ricerca esatta (non per sottostringa) sulla colonna SottoCategoria
                 // (indice 3, dopo la rimozione della colonna "CATEGORIA"), altrimenti
@@ -351,5 +360,6 @@ $(document).ready(function () {
 </script>
 
 <script src="{% static 'js/aggiungi-al-carrello.js' %}"></script>
+<script src="{% static 'js/intestazione-categoria-sticky.js' %}"></script>
 
 {% endblock contenuto %}
