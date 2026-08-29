@@ -222,6 +222,13 @@
      spazio vuoto visibile dentro la tabella, prima dell'angolo arrotondato
      in basso */
   margin-bottom: 0;
+  /* "!important" per vincere il "width" in px che DataTables scrive inline
+     sulla tabella (calcolato sul contenuto delle colonne, "autoWidth" di
+     default): senza, la tabella puo' risultare piu' stretta del contenitore
+     che la circonda, lasciando a destra dell'ultima colonna uno spazio
+     vuoto senza bordo (il bordo destro della tabella finisce li' dove lei
+     termina, non al bordo del contenitore) */
+  width: 100% !important;
 }
 
 /* Tabella prodotti (DataTables): sotto i 576px il testo "Showing x to y..."
