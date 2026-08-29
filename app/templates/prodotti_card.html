@@ -9,80 +9,36 @@
 
     {% include 'partials/toast_ricerca_senza_risultati.html' %}
 
-    <div class="d-flex align-items-center position-relative pt-5 pb-3">
-        <a href="{% url 'catalogo' %}" class="btn btn-navbar btn-sm position-absolute start-0" title="Torna al catalogo">
-            <i class="bi bi-arrow-left"></i>
-            <span class="d-none d-md-inline">Torna al catalogo</span>
-        </a>
-        <h1 class="fw-bold mb-0 mx-auto">
-            <a href="{% url 'dettaglio_categoria' categoria_pk %}" class="titolo-categoria-link" id="titoloCategoriaLink">{{nome_categoria}}</a>
-        </h1>
-    </div>
+    {% comment %}
+    Sentinella con un'altezza vera (".sentinella-intestazione" in
+    prodotti.css, solo da desktop) davanti alla riga: senza, il bordo
+    superiore della riga (".intestazione-categoria-sticky" qui sotto, gia'
+    "position: sticky" di suo) si troverebbe fin da subito a ridosso della
+    navbar (il contenitore inizia praticamente subito sotto di lei), quindi
+    si aggancerebbe dopo pochissimi pixel di scroll invece di scorrere
+    normalmente insieme al resto della pagina per un tratto, come una riga
+    qualunque, finche' la navbar (fissata di suo) non la raggiunge davvero.
+    Questa altezza sostituisce il "pt-5" che la riga aveva prima (rimosso da
+    lei sopra i 576px, vedi prodotti.css): stesso spazio visivo identico a
+    riga non ancora scrollata, ma reale e FUORI dalla riga invece che
+    "dentro" il suo stesso padding.
+
+    Serve anche da riferimento per l'IntersectionObserver piu' sotto: quando
+    esce dalla vista (l'utente ha scrollato abbastanza da farla sparire
+    sotto la navbar) vuol dire che la riga si sta agganciando al suo posto,
+    e viene aggiunta ".intestazione-fissata" alla riga (bordo/pillola in
+    prodotti.css). Deve stare subito PRIMA della riga nel DOM, cosi' esce
+    dalla vista esattamente nel momento giusto
+    {% endcomment %}
+    <div id="sentinellaIntestazione" class="sentinella-intestazione"></div>
+
+    {% include 'partials/intestazione_categoria.html' with controlli_template='partials/controlli_ricerca_filtro_card.html' intestazione_sticky=True %}
 
     {% if not user.is_authenticated %}
     <div class="d-flex justify-content-center card-control-alert pt-4">
         {% include 'partials/alert_preventivo.html' %}
     </div>
     {% endif %}
-
-    {% comment %}
-    Da telefono questa riga resta vuota (filtro e ricerca sono usciti dal
-    flusso, diventati fluttuanti in basso a sinistra - vedi
-    "#controlliRicercaFiltroWrapper" sotto e prodotti.css), ma senza
-    "id=rigaControlliRicercaFiltro" manterrebbe comunque il suo "py-3",
-    lasciando un vuoto tra titolo e griglia prodotti
-    {% endcomment %}
-    {% comment %}
-    "justify-content-center" (non piu' "-between"): da desktop filtro e
-    ricerca agivano sulla stessa griglia sotto ma restavano agli estremi
-    opposti della riga, con un vuoto vistoso in mezzo su schermi larghi -
-    li si avvicina, centrati, cosi' si leggono come un unico blocco di
-    controlli invece di due elementi scollegati
-    {% endcomment %}
-    <div id="rigaControlliRicercaFiltro" class="py-3 d-flex flex-nowrap align-items-center justify-content-center gap-2">
-        {% comment %}
-        Raggruppa filtro e ricerca solo per poterli impilare insieme come
-        bottoni fluttuanti da telefono (vedi prodotti.css): da desktop
-        "display: contents" lo rende invisibile al layout, i due controlli
-        restano quindi figli diretti di questa riga esattamente come prima
-        {% endcomment %}
-        <div id="controlliRicercaFiltroWrapper">
-
-        {% if sottocategorie|length > 0 %}
-        {% comment %}
-        "max-width: 12rem", non piu' "14rem": stessa larghezza della
-        ricerca qui accanto (".ricerca-a-comparsa" in prodotti.css), cosi'
-        i due controlli sono della stessa grandezza - anche in
-        prodotti_tabella.html, che replica la stessa tecnica via JS
-        {% endcomment %}
-        <div class="card-control-filtro flex-grow-1 flex-shrink-1" style="max-width: 12rem;" id="filtroProdottiWrapper">
-            <select id="prodottiCardFiltro" class="form-select">
-                <option value="{% url 'dettaglio_categoria' categoria_pk %}">MOSTRA TUTTO</option>
-                {% for sottocategoria in sottocategorie %}
-                    <option value="{% url 'dettaglio_sottocategoria' sottocategoria.categoria_id sottocategoria.codice_sottocategoria %}"
-                        {% if sottocategoria.codice_sottocategoria == sottocategoria_corrente_pk %}selected{% endif %}>
-                        {{ sottocategoria.nome_sottocategoria }}
-                    </option>
-                {% endfor %}
-            </select>
-            <i class="bi bi-funnel filtro-icon-overlay" aria-hidden="true"></i>
-        </div>
-        {% endif %}
-
-        <div class="card-control-ricerca flex-grow-1 flex-shrink-1" style="max-width: 12rem;" id="ricercaProdottiWrapper">
-            <form class="input-group w-100 ricerca-form" id="ricercaProdottiForm" action="{% url 'search_prodotto' categoria_pk %}">
-                <input type="hidden" name="sottocategoria" id="ricercaSottocategoriaHidden" value="{{ sottocategoria_corrente_pk|default_if_none:'' }}">
-                <input type="text" name="query" id="prodottiCardSearch" class="form-control" placeholder="Cerca..." aria-label="Cerca per nome o codice prodotto"
-                    aria-describedby="search-addon" />
-                <button type="button" class="input-group-text border-0 ricerca-toggle-btn" id="search-addon"
-                    aria-expanded="false" aria-controls="prodottiCardSearch" title="Cerca" aria-label="Cerca">
-                    <i class="bi bi-search"></i>
-                </button>
-            </form>
-        </div>
-
-        </div>
-    </div>
 
     {% include 'partials/griglia_prodotti.html' %}
 
@@ -164,6 +120,35 @@
     aggiornaBordoSuSfondoBlu();
     window.addEventListener('scroll', aggiornaBordoSuSfondoBlu, { passive: true });
     window.addEventListener('resize', aggiornaBordoSuSfondoBlu);
+})();
+</script>
+
+<script>
+(function () {
+    // Riga titolo/filtro/ricerca fissata in cima allo scroll da desktop,
+    // subito sotto alla navbar (anche lei fissata, vedi altezza-navbar.js/
+    // ".site-navbar" in navbar.css - ".intestazione-categoria-sticky" in
+    // prodotti.css, "position: sticky" di suo): grazie a
+    // "#sentinellaIntestazione" (altezza vera, vedi il commento sopra nel
+    // template) la riga scorre normalmente insieme al resto della pagina
+    // per un tratto, e si aggancia solo quando la navbar la raggiunge
+    // davvero - esattamente li' aggiungo ".intestazione-fissata" (bordo/
+    // pillola in prodotti.css), osservando quando la sentinella esce dalla
+    // vista scrollando verso il basso. "rootMargin" ridotto dell'altezza
+    // della navbar: senza, l'osservatore la considera "ancora visibile"
+    // (quindi riga non ancora agganciata) finche' non esce dal tutto in
+    // cima allo schermo (y=0), invece del punto vero in cui la riga si
+    // aggancia (y=altezza navbar, la navbar sopra di lei la copre gia' da
+    // li')
+    var sentinella = document.getElementById('sentinellaIntestazione');
+    var riga = document.querySelector('.intestazione-categoria-sticky');
+    var navbar = document.querySelector('.site-navbar');
+    if (sentinella && riga && 'IntersectionObserver' in window) {
+        var altezzaNavbar = navbar ? navbar.offsetHeight : 0;
+        new IntersectionObserver(function (entries) {
+            riga.classList.toggle('intestazione-fissata', !entries[0].isIntersecting);
+        }, { rootMargin: '-' + altezzaNavbar + 'px 0px 0px 0px' }).observe(sentinella);
+    }
 })();
 </script>
 

@@ -1,0 +1,58 @@
+{% comment %}
+Riga titolo categoria, condivisa tra prodotti_card.html e prodotti_tabella.html:
+pillola "Torna al catalogo" (stile ".btn-torna-catalogo" in prodotti.css -
+cerchio da telefono, solo icona; pillola allungata da desktop, icona + testo)
+posizionata a sinistra, titolo (h1, cliccabile verso la categoria corrente -
+".titolo-categoria-link" in prodotti.css) centrato.
+
+Richiede in context "categoria_pk" e "nome_categoria" (gia' presenti in
+entrambe le view). L'id "titoloCategoriaLink" e' letto da
+filtro-prodotti-ajax.js per aggiornare il link durante il filtro AJAX in
+prodotti_card.html - in prodotti_tabella.html quello script non e' caricato,
+quindi l'id resta li' inerte, tenuto solo per riuso di questo stesso partial.
+
+"controlli_template" (opzionale, passato con "{% include ... with
+controlli_template=... %}"): nome di un partial da includere nella stessa
+riga, a destra del titolo - usato da prodotti_card.html per filtro/ricerca.
+Il loro contenitore, ".controlli-categoria-wrapper" qui sotto, e'
+"position-absolute end-0" (stesso principio della pillola "Torna al
+catalogo" qui sopra, "position-absolute start-0"): tolto dal flusso della
+riga, cosi' l'h1 resta l'unico figlio flex effettivo e "mx-auto" lo centra
+sull'intera larghezza della riga, non solo sullo spazio libero rimasto.
+Necessario perche' il titolo non si sposti quando la ricerca si espande in
+pillola (12rem, vedi ".ricerca-espansa" in prodotti.css): da figli flex
+normali, quell'espansione avrebbe eroso lo spazio libero dei margini "auto"
+dell'h1, spostandolo. Verticalmente centrato senza bisogno di altro (nessun
+"top"/margine): un figlio diretto "position-absolute" di un flex container
+con "align-items-center" segue comunque quell'allineamento per la propria
+"static position" (stesso motivo per cui la pillola "Torna al catalogo"
+sopra risulta gia' centrata verticalmente senza declino esplicito).
+"start-0"/"end-0" si posizionano rispetto al bordo della riga, non al suo
+padding (il padding di un contenitore non ha alcun effetto sui figli
+"position-absolute" al suo interno, solo su quelli nel flusso normale come
+l'h1) - per lo spazio dal contorno "a pillola" quando la riga e' fissata
+(".intestazione-fissata"), vedi "left"/"right" dedicati in prodotti.css,
+non il padding della riga.
+
+"intestazione_sticky" (opzionale, booleano): aggiunge ".intestazione-categoria-sticky"
+(prodotti.css) - usata da prodotti_card.html per tenere la riga sempre
+visibile durante lo scroll da desktop (fissata subito sotto la navbar,
+contorno "a pillola" quando e' davvero agganciata - vedi
+"#sentinellaIntestazione"/IntersectionObserver in prodotti_card.html). Non
+passata da prodotti_tabella.html: quella pagina resta con la riga nel
+normale flusso, invariata.
+{% endcomment %}
+<div class="d-flex align-items-center position-relative pt-5 pb-3{% if intestazione_sticky %} intestazione-categoria-sticky{% endif %}">
+    <a href="{% url 'catalogo' %}" class="btn btn-navbar btn-sm rounded-pill btn-torna-catalogo position-absolute start-0" title="Torna al catalogo">
+        <i class="bi bi-arrow-left"></i>
+        <span class="d-none d-md-inline">Torna al catalogo</span>
+    </a>
+    <h1 class="fw-bold mb-0 mx-auto">
+        <a href="{% url 'dettaglio_categoria' categoria_pk %}" class="titolo-categoria-link" id="titoloCategoriaLink">{{nome_categoria}}</a>
+    </h1>
+    {% if controlli_template %}
+    <div class="d-flex align-items-center gap-2 position-absolute end-0 controlli-categoria-wrapper">
+        {% include controlli_template %}
+    </div>
+    {% endif %}
+</div>

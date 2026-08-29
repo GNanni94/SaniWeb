@@ -7,23 +7,16 @@
 
 <div class="container">
     {% comment %}
-    Stessa riga titolo di prodotti_card.html: freccia "Torna al catalogo" +
-    titolo (h1, non piu' h2) cliccabile verso la categoria corrente
-    (".titolo-categoria-link", stile in prodotti.css). In prodotti_card.html
-    quel link serve a uscire da un filtro sottocategoria/risultato di
-    ricerca; qui non esiste un equivalente lato server (il filtro e' solo
-    client-side), quindi il link ricarica semplicemente la stessa pagina -
-    innocuo, ma tenuto per coerenza visiva con l'altra pagina
+    Stessa riga titolo di prodotti_card.html (partial condiviso
+    "partials/intestazione_categoria.html"): freccia "Torna al catalogo" +
+    titolo (h1, non piu' h2) cliccabile verso la categoria corrente. In
+    prodotti_card.html quel link serve a uscire da un filtro
+    sottocategoria/risultato di ricerca; qui non esiste un equivalente lato
+    server (il filtro e' solo client-side), quindi il link ricarica
+    semplicemente la stessa pagina - innocuo, ma tenuto per coerenza visiva
+    con l'altra pagina
     {% endcomment %}
-    <div class="d-flex align-items-center position-relative pt-5 pb-3">
-        <a href="{% url 'catalogo' %}" class="btn btn-navbar btn-sm position-absolute start-0" title="Torna al catalogo">
-            <i class="bi bi-arrow-left"></i>
-            <span class="d-none d-md-inline">Torna al catalogo</span>
-        </a>
-        <h1 class="fw-bold mb-0 mx-auto">
-            <a href="{% url 'dettaglio_categoria' categoria_pk %}" class="titolo-categoria-link">{{nome_categoria}}</a>
-        </h1>
-    </div>
+    {% include 'partials/intestazione_categoria.html' %}
 
     <div class="table-responsive py-3">
         {% if not user.is_authenticated %}

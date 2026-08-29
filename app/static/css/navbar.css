@@ -4,6 +4,18 @@
   position: relative;
 }
 
+/* Navbar fissata in cima durante lo scroll (da telefono e da desktop):
+   riguarda tutto il sito (questa navbar e' in base.html, condivisa da ogni
+   pagina). "--altezza-navbar" (impostata via JS in altezza-navbar.js,
+   misurando l'altezza reale della navbar) e' disponibile per pagine che
+   vogliano posizionare propri elementi fissati subito sotto di lei senza
+   sovrapporsi */
+.site-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
 /* Stessa dimensione (30px, misurata) dell'icona del bottone hamburger, per
    le icone di Login/Registrati da telefono */
 .icona-dimensione-hamburger {

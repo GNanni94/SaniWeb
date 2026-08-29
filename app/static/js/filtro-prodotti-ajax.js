@@ -4,6 +4,7 @@
 (function () {
     var container = document.getElementById('listaProdottiContainer');
     var filtro = document.getElementById('prodottiCardFiltro');
+    var filtroWrapper = document.getElementById('filtroProdottiWrapper');
     var formRicerca = document.getElementById('ricercaProdottiForm');
     var inputRicerca = document.getElementById('prodottiCardSearch');
     var wrapperRicerca = document.getElementById('ricercaProdottiWrapper');
@@ -143,6 +144,7 @@
                         }
                         if (filtro) {
                             filtro.selectedIndex = 0;
+                            aggiornaClasseFiltroAttivo();
                         }
                         if (wrapperRicerca && wrapperRicerca.classList.contains('ricerca-espansa')) {
                             wrapperRicerca.classList.remove('ricerca-espansa');
@@ -188,8 +190,37 @@
             });
     }
 
+    // Icona del filtro piena ("bi-funnel-fill", ben visibile) solo quando
+    // e' selezionata una sottocategoria specifica, a contorno ("bi-funnel",
+    // il contenuto lascia trasparire il blu del cerchio sotto) su "Tutte le
+    // sottocategorie" - le due icone Bootstrap Icons si scambiano
+    // sull'elemento, colore sempre bianco (vedi
+    // "#filtroProdottiWrapper .filtro-icon-overlay" in prodotti.css). La
+    // prima "<option>" e' sempre "Tutte le sottocategorie" (vedi
+    // prodotti_card.html), quindi "selectedIndex === 0" basta a riconoscere
+    // lo stato "nessun filtro attivo" senza bisogno di confrontare l'URL.
+    // Chiamata sia qui sotto ad ogni cambio filtro sia ai due reset ("torna
+    // al titolo"/ricerca senza risultati) piu' sotto, dato che il filtro
+    // vive fuori da "#listaProdottiContainer" e non si aggiorna quindi da
+    // solo con lo swap AJAX della griglia
+    function aggiornaClasseFiltroAttivo() {
+        if (!filtro || !filtroWrapper) {
+            return;
+        }
+        var iconaFiltro = filtroWrapper.querySelector('.filtro-icon-overlay');
+        if (!iconaFiltro) {
+            return;
+        }
+        var attivo = filtro.selectedIndex !== 0;
+        iconaFiltro.classList.toggle('bi-funnel-fill', attivo);
+        iconaFiltro.classList.toggle('bi-funnel', !attivo);
+    }
+
+    aggiornaClasseFiltroAttivo();
+
     if (filtro) {
         filtro.addEventListener('change', function () {
+            aggiornaClasseFiltroAttivo();
             if (this.value) {
                 caricaConAjax(this.value, false);
             }
@@ -231,6 +262,7 @@
             // sottocategorie" (vedi prodotti_card.html)
             if (filtro) {
                 filtro.selectedIndex = 0;
+                aggiornaClasseFiltroAttivo();
             }
             caricaConAjax(titoloLink.href, false);
         });
