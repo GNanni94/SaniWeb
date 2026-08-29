@@ -1,19 +1,23 @@
 {% comment %}
 Filtro sottocategoria + ricerca prodotti di prodotti_card.html, passati come
-"controlli_template" a "partials/intestazione_categoria.html": da desktop
-finiscono cosi' nella stessa riga del titolo, a destra (l'h1 li' ha
-"mx-auto": senza altri margini "auto" sui controlli, lo spazio libero della
-riga va tutto ai margini dell'h1, che quindi resta centrato nello spazio a
-sinistra dei controlli mentre loro restano appiccicati al bordo destro).
+"controlli_template" a "partials/intestazione_categoria.html": finiscono
+cosi' nella stessa riga del titolo, a destra (l'h1 li' ha "mx-auto": senza
+altri margini "auto" sui controlli, lo spazio libero della riga va tutto ai
+margini dell'h1, che quindi resta centrato nello spazio a sinistra dei
+controlli mentre loro restano appiccicati al bordo destro) - sia da desktop
+sia da telefono.
 
-Raggruppati in "#controlliRicercaFiltroWrapper" solo per poterli impilare
-insieme come bottoni fluttuanti da telefono (vedi prodotti.css): da qui in su
-"display: contents" lo rende invisibile al layout, i due controlli restano
-quindi figli diretti della riga del titolo esattamente come se questo
-wrapper non esistesse.
+Il filtro resta sempre un figlio diretto della riga (niente wrapper attorno
+a lui): da telefono passa solo alla versione "sola icona" (imbuto, vedi
+prodotti.css), ma senza mai uscire dalla riga del titolo.
+
+La ricerca invece e' dentro "#controlliRicercaFiltroWrapper": da qui in su
+"display: contents" lo rende invisibile al layout (resta un figlio diretto
+della riga del titolo esattamente come se questo wrapper non esistesse), ma
+sotto i 576px (vedi prodotti.css) diventa "position: fixed" e la trasforma
+in un bottone fluttuante in basso a sinistra - unico elemento tra i due a
+farlo, il wrapper serve solo a lei.
 {% endcomment %}
-<div id="controlliRicercaFiltroWrapper">
-
 {% if sottocategorie|length > 0 %}
 {% comment %}
 "max-width: 12rem", non piu' "14rem": stessa larghezza della ricerca qui
@@ -34,6 +38,8 @@ stessa tecnica via JS
     <i class="bi bi-funnel filtro-icon-overlay" aria-hidden="true"></i>
 </div>
 {% endif %}
+
+<div id="controlliRicercaFiltroWrapper">
 
 <div class="card-control-ricerca flex-grow-1 flex-shrink-1" style="max-width: 12rem;" id="ricercaProdottiWrapper">
     <form class="input-group w-100 ricerca-form" id="ricercaProdottiForm" action="{% url 'search_prodotto' categoria_pk %}">

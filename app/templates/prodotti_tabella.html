@@ -273,14 +273,13 @@ $(document).ready(function () {
                 }
             });
 
-            // Bordo bianco (".su-sfondo-blu" in prodotti.css) quando uno dei
-            // due cerchi finisce sopra il footer di pagina - altrimenti un
-            // cerchio blu su sfondo blu sparirebbe visivamente. Stesso
-            // principio di prodotti_card.html (li' controlla anche i footer
-            // delle card prodotto, qui non serve: questa pagina mostra una
-            // tabella, non card con un proprio footer blu)
-            var wrapperFiltroEl = document.getElementById('filtroTabellaWrapper');
-
+            // Bordo bianco (".su-sfondo-blu" in prodotti.css) quando il
+            // cerchio della ricerca finisce sopra il footer di pagina -
+            // altrimenti un cerchio blu su sfondo blu sparirebbe
+            // visivamente. Stesso principio di prodotti_card.html (li'
+            // controlla anche i footer delle card prodotto, qui non serve:
+            // questa pagina mostra una tabella, non card con un proprio
+            // footer blu)
             function finisceSuSfondoBlu(rigaBottone) {
                 var footer = document.querySelector('.site-footer');
                 return !!footer && footer.getBoundingClientRect().top < rigaBottone.bottom;
@@ -288,7 +287,6 @@ $(document).ready(function () {
 
             function aggiornaBordoSuSfondoBlu() {
                 wrapperRicercaEl.classList.toggle('su-sfondo-blu', finisceSuSfondoBlu(wrapperRicercaEl.getBoundingClientRect()));
-                wrapperFiltroEl.classList.toggle('su-sfondo-blu', finisceSuSfondoBlu(wrapperFiltroEl.getBoundingClientRect()));
             }
 
             aggiornaBordoSuSfondoBlu();
@@ -331,7 +329,7 @@ $(document).ready(function () {
             // stato "nessun filtro attivo": la prima "<option>" e' sempre
             // "Tutte le sottocategorie" (vedi
             // partials/controlli_ricerca_filtro_tabella.html)
-            var iconaFiltro = wrapperFiltroEl.querySelector('.filtro-icon-overlay');
+            var iconaFiltro = document.getElementById('filtroTabellaWrapper').querySelector('.filtro-icon-overlay');
 
             function aggiornaClasseFiltroAttivo() {
                 var attivo = $('#filtroSottocategoria').prop('selectedIndex') !== 0;

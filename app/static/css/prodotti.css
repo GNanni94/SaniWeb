@@ -602,9 +602,10 @@
        sotto, che cambia solo il colore) invece di "nessun bordo": transita
        dolcemente sul colore, senza uno spessore che salta di scatto da 0 a
        2px. Stessa logica per "border-radius"/"padding": valori di partenza
-       gia' presenti (0 di suo/"pb-3" di Bootstrap per il basso), qui basta
-       la "transition" perche' il passaggio a quelli di
-       ".intestazione-fissata" sia animato invece che istantaneo */
+       gia' a 0 (niente piu' "pb-3" di Bootstrap per il basso, tolto dalla
+       riga - vedi partials/intestazione_categoria.html), qui basta la
+       "transition" perche' il passaggio a quelli di ".intestazione-fissata"
+       sia animato invece che istantaneo */
     border: 2px solid transparent;
     transition: border-color .3s ease, border-radius .3s ease, padding .3s ease;
   }
@@ -977,6 +978,25 @@
     border: 2px solid var(--color-primary);
   }
 
+  /* Cerchio (non il quadrato con angoli smussati di ".filtro-a-comparsa" -
+     selettori solo per id apposta, non tocca le altre pagine che
+     condividono quella classe, es. dashboard_prodotti_senza_immagine.html),
+     stessa dimensione della pillola "Torna al catalogo" qui accanto nella
+     riga (misurata da telefono: 32px, solo icona - vedi
+     "partials/intestazione_categoria.html"), non piu' 40px come la lente
+     chiusa: qui il filtro resta sempre nella riga del titolo (non diventa
+     mai un bottone fluttuante, vedi sopra), quindi deve intonarsi con lei
+     invece che con la ricerca */
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper) {
+    flex-basis: 32px;
+    max-width: 32px !important;
+  }
+
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria) {
+    height: 32px;
+    border-radius: 50%;
+  }
+
   /* Stesso glow di focus di Bootstrap gia' tolto sopra per ".form-control"
      (qui l'equivalente per ".form-select"): al tocco, essendo ora un'icona
      piccola, si vedeva come un'ombra sproporzionata intorno al quadratino */
@@ -999,36 +1019,26 @@
     pointer-events: none; /* il tocco deve arrivare alla <select> sotto */
   }
 
-  /* Filtro e ricerca di prodotti_card.html come bottoni fluttuanti impilati
-     (solo loro: selettori per id apposta, non ".ricerca-a-comparsa"/
-     ".filtro-a-comparsa" in generale, per non toccare le altre pagine che
-     condividono quelle classi) invece che nella riga sopra la tabella:
-     stesso stile del carrello flottante (#bottoneCarrelloFlottante in
-     carrello-flottante.css, cerchio/ombra), ma a sinistra invece che a
-     destra e in due misure diverse (vedi sotto). Sono sempre gli stessi
-     elementi/JS di sempre, solo raggruppati e riposizionati: "position:
-     fixed" sul wrapper li toglie entrambi dal flusso della riga (che sopra
-     i 576px li contiene ancora normalmente, vedi "display: contents" piu'
-     in alto), "flex-direction: column" li impila uno sopra l'altro.
-     "align-items: flex-start" (non "center"): il bordo sinistro di
-     entrambi resta fisso sullo stesso "left" del wrapper, cosi' la
-     ricerca - che e' piu' larga del filtro sopra di lei, ed espandendosi
-     lo diventa ancora di piu' - cresce solo verso destra invece di
-     "spostarsi" ogni volta che cambia larghezza (chiusa/aperta) per
-     restare centrata rispetto al filtro */
+  /* Ricerca di prodotti_card.html come bottone fluttuante (solo lei: il
+     filtro resta invece nella riga del titolo, vedi
+     "partials/controlli_ricerca_filtro_card.html") invece che nella riga
+     sopra la tabella: stesso stile del carrello flottante
+     (#bottoneCarrelloFlottante in carrello-flottante.css, cerchio/ombra),
+     ma a sinistra invece che a destra. E' sempre lo stesso elemento/JS di
+     sempre, solo riposizionato: "position: fixed" sul wrapper lo toglie dal
+     flusso della riga (che sopra i 576px lo contiene ancora normalmente,
+     vedi "display: contents" piu' in alto) - serve pero' anche "display:
+     flex" qui, altrimenti "position" non avrebbe alcun effetto: un elemento
+     con "display: contents" non genera un proprio box da posizionare */
   #controlliRicercaFiltroWrapper {
+    display: flex;
     position: fixed;
     left: 1rem;
     bottom: 1rem;
     z-index: 1040;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: .75rem;
   }
 
-  /* Ricerca: cerchio grande (stesso "3.5rem" del carrello flottante), per
-     darle risalto rispetto al filtro sopra di lei */
+  /* Cerchio grande (stesso "3.5rem" del carrello flottante) */
   #ricercaProdottiWrapper {
     width: 3.5rem;
   }
@@ -1049,52 +1059,26 @@
     height: 3.5rem;
   }
 
-  /* Filtro: cerchio piu' piccolo ("2.75rem"/44px, la dimensione minima
-     comune per un tasto touch) apposta, per dare piu' risalto al cerchio
-     della ricerca sotto di lui. "flex: none" + "width/height" espliciti al
-     posto del vecchio "flex-basis"/"max-width" (pensati per una riga
-     orizzontale): qui il contenitore e' in colonna, dove "flex-basis"
-     agirebbe sull'altezza invece che sulla larghezza */
-  #filtroProdottiWrapper {
-    flex: none;
-    width: 2.75rem;
-    height: 2.75rem;
-    max-width: none !important;
-  }
-
-  #filtroProdottiWrapper #prodottiCardFiltro {
-    height: 2.75rem;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
-  }
-
-  /* Bordo bianco quando uno dei due cerchi finisce sopra uno sfondo blu
-     navbar (il footer della pagina o quello di una card prodotto, vedi
-     ".su-sfondo-blu" impostata via JS in prodotti_card.html) - altrimenti
-     un cerchio blu su sfondo blu sparirebbe visivamente. Stesso principio
-     gia' usato per il carrello flottante (".su-footer" in
-     carrello-flottante.css) */
+  /* Bordo bianco quando il cerchio finisce sopra uno sfondo blu navbar (il
+     footer della pagina o quello di una card prodotto, vedi ".su-sfondo-blu"
+     impostata via JS in prodotti_card.html) - altrimenti un cerchio blu su
+     sfondo blu sparirebbe visivamente. Stesso principio gia' usato per il
+     carrello flottante (".su-footer" in carrello-flottante.css) */
   #ricercaProdottiWrapper.su-sfondo-blu .ricerca-form {
     border-color: var(--color-bg);
   }
 
-  #filtroProdottiWrapper.su-sfondo-blu #prodottiCardFiltro {
-    border-color: var(--color-bg);
-  }
-
-  /* Stesso trattamento "bottoni fluttuanti impilati" di prodotti_card.html
-     qui sopra, per prodotti_tabella.html - id propri (costruiti via JS in
-     "initComplete", vedi prodotti_tabella.html), stessi valori identici
-     (cerchio ricerca 3.5rem, cerchio filtro 2.75rem, stesso ordine/gap) */
+  /* Stesso trattamento "bottone fluttuante" di prodotti_card.html qui
+     sopra, per prodotti_tabella.html - id proprio (costruito via JS in
+     "initComplete", vedi prodotti_tabella.html), stesso cerchio 3.5rem -
+     stesso motivo di "display: flex" spiegato sopra per
+     "#controlliRicercaFiltroWrapper" */
   #controlliRicercaFiltroTabellaWrapper {
+    display: flex;
     position: fixed;
     left: 1rem;
     bottom: 1rem;
     z-index: 1040;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: .75rem;
   }
 
   #ricercaTabellaWrapper {
@@ -1112,28 +1096,11 @@
     height: 3.5rem;
   }
 
-  #filtroTabellaWrapper {
-    flex: none;
-    width: 2.75rem;
-    height: 2.75rem;
-    max-width: none !important;
-  }
-
-  #filtroTabellaWrapper #filtroSottocategoria {
-    height: 2.75rem;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
-  }
-
   /* Bordo bianco sopra uno sfondo blu navbar (qui solo il footer di
      pagina: prodotti_tabella.html non ha card con un proprio footer blu
      come prodotti_card.html) - ".su-sfondo-blu" impostata via JS in
      prodotti_tabella.html, stesso principio di sopra */
   #ricercaTabellaWrapper.su-sfondo-blu .ricerca-form {
-    border-color: var(--color-bg);
-  }
-
-  #filtroTabellaWrapper.su-sfondo-blu #filtroSottocategoria {
     border-color: var(--color-bg);
   }
 }

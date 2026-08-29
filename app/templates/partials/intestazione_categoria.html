@@ -41,7 +41,7 @@ sotto la navbar, contorno "a pillola" quando e' davvero agganciata - vedi
 "#sentinellaIntestazione" nel template chiamante e lo script condiviso
 "static/js/intestazione-categoria-sticky.js").
 {% endcomment %}
-<div class="d-flex align-items-center position-relative pt-5 pb-3{% if intestazione_sticky %} intestazione-categoria-sticky{% endif %}">
+<div class="d-flex align-items-center position-relative pt-5{% if intestazione_sticky %} intestazione-categoria-sticky{% endif %}">
     <a href="{% url 'catalogo' %}" class="btn btn-navbar btn-sm rounded-pill btn-torna-catalogo position-absolute start-0" title="Torna al catalogo">
         <i class="bi bi-arrow-left"></i>
         <span class="d-none d-md-inline">Torna al catalogo</span>

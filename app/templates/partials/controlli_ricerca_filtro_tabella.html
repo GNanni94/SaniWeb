@@ -1,11 +1,13 @@
 {% comment %}
 Filtro sottocategoria di prodotti_tabella.html, passato come "controlli_template"
-a "partials/intestazione_categoria.html": da desktop finisce cosi' nella stessa
-riga del titolo, a destra - stessa tecnica di prodotti_card.html/
+a "partials/intestazione_categoria.html": finisce cosi' nella stessa riga del
+titolo, a destra - stessa tecnica di prodotti_card.html/
 "partials/controlli_ricerca_filtro_card.html" (l'h1 li' ha "mx-auto": senza
 altri margini "auto" sui controlli, lo spazio libero della riga va tutto ai
 margini dell'h1, che quindi resta centrato nello spazio a sinistra dei
-controlli mentre loro restano appiccicati al bordo destro).
+controlli mentre loro restano appiccicati al bordo destro) - sia da desktop
+sia da telefono. Da telefono passa solo alla versione "sola icona" (imbuto,
+vedi prodotti.css), ma senza mai uscire dalla riga del titolo.
 
 La select esisteva gia' nel template (prima in una riga separata sopra la
 tabella, spostata qui solo via JS in "initComplete" con un "d-none" nel
@@ -14,18 +16,15 @@ gia' qui, nella posizione finale, non serve piu' nessuno spostamento via JS.
 
 La ricerca non c'e' in questo partial: e' generata da DataTables stesso, non
 esiste finche' la tabella non si e' inizializzata - viene aggiunta qui
-accanto (dentro lo stesso "#controlliRicercaFiltroTabellaWrapper" qui sotto)
-via JS in "initComplete" (vedi prodotti_tabella.html).
-
-Raggruppati in "#controlliRicercaFiltroTabellaWrapper" solo per poterli
-impilare insieme come bottoni fluttuanti da telefono (stesso principio di
-"#controlliRicercaFiltroWrapper" in prodotti_card.html, id diverso per
-restare indipendente da quella pagina): da qui in su "display: contents" lo
-rende invisibile al layout, i due controlli restano quindi figli diretti
-della riga del titolo esattamente come se questo wrapper non esistesse.
+accanto, dentro "#controlliRicercaFiltroTabellaWrapper" qui sotto, via JS in
+"initComplete" (vedi prodotti_tabella.html). Quel wrapper (vuoto finche' il
+JS non ci mette la ricerca dentro) e' quello che sotto i 576px diventa
+"position: fixed" e la trasforma in un bottone fluttuante in basso a
+sinistra (stesso principio di "#controlliRicercaFiltroWrapper" in
+prodotti_card.html, id diverso per restare indipendente da quella pagina) -
+il filtro qui sopra non ne fa parte apposta, cosi' resta sempre nella riga
+del titolo.
 {% endcomment %}
-<div id="controlliRicercaFiltroTabellaWrapper">
-
 <div class="filtro-a-comparsa flex-grow-1 flex-shrink-1" style="max-width: 12rem; min-width: 0;" id="filtroTabellaWrapper">
     <select id="filtroSottocategoria" class="form-select filtro-a-comparsa-select">
         <option value="">Tutte le sottocategorie</option>
@@ -36,4 +35,4 @@ della riga del titolo esattamente come se questo wrapper non esistesse.
     <i class="bi bi-funnel filtro-icon-overlay" aria-hidden="true"></i>
 </div>
 
-</div>
+<div id="controlliRicercaFiltroTabellaWrapper"></div>

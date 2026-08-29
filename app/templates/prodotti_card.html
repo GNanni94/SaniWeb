@@ -53,7 +53,6 @@
     var form = document.getElementById('ricercaProdottiForm');
     var toggleBtn = document.getElementById('search-addon');
     var input = document.getElementById('prodottiCardSearch');
-    var wrapperFiltro = document.getElementById('filtroProdottiWrapper');
     if (!wrapper || !form || !toggleBtn || !input) {
         return;
     }
@@ -84,9 +83,9 @@
         }
     });
 
-    // Bordo bianco (".su-sfondo-blu" in prodotti.css) quando uno dei due
-    // cerchi fluttuanti finisce sopra uno sfondo blu navbar - il footer
-    // della pagina (stesso controllo del carrello flottante, vedi
+    // Bordo bianco (".su-sfondo-blu" in prodotti.css) quando il cerchio
+    // fluttuante della ricerca finisce sopra uno sfondo blu navbar - il
+    // footer della pagina (stesso controllo del carrello flottante, vedi
     // carrello-flottante.js) o quello di una card prodotto (blu pieno,
     // vedi ".card-footer-btn" in prodotti.css). Le card sono su due
     // colonne anche da telefono (griglia_prodotti.html, "col-6"), quindi
@@ -112,9 +111,6 @@
 
     function aggiornaBordoSuSfondoBlu() {
         wrapper.classList.toggle('su-sfondo-blu', finisceSuSfondoBlu(wrapper.getBoundingClientRect()));
-        if (wrapperFiltro) {
-            wrapperFiltro.classList.toggle('su-sfondo-blu', finisceSuSfondoBlu(wrapperFiltro.getBoundingClientRect()));
-        }
     }
 
     aggiornaBordoSuSfondoBlu();
