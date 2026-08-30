@@ -255,21 +255,103 @@ $(document).ready(function () {
             var wrapperRicercaEl = document.getElementById('ricercaTabellaWrapper');
             var bottoneRicercaEl = wrapperRicercaEl.querySelector('.ricerca-toggle-btn');
             var inputRicercaEl = wrapperRicercaEl.querySelector('.ricerca-a-comparsa-input');
+            // "spazioOccupatoDallaTastieraTabella"/"applicaLarghezzaDaTastieraTabella"
+            // servono sia qui (apertura/chiusura al click) sia piu' in basso,
+            // dentro il blocco "visualViewport" che gia' ancora il bottone
+            // fluttuante alla tastiera - dichiarate qui apposta, non li'
+            // dentro. Su browser senza "visualViewport" (molto vecchi)
+            // "spazioOccupatoDallaTastieraTabella" torna sempre 0: la
+            // larghezza resta quella di ".ricerca-espansa" in prodotti.css
+            // (scatto singolo), la chiusura si finalizza subito invece di
+            // aspettare un evento che non arriverebbe mai. Stessa tecnica di
+            // prodotti_card.html, non condivisa in un file comune: le due
+            // pagine gia' duplicano questa logica di apertura/chiusura per
+            // intero, un file condiviso qui richiederebbe un refactor piu'
+            // ampio del semplice fix
+            function spazioOccupatoDallaTastieraTabella() {
+                if (!window.visualViewport) {
+                    return 0;
+                }
+                var vv = window.visualViewport;
+                return Math.max(window.innerHeight - vv.height - vv.offsetTop, 0);
+            }
+
+            // 56px/192px = 3.5rem/12rem, stessi valori di ".ricerca-espansa"/
+            // della larghezza chiusa in prodotti.css: se cambiano li', vanno
+            // cambiati anche qui. "ALTEZZA_TASTIERA_RIFERIMENTO_TABELLA" e'
+            // una stima (tastiere reali vanno all'incirca dai 250 ai 380px)
+            var LARGHEZZA_CHIUSA_TABELLA = 56;
+            var LARGHEZZA_APERTA_TABELLA = 192;
+            var ALTEZZA_TASTIERA_RIFERIMENTO_TABELLA = 300;
+            // "document.activeElement" non basta a riconoscere una chiusura:
+            // su Android il gesto/tasto "indietro" chiude la tastiera senza
+            // togliere il focus dal campo (resta "a fuoco" agli occhi del
+            // browser, solo la tastiera a schermo sparisce). Si traccia
+            // invece se la tastiera e' DAVVERO salita almeno una volta da
+            // quando si e' aperto il campo (azzerato ad ogni apertura,
+            // impostato a "true" al primo valore di spazio maggiore di
+            // zero): quando poi lo spazio torna a zero, la chiusura si
+            // finalizza a prescindere da cosa l'abbia causata (blur
+            // esplicito, gesto indietro, tasto indietro, ecc.) - serve
+            // comunque per non chiudere subito durante l'apertura, quando
+            // lo spazio e' ancora a zero per un istante prima che la
+            // tastiera nativa inizi davvero a salire
+            var tastieraSalitaAlmenoUnaVoltaTabella = false;
+
+            function applicaLarghezzaDaTastieraTabella() {
+                if (!wrapperRicercaEl.classList.contains('ricerca-espansa')) {
+                    return;
+                }
+                var spazio = spazioOccupatoDallaTastieraTabella();
+                if (spazio > 0) {
+                    tastieraSalitaAlmenoUnaVoltaTabella = true;
+                }
+                var progresso = Math.min(spazio / ALTEZZA_TASTIERA_RIFERIMENTO_TABELLA, 1);
+                wrapperRicercaEl.style.width = (LARGHEZZA_CHIUSA_TABELLA + progresso * (LARGHEZZA_APERTA_TABELLA - LARGHEZZA_CHIUSA_TABELLA)) + 'px';
+                if (tastieraSalitaAlmenoUnaVoltaTabella && spazio === 0) {
+                    tastieraSalitaAlmenoUnaVoltaTabella = false;
+                    wrapperRicercaEl.classList.remove('ricerca-espansa');
+                    bottoneRicercaEl.setAttribute('aria-expanded', 'false');
+                    wrapperRicercaEl.style.width = ''; // torna al valore di default (3.5rem) di prodotti.css
+                }
+            }
+
             bottoneRicercaEl.addEventListener('click', function () {
                 if (wrapperRicercaEl.classList.contains('ricerca-espansa')) {
                     return;
                 }
+                tastieraSalitaAlmenoUnaVoltaTabella = false;
                 wrapperRicercaEl.classList.add('ricerca-espansa');
                 bottoneRicercaEl.setAttribute('aria-expanded', 'true');
-                inputRicercaEl.focus();
+                // Focus subito, non piu' ritardato a transizione finita:
+                // "preventScroll" toglie gia' da solo il motivo per cui
+                // prima si aspettava, e il focus immediato fa partire prima
+                // la tastiera nativa, da cui dipendono gli eventi "resize"
+                // che pilotano "applicaLarghezzaDaTastieraTabella" qui sopra
+                inputRicercaEl.focus({ preventScroll: true });
             });
+
+            // Richiude il campo se si clicca fuori mentre e' vuoto.
+            // "inputRicercaEl.blur()" (non piu' la rimozione diretta di
+            // ".ricerca-espansa") fa partire la chiusura nativa della
+            // tastiera: il resto si finalizza dentro
+            // "applicaLarghezzaDaTastieraTabella" quando la tastiera e'
+            // scesa del tutto. Se non c'era nessuna tastiera da chiudere
+            // (es. tastiera fisica, o "visualViewport" non supportato) non
+            // arriverebbe pero' nessun evento "resize" a finalizzare: si
+            // controlla quindi anche qui, chiudendo subito se lo spazio
+            // occupato e' gia' zero
             document.addEventListener('click', function (event) {
                 if (!wrapperRicercaEl.classList.contains('ricerca-espansa') || wrapperRicercaEl.contains(event.target)) {
                     return;
                 }
                 if (inputRicercaEl.value.trim() === '') {
-                    wrapperRicercaEl.classList.remove('ricerca-espansa');
-                    bottoneRicercaEl.setAttribute('aria-expanded', 'false');
+                    inputRicercaEl.blur();
+                    if (spazioOccupatoDallaTastieraTabella() === 0) {
+                        wrapperRicercaEl.classList.remove('ricerca-espansa');
+                        bottoneRicercaEl.setAttribute('aria-expanded', 'false');
+                        wrapperRicercaEl.style.width = '';
+                    }
                 }
             });
 
@@ -292,6 +374,79 @@ $(document).ready(function () {
             aggiornaBordoSuSfondoBlu();
             window.addEventListener('scroll', aggiornaBordoSuSfondoBlu, { passive: true });
             window.addEventListener('resize', aggiornaBordoSuSfondoBlu);
+
+            // Ancora il bottone al viewport VISIVO invece che a quello di
+            // layout: quando si apre la tastiera virtuale su mobile,
+            // "visualViewport" si restringe ma il viewport di layout usato
+            // di norma da "position: fixed" no - un bottone fisso
+            // rischierebbe quindi di finire nascosto sotto la tastiera
+            // invece di restare appena sopra. "wrapperFluttuanteTabella"
+            // (non "wrapperRicercaEl", quello e' il cerchio interno,
+            // "position: static": e' ".wrapperFluttuanteTabella" -
+            // "#controlliRicercaFiltroTabellaWrapper" - ad avere
+            // "position: fixed" sotto i 576px, vedi prodotti.css) e' inerte
+            // da desktop. Stessa tecnica di prodotti_card.html, compreso il
+            // debounce di stabilizzazione per l'apertura/chiusura tastiera
+            // e l'aggancio in tempo reale (senza debounce ne' transizione)
+            // durante lo scroll a tastiera gia' aperta
+            var wrapperFluttuanteTabella = document.getElementById('controlliRicercaFiltroTabellaWrapper');
+            if (window.visualViewport && wrapperFluttuanteTabella) {
+                // "spazioOccupatoDallaTastieraTabella" e' dichiarata piu' in
+                // alto (serve anche ai gestori di click apertura/chiusura,
+                // non solo qui)
+                // "transform: translateY()" (non "bottom"): gestito dal
+                // compositor senza forzare un ricalcolo del layout ad ogni
+                // chiamata, importante per l'aggiornamento frame per frame
+                // durante lo scroll qui sotto
+                function applicaSpostamentoTabella() {
+                    wrapperFluttuanteTabella.style.transform = 'translateY(-' + spazioOccupatoDallaTastieraTabella() + 'px)';
+                }
+
+                var timerStabilizzazioneTabella = null;
+                function pianificaSuResizeTabella() {
+                    clearTimeout(timerStabilizzazioneTabella);
+                    timerStabilizzazioneTabella = setTimeout(applicaSpostamentoTabella, 120);
+                }
+
+                var aggiornamentoScrollPianificatoTabella = false;
+                var timerFineScrollTabella = null;
+                function suScrollTabella() {
+                    wrapperFluttuanteTabella.classList.add('spostamento-istantaneo');
+                    clearTimeout(timerFineScrollTabella);
+                    timerFineScrollTabella = setTimeout(function () {
+                        wrapperFluttuanteTabella.classList.remove('spostamento-istantaneo');
+                    }, 120);
+
+                    if (aggiornamentoScrollPianificatoTabella) {
+                        return;
+                    }
+                    aggiornamentoScrollPianificatoTabella = true;
+                    requestAnimationFrame(function () {
+                        aggiornamentoScrollPianificatoTabella = false;
+                        applicaSpostamentoTabella();
+                    });
+                }
+
+                applicaSpostamentoTabella(); // posizione iniziale, nessuna tastiera aperta
+                window.visualViewport.addEventListener('resize', function () {
+                    pianificaSuResizeTabella(); // posizione: debounced, uno scatto solo a tastiera stabile
+                    // larghezza: NON debounced apposta, ad ogni evento - qui
+                    // si vuole seguire la salita/discesa della tastiera
+                    // passo passo, non aspettare che si fermi
+                    applicaLarghezzaDaTastieraTabella();
+                });
+                // "visualViewport.scroll" da solo non basta: durante uno
+                // scroll normale del contenuto arriva piu' di rado di quanto
+                // servirebbe per restare visivamente agganciati, risultando
+                // nel bottone che "insegue" lo scroll invece di seguirlo
+                // subito. "window.scroll" da' molte piu' occasioni di
+                // correggere la posizione durante il gesto - "suScrollTabella"
+                // e' gia' protetta da "aggiornamentoScrollPianificatoTabella"
+                // (un solo aggiornamento per frame), quindi ascoltarla da
+                // entrambe le fonti non duplica lavoro
+                window.visualViewport.addEventListener('scroll', suScrollTabella);
+                window.addEventListener('scroll', suScrollTabella, { passive: true });
+            }
 
             // Bug osservato (Chrome, debug con l'utente): passando da desktop
             // a telefono le righe restano vuote a schermo finche' non si

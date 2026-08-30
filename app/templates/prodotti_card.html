@@ -57,29 +57,109 @@
         return;
     }
 
+    // "spazioOccupatoDallaTastiera" e "applicaLarghezzaDaTastiera" servono
+    // sia qui (apertura/chiusura al click) sia piu' in basso, dentro il
+    // blocco "visualViewport" che gia' ancora il bottone fluttuante alla
+    // tastiera - dichiarate qui apposta, non li' dentro, cosi' i gestori di
+    // click qui sotto le trovano gia' pronte. Su browser senza
+    // "visualViewport" (molto vecchi) "spazioOccupatoDallaTastiera" torna
+    // sempre 0: la larghezza resta quindi quella di ".ricerca-espansa" in
+    // prodotti.css (scatto singolo, comportamento precedente), la chiusura
+    // si finalizza subito invece di aspettare un evento che non arriverebbe
+    // mai - nessuna delle due si blocca in assenza di quell'API
+    function spazioOccupatoDallaTastiera() {
+        if (!window.visualViewport) {
+            return 0;
+        }
+        var vv = window.visualViewport;
+        return Math.max(window.innerHeight - vv.height - vv.offsetTop, 0);
+    }
+
+    // 56px/192px = 3.5rem/12rem, stessi valori di ".ricerca-espansa"/della
+    // larghezza chiusa in prodotti.css: se cambiano li', vanno cambiati
+    // anche qui. "ALTEZZA_TASTIERA_RIFERIMENTO" e' una stima (tastiere reali
+    // vanno all'incirca dai 250 ai 380px): oltre quella soglia il cerchio e'
+    // gia' alla larghezza piena, anche se la tastiera continua a salire
+    var LARGHEZZA_CHIUSA = 56;
+    var LARGHEZZA_APERTA = 192;
+    var ALTEZZA_TASTIERA_RIFERIMENTO = 300;
+    // "document.activeElement" non basta a riconoscere una chiusura: su
+    // Android il gesto/tasto "indietro" chiude la tastiera senza togliere
+    // il focus dal campo (resta "a fuoco" agli occhi del browser, solo la
+    // tastiera a schermo sparisce) - un controllo sul focus non si
+    // accorgerebbe quindi mai di questo tipo di chiusura. Si traccia invece
+    // se la tastiera e' DAVVERO salita almeno una volta da quando si e'
+    // aperto il campo (azzerato ad ogni apertura, impostato a "true" al
+    // primo valore di spazio maggiore di zero): quando poi lo spazio torna
+    // a zero, la chiusura si finalizza a prescindere da cosa l'abbia
+    // causata (blur esplicito, gesto indietro, tasto indietro, ecc.) -
+    // serve comunque per non chiudere subito durante l'apertura, quando lo
+    // spazio e' ancora a zero per un istante prima che la tastiera nativa
+    // inizi davvero a salire
+    var tastieraSalitaAlmenoUnaVolta = false;
+
+    function applicaLarghezzaDaTastiera() {
+        if (!wrapper.classList.contains('ricerca-espansa')) {
+            return;
+        }
+        var spazio = spazioOccupatoDallaTastiera();
+        if (spazio > 0) {
+            tastieraSalitaAlmenoUnaVolta = true;
+        }
+        var progresso = Math.min(spazio / ALTEZZA_TASTIERA_RIFERIMENTO, 1);
+        wrapper.style.width = (LARGHEZZA_CHIUSA + progresso * (LARGHEZZA_APERTA - LARGHEZZA_CHIUSA)) + 'px';
+        if (tastieraSalitaAlmenoUnaVolta && spazio === 0) {
+            tastieraSalitaAlmenoUnaVolta = false;
+            wrapper.classList.remove('ricerca-espansa');
+            toggleBtn.setAttribute('aria-expanded', 'false');
+            wrapper.style.width = ''; // torna al valore di default (3.5rem) di prodotti.css
+        }
+    }
+
     // Sotto i 576px la lente ha un doppio ruolo, a seconda dello stato:
     // - campo chiuso: il click lo apre e ci mette il focus
     // - campo gia' aperto: il click invia la ricerca (la lente si comporta
     //   come il bottone "invia" di un search box classico)
     toggleBtn.addEventListener('click', function () {
         if (!wrapper.classList.contains('ricerca-espansa')) {
+            tastieraSalitaAlmenoUnaVolta = false;
             wrapper.classList.add('ricerca-espansa');
             toggleBtn.setAttribute('aria-expanded', 'true');
-            input.focus();
+            // Focus subito, non piu' ritardato a transizione finita:
+            // "preventScroll" toglie gia' da solo il motivo per cui prima si
+            // aspettava (senza, il browser scrollava la pagina per portare
+            // l'input sopra la tastiera mentre il cerchio stava ancora
+            // animando la propria larghezza, risultato uno scroll instabile
+            // percepito come un salto) - il focus immediato fa partire prima
+            // la tastiera nativa, da cui dipendono gli eventi "resize" che
+            // pilotano "applicaLarghezzaDaTastiera" qui sopra
+            input.focus({ preventScroll: true });
             return;
         }
         form.requestSubmit();
     });
 
     // Richiude il campo se si clicca fuori mentre e' vuoto, cosi' la lente
-    // torna alla posizione chiusa senza dover cancellare a mano il testo
+    // torna alla posizione chiusa senza dover cancellare a mano il testo.
+    // "input.blur()" (non piu' la rimozione diretta di ".ricerca-espansa")
+    // fa partire la chiusura nativa della tastiera: il resto si finalizza
+    // dentro "applicaLarghezzaDaTastiera" quando la tastiera e' scesa del
+    // tutto, cosi' il cerchio si restringe insieme a lei invece di sparire
+    // di colpo. Se non c'era nessuna tastiera da chiudere (es. tastiera
+    // fisica, o "visualViewport" non supportato) non arriverebbe pero'
+    // nessun evento "resize" a finalizzare: si controlla quindi anche qui,
+    // chiudendo subito se lo spazio occupato e' gia' zero
     document.addEventListener('click', function (event) {
         if (!wrapper.classList.contains('ricerca-espansa') || wrapper.contains(event.target)) {
             return;
         }
         if (input.value.trim() === '') {
-            wrapper.classList.remove('ricerca-espansa');
-            toggleBtn.setAttribute('aria-expanded', 'false');
+            input.blur();
+            if (spazioOccupatoDallaTastiera() === 0) {
+                wrapper.classList.remove('ricerca-espansa');
+                toggleBtn.setAttribute('aria-expanded', 'false');
+                wrapper.style.width = '';
+            }
         }
     });
 
@@ -116,6 +196,90 @@
     aggiornaBordoSuSfondoBlu();
     window.addEventListener('scroll', aggiornaBordoSuSfondoBlu, { passive: true });
     window.addEventListener('resize', aggiornaBordoSuSfondoBlu);
+
+    // Ancora il bottone al viewport VISIVO invece che a quello di layout:
+    // quando si apre la tastiera virtuale su mobile, "visualViewport" si
+    // restringe ma il viewport di layout usato di norma da "position: fixed"
+    // no - un bottone fisso rischierebbe quindi di finire nascosto sotto la
+    // tastiera invece di restare appena sopra. "wrapperFluttuante" (non
+    // "wrapper", quello e' il cerchio interno, "position: static": e'
+    // ".wrapperFluttuante" - "#controlliRicercaFiltroWrapper" - ad avere
+    // "position: fixed" sotto i 576px, vedi prodotti.css) e' inerte da
+    // desktop, dove torna "display: contents" (nessun box da posizionare) -
+    // "visualViewport" e' comunque assente su browser molto vecchi, da cui
+    // il controllo di supporto
+    var wrapperFluttuante = document.getElementById('controlliRicercaFiltroWrapper');
+    if (window.visualViewport && wrapperFluttuante) {
+        // "spazioOccupatoDallaTastiera" e' dichiarata piu' in alto (serve
+        // anche ai gestori di click apertura/chiusura, non solo qui)
+        // "transform: translateY()" (non "bottom"): un cambio di "bottom"
+        // forza un ricalcolo del layout ad ogni chiamata, un "transform" lo
+        // gestisce il compositor da solo - differenza che si sente proprio
+        // nel caso sotto (scroll), dove si aggiorna un frame alla volta
+        function applicaSpostamento() {
+            wrapperFluttuante.style.transform = 'translateY(-' + spazioOccupatoDallaTastiera() + 'px)';
+        }
+
+        // Apertura/chiusura della tastiera ("resize" di "visualViewport"):
+        // iOS non manda un evento "tastiera finita di aprire/chiudere",
+        // durante l'animazione arrivano molti eventi ravvicinati con valori
+        // intermedi. Si aspetta quindi un momento di quiete (120ms, piu' di
+        // un singolo fotogramma) prima di applicare lo spostamento finale,
+        // lasciando la transizione CSS (".wrapperFluttuante", "transform
+        // .25s ease" in prodotti.css) animare quell'unico scatto
+        var timerStabilizzazione = null;
+        function pianificaSuResize() {
+            clearTimeout(timerStabilizzazione);
+            timerStabilizzazione = setTimeout(applicaSpostamento, 120);
+        }
+
+        // Scroll a tastiera gia' aperta: qui serve l'opposto, un aggancio
+        // in tempo reale frame per frame, senza aspettare ne' transizione
+        // morbida - con quelle il bottone "insegue" restando visibilmente
+        // staccato dalla tastiera durante il gesto. ".spostamento-istantaneo"
+        // (prodotti.css) azzera la transizione finche' arrivano eventi di
+        // scroll, tolta con lo stesso timer di quiete di sopra una volta
+        // fermo (cosi' un eventuale ulteriore aggiustamento torna morbido)
+        var aggiornamentoScrollPianificato = false;
+        var timerFineScroll = null;
+        function suScroll() {
+            wrapperFluttuante.classList.add('spostamento-istantaneo');
+            clearTimeout(timerFineScroll);
+            timerFineScroll = setTimeout(function () {
+                wrapperFluttuante.classList.remove('spostamento-istantaneo');
+            }, 120);
+
+            if (aggiornamentoScrollPianificato) {
+                return;
+            }
+            aggiornamentoScrollPianificato = true;
+            requestAnimationFrame(function () {
+                aggiornamentoScrollPianificato = false;
+                applicaSpostamento();
+            });
+        }
+
+        applicaSpostamento(); // posizione iniziale, nessuna tastiera aperta
+        window.visualViewport.addEventListener('resize', function () {
+            pianificaSuResize(); // posizione: debounced, uno scatto solo a tastiera stabile
+            // larghezza: NON debounced apposta, ad ogni evento - qui si
+            // vuole seguire la salita/discesa della tastiera passo passo
+            // (vedi "applicaLarghezzaDaTastiera" piu' in alto), non aspettare
+            // che si fermi per applicare un unico valore finale
+            applicaLarghezzaDaTastiera();
+        });
+        // "visualViewport.scroll" da solo non basta: durante uno scroll
+        // normale del contenuto (non un pinch-zoom) arriva piu' di rado di
+        // quanto servirebbe per restare visivamente agganciati, risultando
+        // nel bottone che "insegue" lo scroll invece di seguirlo subito.
+        // "window.scroll" (il normale evento di scroll della pagina) da'
+        // molte piu' occasioni di correggere la posizione durante il gesto -
+        // "suScroll" e' gia' protetta da "aggiornamentoScrollPianificato"
+        // (un solo aggiornamento per frame), quindi ascoltarla da entrambe
+        // le fonti non duplica lavoro
+        window.visualViewport.addEventListener('scroll', suScroll);
+        window.addEventListener('scroll', suScroll, { passive: true });
+    }
 })();
 </script>
 

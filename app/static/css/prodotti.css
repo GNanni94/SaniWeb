@@ -859,6 +859,21 @@
     transition: width .3s ease;
   }
 
+  /* Durata piu' breve, non ".3s ease" della regola condivisa qui sopra
+     (che resta invariata per le altre pagine che usano ".ricerca-a-comparsa"
+     senza aggancio alla tastiera, es. dashboard_prodotti_senza_immagine.html -
+     selettore per id apposta, non tocca ".ricerca-a-comparsa" da sola):
+     qui la larghezza e' pilotata via JS ad ogni evento "resize" del
+     viewport visivo mentre la tastiera sale/scende (vedi
+     "applicaLarghezzaDaTastiera" in prodotti_card.html/prodotti_tabella.html),
+     non piu' da un unico scatto al click. Una transizione lunga farebbe
+     rincorrere il valore sempre in ritardo rispetto ad aggiornamenti cosi'
+     frequenti - resta solo per smussare il passaggio tra un aggiornamento
+     e l'altro, non piu' per l'intera apertura */
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper) {
+    transition: width .15s linear;
+  }
+
   :is(#ricercaProdottiWrapper, .ricerca-a-comparsa).ricerca-espansa {
     width: 12rem;
   }
@@ -1122,6 +1137,15 @@
     left: 1rem;
     bottom: 1rem;
     z-index: 1040;
+    /* "transform: translateY()" (non "bottom") viene alzato via JS
+       (prodotti_card.html) quando la tastiera virtuale apre/chiude o si
+       scrolla a tastiera gia' aperta: un "transform" e' gestito dal
+       compositor senza ricalcolare il layout ad ogni frame come farebbe
+       "bottom", importante per il secondo caso (nessun debounce li', un
+       frame alla volta via "requestAnimationFrame"). Questa transizione
+       (apertura/chiusura tastiera, con debounce - vedi JS) e' disattivata
+       durante lo scroll dalla classe ".spostamento-istantaneo" qui sotto */
+    transition: transform .25s ease;
   }
 
   /* Cerchio grande (stesso "3.5rem" del carrello flottante) */
@@ -1165,6 +1189,19 @@
     left: 1rem;
     bottom: 1rem;
     z-index: 1040;
+    /* Stesso motivo di "#controlliRicercaFiltroWrapper" qui sopra */
+    transition: transform .25s ease;
+  }
+
+  /* Durante lo scroll a tastiera gia' aperta serve l'opposto della
+     transizione qui sopra: un aggancio in tempo reale, un frame alla volta
+     (vedi "requestAnimationFrame" in prodotti_card.html/prodotti_tabella.html)
+     - con la transizione ancora attiva il bottone "insegue" restando
+     visibilmente staccato dalla tastiera durante il gesto. Aggiunta/tolta
+     via JS solo per la durata dello scroll */
+  #controlliRicercaFiltroWrapper.spostamento-istantaneo,
+  #controlliRicercaFiltroTabellaWrapper.spostamento-istantaneo {
+    transition: none;
   }
 
   #ricercaTabellaWrapper {
