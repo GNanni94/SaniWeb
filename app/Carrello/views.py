@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.views.generic import ListView, DetailView  # new
 from django.views.generic.edit import UpdateView, DeleteView, CreateView  # new
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import redirect_to_login
 from django.views.decorators.http import require_POST
 from .models import Carrello
 from Prodotti.models import Prodotto, mostra_precursori
@@ -101,7 +102,7 @@ def aggiungi_prodotti_al_carrello(request, prodottoId):
     # (portare l'utente al login)
     if _e_richiesta_in_background(request):
         return HttpResponse(status=401)
-    return redirect('login')
+    return redirect_to_login(request.get_full_path())
 
 @require_POST
 def elimina_elementi_dal_carrello(request, carrelloId):

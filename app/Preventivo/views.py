@@ -7,6 +7,7 @@ from .models import Preventivo, Elementi_Preventivo
 from .forms import DettaglioPreventivoForm
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import redirect_to_login
 from django.contrib import messages
 from typing import Any, Dict
 from InvioEmail.views import emailPreventivo
@@ -101,7 +102,7 @@ def aggiungi_preventivo_al_carrello(request, pk):
         request.session['luogo_precompilato'] = dettaglio_preventivo.luogo
         messages.success(request, 'Articoli aggiunti al carrello! Puoi aggiungerne altri prima di richiedere il nuovo preventivo.')
         return redirect('carrello')
-    return redirect('login')
+    return redirect_to_login(request.get_full_path())
 
 class PreventivoDetailView(LoginRequiredMixin, ListView):
     model = Preventivo

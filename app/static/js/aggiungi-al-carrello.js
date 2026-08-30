@@ -33,8 +33,11 @@ document.addEventListener('click', function (event) {
                 // Utente non loggato: porta li' anche la navigazione vera
                 // del browser (non solo la fetch in background, altrimenti
                 // l'utente resta sulla pagina di prima senza capire perche'
-                // non e' successo nulla)
-                window.location.href = document.body.dataset.loginUrl;
+                // non e' successo nulla). "next" riporta l'utente sulla
+                // pagina di provenienza dopo il login, invece che sempre
+                // alla home (LOGIN_REDIRECT_URL di default)
+                var next = window.location.pathname + window.location.search;
+                window.location.href = document.body.dataset.loginUrl + '?next=' + encodeURIComponent(next);
                 return;
             }
             if (!response.ok) {

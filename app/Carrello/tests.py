@@ -216,6 +216,17 @@ class CarrelloFlottanteAjaxViewsTest(TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertTrue(Carrello.objects.filter(pk=elemento.pk).exists())
 
+    def test_aggiungi_anonimo_senza_ajax_redirect_a_login_con_next(self):
+        # Regressione: il redirect al login perdeva la pagina di provenienza
+        # ("return redirect('login')" senza "next"), riportando l'utente
+        # sempre alla home dopo il login invece che alla pagina da cui era
+        # partita l'azione
+        self.client.logout()
+        url = reverse("aggiungi_prodotti", args=[self.prodotto.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(f"next={url}", response.url)
+
 
 class AggiungiProdottoConPrecursoreTest(TestCase):
     # Regressione: un utente loggato ma non azienda poteva aggiungere al
