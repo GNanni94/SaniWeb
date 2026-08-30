@@ -212,6 +212,28 @@
     text-overflow: ellipsis;
   }
 
+  /* Titolo categoria spostato nella pillola: piu' piccolo del solito
+     (era dentro un <h1>, ora e' un link semplice in una riga alta 56px),
+     stesso blu di sempre (gia' impostato da ".titolo-categoria-link" in
+     prodotti.css, invariato) */
+  .pillola-slot-titolo #titoloCategoriaLink {
+    font-size: .9rem;
+    font-weight: 700;
+  }
+
+  /* "Torna al catalogo"/filtro spostati nella pillola: gia' cerchietti
+     blu su sfondo bianco di loro (vedi ".btn-torna-catalogo"/
+     "#prodottiCardFiltro"/"#filtroSottocategoria" in prodotti.css, stessa
+     palette della pillola), qui solo un margine di sicurezza cosi' non
+     si schiacciano contro il bordo della pillola o contro il titolo */
+  .pillola-slot-indietro {
+    margin-right: .25rem;
+  }
+
+  .pillola-slot-filtro {
+    margin-left: .25rem;
+  }
+
   #navbarSupportedContent {
     position: fixed;
     /* "--altezza-navbar" (altezza-navbar.js), non piu' "top: 100%": il

@@ -676,6 +676,24 @@
     right: .5rem !important;
   }
 
+  /* Mentre "Torna al catalogo"/titolo/filtro sono spostati nella pillola
+     navbar (".contenuto-in-pillola-navbar", aggiunta/tolta da
+     intestazione-categoria-sticky.js insieme a
+     ".pillola-modalita-categoria"), la riga originale resta vuota - la
+     si nasconde del tutto invece di lasciare una striscia bianca residua
+     senza contenuto. Il contenuto sotto di lei risale a riempire lo
+     spazio, comportamento voluto: il compito della riga e' passato alla
+     pillola */
+  .intestazione-categoria-sticky.contenuto-in-pillola-navbar {
+    /* "!important" necessario: l'elemento ha di suo la classe Bootstrap
+       "d-flex" (display:flex !important) nel markup di
+       partials/intestazione_categoria.html - senza, perderebbe sempre
+       contro l'utility Bootstrap a prescindere da specificita'/ordine
+       (stessa convenzione gia' usata su questo stesso elemento poco piu'
+       sotto, vedi "padding-top: 0 !important" su ".intestazione-categoria-sticky") */
+    display: none !important;
+  }
+
 /* Ricerca/filtro prodotti (prodotti_card.html): "flex-shrink-1" di Bootstrap
    da solo non basta a far restringere questi campi sotto la loro larghezza
    intrinseca (un flex item di default non si restringe mai sotto quella),
