@@ -133,12 +133,14 @@
 <nav class="navbar navbar-expand-xxl site-navbar">
   <div class="container-fluid position-relative">
     {% comment %}
-    Da telefono (menu collassato) la riga in alto va hamburger (sinistra) /
-    logo+titolo (centro) / icona profilo (destra, sempre visibile, fuori dal
-    menu hamburger) - da qui gli "order-*" su questi 3 elementi + sul menu
+    Da telefono (menu collassato) la riga in alto va hamburger (sinistra,
+    pillola circolare a se') / pillola logo+icone (destra, riempie lo
+    spazio restante) - da qui gli "order-*" su questi 2 elementi + sul menu
     collassabile sotto. Da desktop (xxl+, navbar-toggler nascosto di suo da
-    Bootstrap) l'ordine torna quello originale: logo, poi link,
-    poi profilo, tutti sulla stessa riga (vedi "order-xxl-*")
+    Bootstrap) l'ordine torna quello originale: logo, poi link, poi
+    profilo, tutti sulla stessa riga (vedi "order-xxl-*") - la pillola
+    ".navbar-pillola-brand" diventa "display:contents" (vedi navbar.css),
+    cosi' i suoi due figli tornano flex-item diretti di ".container-fluid"
     {% endcomment %}
     <button class="navbar-toggler order-1" type="button" data-bs-toggle="collapse"
       data-bs-target="#navbarSupportedContent" aria-controls="#navbarSupportedContent" aria-expanded="false"
@@ -146,85 +148,98 @@
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <a class="navbar-brand d-inline-flex align-items-center order-2 order-xxl-1 flex-grow-1 flex-xxl-grow-0 justify-content-center justify-content-xxl-start ms-2 me-2 ms-xxl-0 me-xxl-3" href="{% url 'home' %}">
-      <img src="{% static 'logo/logo_invertito.png' %}" alt="Logo" width="44" height="38" class="d-none d-xxl-inline me-xxl-2">
+    <div class="navbar-pillola-brand order-2">
+      <a class="navbar-brand d-inline-flex align-items-center order-xxl-1 ms-xxl-0 me-xxl-3" href="{% url 'home' %}">
+        <img src="{% static 'logo/logo_invertito.png' %}" alt="Logo" width="44" height="38" class="d-none d-xxl-inline me-xxl-2">
+        {% comment %}
+        Da telefono la pillola mostra solo il logo, senza il testo
+        "SaniScope-chimica" (spazio limitato nella pillola). Versione
+        colorata (non quella invertita bianca) perche' qui sta su sfondo
+        bianco (la pillola), non piu' sul blu della navbar. Cerchio bianco
+        attorno (stessa tecnica di ".ricerca-toggle-btn"/filtro cerchio in
+        prodotti.css: dimensione fissa del cerchio + logo centrato via
+        flex, cosi' lo spazio attorno resta uguale su tutti i lati) invece
+        di un logo "nudo" - vedi ".logo-cerchio-navbar" in navbar.css
+        {% endcomment %}
+        <span class="logo-cerchio-navbar d-xxl-none">
+          <img src="{% static 'logo/saniscope_logo.png' %}" alt="Logo" width="36" height="31">
+        </span>
+        <h2 class="mb-0 d-none d-xxl-inline">SaniScope-chimica</h2>
+      </a>
+
       {% comment %}
-      Sotto i 360px non c'e' spazio sufficiente per "SaniScope-chimica"
-      leggibile senza andare a capo (verificato): sotto quella soglia si
-      mostra il solo logo al posto del testo (vedi navbar.css)
+      Contenuto diverso in base al login:
+      - anonimo: Login/Registrati, visibili solo da telefono (d-xxl-none) -
+        da desktop restano dove erano prima, dentro il menu hamburger
+      - autenticato: solo l'icona profilo (sempre visibile, invariata) -
+        il carrello e' invece il widget flottante a parte (vedi
+        "partials/carrello_flottante.html"), non fa parte di questa pillola
       {% endcomment %}
-      <img src="{% static 'logo/logo_invertito.png' %}" alt="Logo" width="32" height="28" class="logo-icona-schermo-piccolo d-xxl-none">
-      <h2 class="mb-0 fs-5 d-xxl-none logo-testo-mobile">SaniScope-chimica</h2>
-      <h2 class="mb-0 d-none d-xxl-inline">SaniScope-chimica</h2>
-    </a>
+      <div class="d-flex align-items-center gap-2 order-xxl-3">
+      {% if not user.is_authenticated %}
+      <div class="d-flex d-xxl-none gap-2">
+        <a href="{% url 'login' %}" class="btn btn-navbar-trasparente btn-sm border-0" title="Login" aria-label="Login">
+          <i class="bi bi-box-arrow-in-right icona-dimensione-hamburger"></i>
+        </a>
+        <a href="{% url 'signup' %}" class="btn btn-navbar-trasparente btn-sm border-0" title="Registrati" aria-label="Registrati">
+          <i class="bi bi-person-plus icona-dimensione-hamburger"></i>
+        </a>
+      </div>
+      {% endif %}
 
-    {% comment %}
-    Wrapper unico (order-3/order-xxl-3) per tutto cio' che sta a destra sulla
-    riga in alto da telefono, cosi' lo spazio tra hamburger e questo gruppo
-    (justify-content: space-between di Bootstrap sul .container-fluid) resta
-    un singolo gap, senza interferire con il logo centrato in absolute nel
-    mezzo. Contenuto diverso in base al login:
-    - anonimo: Login/Registrati, visibili solo da telefono (d-xxl-none) -
-      da desktop restano dove erano prima, dentro il menu hamburger
-    - autenticato: solo l'icona profilo (sempre visibile, invariata) -
-      il carrello e' invece il widget flottante a parte (vedi
-      "partials/carrello_flottante.html"), non fa parte di questo wrapper
-    {% endcomment %}
-    <div class="d-flex align-items-center gap-2 order-3 order-xxl-3">
-    {% if not user.is_authenticated %}
-    <div class="d-flex d-xxl-none gap-2">
-      <a href="{% url 'login' %}" class="btn btn-navbar-trasparente btn-sm border-0" title="Login" aria-label="Login">
-        <i class="bi bi-box-arrow-in-right icona-dimensione-hamburger"></i>
-      </a>
-      <a href="{% url 'signup' %}" class="btn btn-navbar-trasparente btn-sm border-0" title="Registrati" aria-label="Registrati">
-        <i class="bi bi-person-plus icona-dimensione-hamburger"></i>
-      </a>
-    </div>
-    {% endif %}
-
-    {% if user.is_authenticated %}
-    <div class="dropdown">
-      <a class="d-flex align-items-center text-decoration-none" id="dropdownUser1"
-      data-bs-toggle="dropdown" aria-expanded="false">
-        <i class="bi bi-person-fill text-white icon-lg fs-2"> </i>
-      </a>
-      <ul class="dropdown-menu dropdown-menu-end text-small" aria-labelledby="dropdownUser1">
-        <li class="bg-light py-2 px-3 d-flex align-items-center justify-content-center gap-2">
-          {% if user.is_staff %}
-          {% comment %}
-          Solo per l'admin (is_staff): icona unica verso la dashboard
-          admin (hub con le sezioni Avvisi e Prodotti), a sinistra
-          dell'email, qui nella riga di intestazione del menu
-          {% endcomment %}
-          <a href="{% url 'dashboard_admin' %}" title="Dashboard admin" class="d-inline-flex">
-            <i class="bi bi-speedometer2 fs-5" style="color: var(--color-primary);"></i>
-          </a>
+      {% if user.is_authenticated %}
+      <div class="dropdown">
+        <a class="d-flex align-items-center text-decoration-none" id="dropdownUser1"
+        data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-person-fill icona-profilo-navbar icon-lg fs-2"> </i>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end text-small" aria-labelledby="dropdownUser1">
+          <li class="bg-light py-2 px-3 d-flex align-items-center justify-content-center gap-2">
+            {% if user.is_staff %}
+            {% comment %}
+            Solo per l'admin (is_staff): icona unica verso la dashboard
+            admin (hub con le sezioni Avvisi e Prodotti), a sinistra
+            dell'email, qui nella riga di intestazione del menu
+            {% endcomment %}
+            <a href="{% url 'dashboard_admin' %}" title="Dashboard admin" class="d-inline-flex">
+              <i class="bi bi-speedometer2 fs-5" style="color: var(--color-primary);"></i>
+            </a>
+            {% endif %}
+            <span>{{ user.email }}</span>
+          </li>
+          <li><a class="dropdown-item" href="{% url 'profilo' user.pk %}">Profilo</a></li>
+          <li><a class="dropdown-item" href="{% url 'password_change' %}">Cambia password</a></li>
+          <li><a class="dropdown-item" href="{% url 'lista_ordini'%}">Lista preventivi</a></li>
+          {% if not user.is_staff %}
+          <li><a class="dropdown-item text-danger" href="{% url 'eliminaProfilo' user.pk %}">Elimina</a></li>
           {% endif %}
-          <span>{{ user.email }}</span>
-        </li>
-        <li><a class="dropdown-item" href="{% url 'profilo' user.pk %}">Profilo</a></li>
-        <li><a class="dropdown-item" href="{% url 'password_change' %}">Cambia password</a></li>
-        <li><a class="dropdown-item" href="{% url 'lista_ordini'%}">Lista preventivi</a></li>
-        {% if not user.is_staff %}
-        <li><a class="dropdown-item text-danger" href="{% url 'eliminaProfilo' user.pk %}">Elimina</a></li>
-        {% endif %}
-        <li>
-          <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="dropdown-item border-0">Log Out</button>
-          </form>
-        </li>
-      </ul>
-    </div>
-    {% endif %}
+          <li>
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="dropdown-item border-0">Log Out</button>
+            </form>
+          </li>
+        </ul>
+      </div>
+      {% endif %}
+      </div>
     </div>
 
     <div class="collapse navbar-collapse order-4 order-xxl-2" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-0">
+        {% comment %}
+        Pallino blu a destra della voce, solo da telefono (d-xxl-none):
+        segnala la pagina corrente, mai visibile su piu' di una voce alla
+        volta (i confronti su "request.resolver_match.url_name" sono
+        mutualmente esclusivi tra le 4 voci)
+        {% endcomment %}
         <li class="nav-item">
           <a class="nav-link fs-6 d-flex align-items-center gap-2" href="{% url 'storia_azienda' %}">
             <i class="bi bi-building d-xxl-none"></i>
             Azienda
+            {% if request.resolver_match.url_name == 'storia_azienda' %}
+            <span class="pallino-pagina-corrente d-xxl-none" aria-hidden="true"></span>
+            {% endif %}
           </a>
         </li>
 
@@ -232,6 +247,9 @@
           <a class="nav-link fs-6 d-flex align-items-center gap-2" href="{% url 'catalogo' %}">
             <i class="bi bi-grid d-xxl-none"></i>
             Catalogo
+            {% if request.resolver_match.url_name == 'catalogo' or request.resolver_match.url_name == 'dettaglio_categoria' or request.resolver_match.url_name == 'dettaglio_sottocategoria' %}
+            <span class="pallino-pagina-corrente d-xxl-none" aria-hidden="true"></span>
+            {% endif %}
           </a>
           <ul class="dropdown-menu" id="dropdownCategorie">
             {% for lista in categoria %}
@@ -244,12 +262,18 @@
           <a class="nav-link fs-6 d-flex align-items-center gap-2" href="{% url 'documenti' %}">
             <i class="bi bi-file-earmark-text d-xxl-none"></i>
             Documenti
+            {% if request.resolver_match.url_name == 'documenti' %}
+            <span class="pallino-pagina-corrente d-xxl-none" aria-hidden="true"></span>
+            {% endif %}
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link fs-6 d-flex align-items-center gap-2" href="{% url 'contatti' %}">
             <i class="bi bi-send d-xxl-none"></i>
             Contattaci
+            {% if request.resolver_match.url_name == 'contatti' %}
+            <span class="pallino-pagina-corrente d-xxl-none" aria-hidden="true"></span>
+            {% endif %}
           </a>
         </li>
       </ul>
@@ -277,6 +301,20 @@
   </div>
 </nav>
 
+{% comment %}
+Sfondo scurito dietro al pannello del menu hamburger da telefono (vedi
+".hamburger-backdrop" in navbar.css): sta fuori da "<nav>" apposta, cosi'
+non eredita lo stacking context di ".site-navbar" (altrimenti, essendo
+"position: fixed", verrebbe dipinto sopra le pillole hamburger/logo che
+sono "position: static" - le regole di stacking mettono sempre gli
+elementi posizionati sopra quelli statici nello stesso contesto,
+indipendentemente dall'ordine nel DOM o dallo z-index). "data-bs-toggle"/
+"data-bs-target" apposta (stessi attributi del bottone hamburger): un
+click sopra chiude il menu, senza bisogno di JS scritto a mano - e' lo
+stesso meccanismo dichiarativo di Bootstrap che gia' apre/chiude il
+pannello dal bottone
+{% endcomment %}
+<div class="hamburger-backdrop" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-hidden="true"></div>
 
 
 

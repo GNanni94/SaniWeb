@@ -16,6 +16,20 @@
   z-index: 1030;
 }
 
+/* Sfondo scurito dietro al pannello del menu hamburger da telefono (vedi
+   ".hamburger-backdrop" in base.html, fuori da "<nav>" apposta - li' un
+   commento spiega perche'). Invisibile/non cliccabile di base: la regola
+   che lo mostra all'apertura del menu sta nel media query piu' in basso */
+.hamburger-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1020;
+  background-color: rgba(0, 0, 0, .5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease;
+}
+
 /* Stessa dimensione (30px, misurata) dell'icona del bottone hamburger, per
    le icone di Login/Registrati da telefono */
 .icona-dimensione-hamburger {
@@ -28,79 +42,215 @@
   border: none;
 }
 
-/* Sotto i 380px il testo "SaniScope-chimica" non entra piu' su una riga
-   sola insieme a hamburger e bottoni/icone a destra (soglia comprensiva
-   delle icone Login/Registrati a 30px): sotto quella soglia si mostra il
-   solo logo al posto del testo (vedi ".logo-icona-schermo-piccolo"/
-   ".logo-testo-mobile" in base.html), che e' molto piu' stretto */
-.logo-icona-schermo-piccolo {
-  display: none;
+/* Pillola bianca che raggruppa logo + icone (login/registrati o profilo)
+   in un unico blocco visivo, staccato dall'hamburger - sotto la soglia xxl
+   (vedi navbar-toggler piu' sotto e ".site-navbar" reso trasparente nel
+   media query qui sotto). Da desktop torna "invisibile": i due figli
+   (logo, icone) diventano flex-item diretti di ".container-fluid" con il
+   proprio "order-xxl-*" (base.html), come prima dell'introduzione di
+   questa pillola - "display: contents" fa sparire il box (sfondo,
+   bordo, padding inclusi) senza toccare il DOM ne' duplicare markup */
+.navbar-pillola-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  flex-grow: 1;
+  height: 56px; /* stessa altezza della pillola hamburger accanto (vedi ".navbar-toggler" piu' sotto) */
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-primary);
+  border-radius: 999px;
+  padding: 0 .5rem 0 1rem;
 }
 
-@media (max-width: 379.98px) {
-  .logo-icona-schermo-piccolo {
-    display: inline;
+@media (min-width: 1400px) {
+  .navbar-pillola-brand {
+    display: contents;
   }
+}
 
-  .logo-testo-mobile {
-    display: none;
-  }
+/* Cerchio attorno al logo da telefono (dentro ".navbar-pillola-brand"),
+   stessa tecnica dei cerchi filtro/ricerca di prodotti_card.html: dimensione
+   fissa del cerchio, logo centrato via flex invece che con padding fisso -
+   cosi' lo spazio attorno resta uguale sui 4 lati anche se il logo non e'
+   perfettamente quadrato. "d-xxl-none" in base.html lo nasconde da desktop */
+.logo-cerchio-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--color-bg);
 }
 
 /* Sotto la soglia xxl (hamburger attivo): il pannello del menu e' sempre
-   in overlay (assoluto), anche durante l'animazione di apertura di Bootstrap,
+   in overlay (fixed), anche durante l'animazione di apertura di Bootstrap,
    cosi' scivola sopra il contenuto invece di spingerlo giu' senza scatti */
 @media (max-width: 1399.98px) {
-  #navbarSupportedContent {
-    position: absolute;
-    top: calc(100% + 8px); /* un po' di distacco dalla navbar, invece di toccarla */
-    left: 0;
-    /* Larga solo quanto la voce piu' lunga (es. "Documenti"), non un
-       riquadro pieno che copre tutta la larghezza dello schermo */
-    width: fit-content;
-    max-width: 100%; /* rete di sicurezza: mai piu' largo dello schermo */
-    background-color: var(--color-primary);
-    z-index: 1030;
-    padding: 0 1rem; /* niente padding-bottom qui: essendo l'elemento la cui altezza viene animata, un padding verticale lascerebbe un pezzetto di sfondo residuo quando l'altezza arriva a 0 (vedi padding-bottom spostato su .navbar-text) */
-    /* Solo l'angolo in basso a destra arrotondato */
-    border-radius: 0 0 .5rem 0;
+  /* Niente piu' striscia blu piena: le due pillole (hamburger + logo/icone
+     qui sotto) prendono il suo posto, staccate tra loro. La riga resta
+     della sua altezza normale nel flusso della pagina (niente scroll del
+     contenuto sotto la navbar, a differenza di siti come store.google.com
+     che se lo possono permettere avendo una barra ricaricata sull'header):
+     cambia solo il riempimento, cosi' avvisi/altezza-navbar.js/sticky del
+     resto del sito restano invariati */
+  .site-navbar {
+    background-color: transparent;
   }
 
-  /* Piu' spazio tra una voce e l'altra (Azienda, Catalogo, Documenti,
-     Contatti), per non rischiare di toccarne una per sbaglio invece
-     dell'altra */
+  /* Spazio tra le due pillole (hamburger + logo/icone): senza "gap" restano
+     appiccicate, dato che ".navbar-pillola-brand" ha "flex-grow: 1" e
+     riempie tutto lo spazio libero della riga fino al bordo dell'ovale
+     hamburger. Non influisce su "#navbarSupportedContent" (order-4): e'
+     "position: fixed" quindi fuori dal flusso flex, "gap" lo ignora */
+  .site-navbar .container-fluid {
+    gap: .75rem;
+  }
+
+  /* ":has()" invece del solito combinatore "~" (usato altrove in questo
+     file per le stesse animazioni, es. qui sotto per le voci del menu):
+     ".hamburger-backdrop" sta fuori da "<nav>" (vedi base.html), quindi
+     non e' un sibling diretto del bottone hamburger - "~" non potrebbe
+     raggiungerlo */
+  .site-navbar:has(.navbar-toggler[aria-expanded="true"]) ~ .hamburger-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Bottone hamburger come ovale verticale pieno staccato dal resto
+     (come su store.google.com), invece di un'icona "nuda" sullo sfondo
+     della navbar. Stessa altezza della pillola logo/icone accanto (vedi
+     ".navbar-pillola-brand" piu' in alto) */
+  .navbar-toggler {
+    width: 44px;
+    height: 56px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-primary);
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+  }
+
+  /* Dentro la pillola bianca (".navbar-pillola-brand") il logo/testo e le
+     icone non stanno piu' sullo sfondo blu: colori scuri/blu invece del
+     bianco usato dal resto della navbar (vedi ".site-navbar .nav-link,
+     .navbar-brand" e ".icona-profilo-navbar" piu' in basso, pensati per
+     lo sfondo blu di desktop, l'unico contesto rimasto dove si applicano) */
+  /* Specificita' a 3 classi apposta: senza ".site-navbar" davanti pareggia
+     con ".site-navbar .navbar-brand" (bianco, per il resto della navbar)
+     qui sotto nel file, e vincerebbe quest'ultima in quanto dichiarata
+     dopo - a parita' di specificita' vince l'ordine nel foglio di stile,
+     non quale regola sta dentro un media query piu' specifico */
+  .site-navbar .navbar-pillola-brand .navbar-brand {
+    color: var(--color-text);
+  }
+
+  .navbar-pillola-brand .btn-navbar-trasparente {
+    color: var(--color-primary);
+  }
+
+  .navbar-pillola-brand .btn-navbar-trasparente:hover,
+  .navbar-pillola-brand .btn-navbar-trasparente:focus {
+    background-color: var(--color-bg-alt);
+    color: var(--color-primary-dark);
+  }
+
+  .navbar-pillola-brand .icona-profilo-navbar {
+    color: var(--color-primary);
+  }
+
+  #navbarSupportedContent {
+    position: fixed;
+    /* "--altezza-navbar" (altezza-navbar.js), non piu' "top: 100%": il
+       pannello e' ora "position: fixed" (relativo alla finestra, non al
+       proprio contenitore), le percentuali legate alla riga della navbar
+       non funzionerebbero piu' */
+    top: calc(var(--altezza-navbar, 0px) + .75rem);
+    left: 1rem;
+    right: 1rem;
+    background-color: var(--color-bg);
+    /* Ombra invece di un bordo blu pieno come le pillole-voce qui sotto:
+       un bordo identico sul contenitore esterno E su ogni singola voce
+       creava troppi contorni blu uguali uno dentro l'altro, senza
+       gerarchia visiva tra "contenitore" e "contenuto" */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+    border-radius: 1rem;
+    z-index: 1030;
+    padding: 0 1rem; /* verticale spostato su ".navbar-nav" qui sotto: un padding verticale qui lascerebbe un pezzetto di sfondo residuo quando l'altezza (animata da Bootstrap) arriva a 0 */
+  }
+
+  /* Testo/icone delle voci: da bianco (colore di base per il resto della
+     navbar, vedi ".site-navbar .nav-link" piu' in basso) a scuro, dato che
+     il pannello ora ha sfondo bianco invece che blu. Selettore con l'ID
+     del pannello apposta: senza, a parita' di specificita' con
+     ".site-navbar .nav-link" vincerebbe quest'ultima in quanto dichiarata
+     dopo nel file (stesso discorso gia' fatto per ".navbar-brand" qui sopra) */
+  .site-navbar #navbarSupportedContent .nav-link {
+    color: var(--color-text);
+  }
+
+  /* Spazio tra una voce e l'altra + spazio verticale sopra/sotto la lista
+     (padding qui invece che su #navbarSupportedContent, vedi commento li') */
   #navbarSupportedContent .navbar-nav {
     gap: .5rem;
+    padding: .75rem 0;
   }
 
-  /* Voci del menu hamburger piu' comode da toccare (padding maggiore) e con
-     un feedback visivo (sfondo a "pillola") sotto al dito/mouse, assente
-     di default. Solo qui sotto la soglia xxl: da desktop i nav-link restano
-     invariati (riga unica, nessuna icona - vedi "d-xxl-none" in base.html) */
+  /* Ogni voce si stacca dal pannello bianco con un riempimento grigio
+     chiaro (stessa variabile gia' usata per gli hover altrove nel sito),
+     non piu' un bordo blu: il blu resta un accento puntuale solo
+     sull'icona (cerchio pieno, vedi ".bi" qui sotto) */
   #navbarSupportedContent .navbar-nav > .nav-item > .nav-link {
-    padding: .6rem .75rem;
-    border-radius: .5rem;
+    padding: .85rem .75rem;
+    background-color: var(--color-bg-alt);
+    border-radius: 999px;
     transition: background-color .15s ease;
   }
 
+  /* Bianco al passaggio del mouse/tocco (invece di un altro grigio):
+     essendo il grigio gia' lo stato di riposo, un grigio piu' scuro qui
+     avrebbe richiesto un colore nuovo non gia' tra le variabili del sito -
+     il bianco usa una variabile gia' esistente e resta comunque un
+     feedback ben visibile (chiaro su chiaro, ma il pannello attorno e'
+     anch'esso bianco quindi il contrasto vero e' col grigio che sparisce) */
   #navbarSupportedContent .navbar-nav > .nav-item > .nav-link:hover,
   #navbarSupportedContent .navbar-nav > .nav-item > .nav-link:focus,
   #navbarSupportedContent .navbar-nav > .nav-item > .nav-link:active {
-    background-color: rgba(255, 255, 255, .15);
+    background-color: var(--color-bg);
   }
 
-  /* Icona di ogni voce: stessa larghezza per tutte, cosi' il testo parte
-     allineato da una voce all'altra invece di spostarsi in base alla
-     larghezza naturale di icone diverse */
+  /* Icona di ogni voce come cerchio blu pieno con glifo bianco (badge),
+     stessa dimensione per tutte cosi' il testo parte allineato da una
+     voce all'altra. "display: flex" sull'elemento stesso (non su un
+     wrapper): il glifo di Bootstrap Icons e' un pseudo-elemento
+     "::before" dell'icona, quindi si centra da solo nel box flex */
   #navbarSupportedContent .navbar-nav > .nav-item > .nav-link > .bi {
-    width: 1.1em;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--color-primary);
+    color: var(--color-bg);
   }
 
-  /* Linea sottile a separare una voce dall'altra, tolta sull'ultima
-     (il gap tra i .nav-item qui sopra la sostituisce li') */
-  #navbarSupportedContent .navbar-nav > .nav-item:not(:last-child) {
-    border-bottom: 1px solid rgba(255, 255, 255, .15);
+  /* Pallino a destra della voce = pagina corrente (renderizzato solo per
+     la voce giusta, vedi i confronti su "request.resolver_match.url_name"
+     in base.html): "margin-left: auto" lo spinge in fondo alla riga,
+     sfruttando il flex della voce (icona + testo + questo pallino) */
+  .pallino-pagina-corrente {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    margin-left: auto;
+    border-radius: 50%;
+    background-color: var(--color-primary);
   }
 
   /* L'icona profilo e' sempre visibile in alto a destra (fuori dal menu
@@ -116,13 +266,13 @@
     height: auto !important;
   }
 
-  /* Rallenta leggermente la discesa dello sfondo blu del menu hamburger,
+  /* Rallenta leggermente la discesa del pannello del menu hamburger,
      cosi' da lasciare respiro prima che compaiano le voci sotto */
   #navbarSupportedContent.collapsing {
-    transition: height .3s ease; /* uguale alla durata del fade dei contenuti, cosi' allo sfondo (che si riduce sia in apertura che in chiusura) non resta un pezzetto visibile dopo che voci/bottoni sono gia' scomparsi */
+    transition: height .3s ease; /* uguale alla durata del fade dei contenuti, cosi' al pannello (che si riduce sia in apertura che in chiusura) non resta un pezzetto visibile dopo che voci/bottoni sono gia' scomparsi */
   }
 
-  /* Stato di partenza delle voci del menu, prima che lo sfondo abbia
+  /* Stato di partenza delle voci del menu, prima che il pannello abbia
      finito di scendere */
   #navbarSupportedContent .navbar-nav > .nav-item {
     opacity: 0; /* invisibile all'inizio (0 = trasparente, 1 = visibile) */
@@ -133,8 +283,8 @@
   /* Stato finale (visibile): agganciato ad aria-expanded="true" sul bottone
      hamburger (sibling del pannello) invece che a .show, perche' Bootstrap
      imposta aria-expanded="true" subito all'avvio dell'apertura, non a fine
-     animazione come .show - cosi' le voci iniziano a comparire mentre lo
-     sfondo blu sta ancora scendendo, non dopo */
+     animazione come .show - cosi' le voci iniziano a comparire mentre il
+     pannello sta ancora scendendo, non dopo */
   .navbar-toggler[aria-expanded="true"] ~ #navbarSupportedContent .navbar-nav > .nav-item {
     opacity: 1; /* completamente visibile */
     transform: translateY(0); /* posizione verticale definitiva, nessuno spostamento */
@@ -178,7 +328,8 @@
 }
 
 .site-navbar .nav-link,
-.site-navbar .navbar-brand {
+.site-navbar .navbar-brand,
+.icona-profilo-navbar {
   color: var(--color-text-light);
 }
 
