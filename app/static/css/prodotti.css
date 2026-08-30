@@ -614,7 +614,13 @@
        "transition" perche' il passaggio a quelli di ".intestazione-fissata"
        sia animato invece che istantaneo */
     border: 2px solid transparent;
-    transition: border-color .3s ease, border-radius .3s ease, padding .3s ease;
+    /* "border-width"/"background-color" incluse (non solo "border-color"):
+       quando la riga entra nella navbar (".contenuto-in-pillola-navbar"
+       piu' in basso) azzera anche spessore del bordo e sfondo, non solo
+       il colore, per evitare la lineetta bianca residua - senza
+       includerle qui, quei due cambi scatterebbero di colpo mentre
+       padding/border-radius continuano ad animarsi */
+    transition: border-color .3s ease, border-width .3s ease, border-radius .3s ease, padding .3s ease, background-color .3s ease;
   }
 
   /* Altezza vera (non "padding") davanti alla riga, per farla scorrere
@@ -708,12 +714,30 @@
      pero' smettere di renderizzare la propria sotto-arborea */
   .intestazione-categoria-sticky.contenuto-in-pillola-navbar {
     /* Annulla il contorno "a pillola" di ".intestazione-fissata" qui
-       sopra (bordo blu + angoli arrotondati in basso): torna al bordo
-       trasparente/senza raggio di partenza. Nessun "!important" qui: a
-       parita' di specificita' (due classi in entrambe le regole) vince
-       l'ordine nel foglio di stile, e questa regola e' dichiarata dopo */
-    border-color: transparent;
+       sopra (bordo blu + angoli arrotondati in basso). "border-width: 0"
+       (non l'intero shorthand "border", e non solo "border-color:
+       transparent" come si potrebbe pensare): un bordo trasparente ha
+       comunque il suo spessore (2px sopra + 2px sotto, ereditato dalla
+       regola base piu' in alto), e lo sfondo bianco della riga (sempre
+       presente, vedi ".intestazione-categoria-sticky" piu' in alto)
+       dipinge comunque sotto un bordo trasparente (di default il
+       background arriva fino al bordo esterno della riga) - risultato una
+       lineetta bianca alta 4px, visibile subito sotto la pillola anche a
+       riga "collassata". Solo "border-width" (lasciando lo shorthand
+       "border" della regola base, quindi "border-style"/"border-color"
+       invariati) perche' e' l'unica proprieta' inclusa nella lista
+       "transition" qui sopra: lo shorthand "border" azzererebbe anche
+       stile/colore in un colpo solo, scattando di colpo invece di animarsi
+       insieme al resto. Nessun "!important" qui: a parita' di specificita'
+       (due classi in entrambe le regole) vince l'ordine nel foglio di
+       stile, e questa regola e' dichiarata dopo */
+    border-width: 0;
     border-radius: 0;
+    /* Stesso discorso del bordo: lo sfondo bianco della riga stessa
+       (non quello degli elementi che ci scorrono sotto) va tolto,
+       altrimenti painterebbe comunque l'area residua della riga anche a
+       bordo/padding azzerati */
+    background-color: transparent;
     /* "!important" invece necessario qui: le "padding-top/bottom: .5rem
        !important" di ".intestazione-fissata" qui sopra sono gia'
        "!important" di loro (stessa convenzione spiegata li' sopra),

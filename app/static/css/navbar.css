@@ -212,12 +212,12 @@
     text-overflow: ellipsis;
   }
 
-  /* Titolo categoria spostato nella pillola: piu' piccolo del solito
-     (era dentro un <h1>, ora e' un link semplice in una riga alta 56px),
-     stesso blu di sempre (gia' impostato da ".titolo-categoria-link" in
-     prodotti.css, invariato) */
+  /* Titolo categoria spostato nella pillola: stessa dimensione (32px) dei
+     due cerchietti "Torna al catalogo"/filtro accanto (misura gia' usata
+     per loro in prodotti.css), stesso blu di sempre (gia' impostato da
+     ".titolo-categoria-link" in prodotti.css, invariato) */
   .pillola-slot-titolo #titoloCategoriaLink {
-    font-size: .9rem;
+    font-size: 32px;
     font-weight: 700;
   }
 
