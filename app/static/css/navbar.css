@@ -234,6 +234,30 @@
     margin-left: .25rem;
   }
 
+  /* "Torna al catalogo" (".btn-torna-catalogo" in prodotti.css) porta le
+     utility Bootstrap "position-absolute start-0" (posizionamento
+     "!important" di Bootstrap, pensato per la riga originale - vedi
+     partials/intestazione_categoria.html - dove il suo antenato posizionato
+     piu' vicino e' proprio la riga, "position: relative"/"sticky").
+     Spostato qui dentro (".pillola-slot-indietro", via
+     intestazione-categoria-sticky.js), il suo antenato posizionato piu'
+     vicino diventa invece ".container-fluid.position-relative" della
+     navbar intera: "position: absolute; left: 0" lo incollerebbe quindi al
+     bordo sinistro di TUTTA la navbar, sopra il bottone hamburger, invece
+     che dentro questo slot - che oltretutto, con un unico figlio "fuori
+     flusso", collasserebbe a larghezza zero.
+     Si riportano quindi "position"/"left" ai valori di default (nessun
+     "top"/"right"/"bottom" e' presente sull'elemento, non serve
+     resettarli): "static" lo fa rientrare nel flusso normale di questo
+     slot, gia' "display: flex; align-items: center" qui sopra, che lo
+     centra verticalmente come gli altri contenuti della pillola.
+     "!important" necessario per vincere le utility Bootstrap, anch'esse
+     "!important" di loro */
+  .pillola-slot-indietro .btn-torna-catalogo {
+    position: static !important;
+    left: auto !important;
+  }
+
   #navbarSupportedContent {
     position: fixed;
     /* "--altezza-navbar" (altezza-navbar.js), non piu' "top: 100%": il

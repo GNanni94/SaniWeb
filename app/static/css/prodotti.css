@@ -679,19 +679,56 @@
   /* Mentre "Torna al catalogo"/titolo/filtro sono spostati nella pillola
      navbar (".contenuto-in-pillola-navbar", aggiunta/tolta da
      intestazione-categoria-sticky.js insieme a
-     ".pillola-modalita-categoria"), la riga originale resta vuota - la
-     si nasconde del tutto invece di lasciare una striscia bianca residua
-     senza contenuto. Il contenuto sotto di lei risale a riempire lo
-     spazio, comportamento voluto: il compito della riga e' passato alla
-     pillola */
+     ".pillola-modalita-categoria"), la riga originale NON puo' essere
+     nascosta con "display: none": dentro ".controlli-categoria-wrapper"
+     (non spostato - solo il filtro al suo interno lo e', vedi
+     partials/intestazione_categoria.html) resta il bottone di ricerca
+     fluttuante "position: fixed" (#controlliRicercaFiltroWrapper su
+     prodotti_card.html, #controlliRicercaFiltroTabellaWrapper su
+     prodotti_tabella.html - bottone indipendente da questo cambiamento,
+     vedi Docs/superpowers/specs/2026-08-30-pillola-titolo-categoria-scroll-design.md,
+     sezione "Fuori scope"): "position: fixed" su un discendente NON lo
+     fa "scappare" da un "display: none" impostato su un suo antenato
+     (qui la riga stessa), quindi nasconderebbe anche lui, facendo
+     sparire il bottone di ricerca per tutta la durata di questo stato -
+     bug reale gia' capitato qui.
+     Si annulla quindi solo l'aspetto "a pillola" della riga (bordo/
+     padding di ".intestazione-fissata" qui sopra, sempre presente insieme
+     a questa classe - vedi il "classList.toggle"/"add" in
+     intestazione-categoria-sticky.js) e si nasconde solo l'<h1> ormai
+     vuoto (il titolo e' stato spostato fuori, ma l'<h1> in se' resta nel
+     DOM e occuperebbe comunque la sua riga di altezza anche senza testo
+     dentro, per via del suo line-height/"strut" - vedi commento sotto).
+     ".controlli-categoria-wrapper" non viene toccato in nessun modo: resta
+     nel flusso, il suo bottone di ricerca "fixed" continua quindi a
+     funzionare/renderizzare normalmente. Il risultato e' una riga che
+     collassa quasi a zero (solo il bordo trasparente da 2px per lato,
+     nessun contenuto in-flow rimasto: l'<h1> e' "display: none", gli
+     altri figli sono gia' "position-absolute"/spostati altrove), senza
+     pero' smettere di renderizzare la propria sotto-arborea */
   .intestazione-categoria-sticky.contenuto-in-pillola-navbar {
-    /* "!important" necessario: l'elemento ha di suo la classe Bootstrap
-       "d-flex" (display:flex !important) nel markup di
-       partials/intestazione_categoria.html - senza, perderebbe sempre
-       contro l'utility Bootstrap a prescindere da specificita'/ordine
-       (stessa convenzione gia' usata su questo stesso elemento poco piu'
-       sotto, vedi "padding-top: 0 !important" su ".intestazione-categoria-sticky") */
-    display: none !important;
+    /* Annulla il contorno "a pillola" di ".intestazione-fissata" qui
+       sopra (bordo blu + angoli arrotondati in basso): torna al bordo
+       trasparente/senza raggio di partenza. Nessun "!important" qui: a
+       parita' di specificita' (due classi in entrambe le regole) vince
+       l'ordine nel foglio di stile, e questa regola e' dichiarata dopo */
+    border-color: transparent;
+    border-radius: 0;
+    /* "!important" invece necessario qui: le "padding-top/bottom: .5rem
+       !important" di ".intestazione-fissata" qui sopra sono gia'
+       "!important" di loro (stessa convenzione spiegata li' sopra),
+       quindi un azzeramento senza "!important" perderebbe sempre a
+       prescindere da specificita'/ordine */
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* Solo l'<h1> (il titolo e' stato spostato fuori, lasciandolo vuoto):
+     nessun rischio di nascondere anche lui un discendente "position:
+     fixed" che deve continuare a renderizzare (a differenza della riga
+     intera qui sopra, l'<h1> non contiene mai il bottone di ricerca) */
+  .intestazione-categoria-sticky.contenuto-in-pillola-navbar h1 {
+    display: none;
   }
 
 /* Ricerca/filtro prodotti (prodotti_card.html): "flex-shrink-1" di Bootstrap
