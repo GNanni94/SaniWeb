@@ -73,6 +73,36 @@
     gap: .5rem;
   }
 
+  /* Voci del menu hamburger piu' comode da toccare (padding maggiore) e con
+     un feedback visivo (sfondo a "pillola") sotto al dito/mouse, assente
+     di default. Solo qui sotto la soglia xxl: da desktop i nav-link restano
+     invariati (riga unica, nessuna icona - vedi "d-xxl-none" in base.html) */
+  #navbarSupportedContent .navbar-nav > .nav-item > .nav-link {
+    padding: .6rem .75rem;
+    border-radius: .5rem;
+    transition: background-color .15s ease;
+  }
+
+  #navbarSupportedContent .navbar-nav > .nav-item > .nav-link:hover,
+  #navbarSupportedContent .navbar-nav > .nav-item > .nav-link:focus,
+  #navbarSupportedContent .navbar-nav > .nav-item > .nav-link:active {
+    background-color: rgba(255, 255, 255, .15);
+  }
+
+  /* Icona di ogni voce: stessa larghezza per tutte, cosi' il testo parte
+     allineato da una voce all'altra invece di spostarsi in base alla
+     larghezza naturale di icone diverse */
+  #navbarSupportedContent .navbar-nav > .nav-item > .nav-link > .bi {
+    width: 1.1em;
+    text-align: center;
+  }
+
+  /* Linea sottile a separare una voce dall'altra, tolta sull'ultima
+     (il gap tra i .nav-item qui sopra la sostituisce li') */
+  #navbarSupportedContent .navbar-nav > .nav-item:not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, .15);
+  }
+
   /* L'icona profilo e' sempre visibile in alto a destra (fuori dal menu
      hamburger, vedi base.html), quindi puo' essere aperta anche a menu
      hamburger gia' aperto: senza questa regola il suo dropdown (z-index
