@@ -36,6 +36,14 @@ document.addEventListener('click', function (event) {
                 // non e' successo nulla). "next" riporta l'utente sulla
                 // pagina di provenienza dopo il login, invece che sempre
                 // alla home (LOGIN_REDIRECT_URL di default)
+                //
+                // Il flag va resettato PRIMA di navigare via: se l'utente
+                // torna indietro col tasto "indietro" del browser, la pagina
+                // viene spesso ripristinata dalla bfcache con lo stesso DOM
+                // di quando e' uscito, "aggiungiInCorso" incluso - senza
+                // questo reset il link resterebbe bloccato per sempre e un
+                // riclick non farebbe piu' nulla (ne' fetch ne' redirect)
+                link.dataset.aggiungiInCorso = 'false';
                 var next = window.location.pathname + window.location.search;
                 window.location.href = document.body.dataset.loginUrl + '?next=' + encodeURIComponent(next);
                 return;
