@@ -60,29 +60,20 @@
   background-color: var(--color-bg);
   border: 2px solid var(--color-primary);
   border-radius: 999px;
-  padding: 0 .5rem 0 1rem;
+  /* Padding orizzontale ridotto apposta su entrambi i lati (logo a
+     sinistra, icone/profilo a destra): stessi ".65rem" sui due lati,
+     uguali alla distanza verticale che logo/icone hanno gia' sopra/sotto
+     per via del centraggio flex (altezza pillola 56px, meno 2px di bordo
+     per lato, meno i 30px di logo/icone, diviso 2 = 11px ~= .65rem) -
+     cosi' logo e icone stanno vicino ai rispettivi bordi della pillola
+     invece che centrati con margini ampi */
+  padding: 0 .65rem;
 }
 
 @media (min-width: 1400px) {
   .navbar-pillola-brand {
     display: contents;
   }
-}
-
-/* Cerchio attorno al logo da telefono (dentro ".navbar-pillola-brand"),
-   stessa tecnica dei cerchi filtro/ricerca di prodotti_card.html: dimensione
-   fissa del cerchio, logo centrato via flex invece che con padding fisso -
-   cosi' lo spazio attorno resta uguale sui 4 lati anche se il logo non e'
-   perfettamente quadrato. "d-xxl-none" in base.html lo nasconde da desktop */
-.logo-cerchio-navbar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background-color: var(--color-bg);
 }
 
 /* Sotto la soglia xxl (hamburger attivo): il pannello del menu e' sempre
@@ -161,6 +152,11 @@
 
   .navbar-pillola-brand .icona-profilo-navbar {
     color: var(--color-primary);
+    /* Stessa dimensione (30px) del logo e delle icone Login/Registrati
+       nella stessa pillola - "fs-2" in base.html (~40px) resta invariato
+       per il resto della navbar/pannello, dove questa icona e' molto
+       piu' grande delle altre voci circostanti */
+    font-size: 30px;
   }
 
   #navbarSupportedContent {

@@ -155,15 +155,11 @@
         Da telefono la pillola mostra solo il logo, senza il testo
         "SaniScope-chimica" (spazio limitato nella pillola). Versione
         colorata (non quella invertita bianca) perche' qui sta su sfondo
-        bianco (la pillola), non piu' sul blu della navbar. Cerchio bianco
-        attorno (stessa tecnica di ".ricerca-toggle-btn"/filtro cerchio in
-        prodotti.css: dimensione fissa del cerchio + logo centrato via
-        flex, cosi' lo spazio attorno resta uguale su tutti i lati) invece
-        di un logo "nudo" - vedi ".logo-cerchio-navbar" in navbar.css
+        bianco (la pillola), non piu' sul blu della navbar. Dimensione
+        (35x30) uguale alle icone Login/Registrati a destra nella stessa
+        pillola (30px, vedi ".icona-dimensione-hamburger" in navbar.css)
         {% endcomment %}
-        <span class="logo-cerchio-navbar d-xxl-none">
-          <img src="{% static 'logo/saniscope_logo.png' %}" alt="Logo" width="36" height="31">
-        </span>
+        <img src="{% static 'logo/saniscope_logo.png' %}" alt="Logo" width="35" height="30" class="d-xxl-none">
         <h2 class="mb-0 d-none d-xxl-inline">SaniScope-chimica</h2>
       </a>
 
