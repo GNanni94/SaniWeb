@@ -171,7 +171,7 @@
         il carrello e' invece il widget flottante a parte (vedi
         "partials/carrello_flottante.html"), non fa parte di questa pillola
       {% endcomment %}
-      <div class="d-flex align-items-center gap-2 order-xxl-3">
+      <div class="d-flex align-items-center gap-2 order-xxl-3 pillola-icone-default">
       {% if not user.is_authenticated %}
       <div class="d-flex d-xxl-none gap-2">
         <a href="{% url 'login' %}" class="btn btn-navbar-trasparente btn-sm border-0" title="Login" aria-label="Login">
@@ -218,6 +218,20 @@
         </ul>
       </div>
       {% endif %}
+      </div>
+
+      {% comment %}
+      3 slot vuoti, inerti su ogni pagina tranne prodotti_card.html/
+      prodotti_tabella.html: durante lo scroll (sotto la soglia xxl)
+      "static/js/intestazione-categoria-sticky.js" sposta li' dentro
+      "Torna al catalogo"/titolo/filtro (stessi nodi della riga titolo,
+      non copie), al posto di logo/icone. Vedi
+      "Docs/superpowers/specs/2026-08-30-pillola-titolo-categoria-scroll-design.md"
+      {% endcomment %}
+      <div id="pillolaCategoriaGroup" class="pillola-categoria-group">
+        <span id="pillolaSlotIndietro" class="pillola-slot-indietro"></span>
+        <span id="pillolaSlotTitolo" class="pillola-slot-titolo"></span>
+        <span id="pillolaSlotFiltro" class="pillola-slot-filtro"></span>
       </div>
     </div>
 

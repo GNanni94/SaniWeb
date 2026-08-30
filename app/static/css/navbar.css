@@ -159,6 +159,59 @@
     font-size: 30px;
   }
 
+  /* Stato "modalita' categoria" della pillola: gruppo indietro/titolo/
+     filtro nascosto di default (vedi ".pillola-categoria-group" qui
+     sotto), mostrato solo quando ".pillola-modalita-categoria" e'
+     presente su ".navbar-pillola-brand" (aggiunta/tolta da
+     "intestazione-categoria-sticky.js" durante lo scroll) - logo/icone
+     di default fanno il percorso opposto */
+  .pillola-categoria-group {
+    display: none;
+    align-items: center;
+    width: 100%;
+    gap: .5rem;
+  }
+
+  .navbar-pillola-brand.pillola-modalita-categoria .pillola-categoria-group {
+    display: flex;
+  }
+
+  /* "!important" necessario su entrambe: ".navbar-brand" ha di suo la
+     classe Bootstrap "d-inline-flex" (display:inline-flex !important),
+     la riga icone ha "d-flex" (display:flex !important) - senza,
+     perderebbero sempre contro l'utility Bootstrap a prescindere da
+     specificita'/ordine (stessa convenzione gia' usata altrove nel
+     progetto per questo stesso motivo, es. "#navbarSupportedContent.show"
+     in questo file) */
+  .navbar-pillola-brand.pillola-modalita-categoria > .navbar-brand,
+  .navbar-pillola-brand.pillola-modalita-categoria > .pillola-icone-default {
+    display: none !important;
+  }
+
+  /* Slot indietro/filtro: larghezza sul contenuto (i cerchietti "Torna al
+     catalogo"/filtro spostati li' dentro, gia' dimensionati di loro in
+     prodotti.css), mai piu' larghi del necessario */
+  .pillola-slot-indietro,
+  .pillola-slot-filtro {
+    flex: none;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Slot titolo: prende tutto lo spazio restante tra i due cerchietti,
+     testo centrato e troncato con puntini se il nome della categoria non
+     ci sta (spazio della pillola limitato). "min-width: 0" necessario
+     perche' un flex item non si restringe mai sotto la sua larghezza
+     intrinseca di default, che vincerebbe altrimenti su "overflow: hidden" */
+  .pillola-slot-titolo {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
   #navbarSupportedContent {
     position: fixed;
     /* "--altezza-navbar" (altezza-navbar.js), non piu' "top: 100%": il
