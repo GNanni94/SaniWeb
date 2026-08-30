@@ -52,6 +52,102 @@
     // solo per il ripristino. Vuoto = niente attualmente spostato.
     var posizioniOriginali = [];
 
+    // Dimensione di partenza del titolo nella pillola (uguale al 32px gia'
+    // impostato in navbar.css, ".pillola-slot-titolo #titoloCategoriaLink",
+    // usato come valore iniziale finche' questo script non e' ancora
+    // intervenuto) e dimensione minima comune sotto cui non si scende mai,
+    // ne' qui ne' nella riga normale (funzione qui sotto): un nome
+    // categoria troppo lungo anche a 16px resta gestito dal fallback
+    // nativo di ciascun contesto (ellissi nella pillola, a-capo nella riga -
+    // vedi le due funzioni), invece di rimpicciolire fino all'illeggibile
+    var dimensioneTitoloMassima = 32;
+    var dimensioneTitoloMinima = 16;
+
+    // Riduce il font-size di "elemento" di 1px alla volta finche' la sua
+    // larghezza (letta di nuovo ad ogni passo, non solo all'inizio: cambia
+    // insieme al font-size) non entra nel valore restituito da
+    // "calcolaLarghezzaDisponibile" o si tocca il minimo comune - usata sia
+    // per il titolo nella pillola sia per lo stesso titolo nella riga
+    // normale (vedi le due funzioni sotto che la chiamano), cosi' la
+    // logica di riduzione resta scritta una volta sola. Ritorna se e'
+    // riuscita a farlo entrare oppure no (il chiamante nella riga normale
+    // ne ha bisogno per decidere il fallback quando nemmeno il minimo basta)
+    function restringiFontSizeFinoA(elemento, dimensioneMassima, calcolaLarghezzaDisponibile) {
+        var dimensione = dimensioneMassima;
+        elemento.style.fontSize = dimensione + 'px';
+        while (dimensione > dimensioneTitoloMinima && elemento.getBoundingClientRect().width > calcolaLarghezzaDisponibile()) {
+            dimensione -= 1;
+            elemento.style.fontSize = dimensione + 'px';
+        }
+        return elemento.getBoundingClientRect().width <= calcolaLarghezzaDisponibile();
+    }
+
+    // Parte sempre dal massimo, non dall'ultima dimensione usata, perche'
+    // lo spazio disponibile puo' essere cambiato (resize, rotazione) da
+    // quando e' stato ridotto l'ultima volta. "parentNode" controllato
+    // apposta: se nel frattempo il titolo e' gia' tornato al suo posto
+    // originale (es. si e' risaliti sopra la soglia xxl proprio mentre
+    // questa funzione era in coda a un resize) non c'e' niente da adattare
+    function adattaDimensioneTitolo() {
+        var titolo = document.getElementById('titoloCategoriaLink');
+        if (!titolo || !slotTitolo || titolo.parentNode !== slotTitolo) {
+            return;
+        }
+        restringiFontSizeFinoA(titolo, dimensioneTitoloMassima, function () {
+            return slotTitolo.clientWidth;
+        });
+    }
+
+    // Stesso meccanismo, per il titolo nella sua posizione normale (riga
+    // "Torna al catalogo" / titolo / filtro, prima dell'aggancio - o su
+    // schermi xxl+, dove non si sposta mai nella pillola). A differenza
+    // della pillola qui la larghezza disponibile non e' quella di un
+    // contenitore: "Torna al catalogo"/i controlli sono "position: absolute"
+    // (vedi partials/intestazione_categoria.html), non riservano spazio di
+    // loro al titolo - senza calcolarlo a mano il testo ci finirebbe sotto
+    // (bug reale verificato: "PRODOTTI PER PISCINE" passava dietro ai due
+    // cerchietti). Il margine di sicurezza (8px, ".5rem") e' lo stesso gia'
+    // usato in prodotti.css per lo spazio tra riga e cerchietti quando la
+    // riga e' agganciata (".intestazione-fissata .btn-torna-catalogo"/
+    // ".controlli-categoria-wrapper")
+    function adattaDimensioneTitoloRiga() {
+        var titolo = document.getElementById('titoloCategoriaLink');
+        if (!titolo || titolo.parentNode === slotTitolo) {
+            return; // in questo momento e' nella pillola: se ne occupa adattaDimensioneTitolo()
+        }
+        var indietro = riga.querySelector('.btn-torna-catalogo');
+        var controlli = riga.querySelector('.controlli-categoria-wrapper');
+        var margine = 8;
+        var rigaRect = riga.getBoundingClientRect();
+        var sinistra = indietro ? indietro.getBoundingClientRect().right + margine : rigaRect.left;
+        var destra = controlli ? controlli.getBoundingClientRect().left - margine : rigaRect.right;
+        var disponibile = destra - sinistra;
+
+        // Dimensione "naturale" del titolo in questo momento (Bootstrap/RFS
+        // la fa gia' variare da sola in base al viewport, a differenza dei
+        // 32px fissi della pillola): letta via "getComputedStyle" dopo aver
+        // tolto un eventuale font-size inline impostato da un giro
+        // precedente di questa stessa funzione, altrimenti si leggerebbe
+        // quella gia' ridotta invece di quella di partenza
+        titolo.style.fontSize = '';
+        var dimensioneMassima = parseFloat(getComputedStyle(titolo).fontSize);
+
+        // "nowrap" solo per la misurazione/riduzione: la larghezza naturale
+        // del testo su una riga sola, non quella (piu' corta, falserebbe il
+        // confronto) dopo un a-capo
+        titolo.style.whiteSpace = 'nowrap';
+        var ciEntra = restringiFontSizeFinoA(titolo, dimensioneMassima, function () {
+            return disponibile;
+        });
+        // Nome davvero troppo lungo, non ci sta nemmeno al minimo: meglio
+        // tornare al comportamento di sempre (a-capo su piu' righe, dentro
+        // pero' alla dimensione minima gia' raggiunta) che restare su una
+        // riga sola sovrapposta ai cerchietti
+        if (!ciEntra) {
+            titolo.style.whiteSpace = '';
+        }
+    }
+
     function elementiDaSpostare() {
         var indietro = riga.querySelector('.btn-torna-catalogo');
         var titolo = document.getElementById('titoloCategoriaLink');
@@ -83,6 +179,7 @@
         if (posizioniOriginali.length) {
             pillola.classList.add('pillola-modalita-categoria');
             riga.classList.add('contenuto-in-pillola-navbar');
+            adattaDimensioneTitolo();
         }
     }
 
@@ -99,6 +196,15 @@
         posizioniOriginali = [];
         pillola.classList.remove('pillola-modalita-categoria');
         riga.classList.remove('contenuto-in-pillola-navbar');
+        // Il font-size ridotto da "adattaDimensioneTitolo" e' inline (vince
+        // sempre sulla regola CSS, che si applica solo dentro la pillola):
+        // va tolto esplicitamente, altrimenti il titolo resterebbe piccolo
+        // anche fuori dalla pillola, dove torna alla sua dimensione normale
+        // (h1, gestita da CSS/Bootstrap)
+        var titolo = document.getElementById('titoloCategoriaLink');
+        if (titolo) {
+            titolo.style.fontSize = '';
+        }
     }
 
     var altezzaNavbar = navbar ? navbar.offsetHeight : 0;
@@ -107,14 +213,28 @@
         riga.classList.toggle('intestazione-fissata', agganciata);
 
         if (!pillola || !slotIndietro || !slotTitolo || !slotFiltro) {
-            return; // pagina senza la pillola (non dovrebbe succedere, base.html la include sempre)
+            adattaDimensioneTitoloRiga(); // pagina senza la pillola (non dovrebbe succedere, base.html la include sempre)
+            return;
         }
         if (agganciata && sogliaMobile.matches) {
             spostaNellaPillola();
         } else {
             ripristinaPosizioneOriginale();
         }
+        // I due cerchietti si spostano di ".5rem" quando la riga si
+        // aggancia (".intestazione-fissata" in prodotti.css): rincalcola
+        // sempre, non solo quando il titolo resta nella riga (su xxl+ non
+        // si sposta mai nella pillola, quindi questo e' l'unico punto in
+        // cui il suo spazio disponibile viene ricontrollato durante lo
+        // scroll) - la funzione stessa non fa nulla se in questo momento
+        // il titolo e' invece dentro la pillola
+        adattaDimensioneTitoloRiga();
     }, { rootMargin: '-' + altezzaNavbar + 'px 0px 0px 0px' }).observe(sentinella);
+
+    // Dimensione iniziale, prima di qualunque scroll: l'observer qui sopra
+    // scatta solo quando la sentinella entra/esce dalla vista, non al
+    // caricamento della pagina se in quel momento e' gia' visibile
+    adattaDimensioneTitoloRiga();
 
     // Se si ridimensiona la finestra oltre la soglia xxl mentre gli
     // elementi sono ancora spostati nella pillola (es. si ridimensiona il
@@ -125,5 +245,28 @@
         if (!evento.matches) {
             ripristinaPosizioneOriginale();
         }
+    });
+
+    // Ricalcola la dimensione del titolo se cambia lo spazio disponibile
+    // (resize della finestra, rotazione del telefono) - nella pillola se ci
+    // si trova gia' dentro, nella riga normale altrimenti (una delle due
+    // funzioni non fa nulla, in base a dove si trova il titolo in quel
+    // momento). "requestAnimationFrame" raggruppa gli eventi "resize"
+    // ravvicinati (ne arrivano molti durante un trascinamento) in una sola
+    // misurazione per frame, invece di ricalcolare ad ogni singolo evento
+    var adattamentoPianificato = false;
+    window.addEventListener('resize', function () {
+        if (adattamentoPianificato) {
+            return;
+        }
+        adattamentoPianificato = true;
+        requestAnimationFrame(function () {
+            adattamentoPianificato = false;
+            if (posizioniOriginali.length) {
+                adattaDimensioneTitolo();
+            } else {
+                adattaDimensioneTitoloRiga();
+            }
+        });
     });
 })();

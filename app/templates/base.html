@@ -152,14 +152,23 @@
       <a class="navbar-brand d-inline-flex align-items-center order-xxl-1 ms-xxl-0 me-xxl-3" href="{% url 'home' %}">
         <img src="{% static 'logo/logo_invertito.png' %}" alt="Logo" width="44" height="38" class="d-none d-xxl-inline me-xxl-2">
         {% comment %}
-        Da telefono la pillola mostra solo il logo, senza il testo
-        "SaniScope-chimica" (spazio limitato nella pillola). Versione
-        colorata (non quella invertita bianca) perche' qui sta su sfondo
-        bianco (la pillola), non piu' sul blu della navbar. Dimensione
-        (35x30) uguale alle icone Login/Registrati a destra nella stessa
-        pillola (30px, vedi ".icona-dimensione-hamburger" in navbar.css)
+        Da telefono la pillola mostra logo + testo "SaniScope-chimica"
+        (riempie lo spazio altrimenti vuoto della pillola, ora che "Torna
+        al catalogo"/titolo/filtro non ci passano piu' durante lo scroll -
+        vedi intestazione-categoria-sticky.js). Versione colorata del logo
+        (non quella invertita bianca) perche' qui sta su sfondo bianco (la
+        pillola), non piu' sul blu della navbar. Dimensione logo (35x30)
+        uguale alle icone Login/Registrati a destra nella stessa pillola
+        (30px, vedi ".icona-dimensione-hamburger" in navbar.css). Testo
+        separato da quello desktop qui sotto (dimensione/troncamento
+        diversi, pillola alta 56px invece della navbar intera) - stessa
+        tecnica gia' usata per le due versioni del logo. Sparisce insieme
+        al resto di ".navbar-brand" quando la pillola passa in "modalita'
+        categoria" durante lo scroll: nessuna regola dedicata necessaria,
+        e' gia' dentro l'elemento che quella modalita' nasconde
         {% endcomment %}
         <img src="{% static 'logo/saniscope_logo.png' %}" alt="Logo" width="35" height="30" class="d-xxl-none">
+        <h2 class="mb-0 d-xxl-none logo-testo-pillola">SaniScope-chimica</h2>
         <h2 class="mb-0 d-none d-xxl-inline">SaniScope-chimica</h2>
       </a>
 
@@ -173,7 +182,7 @@
       {% endcomment %}
       <div class="d-flex align-items-center gap-2 order-xxl-3 pillola-icone-default">
       {% if not user.is_authenticated %}
-      <div class="d-flex d-xxl-none gap-2">
+      <div class="d-flex d-xxl-none gap-3">
         <a href="{% url 'login' %}" class="btn btn-navbar-trasparente btn-sm border-0" title="Login" aria-label="Login">
           <i class="bi bi-box-arrow-in-right icona-dimensione-hamburger"></i>
         </a>
@@ -187,7 +196,7 @@
       <div class="dropdown">
         <a class="d-flex align-items-center text-decoration-none" id="dropdownUser1"
         data-bs-toggle="dropdown" aria-expanded="false">
-          <i class="bi bi-person-fill icona-profilo-navbar icon-lg fs-2"> </i>
+          <i class="bi bi-person-circle icona-profilo-navbar icon-lg fs-2"> </i>
         </a>
         <ul class="dropdown-menu dropdown-menu-end text-small" aria-labelledby="dropdownUser1">
           <li class="bg-light py-2 px-3 d-flex align-items-center justify-content-center gap-2">

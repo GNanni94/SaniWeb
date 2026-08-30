@@ -56,6 +56,13 @@
   justify-content: space-between;
   gap: .5rem;
   flex-grow: 1;
+  /* Senza, questo flex-item di ".container-fluid" non si restringe mai
+     sotto la larghezza "naturale" (non troncata) del suo contenuto: con
+     "flex-wrap: nowrap" qui sotto serve a farla stare sulla riga
+     dell'hamburger anche quando due icone (caso anonimo) o un titolo
+     categoria lungo (caso agganciato) sforerebbero lo spazio residuo -
+     l'ellissi/il fit-text del contenuto interno gestiscono poi il resto */
+  min-width: 0;
   height: 56px; /* stessa altezza della pillola hamburger accanto (vedi ".navbar-toggler" piu' sotto) */
   background-color: var(--color-bg);
   border: 2px solid var(--color-primary);
@@ -98,6 +105,16 @@
      "position: fixed" quindi fuori dal flusso flex, "gap" lo ignora */
   .site-navbar .container-fluid {
     gap: .75rem;
+    /* Bootstrap lascia "flex-wrap: wrap" attivo sotto la soglia xxl: senza
+       "nowrap", quando ".navbar-pillola-brand" e' troppo larga per lo
+       spazio rimasto accanto all'hamburger (due icone Login/Registrati, o
+       titolo categoria lungo agganciato), il browser la manda a capo su
+       una riga propria - decisione presa sulla larghezza "naturale" del
+       contenuto, PRIMA che ellissi/fit-text abbiano modo di intervenire.
+       Con "nowrap" resta sempre sulla riga e si restringe (min-width:0 su
+       ".navbar-pillola-brand" qui sopra), lasciando che siano
+       ellissi/fit-text a gestire il contenuto che non ci sta */
+    flex-wrap: nowrap;
   }
 
   /* ":has()" invece del solito combinatore "~" (usato altrove in questo
@@ -142,6 +159,12 @@
 
   .navbar-pillola-brand .btn-navbar-trasparente {
     color: var(--color-primary);
+    /* Azzera il padding laterale di ".btn-sm" (Bootstrap, ".5rem" di
+       default): qui i bottoni Login/Registrati sono solo icona, il
+       padding orizzontale serviva solo a distanziarli senza guadagnare
+       nulla in leggibilita' - tolto per racimolare larghezza nella
+       pillola, che con due icone puo' andare a capo sotto l'hamburger */
+    padding: .25rem 0;
   }
 
   .navbar-pillola-brand .btn-navbar-trasparente:hover,
@@ -152,11 +175,42 @@
 
   .navbar-pillola-brand .icona-profilo-navbar {
     color: var(--color-primary);
-    /* Stessa dimensione (30px) del logo e delle icone Login/Registrati
-       nella stessa pillola - "fs-2" in base.html (~40px) resta invariato
-       per il resto della navbar/pannello, dove questa icona e' molto
-       piu' grande delle altre voci circostanti */
-    font-size: 30px;
+    /* Stessa dimensione (35px) del logo nella stessa pillola - "fs-2" in
+       base.html (~40px) resta invariato per il resto della navbar/pannello,
+       dove questa icona e' molto piu' grande delle altre voci circostanti.
+       Caso loggato: un'icona sola, spazio abbondante nella pillola, nessun
+       rischio di wrap (a differenza delle icone Login/Registrati del caso
+       anonimo, non toccate qui) */
+    font-size: 35px;
+  }
+
+  /* "min-width: 0" sul link logo (non solo sul testo al suo interno):
+     senza, un flex item non si restringe mai sotto la sua larghezza
+     intrinseca di default (qui quella del testo "SaniScope-chimica" per
+     intero), vincendo sempre su "overflow"/"text-overflow" del testo
+     qui sotto - vedi lo stesso principio gia' usato per ".pillola-slot-titolo".
+     "margin-right: 0" azzera il margine di default di Bootstrap su
+     ".navbar-brand" (1rem, pensato per separarlo dal resto della navbar):
+     qui e' ridondante, la separazione dalle icone la fa gia' il "gap: .5rem"
+     di ".navbar-pillola-brand" - lasciarlo sottraeva spazio utile alla
+     pillola senza motivo */
+  .navbar-pillola-brand .navbar-brand {
+    min-width: 0;
+    margin-right: 0;
+  }
+
+  /* Testo "SaniScope-chimica" accanto al logo nella pillola: dimensione
+     contenuta (la pillola e' alta 56px) e troncato con puntini di
+     sospensione se lo spazio residuo (conteso con le icone a destra) non
+     basta, invece di andare a capo o spingere la pillola oltre i suoi
+     confini */
+  .logo-testo-pillola {
+    margin-left: .4rem;
+    font-size: 1rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* Stato "modalita' categoria" della pillola: gruppo indietro/titolo/
