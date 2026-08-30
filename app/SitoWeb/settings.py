@@ -176,15 +176,21 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+# "DEBUG" (non "not DEBUG"): in dev non si esegue mai "collectstatic" (si usa
+# "runserver"), quindi non esiste una mappa dei nomi con hash - un backend
+# che la richiede romperebbe ogni tag "{% static %}". In staging/prod
+# (DEBUG=False) si usa invece ManifestStaticFilesStorage, che aggiunge un
+# hash del contenuto al nome di ogni file statico: cosi' il browser scarica
+# la nuova versione invece di servire quella vecchia dalla cache (cache-busting)
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
         "BACKEND": (
-            "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
-            if not DEBUG
-            else "django.contrib.staticfiles.storage.StaticFilesStorage"
+            "django.contrib.staticfiles.storage.StaticFilesStorage"
+            if DEBUG
+            else "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
         ),
     },
 }
