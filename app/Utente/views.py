@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from .forms import ClienteCreationForm
 from InvioEmail.views import emailMessaggio
+from django.contrib.auth.views import LoginView
 import logging
 
 
@@ -108,4 +109,29 @@ class Profilo(LoginRequiredMixin, UpdateView):
         # utente - potenzialmente un modo per rubare l'account cambiandone
         # l'email e poi usando "password dimenticata"
         return Registrati.objects.filter(pk=self.request.user.pk)
-  
+
+
+def _e_richiesta_in_background(request):
+    return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+
+class CustomLoginView(LoginView):
+    """
+    Estende la LoginView standard di Django con un ramo per le richieste
+    in background (vedi "static/js/login-modal.js"): il popup di login
+    non naviga mai a pagina intera, quindi successo/errore devono
+    arrivare come frammento HTML da iniettare nel modal, non come
+    redirect/pagina intera - stesso pattern gia' usato da
+    Avvisi/views.py per il modal degli avvisi.
+    """
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if _e_richiesta_in_background(self.request):
+            return render(self.request, 'partials/dropdown_profilo_navbar.html')
+        return response
+
+    def form_invalid(self, form):
+        if _e_richiesta_in_background(self.request):
+            return render(self.request, 'partials/form_login.html', {'form': form}, status=400)
+        return super().form_invalid(form)

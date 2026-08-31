@@ -140,3 +140,47 @@ class FormLoginPopupContextProcessorTest(TestCase):
         self.assertIn("form_login_popup", contesto)
         self.assertIsInstance(contesto["form_login_popup"], CustomAuthenticationForm)
         self.assertFalse(contesto["form_login_popup"].is_bound)
+
+
+class CustomLoginViewAjaxTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.utente = User.objects.create_user(
+            username="login@example.com", email="login@example.com", password="testpass123",
+            first_name="Login", cognome_ragione_sociale="Test",
+        )
+
+    def test_login_ajax_con_credenziali_corrette_restituisce_il_dropdown_profilo(self):
+        response = self.client.post(
+            reverse("login"),
+            {"username": "login@example.com", "password": "testpass123"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "dropdownUser1")
+        self.assertContains(response, "login@example.com")
+
+    def test_login_ajax_con_credenziali_corrette_effettua_davvero_il_login(self):
+        self.client.post(
+            reverse("login"),
+            {"username": "login@example.com", "password": "testpass123"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        response = self.client.get(reverse("profilo", args=[self.utente.pk]))
+        self.assertEqual(response.status_code, 200)
+
+    def test_login_ajax_con_credenziali_sbagliate_restituisce_400_col_form(self):
+        response = self.client.post(
+            reverse("login"),
+            {"username": "login@example.com", "password": "sbagliata"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertContains(response, 'id="form-login"', status_code=400)
+
+    def test_login_senza_ajax_continua_a_fare_redirect(self):
+        response = self.client.post(
+            reverse("login"),
+            {"username": "login@example.com", "password": "testpass123"},
+        )
+        self.assertEqual(response.status_code, 302)
