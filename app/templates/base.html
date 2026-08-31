@@ -180,9 +180,9 @@
         il carrello e' invece il widget flottante a parte (vedi
         "partials/carrello_flottante.html"), non fa parte di questa pillola
       {% endcomment %}
-      <div class="d-flex align-items-center gap-2 order-xxl-3 pillola-icone-default">
+      <div id="pillolaIconeUtente" class="d-flex align-items-center gap-2 order-xxl-3 pillola-icone-default">
       {% if not user.is_authenticated %}
-      <div class="d-flex d-xxl-none gap-3">
+      <div id="navbarLoginRegistratiMobile" class="d-flex d-xxl-none gap-3">
         <a href="{% url 'login' %}" class="btn btn-navbar-trasparente btn-sm border-0" title="Login" aria-label="Login">
           <i class="bi bi-box-arrow-in-right icona-dimensione-hamburger"></i>
         </a>
@@ -271,7 +271,7 @@
 
 				{% if not user.is_authenticated %}
 
-				<div class="d-none d-xxl-inline-flex gap-3">
+				<div id="navbarLoginRegistratiDesktop" class="d-none d-xxl-inline-flex gap-3">
 					<a href="{% url 'login' %}" class="btn btn-light-custom">
 						Login
 					</a>
@@ -303,6 +303,27 @@ pannello dal bottone
 {% endcomment %}
 <div class="hamburger-backdrop" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-hidden="true"></div>
 
+{% comment %}
+Modal di login: incluso su ogni pagina tranne "/login/" stessa (che ha
+gia' il form a pagina intera - vedi partials/form_login.html), stesso
+principio gia' usato per "carrelloFlottanteContainer" sulla pagina
+carrello qui sotto. Aperto/gestito da static/js/login-modal.js.
+{% endcomment %}
+{% if request.resolver_match.url_name != 'login' %}
+<div class="modal fade" id="modalLogin" tabindex="-1" aria-labelledby="modalLoginLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title" id="modalLoginLabel">Accedi</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+      </div>
+      <div class="modal-body pt-0" id="modalLoginBody">
+        {% include 'partials/form_login.html' with form=form_login_popup %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
 
 
 <body data-login-url="{% url 'login' %}">
