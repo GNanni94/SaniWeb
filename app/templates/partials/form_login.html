@@ -1,7 +1,20 @@
 {% load crispy_forms_tags %}
 <form id="form-login" class="text-center" method="post" action="{% url 'login' %}">
     {% csrf_token %}
-    <input type="hidden" name="next" value="{{ request.GET.next }}">
+    {% comment %}
+    "next" (non "request.GET.next"): variabile di contesto gia' popolata
+    da LoginView.get_context_data() (tramite get_redirect_url(), che
+    valida l'URL controllando sia POST che GET) su ogni render della
+    view di login - sia GET iniziale sia ri-render dopo un POST fallito.
+    Serve perche' questo form ha ora un "action" esplicito
+    ("{% url 'login' %}"): un fallimento POSTa su "/login/" nudo, perdendo
+    la query string "?next=..." che era nell'URL originale - leggere da
+    "request.GET.next" varrebbe quindi vuoto al secondo tentativo. Fuori
+    da "/login/" (form incluso nel modal via "form_login_popup", vedi
+    Utente/context_processors.py) questa variabile non e' popolata: resta
+    vuota come prima, nessun errore.
+    {% endcomment %}
+    <input type="hidden" name="next" value="{{ next }}">
 
     <div class="form-floating my-2 px-5">
         {{ form.username|as_crispy_field }}
