@@ -3,8 +3,8 @@
 // Docs/AJAX/prodotti_card.md per il perche' e le scelte di design.
 (function () {
     var container = document.getElementById('listaProdottiContainer');
-    var filtro = document.getElementById('prodottiCardFiltro');
     var filtroWrapper = document.getElementById('filtroProdottiWrapper');
+    var listaFiltro = filtroWrapper ? filtroWrapper.querySelector('.filtro-dropdown-menu') : null;
     var formRicerca = document.getElementById('ricercaProdottiForm');
     var inputRicerca = document.getElementById('prodottiCardSearch');
     var wrapperRicerca = document.getElementById('ricercaProdottiWrapper');
@@ -142,10 +142,8 @@
                         if (inputRicerca) {
                             inputRicerca.value = '';
                         }
-                        if (filtro) {
-                            filtro.selectedIndex = 0;
-                            aggiornaClasseFiltroAttivo();
-                        }
+                        impostaFiltroDefault();
+                        aggiornaClasseFiltroAttivo();
                         if (wrapperRicerca && wrapperRicerca.classList.contains('ricerca-espansa')) {
                             wrapperRicerca.classList.remove('ricerca-espansa');
                             if (toggleRicerca) {
@@ -196,33 +194,74 @@
     // sottocategorie" - le due icone Bootstrap Icons si scambiano
     // sull'elemento, colore sempre bianco (vedi
     // "#filtroProdottiWrapper .filtro-icon-overlay" in prodotti.css). La
-    // prima "<option>" e' sempre "Tutte le sottocategorie" (vedi
-    // prodotti_card.html), quindi "selectedIndex === 0" basta a riconoscere
-    // lo stato "nessun filtro attivo" senza bisogno di confrontare l'URL.
-    // Chiamata sia qui sotto ad ogni cambio filtro sia ai due reset ("torna
-    // al titolo"/ricerca senza risultati) piu' sotto, dato che il filtro
-    // vive fuori da "#listaProdottiContainer" e non si aggiorna quindi da
-    // solo con lo swap AJAX della griglia
+    // prima voce del menu e' sempre "MOSTRA TUTTO" (vedi
+    // prodotti_card.html), quindi basta guardare se lei ha la classe
+    // "active" per riconoscere lo stato "nessun filtro attivo" senza
+    // bisogno di confrontare l'URL. Chiamata sia qui sotto ad ogni cambio
+    // filtro sia ai due reset ("torna al titolo"/ricerca senza risultati)
+    // piu' sotto, dato che il filtro vive fuori da
+    // "#listaProdottiContainer" e non si aggiorna quindi da solo con lo
+    // swap AJAX della griglia
     function aggiornaClasseFiltroAttivo() {
-        if (!filtro || !filtroWrapper) {
+        if (!filtroWrapper || !listaFiltro) {
             return;
         }
         var iconaFiltro = filtroWrapper.querySelector('.filtro-icon-overlay');
-        if (!iconaFiltro) {
+        var primaVoce = listaFiltro.querySelector('.filtro-dropdown-item');
+        if (!iconaFiltro || !primaVoce) {
             return;
         }
-        var attivo = filtro.selectedIndex !== 0;
+        var attivo = !primaVoce.classList.contains('active');
         iconaFiltro.classList.toggle('bi-funnel-fill', attivo);
         iconaFiltro.classList.toggle('bi-funnel', !attivo);
     }
 
+    // Sposta la classe "active" (e la spunta "bi-check" associata via CSS,
+    // vedi prodotti.css) sulla sola voce scelta - stesso ruolo che aveva
+    // "selected" sulla <option> quando il filtro era una <select> nativa
+    function impostaVoceFiltroAttiva(voceScelta) {
+        if (!listaFiltro) {
+            return;
+        }
+        var voci = listaFiltro.querySelectorAll('.filtro-dropdown-item');
+        for (var i = 0; i < voci.length; i++) {
+            voci[i].classList.toggle('active', voci[i] === voceScelta);
+        }
+    }
+
+    // Riporta il filtro su "MOSTRA TUTTO" (sempre la prima voce del menu,
+    // vedi prodotti_card.html) senza navigare - usato nei due reset
+    // ("torna al titolo"/ricerca senza risultati), dove la navigazione
+    // e' gia' gestita separatamente
+    function impostaFiltroDefault() {
+        if (!listaFiltro) {
+            return;
+        }
+        var primaVoce = listaFiltro.querySelector('.filtro-dropdown-item');
+        if (primaVoce) {
+            impostaVoceFiltroAttiva(primaVoce);
+        }
+    }
+
     aggiornaClasseFiltroAttivo();
 
-    if (filtro) {
-        filtro.addEventListener('change', function () {
+    // Delegato sul menu (non sulle singole voci): il markup e' renderizzato
+    // una sola volta dal server e non viene mai ricreato dallo swap AJAX
+    // della griglia (il filtro vive fuori da "#listaProdottiContainer"),
+    // quindi un solo listener qui basta gia' di suo - la delegazione evita
+    // solo un ciclo esplicito su ogni "<a>"
+    if (listaFiltro) {
+        listaFiltro.addEventListener('click', function (event) {
+            var voce = event.target.closest('.filtro-dropdown-item');
+            if (!voce) {
+                return;
+            }
+            event.preventDefault();
+            impostaVoceFiltroAttiva(voce);
             aggiornaClasseFiltroAttivo();
-            if (this.value) {
-                caricaConAjax(this.value, false);
+            var url = voce.dataset.url;
+            if (url) {
+                caricaConAjax(url, false);
             }
         });
     }
@@ -255,15 +294,11 @@
             // Il filtro sottocategoria (fuori da "#listaProdottiContainer",
             // come il titolo stesso) non si aggiorna da solo con lo swap
             // della griglia: senza questo, dopo aver cliccato il titolo da
-            // una sottocategoria filtrata, la select mostrerebbe ancora
-            // quella sottocategoria anche se la griglia ora mostra la
-            // categoria intera. "selectedIndex = 0" invece di confrontare
-            // i due URL: la prima "<option>" e' sempre "Tutte le
-            // sottocategorie" (vedi prodotti_card.html)
-            if (filtro) {
-                filtro.selectedIndex = 0;
-                aggiornaClasseFiltroAttivo();
-            }
+            // una sottocategoria filtrata, il menu mostrerebbe ancora
+            // quella sottocategoria come attiva anche se la griglia ora
+            // mostra la categoria intera
+            impostaFiltroDefault();
+            aggiornaClasseFiltroAttivo();
             caricaConAjax(titoloLink.href, false);
         });
     }

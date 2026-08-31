@@ -502,6 +502,26 @@
     border-radius: 50%;
   }
 
+  /* "#prodottiCardFiltro" e' un <button> vuoto (icona sovrapposta via
+     ".filtro-icon-overlay", niente testo dentro - vedi
+     partials/controlli_ricerca_filtro_card.html), non piu' una <select>: a
+     differenza della <select> di prima (dimensione intrinseca basata sul
+     testo delle opzioni), un bottone senza contenuto ha dimensione
+     intrinseca ~0. Il suo antenato ".controlli-categoria-wrapper" (vedi
+     partials/intestazione_categoria.html) e' "position: absolute" senza
+     una larghezza propria: il browser calcola la sua larghezza automatica
+     dalla dimensione intrinseca dei figli, non dal loro "width: 100%" (una
+     percentuale non ha base finche' quella larghezza automatica non e'
+     gia' stata calcolata) - risultato, un bottone vuoto la faceva collassare
+     troppo stretta, schiacciando a ovale sia questo cerchio sia quello
+     della ricerca accanto (stesso contenitore). Pixel fisso invece di
+     "100%" qui, specifico per lui (vince per ordine, stessa specificita'
+     del "width: 100%" sopra - due id): niente piu' dipendenza dal
+     contenuto per la sua dimensione */
+  #filtroProdottiWrapper #prodottiCardFiltro {
+    width: 42px;
+  }
+
   /* Hover/focus piu' scuro (".btn-navbar:hover/:focus" qui sotto, stesso
      "var(--color-primary-dark)"), per coerenza visiva col bottone "Torna al
      catalogo" nella stessa riga */
@@ -796,6 +816,105 @@
   transform: translate(-50%, -50%);
   color: var(--color-text-light);
   pointer-events: none;
+}
+
+/* Menu del filtro di prodotti_card.html (bottone Bootstrap "dropdown", non
+   piu' una <select> nativa - vedi partials/controlli_ricerca_filtro_card.html
+   e il perche' nel suo commento): stessa estetica del pannello del menu
+   hamburger da telefono (vedi "#navbarSupportedContent" in navbar.css) -
+   pannello bianco con angoli molto arrotondati e ombra invece di un bordo,
+   voci a pillola invece della lista piatta di default di Bootstrap. Solo
+   l'aspetto e' condiviso, non il comportamento (qui resta un piccolo popup
+   ancorato al bottone, non un pannello a tutto schermo con backdrop).
+   "min-width" leggibile indipendente da "max-width: 12rem" del
+   bottone-icona che lo apre (quel valore riguarda solo lui, vedi
+   ".card-control-filtro" sopra). "z-index" esplicito: sopra sia la navbar
+   (1030, vedi navbar.css) sia la riga sticky (1020, vedi
+   ".intestazione-categoria-sticky" sopra), altrimenti aprendo il menu
+   durante lo scroll finirebbe sotto a una delle due */
+#filtroProdottiWrapper .filtro-dropdown-menu {
+  min-width: 12rem;
+  z-index: 1035;
+  padding: .75rem;
+  border: 0;
+  /* Raggio contenuto apposta: arrotonda solo il punto d'incontro tra i
+     lati, lasciando un tratto dritto ben visibile su ognuno dei 4 lati -
+     un raggio troppo grande (provato prima, 7rem) "mangia" quasi tutto il
+     lato, facendo sembrare il pannello una pillola/blob invece di un
+     rettangolo con angoli arrotondati */
+  border-radius: 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+}
+
+/* "display: flex" solo con ".show" (classe che Bootstrap aggiunge/toglie
+   per aprire/chiudere il menu, vedi anche "#navbarSupportedContent.show"
+   in navbar.css per lo stesso principio): messo senza questa condizione
+   sovrascriveva sempre il "display: none" di base di Bootstrap per
+   ".dropdown-menu" (stessa specificita' di un selettore per id, che vince
+   sempre a prescindere dalla classe ".show"), tenendo il menu visibile in
+   permanenza invece che solo dopo il click sul bottone - bug reale gia'
+   capitato qui */
+#filtroProdottiWrapper .filtro-dropdown-menu.show {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+/* Ogni voce come pillola a se stante (stessa tecnica di
+   "#navbarSupportedContent .navbar-nav > .nav-item > .nav-link" in
+   navbar.css): grigio chiaro a riposo, contorno blu navbar al passaggio
+   del mouse (non piu' uno sfondo bianco - stesso cambio fatto li', per
+   coerenza) - niente piu' l'evidenziazione blu piena di Bootstrap per
+   ".dropdown-item" attivo/hover, quel ruolo lo ha ora solo il puntino a
+   destra (vedi ".filtro-item-dot" sotto). "display:flex" qui (non una
+   classe utility nel template): il puntino usa "margin-left:auto" per
+   andare a fine riga, serve quindi che l'"<a>" stesso sia un contenitore
+   flex. Bordo trasparente a riposo, stesso spessore di quello colorato
+   sotto: col "box-sizing: border-box" di Bootstrap il passaggio a colorato
+   non sposta/ridimensiona la pillola */
+#filtroProdottiWrapper .filtro-dropdown-item {
+  display: flex;
+  align-items: center;
+  color: var(--color-text);
+  padding: .65rem .75rem;
+  background-color: var(--color-bg-alt);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  transition: border-color .15s ease;
+}
+
+#filtroProdottiWrapper .filtro-dropdown-item:hover,
+#filtroProdottiWrapper .filtro-dropdown-item:focus,
+#filtroProdottiWrapper .filtro-dropdown-item:active {
+  border-color: var(--color-primary);
+  color: var(--color-text);
+}
+
+/* Puntino blu a destra della voce selezionata = "pagina/scelta corrente",
+   stesso ruolo e stesso aspetto di ".pallino-pagina-corrente" nel menu
+   hamburger - qui pero' con le SUE proprieta' di forma/colore, non affidate
+   alla classe condivisa: quella (navbar.css) le definisce solo dentro
+   "@media (max-width: 1399.98px)", dato che esiste solo nel pannello
+   hamburger (visibile solo sotto quella soglia). Il filtro invece compare
+   a ogni larghezza desktop: sopra i 1400px il puntino restava senza
+   dimensione/colore/margin-left, quindi invisibile - bug reale gia'
+   capitato qui. "visibility" propria perche' a differenza del menu
+   hamburger (dove lo "span" esiste nel DOM solo per la voce corrente,
+   deciso dal server) qui e' sempre presente su ogni voce e va nascosto/
+   mostrato via JS al volo (filtro-prodotti-ajax.js sposta la classe
+   "active" senza ricaricare la pagina) */
+#filtroProdottiWrapper .filtro-item-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  visibility: hidden;
+}
+
+#filtroProdottiWrapper .filtro-dropdown-item.active .filtro-item-dot {
+  visibility: visible;
 }
 
 /* Raggruppa filtro e ricerca di prodotti_card.html (vedi sotto i 576px piu'
@@ -1096,6 +1215,14 @@
   :is(#filtroProdottiWrapper, #filtroTabellaWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria) {
     height: 32px;
     border-radius: 50%;
+  }
+
+  /* Stesso motivo del pixel fisso equivalente da desktop qui sopra
+     (".controlli-categoria-wrapper" e' "position: absolute" senza una
+     larghezza propria anche qui sotto i 576px): "#prodottiCardFiltro" e'
+     un <button> vuoto, non piu' una <select> */
+  #filtroProdottiWrapper #prodottiCardFiltro {
+    width: 32px;
   }
 
   /* Stesso glow di focus di Bootstrap gia' tolto sopra per ".form-control"

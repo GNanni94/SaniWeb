@@ -327,9 +327,14 @@
        creava troppi contorni blu uguali uno dentro l'altro, senza
        gerarchia visiva tra "contenitore" e "contenuto" */
     box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
-    border-radius: 1rem;
+    /* Stessa estetica del pannello del filtro sottocategoria (vedi
+       "#filtroProdottiWrapper .filtro-dropdown-menu" in prodotti.css):
+       raggio 24px, padding .75rem uniforme su tutti i lati (qui diviso in
+       due dichiarazioni per il motivo spiegato sotto, ma il valore
+       orizzontale/verticale risultante e' lo stesso) */
+    border-radius: 24px;
     z-index: 1030;
-    padding: 0 1rem; /* verticale spostato su ".navbar-nav" qui sotto: un padding verticale qui lascerebbe un pezzetto di sfondo residuo quando l'altezza (animata da Bootstrap) arriva a 0 */
+    padding: 0 .75rem; /* verticale spostato su ".navbar-nav" qui sotto: un padding verticale qui lascerebbe un pezzetto di sfondo residuo quando l'altezza (animata da Bootstrap) arriva a 0 */
   }
 
   /* Testo/icone delle voci: da bianco (colore di base per il resto della
@@ -351,25 +356,30 @@
 
   /* Ogni voce si stacca dal pannello bianco con un riempimento grigio
      chiaro (stessa variabile gia' usata per gli hover altrove nel sito),
-     non piu' un bordo blu: il blu resta un accento puntuale solo
-     sull'icona (cerchio pieno, vedi ".bi" qui sotto) */
+     non piu' un bordo blu pieno: il blu resta un accento puntuale
+     sull'icona (cerchio pieno, vedi ".bi" qui sotto) a riposo, e torna sul
+     contorno al passaggio del mouse/tocco (vedi ":hover" qui sotto). Bordo
+     trasparente (non "border: 0"), stesso spessore di quello colorato
+     sotto: a parita' di "box-sizing: border-box" (impostato da Bootstrap su
+     tutto il sito) il passaggio a colorato non sposta/ridimensiona la
+     pillola, cambia solo il colore */
   #navbarSupportedContent .navbar-nav > .nav-item > .nav-link {
     padding: .85rem .75rem;
     background-color: var(--color-bg-alt);
+    border: 2px solid transparent;
     border-radius: 999px;
-    transition: background-color .15s ease;
+    transition: border-color .15s ease;
   }
 
-  /* Bianco al passaggio del mouse/tocco (invece di un altro grigio):
-     essendo il grigio gia' lo stato di riposo, un grigio piu' scuro qui
-     avrebbe richiesto un colore nuovo non gia' tra le variabili del sito -
-     il bianco usa una variabile gia' esistente e resta comunque un
-     feedback ben visibile (chiaro su chiaro, ma il pannello attorno e'
-     anch'esso bianco quindi il contrasto vero e' col grigio che sparisce) */
+  /* Contorno blu navbar al passaggio del mouse/tocco, non piu' uno sfondo
+     bianco (chiesto esplicitamente: lo sfondo bianco su pillola gia' grigio
+     chiaro dava un feedback debole, "chiaro su chiaro" - il contorno
+     colorato e' piu' visibile e coerente con l'accento blu gia' usato
+     sull'icona di ogni voce) */
   #navbarSupportedContent .navbar-nav > .nav-item > .nav-link:hover,
   #navbarSupportedContent .navbar-nav > .nav-item > .nav-link:focus,
   #navbarSupportedContent .navbar-nav > .nav-item > .nav-link:active {
-    background-color: var(--color-bg);
+    border-color: var(--color-primary);
   }
 
   /* Icona di ogni voce come cerchio blu pieno con glifo bianco (badge),
