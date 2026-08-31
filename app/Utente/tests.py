@@ -127,3 +127,16 @@ class ProfiloViewTest(TestCase):
         response = self.client.get(reverse("profilo", args=[self.utente.pk]))
         self.assertContains(response, 'id="id_first_name"')
         self.assertContains(response, "Cognome")
+
+
+from .context_processors import form_login_popup
+from .forms import CustomAuthenticationForm
+
+
+class FormLoginPopupContextProcessorTest(TestCase):
+    def test_espone_un_form_di_login_vuoto(self):
+        request = self.client.get(reverse("home")).wsgi_request
+        contesto = form_login_popup(request)
+        self.assertIn("form_login_popup", contesto)
+        self.assertIsInstance(contesto["form_login_popup"], CustomAuthenticationForm)
+        self.assertFalse(contesto["form_login_popup"].is_bound)
