@@ -60,6 +60,50 @@
   box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
 }
 
+/* Toglie il margine sotto ai campi email/password che crispy-forms
+   aggiunge di suo (".mb-3", "!important" in Bootstrap 5): senza,
+   "password dimenticata" (partials/form_login.html) resterebbe staccato
+   dalla pillola password anche togliendo i margini messi a mano attorno
+   al campo */
+#form-login #div_id_username,
+#form-login #div_id_password {
+  margin-bottom: 0 !important;
+}
+
+/* Bottone "Non sei registrato?": sfondo grigio invece che trasparente,
+   stesso var(--color-bg-alt) gia' usato per le voci del menu hamburger
+   (#navbarSupportedContent .navbar-nav > .nav-item > .nav-link in
+   navbar.css). Scoped a "#form-login" (non alla classe condivisa
+   ".btn-outline-navbar", usata anche altrove: tabella_avvisi.html,
+   tabella_documenti.html, carrello_flottante.html) */
+#form-login .btn-outline-navbar {
+  background-color: var(--color-bg-alt);
+  border-width: 2px;
+}
+
+/* Nessun cambiamento al passaggio del mouse/tocco: stessi valori dello
+   stato base qui sopra, per neutralizzare il riempimento blu che
+   ".btn.btn-outline-navbar:hover" (componenti-condivisi.css) applica di
+   default */
+#form-login .btn-outline-navbar:hover,
+#form-login .btn-outline-navbar:focus {
+  background-color: var(--color-bg-alt);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Larghezza ridotta e centrata per i campi email/password e per il link
+   "password dimenticata" appena sotto (form_login.html): un indirizzo
+   email o una password non hanno bisogno della larghezza piena del
+   popup, e il link deve restare allineato allo stesso bordo destro della
+   pillola password (non del popup intero) - stessa larghezza su tutti e
+   tre i contenitori per questo */
+#form-login .campo-login-stretto {
+  max-width: 280px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* Toglie l'asterisco che crispy-forms aggiunge di suo alle etichette dei
    campi obbligatori ("Email*", "Password*") - solo estetico, il campo
    resta comunque obbligatorio (l'attributo HTML "required" non cambia) */

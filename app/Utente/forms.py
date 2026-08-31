@@ -163,8 +163,12 @@ class ProfiloForm(ModelForm):
 
 
 class CustomAuthenticationForm(AuthenticationForm):
-    username = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class':'form-control'}))
-    password = forms.CharField(label='Password', widget=forms.PasswordInput(attrs={'class':'form-control'}))
+    # label=False (non solo stringa vuota): crispy-forms non renderizza
+    # proprio il tag <label>, invece che lasciarne uno vuoto - qui basta
+    # gia' il placeholder a indicare cosa scrivere nel campo (stesso
+    # ragionamento di CustomPasswordResetForm qui sotto)
+    username = forms.EmailField(label=False, widget=forms.EmailInput(attrs={'class': 'form-control rounded-pill', 'placeholder': 'Email'}))
+    password = forms.CharField(label=False, widget=forms.PasswordInput(attrs={'class': 'form-control rounded-pill', 'placeholder': 'Password'}))
 
 
 class CustomPasswordResetForm(PasswordResetForm):

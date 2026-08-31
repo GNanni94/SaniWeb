@@ -16,17 +16,17 @@
     {% endcomment %}
     <input type="hidden" name="next" value="{{ next }}">
 
-    <div class="form-floating my-2 px-5">
+    <div class="px-2 mt-3 campo-login-stretto">
         {{ form.username|as_crispy_field }}
     </div>
-    <div class="form-floating my-3 px-5">
+    <div class="px-2 mt-3 campo-login-stretto">
         {{ form.password|as_crispy_field }}
     </div>
-    <div class="form-floating my-3 d-flex justify-content-center gap-2 flex-wrap">
-        <button class="btn btn-navbar py-3" type="submit">Log In</button>
-        <a class="btn btn-outline-navbar py-3" href="{% url 'signup' %}">Non sei registrato?</a>
+    <div class="px-2 text-end campo-login-stretto">
+        <a href="{% url 'password_reset' %}" class="small">Password dimenticata?</a>
     </div>
-    <div class="form-floating" style="margin-top: 40px;">
-        <p class="mt-2"><a href="{% url 'password_reset' %}">Password dimenticata?</a></p>
+    <div class="my-3 d-flex justify-content-center gap-2 flex-wrap">
+        <button class="btn btn-navbar rounded-pill py-2" type="submit">Log In</button>
+        <a class="btn btn-outline-navbar rounded-pill py-2" href="{% url 'signup' %}">Non sei registrato?</a>
     </div>
 </form>
