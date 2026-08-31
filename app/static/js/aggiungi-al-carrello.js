@@ -11,7 +11,10 @@ document.addEventListener('click', function (event) {
     }
 
     event.preventDefault();
+    eseguiAggiuntaAlCarrello(link);
+});
 
+function eseguiAggiuntaAlCarrello(link) {
     var originalHTML = link.innerHTML;
     if (link.dataset.aggiungiInCorso === 'true') {
         return;
@@ -30,22 +33,25 @@ document.addEventListener('click', function (event) {
     })
         .then(function (response) {
             if (response.status === 401) {
-                // Utente non loggato: porta li' anche la navigazione vera
-                // del browser (non solo la fetch in background, altrimenti
-                // l'utente resta sulla pagina di prima senza capire perche'
-                // non e' successo nulla). "next" riporta l'utente sulla
-                // pagina di provenienza dopo il login, invece che sempre
-                // alla home (LOGIN_REDIRECT_URL di default)
-                //
-                // Il flag va resettato PRIMA di navigare via: se l'utente
-                // torna indietro col tasto "indietro" del browser, la pagina
-                // viene spesso ripristinata dalla bfcache con lo stesso DOM
-                // di quando e' uscito, "aggiungiInCorso" incluso - senza
-                // questo reset il link resterebbe bloccato per sempre e un
-                // riclick non farebbe piu' nulla (ne' fetch ne' redirect)
+                // Utente non loggato: il flag va resettato PRIMA di aprire
+                // il popup, altrimenti un secondo click sullo stesso link
+                // (es. dopo aver chiuso il popup senza loggarsi) resterebbe
+                // bloccato per sempre
                 link.dataset.aggiungiInCorso = 'false';
-                var next = window.location.pathname + window.location.search;
-                window.location.href = document.body.dataset.loginUrl + '?next=' + encodeURIComponent(next);
+                if (window.mostraModalLogin) {
+                    // Il popup ripete questa stessa aggiunta dopo un login
+                    // riuscito, cosi' il prodotto finisce davvero nel
+                    // carrello senza che l'utente debba ricliccare
+                    window.mostraModalLogin(function () {
+                        eseguiAggiuntaAlCarrello(link);
+                    });
+                } else {
+                    // login-modal.js non caricato (pagina "/login/" stessa,
+                    // dove il modal non esiste - vedi base.html): fallback
+                    // al comportamento classico
+                    var next = window.location.pathname + window.location.search;
+                    window.location.href = document.body.dataset.loginUrl + '?next=' + encodeURIComponent(next);
+                }
                 return;
             }
             if (!response.ok) {
@@ -81,4 +87,4 @@ document.addEventListener('click', function (event) {
             // gestione-avvisi.js/gestione-documenti.js
             window.location.reload();
         });
-});
+}
