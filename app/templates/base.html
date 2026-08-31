@@ -305,11 +305,18 @@ pannello dal bottone
 
 {% comment %}
 Modal di login: incluso su ogni pagina tranne "/login/" stessa (che ha
-gia' il form a pagina intera - vedi partials/form_login.html), stesso
-principio gia' usato per "carrelloFlottanteContainer" sulla pagina
-carrello qui sotto. Aperto/gestito da static/js/login-modal.js.
+gia' il form a pagina intera - vedi partials/form_login.html) e tranne
+quando la pagina e' gia' stata renderizzata per un utente autenticato
+(niente form di login da mostrargli). Il secondo caso evita anche un bug
+concreto: se la sessione scade a meta' visita (es. in un'altra scheda) e
+un'azione in background riceve un 401, "login-modal.js" non troverebbe
+comunque "window.mostraModalLogin" definita (l'IIFE ritorna presto se
+"#modalLogin"/"#modalLoginBody" mancano), quindi il fallback classico
+gia' esistente nel JS chiamante (redirect a "/login/?next=...") scatta
+al suo posto - niente due dropdown profilo duplicati nella pillola.
+Aperto/gestito da static/js/login-modal.js.
 {% endcomment %}
-{% if request.resolver_match.url_name != 'login' %}
+{% if request.resolver_match.url_name != 'login' and not user.is_authenticated %}
 <div class="modal fade" id="modalLogin" tabindex="-1" aria-labelledby="modalLoginLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
