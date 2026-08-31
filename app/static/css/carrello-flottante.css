@@ -45,7 +45,52 @@
   overflow-y: auto;
   background: #fff;
   border: 2px solid var(--color-primary);
-  border-radius: 0.5rem;
-  padding: 1rem;
+  /* Stesso raggio usato per il popup di login (#modalLogin .modal-content
+     in navbar.css) e per il pannello hamburger (#navbarSupportedContent),
+     per un'estetica "pop-up" coerente in tutto il sito */
+  border-radius: 24px;
+  /* Niente piu' padding qui (spostato su ".corpo-carrello-flottante" qui
+     sotto): la fascia del titolo deve toccare i bordi alto/laterali del
+     pannello, non stare rientrata dentro il suo padding */
   box-shadow: 0 0 20px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Titolo "Preventivo": non una pillola a se' stante, ma il prolungamento
+   dell'angolo alto del pannello stesso - "overflow-y: auto" qui sopra
+   ritaglia gia' i due angoli alti seguendo il border-radius del pannello
+   (24px), essendo questa fascia a contatto diretto col suo bordo
+   superiore (Bootstrap non ha un'utility "bg-navbar": solo i bottoni
+   ".btn-navbar"/".btn-outline-navbar" in componenti-condivisi.css usano
+   gia' questo stesso colore) */
+.titolo-carrello-flottante {
+  background-color: var(--color-primary);
+}
+
+/* Padding del contenuto (lista prodotti + bottoni), separato dal
+   pannello (vedi commento sopra) cosi' la fascia del titolo puo' restare
+   a contatto con i bordi del pannello */
+.corpo-carrello-flottante {
+  padding: 1rem;
+}
+
+/* Bottoni +/- quantita' (partials/carrello_flottante.html): dimensione
+   fissa uguale su entrambi i lati, altrimenti ".btn-sm" con solo
+   un'icona dentro non sarebbe un cerchio perfetto (il padding
+   orizzontale/verticale di Bootstrap non e' uguale sui due assi) */
+.btn-aumenta-flottante,
+.btn-diminuisci-flottante {
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Bordo piu' spesso (2px invece dell'1px di default di Bootstrap) per
+   "Svuota carrello": scoped alla classe usata solo qui
+   (".btn-svuota-flottante"), non a ".btn-outline-danger" (condivisa,
+   usata anche in tabella_avvisi.html/tabella_documenti.html) */
+.btn-svuota-flottante {
+  border-width: 2px;
 }

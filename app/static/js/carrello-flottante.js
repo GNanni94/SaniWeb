@@ -66,16 +66,7 @@
             return;
         }
 
-        var chiudi = event.target.closest('#chiudiCarrelloFlottante');
-        if (chiudi) {
-            var pannelloDaChiudere = document.getElementById('pannelloCarrelloFlottante');
-            if (pannelloDaChiudere) {
-                pannelloDaChiudere.classList.add('d-none');
-            }
-            return;
-        }
-
-        var azione = event.target.closest('.btn-aumenta-flottante, .btn-diminuisci-flottante, .btn-rimuovi-flottante');
+        var azione = event.target.closest('.btn-aumenta-flottante, .btn-diminuisci-flottante, .btn-rimuovi-flottante, .btn-svuota-flottante');
         if (!azione) {
             return;
         }

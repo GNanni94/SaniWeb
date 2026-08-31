@@ -125,6 +125,23 @@ def elimina_elementi_dal_carrello(request, carrelloId):
     return redirect('carrello')
 
 @require_POST
+def svuota_carrello(request):
+    if request.user.is_authenticated:
+        logger.info(f"Richiesta svuotamento carrello utente {request.user.pk}")
+        # "cliente=request.user": stesso filtro di proprieta' gia' usato in
+        # elimina_elementi_dal_carrello qui sopra, cosi' la cancellazione
+        # riguarda solo gli elementi dell'utente loggato
+        Carrello.objects.filter(cliente=request.user).delete()
+        logger.info(f"Effettuato svuotamento carrello utente {request.user.pk}")
+        if _e_richiesta_in_background(request):
+            return _render_widget_carrello_flottante(request)
+        return redirect('carrello')
+    # Stesso ragionamento di elimina_elementi_dal_carrello qui sopra
+    if _e_richiesta_in_background(request):
+        return HttpResponse(status=401)
+    return redirect('carrello')
+
+@require_POST
 def settaggio_quantita(request, carrelloId):
     # "cliente_id=request.user.pk" (non "cliente=request.user"): questa riga
     # gira anche per un utente anonimo (il controllo is_authenticated e'

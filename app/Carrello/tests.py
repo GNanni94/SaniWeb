@@ -228,6 +228,67 @@ class CarrelloFlottanteAjaxViewsTest(TestCase):
         self.assertIn(f"next={url}", response.url)
 
 
+class CarrelloSvuotaTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.utente = User.objects.create_user(
+            username="utenteflottante4", email="utenteflottante4@example.com", password="testpass123"
+        )
+        self.altro_utente = User.objects.create_user(
+            username="utenteflottante5", email="utenteflottante5@example.com", password="testpass123"
+        )
+        self.categoria = Categoria.objects.create(nome_categoria="Detersivi")
+        Prodotto.objects.bulk_create([
+            Prodotto(codice_prodotto="F004", nome_prodotto="Detersivo piatti", unita_di_misura="LT", categoria=self.categoria),
+            Prodotto(codice_prodotto="F005", nome_prodotto="Ammorbidente", unita_di_misura="LT", categoria=self.categoria),
+            Prodotto(codice_prodotto="F006", nome_prodotto="Candeggina", unita_di_misura="LT", categoria=self.categoria),
+        ])
+        self.prodotti = list(Prodotto.objects.filter(codice_prodotto__in=["F004", "F005", "F006"]).order_by("codice_prodotto"))
+        self.client.force_login(self.utente)
+
+    def test_svuota_con_ajax_cancella_solo_gli_elementi_dellutente(self):
+        for prodotto in self.prodotti:
+            Carrello.objects.create(cliente=self.utente, prodotto=prodotto, quantita=1)
+        elemento_altro_utente = Carrello.objects.create(cliente=self.altro_utente, prodotto=self.prodotti[0], quantita=1)
+
+        response = self.client.post(
+            reverse("svuota_carrello"),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'id="carrelloFlottante"')
+        self.assertFalse(Carrello.objects.filter(cliente=self.utente).exists())
+        self.assertTrue(Carrello.objects.filter(pk=elemento_altro_utente.pk).exists())
+
+    def test_svuota_senza_ajax_continua_a_fare_redirect(self):
+        Carrello.objects.create(cliente=self.utente, prodotto=self.prodotti[0], quantita=1)
+        response = self.client.post(reverse("svuota_carrello"))
+        self.assertRedirects(response, reverse("carrello"))
+
+    def test_svuota_anonimo_con_ajax_restituisce_401(self):
+        elemento = Carrello.objects.create(cliente=self.utente, prodotto=self.prodotti[0], quantita=1)
+        self.client.logout()
+        response = self.client.post(
+            reverse("svuota_carrello"),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 401)
+        self.assertTrue(Carrello.objects.filter(pk=elemento.pk).exists())
+
+    def test_bottone_svuota_assente_sotto_le_tre_righe(self):
+        for prodotto in self.prodotti[:2]:
+            Carrello.objects.create(cliente=self.utente, prodotto=prodotto, quantita=1)
+        response = self.client.get(reverse("home"))
+        self.assertNotContains(response, "Svuota carrello")
+
+    def test_bottone_svuota_presente_da_tre_righe_in_su(self):
+        for prodotto in self.prodotti:
+            Carrello.objects.create(cliente=self.utente, prodotto=prodotto, quantita=1)
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, "Svuota carrello")
+
+
 class AggiungiProdottoConPrecursoreTest(TestCase):
     # Regressione: un utente loggato ma non azienda poteva aggiungere al
     # carrello un prodotto con precursore conoscendone il PK (es. visto nel

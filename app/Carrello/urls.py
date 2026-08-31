@@ -8,5 +8,6 @@ urlpatterns = [
     path('eliminaProdotto/<int:carrelloId>/',views.elimina_elementi_dal_carrello , name = "elimina_prodotti"),
     path('aumentaQuantita/<int:carrelloId>/', views.aumenta_quantita_carrello, name='aumenta_quantita'),
     path('diminuisciQuantita/<int:carrelloId>/', views.diminuisci_quantita_carrello, name='diminuisci_quantita'),
-    path('settaggioQuantita/<int:carrelloId>/', views.settaggio_quantita, name='settaggio_quantita')
+    path('settaggioQuantita/<int:carrelloId>/', views.settaggio_quantita, name='settaggio_quantita'),
+    path('svuotaCarrello/', views.svuota_carrello, name='svuota_carrello')
 ]
