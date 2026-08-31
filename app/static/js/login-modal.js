@@ -40,6 +40,16 @@
         }
         event.preventDefault();
 
+        // Blocca un secondo submit mentre il primo e' ancora in volo (es.
+        // doppio click su "Log In"): senza questo, il primo POST puo'
+        // riuscire e ruotare il token CSRF (vedi sotto) mentre il secondo,
+        // gia' partito con il token vecchio, arriva dopo e riceve un
+        // errore imprevisto - vedi il ramo "else" qui sotto.
+        var bottoneSubmit = f.querySelector('button[type=submit]');
+        if (bottoneSubmit) {
+            bottoneSubmit.disabled = true;
+        }
+
         fetch(f.action, {
             method: 'POST',
             body: new FormData(f),
@@ -56,6 +66,25 @@
                         desktopAnonimo.remove();
                     }
                     document.getElementById('pillolaIconeUtente').insertAdjacentHTML('beforeend', html);
+
+                    // django.contrib.auth.login() ruota il token CSRF
+                    // (rotate_token()) come misura di sicurezza: prima di
+                    // questa feature il login ricaricava sempre la pagina,
+                    // quindi ogni form aveva sempre un token fresco. Ora un
+                    // login nel popup, senza reload, lascia gli ALTRI form
+                    // gia' presenti sulla pagina (es. il form messaggio di
+                    // contatti.html, il widget di carrello_flottante.html)
+                    // con il vecchio token, ormai invalido: un loro submit
+                    // fallirebbe con 403. Il frammento appena inserito e'
+                    // l'unico posto con il token gia' rinnovato, quindi lo
+                    // si ricopia in ogni campo csrfmiddlewaretoken esistente.
+                    var nuovoTokenInput = document.querySelector('#pillolaIconeUtente input[name=csrfmiddlewaretoken]');
+                    if (nuovoTokenInput) {
+                        document.querySelectorAll('input[name=csrfmiddlewaretoken]').forEach(function (input) {
+                            input.value = nuovoTokenInput.value;
+                        });
+                    }
+
                     modalBootstrap.hide();
 
                     var daRipetere = azioneInSospeso;
@@ -66,16 +95,24 @@
                 } else if (response.status === 400) {
                     // "html" e' il partial form_login.html ri-renderizzato
                     // con gli errori (crispy-forms li mostra gia' da solo,
-                    // nessuna gestione JS aggiuntiva necessaria)
+                    // nessuna gestione JS aggiuntiva necessaria) - il form
+                    // intero viene sostituito, quindi il suo bottone arriva
+                    // gia' riabilitato, nessun reset esplicito necessario
                     modalBody.innerHTML = html;
                 } else {
                     // Errore imprevisto (403 CSRF scaduto, 500, ...): un
-                    // submit reale riporta l'utente a uno stato coerente
-                    f.submit();
+                    // submit reale (f.submit()) rimanderebbe lo STESSO
+                    // token, gia' noto per essere rifiutato - stesso
+                    // principio gia' usato in gestione-avvisi.js
+                    // (salvaAvviso(), ramo "else"): un reload riporta
+                    // l'utente a uno stato coerente (auth/token freschi)
+                    window.location.reload();
                 }
             });
         }).catch(function () {
-            f.submit();
+            // Fetch fallita per motivi di rete: stesso ragionamento del
+            // ramo sopra, un reload e' l'unico modo sicuro di recuperare
+            window.location.reload();
         });
     });
 })();

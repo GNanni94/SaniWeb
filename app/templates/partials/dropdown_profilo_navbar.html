@@ -1,4 +1,15 @@
 <div class="dropdown">
+  {% comment %}
+  Non serve un <form> intorno: il tag funziona ovunque sia disponibile
+  "request" nel contesto (sempre vero qui). Serve perche' un login riuscito
+  nel popup (login-modal.js) ruota il token CSRF (rotate_token(), chiamato
+  da django.contrib.auth.login()) senza reload di pagina: questo frammento
+  e' l'unico posto, dopo il login, dove arriva un token gia' fresco - il
+  JS lo legge da qui e lo ricopia in tutti i campi csrfmiddlewaretoken
+  gia' presenti sulla pagina (altrimenti rimasti sul valore vecchio, ora
+  invalido, di form come quello di contatti.html).
+  {% endcomment %}
+  {% csrf_token %}
   <a class="d-flex align-items-center text-decoration-none" id="dropdownUser1"
   data-bs-toggle="dropdown" aria-expanded="false">
     <i class="bi bi-person-circle icona-profilo-navbar icon-lg fs-2"> </i>
