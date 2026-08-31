@@ -4,6 +4,18 @@
 // riportava sempre la pagina a ricaricarsi e "saltare" (anche con l'ancora
 // sul prodotto), risultando scomoda - con fetch la posizione di scroll non
 // si muove affatto.
+// Fase di "capture" (ultimo parametro "true"), non quella di default
+// ("bubbling"): in prodotti_tabella.html questo link vive dentro la
+// colonna NOME (indice 1), che DataTables Responsive usa come colonna
+// "target" per espandere/collassare la riga su telefono (vedi
+// "details.target" in prodotti_tabella.html). Il listener di DataTables
+// e' agganciato piu' vicino al bersaglio del click (sulla singola cella
+// <td>) e quindi scatta PRIMA di un listener in bubbling su "document":
+// a quel punto "stopPropagation()" arriverebbe troppo tardi, la riga si
+// sarebbe gia' espansa. In fase di capture, invece, "document" e'
+// il primo passaggio (dall'esterno verso il bersaglio): fermare qui la
+// propagazione impedisce anche la successiva fase di bubbling, prima
+// che il listener di DataTables sulla cella possa scattare
 document.addEventListener('click', function (event) {
     var link = event.target.closest('a[href*="/carrello/aggiungiProdotto/"]');
     if (!link) {
@@ -11,8 +23,9 @@ document.addEventListener('click', function (event) {
     }
 
     event.preventDefault();
+    event.stopPropagation();
     eseguiAggiuntaAlCarrello(link);
-});
+}, true);
 
 function eseguiAggiuntaAlCarrello(link) {
     var originalHTML = link.innerHTML;
