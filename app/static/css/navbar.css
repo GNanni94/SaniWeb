@@ -469,6 +469,22 @@
 #modalLogin .modal-content {
   border-radius: 24px;
   border: 2px solid var(--color-primary);
+  /* Serve perche' il titolo qui sotto tocca i bordi del modal (niente
+     margine/padding attorno): senza "overflow: hidden" i suoi angoli alti,
+     dritti di suo, spunterebbero fuori dall'angolo arrotondato del
+     modal-content invece di seguirne la curva - stesso principio gia'
+     usato per "#pannelloCarrelloFlottante" (overflow-y: auto) in
+     carrello-flottante.css */
+  overflow: hidden;
+}
+
+/* Titolo "Accedi": stessa fascia blu navbar a tutta larghezza gia' usata
+   per "Preventivo" nel carrello flottante (vedi
+   ".titolo-carrello-flottante" in carrello-flottante.css), qui a contatto
+   diretto con l'angolo alto del modal invece che un modal-header
+   standard di Bootstrap */
+.titolo-modal-login {
+  background-color: var(--color-primary);
 }
 
 /* Popup stretto quanto il suo contenuto (campi larghi al massimo 280px,
