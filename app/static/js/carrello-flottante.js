@@ -19,21 +19,44 @@
         return !!pannello && !pannello.classList.contains('d-none');
     }
 
-    // Il bottone (fisso in basso a destra) prende il bordo bianco non
-    // appena il footer, scorrendo, arriva dietro di lui - da quel punto in
-    // poi il footer resta sempre dietro (e' l'ultimo elemento della
-    // pagina), quindi basta confrontare il bordo superiore del footer con
-    // quello inferiore del bottone, senza bisogno di controllare anche il
-    // bordo inferiore del footer
+    // Stesso controllo di sovrapposizione gia' usato dal cerchio della
+    // ricerca in prodotti_card.html (vedi "siSovrappongono"/
+    // "finisceSuSfondoBlu" li'): serve anche in 2D (non solo verticale)
+    // per le card prodotto, disposte anche in colonne (griglia_prodotti.html,
+    // "col-6"), a differenza del footer di pagina che e' sempre a piena
+    // larghezza
+    function siSovrappongono(a, b) {
+        return a.top < b.bottom && a.bottom > b.top && a.left < b.right && a.right > b.left;
+    }
+
+    // Il bottone (fisso in basso a destra) prende il bordo bianco quando
+    // finisce sopra uno sfondo blu navbar: il footer della pagina (una
+    // volta che, scorrendo, arriva dietro di lui - resta sempre dietro
+    // essendo l'ultimo elemento della pagina, quindi basta confrontare il
+    // suo bordo superiore con quello inferiore del bottone) oppure il
+    // footer blu pieno di una card prodotto (".card-footer-btn" in
+    // prodotti.css, presente solo su prodotti_card.html - "querySelectorAll"
+    // torna una lista vuota altrove, innocuo)
+    function bottoneSuSfondoBlu(rigaBottone) {
+        var footer = document.querySelector('.site-footer');
+        if (footer && footer.getBoundingClientRect().top < rigaBottone.bottom) {
+            return true;
+        }
+        var footerCard = document.querySelectorAll('.card.card-prodotto .card-footer-btn');
+        for (var i = 0; i < footerCard.length; i++) {
+            if (siSovrappongono(footerCard[i].getBoundingClientRect(), rigaBottone)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function aggiornaBordoSuFooter() {
         var bottone = document.getElementById('bottoneCarrelloFlottante');
-        var footer = document.querySelector('.site-footer');
-        if (!bottone || !footer) {
+        if (!bottone) {
             return;
         }
-        var rigaFooter = footer.getBoundingClientRect();
-        var rigaBottone = bottone.getBoundingClientRect();
-        bottone.classList.toggle('su-footer', rigaFooter.top < rigaBottone.bottom);
+        bottone.classList.toggle('su-footer', bottoneSuSfondoBlu(bottone.getBoundingClientRect()));
     }
 
     window.aggiornaCarrelloFlottante = function (html, mantieniAperto) {
