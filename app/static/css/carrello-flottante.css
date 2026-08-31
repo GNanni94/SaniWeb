@@ -29,6 +29,30 @@
   border: 2px solid var(--color-bg);
 }
 
+/* Colore scuro mentre il pannello e' aperto: classe aggiunta/rimossa
+   esplicitamente da carrello-flottante.js in base allo stato reale del
+   pannello, non lasciata a hover/focus del browser (che non riflette
+   in modo affidabile se il pannello e' aperto o chiuso - un secondo
+   click per chiudere e' comunque un click, quindi mette a fuoco il
+   bottone anche in quel caso). Stesso blu scuro gia' usato per l'hover
+   di ".btn-navbar" in componenti-condivisi.css */
+#bottoneCarrelloFlottante.carrello-flottante-attivo {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+/* Forza il colore di default anche in hover/focus quando il pannello e'
+   chiuso (niente ".carrello-flottante-attivo"): senza questa regola, il
+   mouse ancora sopra al bottone subito dopo il click di chiusura
+   manterrebbe comunque lo scuro tramite ".btn.btn-navbar:hover/:focus"
+   qui sopra (in componenti-condivisi.css) - il colore risulterebbe legato
+   al mouse invece che allo stato reale del pannello */
+#bottoneCarrelloFlottante:hover:not(.carrello-flottante-attivo),
+#bottoneCarrelloFlottante:focus:not(.carrello-flottante-attivo) {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
 #badgeCarrelloFlottante {
   position: absolute;
   top: -0.25rem;

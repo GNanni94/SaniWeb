@@ -44,6 +44,15 @@
             if (pannello) {
                 pannello.classList.remove('d-none');
             }
+            // Il bottone appena inserito e' HTML nuovo dal server: non porta
+            // con se' la classe che ne segnava lo stato "aperto" (aggiunta
+            // via JS, non dal template) - va riapplicata qui, altrimenti
+            // tornerebbe al colore di default ad ogni azione (aumenta/
+            // diminuisci/rimuovi) pur restando il pannello aperto
+            var bottoneNuovo = document.getElementById('bottoneCarrelloFlottante');
+            if (bottoneNuovo) {
+                bottoneNuovo.classList.add('carrello-flottante-attivo');
+            }
         }
         // Il bottone appena inserito parte sempre senza ".su-footer": va
         // ricalcolato subito, altrimenti resterebbe senza bordo finche' non
@@ -62,6 +71,13 @@
             var pannello = document.getElementById('pannelloCarrelloFlottante');
             if (pannello) {
                 pannello.classList.toggle('d-none');
+                // Colore del bottone legato esplicitamente allo stato del
+                // pannello (aperto/chiuso), non lasciato a hover/focus del
+                // browser - altrimenti un secondo click per chiudere (che è
+                // comunque un click, quindi anch'esso mette a fuoco il
+                // bottone) potrebbe non far tornare il colore a quello di
+                // default in modo affidabile
+                bottone.classList.toggle('carrello-flottante-attivo', !pannello.classList.contains('d-none'));
             }
             return;
         }
