@@ -10,15 +10,14 @@
 
     <div class="d-flex align-items-center position-relative mb-2 mb-md-4 mt-4">
         <a href="{% url 'lista_ordini' %}"
-            class="btn btn-navbar btn-sm position-absolute start-0" title="Torna a tutti gli ordini">
+            class="btn btn-navbar btn-sm rounded-pill pillola-torna-preventivi position-absolute start-0" title="Torna a tutti gli ordini">
             <i class="bi bi-arrow-left"></i>
             <span class="d-none d-md-inline">Torna ai preventivi</span>
         </a>
-        <h2 class="text-black mb-0 mx-auto">Dettaglio Preventivo</h2>
+        <h1 class="fw-bold mb-0 mx-auto titolo-dettaglio-preventivo">Dettaglio Preventivo</h1>
         <a href="{% url 'aggiungi_preventivo_al_carrello' preventivo.pk %}"
-            class="btn btn-navbar btn-sm position-absolute end-0" title="Riusa preventivo">
-            <span class="d-none d-md-inline">Riusa preventivo</span>
-            <i class="bi bi-receipt"></i>
+            class="btn btn-navbar btn-sm rounded-pill pillola-titolo-dettaglio position-absolute end-0" title="Riusa preventivo">
+            Riusa
         </a>
     </div>
 

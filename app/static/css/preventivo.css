@@ -34,3 +34,24 @@
   padding: 0;
   flex-shrink: 0;
 }
+
+/* dettaglio_preventivo.html: bottoni "Riusa preventivo"/"Torna ai
+   preventivi" a fianco del titolo "Dettaglio Preventivo" - stessa
+   dimensione tra loro, stesso breakpoint (768px, "md") e stessi valori
+   di ".btn-torna-catalogo" in prodotti.css: da telefono entrambi
+   restano il piccolo cerchio standard di Bootstrap */
+@media (min-width: 768px) {
+  .pillola-titolo-dettaglio,
+  .pillola-torna-preventivi {
+    padding: 0.5rem 1.25rem;
+    font-size: 1rem;
+  }
+}
+
+/* Titolo "Dettaglio Preventivo": stesso blu navbar del titolo categoria
+   di prodotti_card.html (vedi ".titolo-categoria-link" in prodotti.css) -
+   var(--color-primary), diverso dal ".text-primary" di Bootstrap (un
+   altro azzurro piu' chiaro) */
+.titolo-dettaglio-preventivo {
+  color: var(--color-primary);
+}
