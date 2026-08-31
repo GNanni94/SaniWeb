@@ -1,0 +1,36 @@
+/* preventivo.html: card di ogni preventivo come pillola grigia invece di
+   un riquadro squadrato, con la data e una freccia (al posto del vecchio
+   bottone "Vai al dettaglio dell'ordine") che porta al dettaglio */
+.preventivo-pillola {
+  border: 2px solid var(--bs-border-color);
+  border-radius: 999px;
+  transition: border-color .15s ease;
+}
+
+/* Da desktop (dispositivi con hover reale, non touch): bordo blu navbar
+   solo al passaggio del mouse */
+@media (hover: hover) {
+  .preventivo-pillola:hover {
+    border-color: var(--color-primary);
+  }
+}
+
+/* Da telefono/touch (nessun hover reale disponibile): bordo blu navbar
+   sempre, non solo al passaggio del dito */
+@media (hover: none) {
+  .preventivo-pillola {
+    border-color: var(--color-primary);
+  }
+}
+
+/* Freccia dentro un cerchio blu navbar, al posto del vecchio bottone
+   "Vai al dettaglio dell'ordine": dimensione fissa per un cerchio
+   perfetto, stesso principio gia' usato per i bottoni +/- del carrello
+   flottante (vedi ".btn-aumenta-flottante"/".btn-diminuisci-flottante"
+   in carrello-flottante.css) */
+.freccia-preventivo {
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  flex-shrink: 0;
+}
