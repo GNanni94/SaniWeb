@@ -480,23 +480,38 @@ $(document).ready(function () {
             // del cerchio sotto) su "Tutte le sottocategorie" - stesso
             // comportamento di prodotti_card.html
             // ("aggiornaClasseFiltroAttivo" in filtro-prodotti-ajax.js, non
-            // caricato qui). "selectedIndex === 0" basta a riconoscere lo
-            // stato "nessun filtro attivo": la prima "<option>" e' sempre
-            // "Tutte le sottocategorie" (vedi
-            // partials/controlli_ricerca_filtro_tabella.html)
-            var iconaFiltro = document.getElementById('filtroTabellaWrapper').querySelector('.filtro-icon-overlay');
+            // caricato qui). La prima voce del menu e' sempre "Tutte le
+            // sottocategorie" (vedi
+            // partials/controlli_ricerca_filtro_tabella.html), quindi basta
+            // guardare se lei ha la classe "active" per riconoscere lo
+            // stato "nessun filtro attivo"
+            var filtroWrapperTabella = document.getElementById('filtroTabellaWrapper');
+            var iconaFiltro = filtroWrapperTabella.querySelector('.filtro-icon-overlay');
+            var listaFiltroTabella = filtroWrapperTabella.querySelector('.filtro-dropdown-menu');
 
             function aggiornaClasseFiltroAttivo() {
-                var attivo = $('#filtroSottocategoria').prop('selectedIndex') !== 0;
+                var primaVoce = listaFiltroTabella.querySelector('.filtro-dropdown-item');
+                var attivo = !primaVoce.classList.contains('active');
                 iconaFiltro.classList.toggle('bi-funnel-fill', attivo);
                 iconaFiltro.classList.toggle('bi-funnel', !attivo);
             }
 
             aggiornaClasseFiltroAttivo();
 
-            $('#filtroSottocategoria').on('change', function () {
+            // Delegato sul menu (non sulle singole voci), stessa tecnica di
+            // "filtro-prodotti-ajax.js" in prodotti_card.html
+            listaFiltroTabella.addEventListener('click', function (event) {
+                var voce = event.target.closest('.filtro-dropdown-item');
+                if (!voce) {
+                    return;
+                }
+                event.preventDefault();
+                var voci = listaFiltroTabella.querySelectorAll('.filtro-dropdown-item');
+                for (var i = 0; i < voci.length; i++) {
+                    voci[i].classList.toggle('active', voci[i] === voce);
+                }
                 aggiornaClasseFiltroAttivo();
-                var valore = $(this).val();
+                var valore = voce.dataset.valore;
                 // Ricerca esatta (non per sottostringa) sulla colonna SottoCategoria
                 // (indice 3, dopo la rimozione della colonna "CATEGORIA"), altrimenti
                 // selezionare una sottocategoria il cui nome e' contenuto in quello

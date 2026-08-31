@@ -9,6 +9,21 @@ controlli mentre loro restano appiccicati al bordo destro) - sia da desktop
 sia da telefono. Da telefono passa solo alla versione "sola icona" (imbuto,
 vedi prodotti.css), ma senza mai uscire dalla riga del titolo.
 
+Dropdown Bootstrap (bottone + "dropdown-menu"), non piu' una <select>
+nativa - stesso motivo e stessa tecnica di prodotti_card.html/
+"partials/controlli_ricerca_filtro_card.html": il popup delle opzioni di
+una <select> e' disegnato dal browser/OS, non da Bootstrap/CSS del sito.
+Stesso id "filtroSottocategoria" e stessa struttura wrapper/icona di
+prima (letti dallo script inline di prodotti_tabella.html e da
+prodotti.css). A differenza del filtro di prodotti_card.html (dove ogni
+voce porta l'URL della sottocategoria come "data-url", il filtro qui
+naviga via AJAX), qui il filtro resta client-side puro (DataTables): ogni
+voce porta il nome della sottocategoria come "data-valore" (stringa vuota
+per "Tutte le sottocategorie"), letto dallo script inline che lo passa a
+"api.column(3).search(...)" - nessuna voce e' mai gia' "active" al primo
+caricamento (il filtro non ha uno stato server-side, riparte sempre da
+"Tutte le sottocategorie").
+
 La select esisteva gia' nel template (prima in una riga separata sopra la
 tabella, spostata qui solo via JS in "initComplete" con un "d-none" nel
 mezzo per non farla comparire un istante nel posto sbagliato): renderizzata
@@ -25,13 +40,14 @@ prodotti_card.html, id diverso per restare indipendente da quella pagina) -
 il filtro qui sopra non ne fa parte apposta, cosi' resta sempre nella riga
 del titolo.
 {% endcomment %}
-<div class="filtro-a-comparsa flex-grow-1 flex-shrink-1" style="max-width: 12rem; min-width: 0;" id="filtroTabellaWrapper">
-    <select id="filtroSottocategoria" class="form-select filtro-a-comparsa-select">
-        <option value="">Tutte le sottocategorie</option>
+<div class="filtro-a-comparsa dropdown flex-grow-1 flex-shrink-1" style="max-width: 12rem; min-width: 0;" id="filtroTabellaWrapper">
+    <button type="button" id="filtroSottocategoria" class="form-select filtro-a-comparsa-select" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Filtra per sottocategoria"></button>
+    <ul class="dropdown-menu dropdown-menu-end filtro-dropdown-menu" aria-labelledby="filtroSottocategoria">
+        <li><a class="dropdown-item filtro-dropdown-item active" href="#" data-valore="">Tutte le sottocategorie<span class="pallino-pagina-corrente filtro-item-dot" aria-hidden="true"></span></a></li>
         {% for sc in sottocategorie %}
-            <option value="{{ sc.nome_sottocategoria }}">{{ sc.nome_sottocategoria }}</option>
+            <li><a class="dropdown-item filtro-dropdown-item" href="#" data-valore="{{ sc.nome_sottocategoria }}">{{ sc.nome_sottocategoria }}<span class="pallino-pagina-corrente filtro-item-dot" aria-hidden="true"></span></a></li>
         {% endfor %}
-    </select>
+    </ul>
     <i class="bi bi-funnel filtro-icon-overlay" aria-hidden="true"></i>
 </div>
 
