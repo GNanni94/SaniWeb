@@ -1,0 +1,28 @@
+<div class="dropdown">
+  <a class="d-flex align-items-center text-decoration-none" id="dropdownUser1"
+  data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="bi bi-person-circle icona-profilo-navbar icon-lg fs-2"> </i>
+  </a>
+  <ul class="dropdown-menu dropdown-menu-end text-small" aria-labelledby="dropdownUser1">
+    <li class="bg-light py-2 px-3 d-flex align-items-center justify-content-center gap-2">
+      {% if user.is_staff %}
+      <a href="{% url 'dashboard_admin' %}" title="Dashboard admin" class="d-inline-flex">
+        <i class="bi bi-speedometer2 fs-5" style="color: var(--color-primary);"></i>
+      </a>
+      {% endif %}
+      <span>{{ user.email }}</span>
+    </li>
+    <li><a class="dropdown-item" href="{% url 'profilo' user.pk %}">Profilo</a></li>
+    <li><a class="dropdown-item" href="{% url 'password_change' %}">Cambia password</a></li>
+    <li><a class="dropdown-item" href="{% url 'lista_ordini'%}">Lista preventivi</a></li>
+    {% if not user.is_staff %}
+    <li><a class="dropdown-item text-danger" href="{% url 'eliminaProfilo' user.pk %}">Elimina</a></li>
+    {% endif %}
+    <li>
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="dropdown-item border-0">Log Out</button>
+      </form>
+    </li>
+  </ul>
+</div>
