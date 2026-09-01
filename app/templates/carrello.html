@@ -8,74 +8,81 @@
 {% block contenuto %}
 
 <div class="container">
+
+    {% comment %}
+    Sentinella con un'altezza vera (".sentinella-intestazione" in
+    prodotti.css, riusata cosi' com'e' - e' un semplice spaziatore generico,
+    non legato ai contenuti di prodotti_card.html) davanti alla riga: stesso
+    principio spiegato in prodotti_card.html, sostituisce il vecchio "mt-4"
+    della riga (stesso 1.5rem) con uno spazio reale FUORI da lei, cosi' la
+    riga scorre normalmente insieme alla pagina per un tratto invece di
+    agganciarsi subito. Riferimento per l'IntersectionObserver in
+    static/js/carrello-intestazione-sticky.js.
+    {% endcomment %}
+    <div id="sentinellaIntestazioneCarrello" class="sentinella-intestazione"></div>
+
+    <div class="d-flex align-items-center position-relative mb-2 mb-md-4 intestazione-carrello-sticky">
+        <a href="{% url 'catalogo' %}" class="btn btn-navbar btn-sm rounded-pill pillola-header-carrello position-absolute start-0" title="Torna al catalogo">
+            <i class="bi bi-arrow-left"></i>
+            <span class="d-none d-md-inline">Torna al catalogo</span>
+        </a>
+        <h1 id="titoloRichiediPreventivo" class="fw-bold mb-0 mx-auto titolo-richiedi-preventivo">Richiedi Preventivo</h1>
+        <span class="badge rounded-pill pillola-header-carrello pillola-contatore-carrello position-absolute end-0">
+            <span id="contatoreArticoliNumero">{{ totale_elementi_carrello }}</span><span class="d-none d-md-inline"> articoli</span>
+        </span>
+    </div>
+
+    {% if totale_elementi_carrello == 0 %}
     <div class="row">
         <div class="col-12 text-center my-5">
-            {% if totale_elementi_carrello == 0 %}
             <h3>Il carrello è vuoto. </h3>
             <br>
             <h4>Vai nel <a href="{% url 'catalogo' %}">catalogo</a> per aggiungere prodotti </h4>
-            {% endif %}
         </div>
     </div>
+    {% else %}
 
-    <div class="row align-items-start" id="rigaCarrelloPreventivo">
-        <div class="col-lg-8 col-12 text-center" id="colonnaListaCarrello">
-            <ul class="list-unstyled mb-0">
-            {% for elementi_carrello in object_list %}
-            <li class="card rounded-3{% if not forloop.last %} mb-4{% endif %} position-relative">
-                <div class="card-body p-4">
-                    <div class="row justify-content-between align-items-center">
-                        <div class="col-12 col-md-2 col-lg-2 col-xl-2 d-flex flex-column align-items-center text-center px-5 px-md-0">
-                            <p class="mb-1 mb-md-3">{{ elementi_carrello.prodotto.codice_prodotto }}</p>
-                            <p class="mt-1 mt-md-3 mb-1 order-md-3">{{ elementi_carrello.prodotto.categoria.nome_categoria }}</p>
-                            <img src="{{ elementi_carrello.prodotto.immagine_rel.immagine}}"
-                                class="img-fluid rounded-3 order-md-2" alt="{{ elementi_carrello.prodotto.nome_prodotto }}">
-                        </div>
-                        <div class="mt-1 col-12 col-md-3 col-lg-4 col-xl-4 text-center text-md-start">
-                            <p>{{ elementi_carrello.prodotto.nome_prodotto }}</p>
-                        </div>
-                        <div class="col-12 col-md-4 col-lg-3 col-xl-3 d-flex flex-wrap align-items-center justify-content-center gap-1 mt-1 mt-md-0">
-                            <form id="form-quantita-carrello-{{ elementi_carrello.pk }}" action="{%url 'settaggio_quantita' elementi_carrello.pk%}" method="post" class="form-quantita-carrello mb-0">
-                                {% csrf_token %}
-                                {{elementi_carrello.form|crispy}}
-                            </form>
-                            <button type="submit" form="form-quantita-carrello-{{ elementi_carrello.pk }}" class="btn btn-navbar btn-refresh-quantita d-flex align-items-center justify-content-center" aria-label="Aggiorna quantità">
-                                <i class="bi bi-arrow-clockwise fs-5"></i>
-                            </button>
-                        </div>
-                        <div class="col-12 col-md-2 col-lg-2 col-xl-2 text-center text-md-start text-nowrap mt-1 mt-md-0">
-                            <span>{{ elementi_carrello.quantita }} {{elementi_carrello.prodotto.unita_di_misura}}</span>
-                        </div>
-                        <div class="col-md-1 col-lg-1 col-xl-1 text-end position-absolute position-md-relative top-0 end-0 m-2 m-md-0">
-                            {# form invece di un link: la view richiede POST (vedi Carrello/views.py), altrimenti un link/immagine su un'altra pagina potrebbe far cancellare l'elemento a un utente loggato senza che se ne accorga #}
-                            <form method="post" action="{% url 'elimina_prodotti' elementi_carrello.pk %}" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-link text-danger p-0 border-0"><i class="bi bi-trash fs-3"></i></button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </li>
-            {% endfor %}
-            </ul>
+    <div class="row align-items-start gy-4" id="rigaCarrelloPreventivo">
+        <div class="col-lg-8 col-12" id="colonnaListaCarrello">
+            {% include 'partials/lista_carrello.html' %}
         </div>
         <div class="col-lg-4 col-12 position-relative" id="colonnaFormPreventivo">
-            {% if totale_elementi_carrello > 0 %}
-            <div class="card" id="cardFormPreventivo">
-                <div class="card-body">
+            <div class="card rounded-4" id="cardFormPreventivo">
+                <h2 class="h6 mb-0 text-center text-white py-3 carrello-summary-header">Informazioni</h2>
+                <div class="card-body p-4">
                     <form action="{% url 'crea_ordine' %}" method="post" id="informazioni">
                         {% csrf_token %}
                         {{ preventivo.messaggio|as_crispy_field}}
                         {{ preventivo.luogo|as_crispy_field}}
-                        <button class="btn btn-navbar btn-block btn-lg py-3">Richiedi preventivo</button>
+                        <button class="btn btn-navbar rounded-pill w-100 py-3 mt-2">Richiedi preventivo</button>
                     </form>
                 </div>
             </div>
-            {% endif %}
         </div>
     </div>
+    {% endif %}
 </div>
 
 <script src="{% static 'js/carrello-form-sticky.js' %}"></script>
+<script src="{% static 'js/carrello-ajax.js' %}"></script>
+<script src="{% static 'js/carrello-intestazione-sticky.js' %}"></script>
+
+<script>
+  // Campo "Note aggiuntive": stesso pattern gia' usato dal campo "Contenuto"
+  // in contatti.html (vedi MessaggioForm) - parte basso (rows=1, vedi
+  // Preventivo/forms.py) e cresce da solo mentre si scrive, invece di avere
+  // un'altezza fissa grande "per sicurezza" indipendentemente da quanto
+  // testo viene scritto
+  (function () {
+    var textarea = document.getElementById('id_messaggio');
+    if (!textarea) return;
+    function adattaAltezza() {
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+    textarea.addEventListener('input', adattaAltezza);
+    adattaAltezza();
+  })();
+</script>
 
 {% endblock contenuto %}

@@ -111,12 +111,6 @@
   display: none;
 }
 
-/* Stesso ragionamento sopra, applicato al campo "Quantita" del form di
-   aggiornamento quantita nel carrello (carrello.html) */
-.form-quantita-carrello .asteriskField {
-  display: none;
-}
-
 /* Stesso ragionamento sopra, applicato ai campi del form di
    creazione/modifica avviso di chiusura (gestione_avvisi.html) */
 #form-avviso .asteriskField {
@@ -157,48 +151,6 @@
    "File" restano obbligatori, solo l'asterisco viene nascosto */
 #form-documento .asteriskField {
   display: none;
-}
-
-/* crispy-forms genera un unico div con label sopra l'input: qui li
-   affianchiamo (etichetta a sinistra, box a destra) - non ottenibile con le
-   sole utility Bootstrap perche' non possiamo assegnare classi al div
-   generato automaticamente da crispy-forms */
-.form-quantita-carrello > div {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  /* la classe "mb-3" che crispy-forms assegna a questo div usa
-     "margin-bottom: 1rem !important": senza !important qui non verrebbe
-     sovrascritta */
-  margin-bottom: 0 !important;
-}
-
-/* Evita che il box della quantita' si schiacci quando la colonna e' stretta
-   (essendo dentro piu' livelli di flex, altrimenti si restringerebbe sotto
-   la sua larghezza voluta invece di andare in overflow) */
-.form-quantita-carrello input {
-  flex-shrink: 0;
-}
-
-/* Il <form> stesso e' un elemento flex (figlio della riga che lo affianca al
-   bottone "aggiorna") e di default puo' restringersi (flex-shrink: 1): se la
-   colonna e' stretta si comprime piu' del suo contenuto (etichetta+box, che
-   non si restringe), facendo traboccare il box sopra al bottone */
-.form-quantita-carrello {
-  flex-shrink: 0;
-}
-
-.form-quantita-carrello .form-label {
-  margin-bottom: 0;
-}
-
-/* Bottone di refresh della quantita' (carrello.html): stessa formula che
-   Bootstrap usa internamente per calcolare l'altezza di ".form-control",
-   cosi' l'altezza combacia sempre esattamente con quella della box */
-.btn-refresh-quantita {
-  height: calc(1.5em + 0.75rem + 2px);
-  width: calc(1.5em + 0.75rem + 2px);
-  padding: 0;
 }
 
 /* Campi "Messaggio" e "Luogo" del form preventivo nel carrello

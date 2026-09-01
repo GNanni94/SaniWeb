@@ -22,12 +22,45 @@ def _e_richiesta_in_background(request):
     return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
 
+def _e_richiesta_da_pagina_carrello(request):
+    # Segnale esplicito mandato solo dal JS della pagina carrello
+    # (static/js/carrello-ajax.js), aggiunto a mano al FormData: aumenta/
+    # diminuisci/elimina sono azioni condivise con il carrello flottante
+    # (presente in tutte le altre pagine), quindi una richiesta in background
+    # da sola non basta a sapere quale frammento rispondere - un Referer
+    # sarebbe implicito e meno affidabile (puo' mancare o essere ridotto dal
+    # browser), un campo esplicito nel corpo della richiesta no
+    return request.POST.get('contesto') == 'pagina_carrello'
+
+
 def _render_widget_carrello_flottante(request):
     # Nessun context esplicito da passare: "carrello_ha_prodotti" e' gia'
     # registrato globalmente come context processor (settings.py), quindi
     # render() lo esegue comunque da solo - passarlo qui a mano duplicava
     # la query sugli elementi del carrello ad ogni azione AJAX
     return render(request, 'partials/carrello_flottante.html')
+
+
+def _contesto_lista_carrello(request):
+    elementi_carrello_utente = request.user.elementi_carrello.all()
+    return {
+        "object_list": elementi_carrello_utente,
+        "totale_elementi_carrello": sum(elemento.quantita for elemento in elementi_carrello_utente),
+    }
+
+
+def _render_lista_carrello(request):
+    return render(request, 'partials/lista_carrello.html', _contesto_lista_carrello(request))
+
+
+def _render_frammento_azione_carrello(request):
+    # Usata dalle azioni condivise tra pagina carrello e carrello flottante
+    # (aumenta/diminuisci/elimina): sceglie quale dei due frammenti
+    # restituire in base a "_e_richiesta_da_pagina_carrello" qui sopra
+    if _e_richiesta_da_pagina_carrello(request):
+        return _render_lista_carrello(request)
+    return _render_widget_carrello_flottante(request)
+
 
 # Create your views here.
 class CarrelloListView(LoginRequiredMixin, ListView):
@@ -37,13 +70,7 @@ class CarrelloListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        elementi_carrello_utente = self.request.user.elementi_carrello.all()
-        # Un form per elemento, legato alla sua quantita' reale (instance=elemento):
-        # un unico CarrelloForm() condiviso da tutte le righe mostrerebbe sempre
-        # 0 (il default del campo "quantita" nel model), non la quantita' vera
-        for elemento in elementi_carrello_utente:
-            elemento.form = CarrelloForm(instance=elemento)
-        context["object_list"] = elementi_carrello_utente
+        context.update(_contesto_lista_carrello(self.request))
         # Precompilazione da un "Riusa preventivo" (vedi
         # Preventivo/views.py:aggiungi_preventivo_al_carrello): valori letti
         # una sola volta e rimossi dalla sessione, cosi' non restano a
@@ -54,7 +81,6 @@ class CarrelloListView(LoginRequiredMixin, ListView):
         if 'luogo_precompilato' in self.request.session:
             initial['luogo'] = self.request.session.pop('luogo_precompilato')
         context["preventivo"] = DettaglioPreventivoForm(initial=initial)
-        context["totale_elementi_carrello"] = sum([elemento.quantita for elemento in elementi_carrello_utente])
         return context
 
 def elementi_carrello(request):
@@ -114,7 +140,7 @@ def elimina_elementi_dal_carrello(request, carrelloId):
         Carrello.objects.filter(id = carrelloId, cliente = request.user).delete()
         logger.info(f"Effettuata richiesta eliminazione elemento carrello {carrelloId} utente {request.user.pk}")
         if _e_richiesta_in_background(request):
-            return _render_widget_carrello_flottante(request)
+            return _render_frammento_azione_carrello(request)
         return redirect('carrello')
     # Utente anonimo (es. sessione scaduta a pagina aperta) + richiesta in
     # background: stesso ragionamento di "aggiungi_prodotti_al_carrello" qui
@@ -182,7 +208,7 @@ def aumenta_quantita_carrello(request, carrelloId):
         elemento_carrello.save()
         logger.info(f"Effettuata richiesta aumento quantita prodotto {elemento_carrello.prodotto.pk} carrello {carrelloId} utente {request.user.pk}")
         if _e_richiesta_in_background(request):
-            return _render_widget_carrello_flottante(request)
+            return _render_frammento_azione_carrello(request)
         return redirect('carrello')
     if _e_richiesta_in_background(request):
         return HttpResponse(status=401)
@@ -204,7 +230,7 @@ def diminuisci_quantita_carrello(request, carrelloId):
             elemento_carrello.save()
         logger.info(f"Effettuata richiesta aumento quantita prodotto {elemento_carrello.prodotto.pk} carrello {carrelloId} utente {request.user.pk}")
         if _e_richiesta_in_background(request):
-            return _render_widget_carrello_flottante(request)
+            return _render_frammento_azione_carrello(request)
         return redirect('carrello')
     if _e_richiesta_in_background(request):
         return HttpResponse(status=401)

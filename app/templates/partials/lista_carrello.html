@@ -1,0 +1,57 @@
+{% comment %}
+Lista prodotti nel carrello (carrello.html), separata in un partial cosi'
+puo' essere restituita anche come frammento dalle azioni aumenta/diminuisci/
+elimina quando la richiesta arriva in AJAX dalla pagina carrello (vedi
+static/js/carrello-ajax.js e Carrello/views.py:_render_lista_carrello) -
+stesso pattern AJAX (fetch + frammento HTML) gia' usato per
+prodotti_card.html.
+
+L'id "listaCarrelloItems" e "data-totale-articoli" sono letti dal JS per
+sostituire il contenuto e aggiornare il contatore "N articoli" in testata
+senza ricaricare la pagina intera. Richiede in context "object_list" e
+"totale_elementi_carrello" (gia' presenti sia nel context di
+CarrelloListView sia in quello del frammento AJAX).
+{% endcomment %}
+<ul class="list-unstyled d-flex flex-column gap-4 mb-0" id="listaCarrelloItems" data-totale-articoli="{{ totale_elementi_carrello }}">
+{% for elementi_carrello in object_list %}
+<li class="card rounded-4 carrello-item-card">
+    <div class="card-body d-flex flex-wrap align-items-center gap-3 gap-md-4 p-3 p-md-4">
+        <div class="carrello-item-thumb flex-shrink-0">
+            <img src="{{ elementi_carrello.prodotto.immagine_rel.immagine}}" alt="{{ elementi_carrello.prodotto.nome_prodotto }}">
+        </div>
+        <div class="flex-grow-1 carrello-item-info">
+            <div class="d-flex gap-2 flex-wrap mb-1">
+                <span class="badge rounded-pill carrello-tag-codice">{{ elementi_carrello.prodotto.codice_prodotto }}</span>
+                <span class="badge rounded-pill carrello-tag-categoria">{{ elementi_carrello.prodotto.categoria.nome_categoria }}</span>
+            </div>
+            <p class="mb-0 fw-semibold">{{ elementi_carrello.prodotto.nome_prodotto }}</p>
+        </div>
+        <form method="post" action="{% url 'elimina_prodotti' elementi_carrello.pk %}" class="d-inline flex-shrink-0">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger rounded-circle carrello-delete-btn" aria-label="Rimuovi">
+                <i class="bi bi-trash"></i>
+            </button>
+        </form>
+        <div class="d-flex align-items-center carrello-item-qty-row">
+            <div class="carrello-item-qty-spacer"></div>
+            <div class="d-flex align-items-center gap-2 carrello-stepper">
+                <form method="post" action="{% url 'diminuisci_quantita' elementi_carrello.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-navbar rounded-circle carrello-stepper-btn" aria-label="Diminuisci quantità">
+                        <i class="bi bi-dash"></i>
+                    </button>
+                </form>
+                <span class="carrello-stepper-qty">{{ elementi_carrello.quantita }}</span>
+                <form method="post" action="{% url 'aumenta_quantita' elementi_carrello.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-navbar rounded-circle carrello-stepper-btn" aria-label="Aumenta quantità">
+                        <i class="bi bi-plus"></i>
+                    </button>
+                </form>
+            </div>
+            <span class="carrello-item-qty-unit text-muted small text-nowrap">{{ elementi_carrello.quantita }} {{ elementi_carrello.prodotto.unita_di_misura }}</span>
+        </div>
+    </div>
+</li>
+{% endfor %}
+</ul>

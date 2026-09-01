@@ -275,6 +275,28 @@
     font-weight: 700;
   }
 
+  /* Titolo "Richiedi Preventivo" (carrello.html) spostato nella pillola:
+     stesso principio e stessa dimensione (32px) del titolo categoria qui
+     sopra, vedi static/js/carrello-intestazione-sticky.js. "margin: 0"
+     perche' qui e' l'intero <h1> ad essere spostato (non solo un link al
+     suo interno come per il titolo categoria): il margine di un <h1>
+     normale sposterebbe il contenuto della pillola dal centro verticale.
+     "display: inline-block" essenziale, non solo estetico: "#titoloCategoriaLink"
+     qui sopra e' un <a>, gia' di suo "shrink-to-fit" sul proprio contenuto -
+     un <h1> e' invece block-level, si allargherebbe sempre a riempire
+     l'intero slot indipendentemente dal testo. La riduzione progressiva del
+     font in carrello-intestazione-sticky.js confronta la larghezza
+     dell'elemento con quella disponibile: su un <h1> block quel confronto
+     sarebbe sempre "combacia" (e' gia' largo quanto lo slot), quindi non
+     ridurrebbe mai il font - bug reale gia' capitato qui ("Richiedi
+     Preventivo" tagliato dall'ellissi invece di rimpicciolirsi) */
+  .pillola-slot-titolo .titolo-richiedi-preventivo {
+    display: inline-block;
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0;
+  }
+
   /* "Torna al catalogo"/filtro spostati nella pillola: gia' cerchietti
      blu su sfondo bianco di loro (vedi ".btn-torna-catalogo"/
      "#prodottiCardFiltro"/"#filtroSottocategoria" in prodotti.css, stessa

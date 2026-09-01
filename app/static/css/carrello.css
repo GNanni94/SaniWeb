@@ -6,14 +6,279 @@
   border: 2px solid var(--color-primary);
 }
 
-/* Immagine del prodotto nella card del carrello: altezza massima per non far
-   sballare le proporzioni della card quando l'immagine e' molto alta */
-#colonnaListaCarrello .card img {
-  max-height: 170px;
+/* Bottone "Torna al catalogo" e pillola del contatore articoli nella riga
+   titolo di carrello.html: stessa identica dimensione tra i due, anche se
+   uno e' un ".btn.btn-sm" e l'altra un ".badge" - due componenti Bootstrap
+   con padding/line-height di base diversi (un badge ha "line-height: 1",
+   niente a che vedere con quello di un bottone). Ripetere qui il box di
+   ".btn-sm" pareggia i due indipendentemente da quale dei due markup li
+   genera. Da desktop (768px), stesso principio (e stessi valori) di
+   ".btn-torna-catalogo" in prodotti.css e ".pillola-torna-preventivi" in
+   preventivo.css - dimensione fissa e moderata, slegata da quella del
+   titolo h1 accanto (un font-size pari al titolo renderebbe queste pillole
+   piu' vistose del titolo stesso) */
+.pillola-header-carrello {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
-/* Card del form "Richiedi preventivo" nel carrello: stesso bordo blu delle
-   card della lista prodotti qui sopra */
+/* Da telefono il testo e' nascosto su entrambe (icona sola a sinistra,
+   solo il numero a destra - vedi "d-none d-md-inline" nel markup): un box
+   dimensionato dal solo padding non e' pero' un cerchio vero, la larghezza
+   segue il contenuto (un'icona e una cifra non sono mai esattamente larghe
+   quanto alte). Dimensione fissa e uguale su entrambe le direzioni per un
+   cerchio garantito, non "quasi" circolare per coincidenza */
+@media (max-width: 767.98px) {
+  .pillola-header-carrello {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+}
+
+@media (min-width: 768px) {
+  .pillola-header-carrello {
+    padding: 0.5rem 1.25rem;
+    font-size: 1rem;
+  }
+}
+
+/* Riga titolo "Richiedi Preventivo" fissata in cima allo scroll (da
+   telefono e da desktop), attaccata subito sotto la navbar: stesso
+   meccanismo (sentinella + IntersectionObserver + bordo "a pillola" quando
+   agganciata) gia' usato per la riga titolo di prodotti_card.html/
+   prodotti_tabella.html (".intestazione-categoria-sticky" in prodotti.css),
+   con classe e script dedicati (static/js/carrello-intestazione-sticky.js)
+   invece di riusare quelli - stesso principio di duplicazione scoped gia'
+   seguito altrove nel progetto (es. ".pillola-torna-preventivi" in
+   preventivo.css) */
+.intestazione-carrello-sticky {
+  position: sticky !important;
+  top: var(--altezza-navbar, 0px);
+  z-index: 1020;
+  background-color: var(--color-bg);
+  padding-top: 0 !important;
+  border: 2px solid transparent;
+  transition: border-color .3s ease, border-width .3s ease, border-radius .3s ease, padding .3s ease, background-color .3s ease;
+}
+
+.intestazione-carrello-sticky.intestazione-fissata {
+  border-color: var(--color-primary);
+  border-radius: 0 0 1.5rem 1.5rem;
+  padding-top: .5rem !important;
+  padding-bottom: .5rem !important;
+}
+
+.intestazione-carrello-sticky.intestazione-fissata .position-absolute.start-0 {
+  left: .5rem !important;
+}
+
+.intestazione-carrello-sticky.intestazione-fissata .position-absolute.end-0 {
+  right: .5rem !important;
+}
+
+/* Da telefono (sotto la soglia xxl), quando la riga si aggancia i suoi tre
+   elementi vengono spostati dentro la pillola della navbar (vedi
+   static/js/carrello-intestazione-sticky.js): a differenza di
+   prodotti_card.html qui non c'e' nessun elemento "position: fixed" dentro
+   la riga da preservare (viene spostato l'intero <h1>, non solo un suo
+   link interno), quindi la riga risulta completamente vuota e puo'
+   collassare bordo/sfondo/padding senza dover nascondere nient'altro */
+.intestazione-carrello-sticky.contenuto-in-pillola-navbar {
+  border-width: 0;
+  border-radius: 0;
+  background-color: transparent;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* "Torna al catalogo"/il contatore articoli spostati dentro la pillola
+   della navbar (".pillola-slot-indietro"/".pillola-slot-filtro" in
+   base.html/navbar.css, via carrello-intestazione-sticky.js): portano le
+   utility Bootstrap "position-absolute start-0"/"end-0", pensate per la
+   riga originale (".intestazione-carrello-sticky", "position: sticky" di
+   suo) - spostati qui dentro, il loro antenato posizionato piu' vicino
+   diventa invece la navbar intera. Stesso problema e stessa soluzione gia'
+   usate in navbar.css per ".pillola-slot-indietro .btn-torna-catalogo" */
+.pillola-slot-indietro .pillola-header-carrello,
+.pillola-slot-filtro .pillola-header-carrello {
+  position: static !important;
+  left: auto !important;
+  right: auto !important;
+}
+
+/* Titolo "Richiedi Preventivo": stesso blu navbar del titolo categoria di
+   prodotti_card.html (".titolo-categoria-link" in prodotti.css) e del
+   titolo di dettaglio_preventivo.html (".titolo-dettaglio-preventivo" in
+   preventivo.css) */
+.titolo-richiedi-preventivo {
+  color: var(--color-primary);
+}
+
+/* Pillola del contatore articoli: sfondo/bordo neutri (non e' un'azione
+   come la pillola "Torna al catalogo" accanto), testo blu navbar */
+.pillola-contatore-carrello {
+  background-color: var(--color-bg-alt);
+  border: 1px solid var(--bs-border-color);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Blocco tag+nome prodotto, accanto alla thumbnail: "flex-basis: 0" (non
+   "auto", il default che avrebbe comunque ".flex-grow-1" da solo) e'
+   essenziale, non solo "min-width: 0" - senza, l'ingombro di partenza usato
+   per decidere gli a-capo tra elementi flex e' quello del nome TUTTO su una
+   riga (il suo "contenuto naturale"): con un nome lungo quell'ingombro non
+   entra piu' accanto alla thumbnail, e va a capo l'intero blocco (tag+nome
+   sotto la thumbnail invece che accanto), non solo il testo del nome -
+   risultato una card visibilmente diversa dalle altre in base alla sola
+   lunghezza del nome prodotto. Con "flex-basis: 0" l'ingombro di partenza è
+   zero: il blocco resta sempre nella riga della thumbnail e riceve poi lo
+   spazio rimanente (".flex-grow-1"), dentro cui il nome va a capo
+   normalmente da solo (una o due righe) senza spostare la thumbnail */
+.carrello-item-info {
+  flex-basis: 0;
+  min-width: 0;
+}
+
+/* Miniatura prodotto nella card del carrello: dimensione fissa (non piu'
+   "img-fluid" a piena larghezza della colonna) cosi' thumbnail, testo,
+   stepper e cestino restano sempre allineati sulla stessa riga da desktop */
+.carrello-item-thumb {
+  width: 84px;
+  height: 84px;
+  border-radius: 0.75rem;
+  background-color: var(--color-bg-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.carrello-item-thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Codice prodotto e categoria come pillole informative sopra al nome del
+   prodotto, invece del testo semplice che avevano prima */
+.carrello-tag-codice {
+  background-color: var(--color-bg-alt);
+  color: #6b7683;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+}
+
+.carrello-tag-categoria {
+  background-color: rgba(27, 90, 160, 0.1);
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+}
+
+/* Bottone di eliminazione riga: cerchio "btn-outline-danger" (stesso
+   componente Bootstrap gia' usato altrove nel sito, es.
+   ".btn-svuota-flottante" in carrello-flottante.css) invece del vecchio
+   link/icona nudi */
+.carrello-delete-btn {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-width: 2px;
+  flex-shrink: 0;
+}
+
+/* Riga di stepper+unita' di misura: da desktop sta semplicemente accanto
+   al resto (nessuno spazio forzato tra i due, ".carrello-item-qty-spacer"
+   qui sotto resta a larghezza 0). Da telefono va a capo su una riga propria
+   (separata da un bordo) e i due spazi ai lati diventano elastici, cosi' lo
+   stepper resta centrato e l'unita' di misura resta ancorata a destra */
+.carrello-item-qty-row {
+  flex-shrink: 0;
+}
+
+.carrello-item-qty-spacer {
+  flex: 0 0 auto;
+}
+
+.carrello-item-qty-unit {
+  flex: 0 0 auto;
+  margin-left: 0.75rem;
+}
+
+@media (max-width: 767.98px) {
+  .carrello-item-qty-row {
+    flex-basis: 100%;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--bs-border-color);
+  }
+
+  .carrello-item-qty-spacer {
+    flex: 1 1 0;
+  }
+
+  .carrello-item-qty-unit {
+    flex: 1 1 0;
+    margin-left: 0;
+    text-align: right;
+  }
+}
+
+/* Stepper +/- della quantita': contenitore a pillola con bottoni circolari,
+   stesso linguaggio visivo (dimensione/forma) dei bottoni +/- del carrello
+   flottante (".btn-aumenta-flottante"/".btn-diminuisci-flottante" in
+   carrello-flottante.css) - classi separate perche' vivono in un contesto
+   diverso (due <form> distinti che ricaricano la pagina, non fetch via JS) */
+.carrello-stepper {
+  background-color: var(--color-bg-alt);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 999px;
+  padding: 0.375rem;
+}
+
+.carrello-stepper-btn {
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carrello-stepper-qty {
+  min-width: 1.25rem;
+  text-align: center;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Card del form "Richiedi preventivo" (id "Informazioni" nel canvas di
+   design): stesso bordo blu delle card della lista prodotti qui sopra.
+   "overflow: hidden" perche' la fascia del titolo qui sotto
+   (".carrello-summary-header") deve seguire gli angoli arrotondati della
+   card invece di sporgere oltre */
 #cardFormPreventivo {
   border: 2px solid var(--color-primary);
+  overflow: hidden;
+}
+
+/* Fascia titolo "Informazioni": stesso principio della fascia del titolo
+   "Preventivo" nel pannello del carrello flottante
+   (".titolo-carrello-flottante" in carrello-flottante.css) */
+.carrello-summary-header {
+  background-color: var(--color-primary);
 }
