@@ -17,18 +17,18 @@
       <ul class="list-unstyled mb-3">
         {% for elemento in elementi_carrello_utente %}
         <li class="d-flex justify-content-between align-items-center mb-2">
-          <button type="button" class="btn btn-sm btn-link text-danger p-0 border-0 me-2 btn-rimuovi-flottante"
+          <button type="button" class="btn btn-outline-danger rounded-circle carrello-delete-btn me-2 btn-rimuovi-flottante"
             data-url="{% url 'elimina_prodotti' elemento.pk %}" aria-label="Rimuovi">
             <i class="bi bi-trash"></i>
           </button>
-          <span class="flex-grow-1 text-truncate me-2">{{ elemento.prodotto.nome_prodotto }}</span>
-          <div class="d-flex align-items-center gap-1">
-            <button type="button" class="btn btn-sm btn-navbar rounded-circle btn-diminuisci-flottante"
+          <span class="flex-grow-1 small me-2 carrello-flottante-item-nome">{{ elemento.prodotto.nome_prodotto }}</span>
+          <div class="d-flex align-items-center gap-2 carrello-stepper">
+            <button type="button" class="btn btn-navbar rounded-circle carrello-stepper-btn btn-diminuisci-flottante"
               data-url="{% url 'diminuisci_quantita' elemento.pk %}" aria-label="Diminuisci quantita">
               <i class="bi bi-dash"></i>
             </button>
-            <span class="mx-1">{{ elemento.quantita }}</span>
-            <button type="button" class="btn btn-sm btn-navbar rounded-circle btn-aumenta-flottante"
+            <span class="carrello-stepper-qty">{{ elemento.quantita }}</span>
+            <button type="button" class="btn btn-navbar rounded-circle carrello-stepper-btn btn-aumenta-flottante"
               data-url="{% url 'aumenta_quantita' elemento.pk %}" aria-label="Aumenta quantita">
               <i class="bi bi-plus"></i>
             </button>

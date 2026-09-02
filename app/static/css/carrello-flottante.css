@@ -53,6 +53,17 @@
   border-color: var(--color-primary);
 }
 
+/* Il bordo bianco di ".su-footer" (sopra) deve restare anche in hover/
+   focus o col pannello aperto (".carrello-flottante-attivo"): le regole
+   di stato qui sopra hanno una specificita' piu' alta della sola
+   ".su-footer" e altrimenti la sovrascriverebbero, facendo sparire il
+   bordo bianco proprio quando ci si passa sopra col mouse o si clicca */
+#bottoneCarrelloFlottante.su-footer:hover:not(.carrello-flottante-attivo),
+#bottoneCarrelloFlottante.su-footer:focus:not(.carrello-flottante-attivo),
+#bottoneCarrelloFlottante.su-footer.carrello-flottante-attivo {
+  border-color: var(--color-bg);
+}
+
 #badgeCarrelloFlottante {
   position: absolute;
   top: -0.25rem;
@@ -97,19 +108,28 @@
   padding: 1rem;
 }
 
-/* Bottoni +/- quantita' (partials/carrello_flottante.html): dimensione
-   fissa uguale su entrambi i lati, altrimenti ".btn-sm" con solo
-   un'icona dentro non sarebbe un cerchio perfetto (il padding
-   orizzontale/verticale di Bootstrap non e' uguale sui due assi) */
-.btn-aumenta-flottante,
-.btn-diminuisci-flottante {
-  width: 1.75rem;
-  height: 1.75rem;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Nome prodotto nella riga del pannello: se troppo lungo per una riga
+   sola va su una seconda (troncato con "..." solo se supera anche
+   quella), invece di uscire dai bordi del pannello - Bootstrap 5.3 non
+   ha un'utility per il line-clamp, da qui il CSS custom. "min-width: 0"
+   e' necessario perche' e' un elemento flex con "flex-grow-1": di
+   default un elemento flex non si restringe sotto la larghezza del suo
+   contenuto (qui una singola parola lunga), anche con "overflow-wrap" */
+.carrello-flottante-item-nome {
+  min-width: 0;
+  overflow-wrap: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
+
+/* Bottoni +/- quantita' (partials/carrello_flottante.html): dimensione e
+   stile presi da ".carrello-stepper-btn"/".carrello-stepper" (carrello.css,
+   caricato in tutte le pagine tramite base.html), stessa estetica a
+   pillola dello stepper della pagina carrello - ".btn-aumenta-flottante"/
+   ".btn-diminuisci-flottante" restano solo come selettori per il JS
+   (carrello-flottante.js), senza stili propri qui */
 
 /* Bordo piu' spesso (2px invece dell'1px di default di Bootstrap) per
    "Svuota carrello": scoped alla classe usata solo qui
