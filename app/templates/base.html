@@ -241,7 +241,14 @@
           </a>
           <ul class="dropdown-menu" id="dropdownCategorie">
             {% for lista in categoria %}
-                <li><a class="dropdown-item fs-6" href="{% url 'dettaglio_categoria' lista.pk %}">{{lista.nome_categoria}}</a></li>
+                <li>
+                  <a class="dropdown-item fs-6 d-flex align-items-center gap-2" href="{% url 'dettaglio_categoria' lista.pk %}">
+                    {{lista.nome_categoria}}
+                    {% if request.resolver_match.url_name == 'dettaglio_categoria' and request.resolver_match.kwargs.pk == lista.pk or request.resolver_match.url_name == 'dettaglio_sottocategoria' and request.resolver_match.kwargs.pk_categoria == lista.pk %}
+                    <span class="pallino-pagina-corrente" aria-hidden="true"></span>
+                    {% endif %}
+                  </a>
+                </li>
             {% endfor %}
           </ul>
         </li>

@@ -23,7 +23,15 @@
 .hamburger-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 1020;
+  /* Sopra (1025) a ".intestazione-categoria-sticky" (prodotti.css, z-index
+     1020: la riga "Torna al catalogo"/titolo/filtro agganciata in cima
+     durante lo scroll di prodotti_card.html/prodotti_tabella.html) - a
+     parita' di z-index (1020 su entrambi, prima di questa modifica)
+     vincerebbe lei per ordine nel DOM (viene dopo questo elemento in
+     base.html), restando illuminata sopra al backdrop invece di scurirsi
+     insieme al resto della pagina. Resta comunque sotto ".site-navbar"
+     (1030), che deve restare sopra */
+  z-index: 1025;
   background-color: rgba(0, 0, 0, .5);
   opacity: 0;
   pointer-events: none;
@@ -125,6 +133,22 @@
   .site-navbar:has(.navbar-toggler[aria-expanded="true"]) ~ .hamburger-backdrop {
     opacity: 1;
     pointer-events: auto;
+    /* Sopra (1041) anche al carrello flottante (carrello-flottante.css,
+       z-index 1040: normalmente sopra alla navbar per conto suo, qui va
+       scurito insieme al resto quando il menu e' aperto). Solo in questo
+       stato attivo, non sul valore di riposo del backdrop qui sopra: non
+       deve interferire con l'ordine "a riposo" (navbar 1030, carrello
+       flottante 1040 sopra di lei) usato altrove */
+    z-index: 1041;
+  }
+
+  /* La navbar (pillole hamburger/logo + pannello #navbarSupportedContent,
+     tutti dentro di lei) deve restare sopra al backdrop appena scurito
+     (1041 qui sopra, altrimenti sopra 1030 di lei) mentre il menu e'
+     aperto - solo in questo stato, altrimenti a riposo tornerebbe sopra
+     anche al carrello flottante (1040), cambiandone l'ordine normale */
+  .site-navbar:has(.navbar-toggler[aria-expanded="true"]) {
+    z-index: 1042;
   }
 
   /* Bottone hamburger come ovale verticale pieno staccato dal resto
@@ -573,33 +597,84 @@
    col comportamento a tocco della versione mobile con hamburger */
 @media (min-width: 1400px) {
   .site-navbar .navbar-nav > .nav-item.dropdown:hover > .dropdown-menu {
-    display: block;
+    display: flex; /* "block" prima dell'estetica a pillole: "flex" serve a far funzionare il "gap" tra le voci impostato su "#dropdownCategorie" */
     margin-top: 0;
+  }
+
+  /* Stesso sfondo scurito usato dietro al pannello del menu hamburger da
+     telefono (".hamburger-backdrop", vedi piu' in alto in questo file):
+     riusato qui, attivato con ":has()" sul passaggio del mouse su
+     "Catalogo" invece che su "aria-expanded" del bottone hamburger (che da
+     desktop non esiste, il toggler resta nascosto) */
+  .site-navbar:has(.navbar-nav > .nav-item.dropdown:hover) ~ .hamburger-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+    /* Sopra (1041) anche al carrello flottante (carrello-flottante.css,
+       z-index 1040), stesso motivo/stessa soglia della versione mobile
+       qui sopra in questo file (menu hamburger) */
+    z-index: 1041;
+  }
+
+  /* La navbar (barra + menu Catalogo, tutti dentro di lei) deve restare
+     sopra al backdrop appena scurito (1041 qui sopra, altrimenti sopra
+     1030 di lei) mentre il menu e' aperto - solo in questo stato, stesso
+     motivo della versione mobile qui sopra in questo file */
+  .site-navbar:has(.navbar-nav > .nav-item.dropdown:hover) {
+    z-index: 1042;
   }
 }
 
-/* Colori del sito applicati al menu a tendina delle categorie (invece
-   del bianco/nero di default di Bootstrap) */
+/* Stessa estetica "pillola" del pannello del menu hamburger da telefono
+   (vedi "#navbarSupportedContent" e le sue voci piu' in alto in questo
+   file): contenitore con angoli molto arrotondati e ombra invece di un
+   bordo blu pieno, voci come pillole staccate tra loro con contorno blu
+   al passaggio del mouse invece di un riempimento colorato */
 #dropdownCategorie {
   background-color: var(--color-bg); /* sfondo bianco, coerente col resto del sito (non il blu della navbar, per non appesantire) */
-  border: 3px solid var(--color-primary); /* bordo dello stesso blu della navbar, per collegarla visivamente al menu da cui esce */
-  border-radius: .5rem; /* angoli arrotondati del riquadro del menu */
+  border: none;
+  border-radius: 24px; /* stesso raggio di "#navbarSupportedContent" */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .25); /* stessa ombra del pannello hamburger, al posto del bordo blu pieno */
   overflow: hidden; /* taglia gli angoli delle voci interne seguendo l'arrotondamento del contenitore */
-  padding: 0; /* di default Bootstrap mette .5rem di padding sopra/sotto: lo togliamo cosi' la prima e l'ultima voce toccano i bordi del menu e i loro angoli possono combaciare con quelli del contenitore */
+  padding: .5rem; /* spazio tra le pillole e il bordo del contenitore, non piu' voci a contatto diretto coi bordi */
+  /* "flex-direction"/"gap" dichiarati qui ma innocui finche' il menu resta
+     "display: none" (default Bootstrap): prendono effetto solo quando la
+     regola ":hover" piu' in basso in questo file imposta "display: flex" -
+     "display" non va impostato qui: essendo un selettore per ID vincerebbe
+     sempre su ".dropdown-menu { display: none }" di Bootstrap (piu'
+     specifico di ".nav-item.dropdown:hover > .dropdown-menu"), tenendo il
+     menu visibile anche senza passarci sopra col mouse */
+  flex-direction: column;
+  gap: .35rem; /* stacca le pillole tra loro, come le voci del menu hamburger */
 }
 
 #dropdownCategorie .dropdown-item {
   color: var(--color-text); /* testo nello stesso grigio scuro usato nel resto del sito */
-  border: 1px solid transparent; /* bordo invisibile di riserva, stesso spessore di quello dell'hover: evita che la voce "salti" di 1px quando il bordo compare */
-  border-radius: 5px; /* raggio del contenitore (.5rem = 8px) meno lo spessore del suo bordo (3px): cosi' la curva della voce combacia esattamente con quella del menu agli angoli che toccano il bordo esterno */
+  background-color: var(--color-bg-alt); /* sfondo grigio chiaro a riposo, come le voci del menu hamburger */
+  border: 2px solid transparent; /* bordo invisibile di riserva, stesso spessore di quello dell'hover: evita che la voce "salti" quando il bordo compare */
+  border-radius: 999px; /* pillola, come le voci del menu hamburger */
 }
 
 #dropdownCategorie .dropdown-item:hover,
 #dropdownCategorie .dropdown-item:focus,
 #dropdownCategorie .dropdown-item:active {
-  color: var(--color-primary); /* testo blu (colore navbar) per evidenziare la voce selezionata */
-  background-color: transparent; /* ":active" (click) ha di suo uno sfondo blu pieno in Bootstrap: lo neutralizziamo per restare coerenti con :hover/:focus */
-  border-color: var(--color-primary); /* contorno blu (stesso blu della navbar) attorno alla voce sotto il mouse, senza riempire lo sfondo di grigio */
+  color: var(--color-text); /* nessun cambio colore testo, il contorno blu basta come segnale (stesso comportamento del menu hamburger) */
+  background-color: var(--color-bg-alt); /* invariato: ":active" (click) ha di suo uno sfondo blu pieno in Bootstrap, lo neutralizziamo */
+  border-color: var(--color-primary); /* contorno blu (stesso blu della navbar) attorno alla voce sotto il mouse, senza riempire lo sfondo */
+}
+
+/* Pallino di pagina corrente (stesso ".pallino-pagina-corrente" usato sulle
+   voci del menu hamburger da telefono - vedi piu' in alto in questo file):
+   ridichiarato qui perche' quella regola vale solo sotto i 1400px, mentre
+   questo menu e' visibile solo da desktop (>=1400px, vedi ":hover" piu' in
+   basso) - "margin-left: auto" lo spinge in fondo alla pillola, sfruttando
+   il flex della voce (testo + questo pallino, vedi "d-flex" in base.html) */
+#dropdownCategorie .pallino-pagina-corrente {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+  border-radius: 50%;
+  background-color: var(--color-primary);
 }
 
 /* Stessi colori del menu Categorie qui sopra (sfondo bianco, bordo blu
