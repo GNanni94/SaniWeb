@@ -5,9 +5,21 @@ html {
   background-color: var(--color-primary-dark);
 }
 
+/* "Sticky footer": "site-main" (base.html) e' l'unico figlio con
+   "flex-grow" qui sotto, quindi si allunga a riempire lo spazio verticale
+   residuo quando la pagina ha poco contenuto - il footer resta ancorato
+   in fondo allo schermo invece di lasciare sotto di se' lo sfondo di
+   "<html>" (stesso blu, vedi qui sopra) visibile come spazio vuoto */
 body {
   font-family: var(--font-base);
   color: var(--color-text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.site-main {
+  flex: 1 0 auto;
 }
 
 /* Footer */
@@ -28,7 +40,21 @@ body {
 
 .footer-social a {
   font-size: 1.5rem;
-  margin: 0 0.5rem;
+}
+
+/* Dati fiscali (P.IVA, Codice Univoco Fatturazione) uniti su una riga sola
+   in base.html: corpo minore e un po' piu' trasparenti, sono informazioni
+   legali secondarie rispetto a indirizzo/telefono/email sopra nella stessa
+   colonna, non serve dare loro lo stesso peso visivo */
+.footer-dati-fiscali {
+  font-size: .8rem;
+  opacity: .7;
+}
+
+/* Fascia sotto le due colonne (brand+contatti, link utili) con copyright e
+   icone social insieme, entrambi centrati (copyright sopra, icone sotto) */
+.footer-bottom {
+  margin-top: 1.5rem;
 }
 
 /* media query base html */
@@ -37,11 +63,5 @@ body {
   .footer-brand,
   .footer-links {
     text-align: center;
-  }
-
-  .site-footer .footer-social {
-    width: 100%; /* senza questo la colonna (col-lg-4, senza taglia per schermi piu' stretti) si restringe al contenuto e "justify-content: center" non ha spazio per centrare davvero le icone */
-    justify-content: center !important; /* !important necessario perche' l'elemento ha gia' la classe utility ".justify-content-end" di Bootstrap, che e' a sua volta "!important" di suo - senza, vincerebbe sempre lei a prescindere dalla specificita' di questa regola */
-    padding-top: 1rem;
   }
 }

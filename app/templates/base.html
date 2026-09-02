@@ -345,16 +345,27 @@ Aperto/gestito da static/js/login-modal.js.
 
 
 
+  {% comment %}
+  "site-main" cresce per riempire lo spazio verticale residuo (vedi
+  "flex: 1 0 auto" in main.css, "body" reso "display: flex; flex-direction:
+  column" li' accanto): senza, su pagine con poco contenuto (es. la home)
+  il footer finiva prima del fondo dello schermo da telefono, lasciando
+  sotto di se' lo sfondo di "<html>" (stesso blu del footer, pensato per il
+  rimbalzo elastico iOS/Android - vedi commento in cima a main.css) visibile
+  come uno spazio vuoto in coda alla pagina
+  {% endcomment %}
+  <main class="site-main">
   {% block contenuto %}
 
   {% endblock contenuto %}
+  </main>
 
 
-  <footer class="site-footer py-5 mt-4">
+  <footer class="site-footer py-4 mt-4">
     <div class="container-fluid">
       <div class="row">
 
-        <div class="col-lg-5 footer-brand">
+        <div class="col-lg-7 footer-brand">
 
           <a class="navbar-brand d-inline-flex align-items-center" href="{% url 'home' %}">
             <img src="{% static 'logo/logo_invertito.png' %}" width="44" height="38" class="me-2">
@@ -362,68 +373,79 @@ Aperto/gestito da static/js/login-modal.js.
           </a>
 
           <ul class="nav flex-column text-center text-lg-start">
-            <li class="nav-item mb-2">
+            <li class="nav-item mb-1">
               <a href="https://www.google.com/maps/dir/?api=1&destination=43.528066,11.562978"
                 target="_blank" rel="noopener" title="Apri le indicazioni stradali su Google Maps">
                 <i class="bi bi-geo-alt me-2"></i>Via A. Burzagli 83, 52025 Montevarchi(AR)
               </a>
             </li>
-            <li class="nav-item mb-2"><i class="bi bi-telephone me-2"></i>Tel: (+39) 055 980308</li>
-            <li class="nav-item mb-2"><i class="bi bi-printer me-2"></i>Fax: 055 981450</li>
-            <li class="nav-item mb-2"><i class="bi bi-envelope me-2"></i>Email: info@saniscope-chimica.it</li>
-            <li class="nav-item mb-2">COD.FISC/P.IVA: 00156060519</li>
-            <li class="nav-item mb-2">Codice Univoco Fatturazione Elettronica: M5UXCR1</li>
+            <li class="nav-item mb-1">
+              <a href="tel:+390559980308" title="Numero di telefono: (+39) 055 980308">
+                <i class="bi bi-telephone me-2"></i>Tel: (+39) 055 980308
+              </a>
+            </li>
+            <li class="nav-item mb-1"><i class="bi bi-printer me-2"></i>Fax: 055 981450</li>
+            <li class="nav-item mb-1">
+              <a href="mailto:info@saniscope-chimica.it" title="Email: info@saniscope-chimica.it">
+                <i class="bi bi-envelope me-2"></i>Email: info@saniscope-chimica.it
+              </a>
+            </li>
+            {% comment %}
+            Dati fiscali uniti su una riga sola (invece di due <li> separate)
+            e in corpo minore (".footer-dati-fiscali" in main.css): sono
+            informazioni legali, non la prima cosa che un visitatore cerca
+            nel footer - meno peso visivo, meno altezza (soprattutto da
+            telefono, dove il footer era troppo lungo)
+            {% endcomment %}
+            <li class="nav-item footer-dati-fiscali">COD.FISC/P.IVA: 00156060519 · Codice Univoco Fatturazione Elettronica: M5UXCR1</li>
           </ul>
         </div>
 
-        <div class="col-lg-3 footer-links">
+        <div class="col-lg-5 footer-links">
 
-          <h4 class="text-uppercase fw-bold mb-3 py-3">Link utili</h4>
+          <h4 class="text-uppercase fw-bold mt-3 mb-2">Link utili</h4>
           <ul class="nav flex-column text-center text-lg-start">
-            <li class="nav-item mb-3"><a href="{% url 'etichettatura_ambientale' %}"
+            <li class="nav-item mb-2"><a href="{% url 'etichettatura_ambientale' %}"
                 class="nav-link p-0">Etichettatura Ambientale</a></li>
 
-            <li class="nav-item mb-3 d-flex flex-row flex-lg-column justify-content-center justify-content-lg-start gap-3">
+            <li class="nav-item mb-2 d-flex flex-row flex-lg-column justify-content-center justify-content-lg-start gap-2">
               <a href="/media/pdfPrivacy/4aba850a6cbb0f0d9164a7c2274d54f6_10678372616168637874.pdf" class="nav-link p-0" target="_blank">Privacy Policy</a>
               <a href="#" class="nav-link p-0" onclick="document.querySelector('#cookiebannerModal').classList.remove('hidden'); return false;">Cookie Policy</a>
             </li>
           </ul>
         </div>
-
-        <div class="col-lg-4 d-flex footer-social justify-content-end align-items-start">
-          <ul class="nav list-unstyled py-4">
-            <li class="ms-3 d-inline-block">
-              <a href="https://www.facebook.com/profile.php?id=100029110254978"
-                target="_blank" title="pagina Facebook">
-                <i class="bi bi-facebook"></i>
-              </a>
-            </li>
-
-            <li class="ms-3 d-inline-block">
-              <a href="https://wa.me/+393777093225" target="_blank"
-                title="nuemro di Whatsapp: +393777093225">
-                <i class="bi bi-whatsapp"></i>
-              </a>
-            </li>
-
-            <li class="ms-3 d-inline-block">
-              <a href="tel:+393777093225" title="nuemro di cellulare: +393777093225">
-                <i class="bi bi-telephone"></i>
-              </a>
-            </li>
-
-            <li class="ms-3 d-inline-block">
-              <a href="mailto:info@saniscope-chimica.it"
-                title="email: info@saniscope-chimica.it">
-                <i class="bi bi-envelope"></i>
-              </a>
-            </li>
-
-          </ul>
-        </div>
       </div>
 
-      <div class="footer-copyright text-center py-5">© Saniscope-chimica</div>
+      {% comment %}
+      Fascia unica sotto le due colonne sopra, con copyright e icone social
+      insieme (prima erano rispettivamente una riga a se' e una terza
+      colonna larga 4/12 quasi vuota): meno un blocco intero da scorrere da
+      telefono, e da desktop niente piu' colonna sproporzionata rispetto al
+      suo contenuto
+      {% endcomment %}
+      <div class="footer-bottom d-flex flex-column justify-content-center align-items-center gap-2">
+        <div class="footer-copyright">© Saniscope-chimica</div>
+        <ul class="nav list-unstyled d-flex gap-3 mb-0 footer-social">
+          <li>
+            <a href="https://www.facebook.com/profile.php?id=100029110254978"
+              target="_blank" title="pagina Facebook">
+              <i class="bi bi-facebook"></i>
+            </a>
+          </li>
+          {% comment %}
+          Niente icone tel/email qui accanto (rimosse su richiesta):
+          telefono ed email sono gia' presenti per esteso nella colonna
+          "footer-brand" qui sopra, ripeterle anche qui come icona era
+          ridondante
+          {% endcomment %}
+          <li>
+            <a href="https://wa.me/+393777093225" target="_blank"
+              title="nuemro di Whatsapp: +393777093225">
+              <i class="bi bi-whatsapp"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
   </footer>
 
