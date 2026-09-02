@@ -536,14 +536,17 @@
 /* Popup stretto quanto il suo contenuto (campi larghi al massimo 280px,
    vedi "#form-login .campo-login-stretto" in form.css), invece della
    larghezza di default di un modal Bootstrap (500px) che lascerebbe
-   spazio vuoto ai lati. "margin-left/right: auto" espliciti: Bootstrap
+   spazio vuoto ai lati. 360px lasciava ~40px di spazio vuoto per lato
+   (360-280, diviso 2) tra il bordo del popup e le pillole: 320px lascia
+   solo lo spazio per il bordo blu da 2px (".modal-content" qui sopra) piu'
+   un po' di respiro. "margin-left/right: auto" espliciti: Bootstrap
    applica di suo la centratura orizzontale solo da "sm" in su
    (min-width: 576px) - sotto quella soglia usa un margine fisso uguale
    sui due lati ma non "auto", quindi con un "max-width" piu' stretto
    della larghezza dello schermo (il nostro caso, da telefono) lo spazio
    in eccesso finirebbe tutto a destra invece di dividersi equamente */
 #modalLogin .modal-dialog {
-  max-width: 360px;
+  max-width: 320px;
   margin-left: auto;
   margin-right: auto;
 }
