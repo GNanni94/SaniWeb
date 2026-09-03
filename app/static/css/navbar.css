@@ -680,42 +680,78 @@
   background-color: var(--color-primary);
 }
 
-/* Stessi colori del menu Categorie qui sopra (sfondo bianco, bordo blu
-   navbar, testo scuro) applicati al menu del profilo utente (Profilo,
-   Cambia password, Lista preventivi, Elimina, Log Out). "Elimina" resta
-   rossa (.text-danger, gia' nel template) - il colore qui sotto si applica
-   solo alle voci senza quella classe, dato che arriva dopo nel foglio di
-   stile ma ha la stessa specificita' di un selettore per classe */
+/* Stessa estetica "pillola" del menu Categorie qui sopra
+   (#dropdownCategorie) applicata al menu del profilo utente (Profilo,
+   Cambia password, Lista preventivi, Elimina, Log Out): contenitore con
+   angoli molto arrotondati e ombra invece di un bordo blu pieno, voci
+   come pillole staccate tra loro con contorno colorato al passaggio del
+   mouse invece di un riempimento pieno o di linee di separazione */
 #dropdownUser1 ~ .dropdown-menu {
   background-color: var(--color-bg);
-  border: 3px solid var(--color-primary);
-  border-radius: .5rem;
+  border: none;
+  border-radius: 24px; /* stesso raggio di "#dropdownCategorie" */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .25); /* stessa ombra del menu Categorie */
   overflow: hidden;
-  padding: 0;
+  padding: .5rem;
+  flex-direction: column;
+  gap: .35rem; /* stacca le pillole tra loro, come in "#dropdownCategorie" */
+  /* "display" non va impostato qui: essendo un selettore con ID vincerebbe
+     sempre su ".dropdown-menu { display: none }" di Bootstrap, tenendo il
+     menu visibile anche senza cliccare sull'icona profilo - vedi la stessa
+     regola gia' impostata su "#dropdownCategorie" qui sopra in questo file.
+     Va impostato invece qui sotto, solo insieme a ".show" */
 }
 
-/* Riga con l'email dell'utente (non e' un ".dropdown-item", quindi non
-   eredita la linea di separazione blu qui sotto): stessa linea, per
-   coerenza con il resto del menu */
+/* "display: flex" applicato solo quando Bootstrap aggiunge ".show" al
+   click sull'icona profilo (stessa tecnica di "#dropdownCategorie", che
+   pero' usa ":hover" invece di ".show" per aprirsi) */
+#dropdownUser1 ~ .dropdown-menu.show {
+  display: flex;
+}
+
+/* Riga con l'email dell'utente (non e' un ".dropdown-item", quindi resta
+   un'intestazione distinta invece di diventare una pillola): stessa
+   pillola grigia di sfondo delle voci sotto, ma senza bordo/hover dato
+   che non e' cliccabile */
 #dropdownUser1 ~ .dropdown-menu > li:first-child {
-  border-bottom: 1px solid var(--color-primary);
+  background-color: var(--color-bg-alt);
+  border-radius: 999px;
+  margin-bottom: .15rem; /* un filo di respiro in piu' verso le pillole sotto, oltre al gap del contenitore */
 }
 
 #dropdownUser1 ~ .dropdown-menu .dropdown-item {
   color: var(--color-text);
-  /* Linea blu (stesso blu della navbar) a separare una voce dall'altra,
-     tolta sull'ultima voce per non lasciare un bordo doppio col contenitore */
-  border-bottom: 1px solid var(--color-primary);
-}
-
-#dropdownUser1 ~ .dropdown-menu li:last-child .dropdown-item {
-  border-bottom: none;
+  background-color: var(--color-bg-alt); /* sfondo grigio chiaro a riposo, come le voci di "#dropdownCategorie" */
+  border: 2px solid transparent; /* bordo invisibile di riserva, stesso spessore di quello dell'hover: evita che la voce "salti" quando il bordo compare */
+  border-radius: 999px; /* pillola */
 }
 
 #dropdownUser1 ~ .dropdown-menu .dropdown-item:hover,
 #dropdownUser1 ~ .dropdown-menu .dropdown-item:focus {
-  color: var(--color-primary);
-  background-color: var(--color-bg-alt);
+  background-color: var(--color-bg-alt); /* invariato: ":active" (click) ha di suo uno sfondo blu pieno in Bootstrap, lo neutralizziamo */
+  border-color: var(--color-primary); /* contorno blu (stesso blu della navbar), come in "#dropdownCategorie" */
+}
+
+/* "Elimina" (.text-danger, gia' nel template): stesso trattamento a
+   pillola ma con contorno rosso all'hover invece che blu, per coerenza
+   col colore del testo */
+#dropdownUser1 ~ .dropdown-menu .dropdown-item.text-danger:hover,
+#dropdownUser1 ~ .dropdown-menu .dropdown-item.text-danger:focus {
+  border-color: var(--bs-danger);
+}
+
+/* Pallino di pagina corrente (stesso ".pallino-pagina-corrente" usato in
+   "#dropdownCategorie" qui sopra in questo file): segnala su quale voce
+   del menu profilo ci si trova gia' (Profilo, Cambia password, Lista
+   preventivi), aggiunto condizionalmente nel template in base a
+   "request.resolver_match.url_name" */
+#dropdownUser1 ~ .dropdown-menu .pallino-pagina-corrente {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+  border-radius: 50%;
+  background-color: var(--color-primary);
 }
 
 /* Bottoni Login/Registrati/Carrello: stessa classe, rettangolari, sfondo bianco, testo nero */

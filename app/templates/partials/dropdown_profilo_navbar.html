@@ -23,16 +23,31 @@
       {% endif %}
       <span>{{ user.email }}</span>
     </li>
-    <li><a class="dropdown-item" href="{% url 'profilo' user.pk %}">Profilo</a></li>
-    <li><a class="dropdown-item" href="{% url 'password_change' %}">Cambia password</a></li>
-    <li><a class="dropdown-item" href="{% url 'lista_ordini'%}">Lista preventivi</a></li>
+    <li><a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'profilo' user.pk %}">
+      Profilo
+      {% if request.resolver_match.url_name == 'profilo' %}
+      <span class="pallino-pagina-corrente" aria-hidden="true"></span>
+      {% endif %}
+    </a></li>
+    <li><a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'password_change' %}">
+      Cambia password
+      {% if request.resolver_match.url_name == 'password_change' %}
+      <span class="pallino-pagina-corrente" aria-hidden="true"></span>
+      {% endif %}
+    </a></li>
+    <li><a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'lista_ordini'%}">
+      Lista preventivi
+      {% if request.resolver_match.url_name == 'lista_ordini' %}
+      <span class="pallino-pagina-corrente" aria-hidden="true"></span>
+      {% endif %}
+    </a></li>
     {% if not user.is_staff %}
     <li><a class="dropdown-item text-danger" href="{% url 'eliminaProfilo' user.pk %}">Elimina</a></li>
     {% endif %}
     <li>
       <form method="post" action="{% url 'logout' %}">
         {% csrf_token %}
-        <button type="submit" class="dropdown-item border-0">Log Out</button>
+        <button type="submit" class="dropdown-item">Log Out</button>
       </form>
     </li>
   </ul>
