@@ -78,10 +78,14 @@
           Stesso schema "numero dentro l'icona" gia' usato per la cartella
           in alto (icona a contorno "bi-file-earmark", non "-fill": interno
           libero per il testo, colorata blu navbar come il numero sopra).
+          Classe aggiuntiva in base al numero di cifre del conteggio
+          (".badge-conteggio-documenti-md"/"-lg" in documenti.css): l'icona
+          (dimensione fissa di suo) cresce insieme al numero, che altrimenti
+          a 2/3 cifre uscirebbe dalla sua sagoma invece di restarci dentro.
           {% endcomment %}
-          <span class="position-relative d-inline-flex">
-            <i class="bi bi-file-earmark fs-5" style="color: var(--color-primary);"></i>
-            <span class="position-absolute top-50 start-50 translate-middle fw-bold numero-documenti-categoria" style="color: var(--color-primary); font-size: .6rem;">{{ categoria.num_documenti }}</span>
+          <span class="position-relative d-inline-flex badge-conteggio-documenti{% if categoria.num_documenti > 99 %} badge-conteggio-documenti-lg{% elif categoria.num_documenti > 9 %} badge-conteggio-documenti-md{% endif %}">
+            <i class="bi bi-file-earmark" style="color: var(--color-primary);"></i>
+            <span class="position-absolute top-50 start-50 translate-middle fw-bold numero-documenti-categoria" style="color: var(--color-primary);">{{ categoria.num_documenti }}</span>
           </span>
         </div>
         {% endfor %}
