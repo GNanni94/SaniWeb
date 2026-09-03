@@ -22,10 +22,10 @@
     <div id="sentinellaIntestazioneCarrello" class="sentinella-intestazione"></div>
 
     <div class="d-flex align-items-center position-relative mb-2 mb-md-4 intestazione-carrello-sticky">
-        <a href="{% url 'catalogo' %}" class="btn btn-navbar btn-sm rounded-pill pillola-header-carrello position-absolute start-0" title="Torna al catalogo">
+        <button type="button" id="btnTornaIndietroCarrello" class="btn btn-navbar btn-sm rounded-pill pillola-header-carrello position-absolute start-0" title="Torna indietro">
             <i class="bi bi-arrow-left"></i>
-            <span class="d-none d-md-inline">Torna al catalogo</span>
-        </a>
+            <span class="d-none d-md-inline">Torna indietro</span>
+        </button>
         <h1 id="titoloRichiediPreventivo" class="fw-bold mb-0 mx-auto titolo-richiedi-preventivo">Richiedi Preventivo</h1>
     </div>
 
@@ -60,6 +60,7 @@
     {% endif %}
 </div>
 
+<script src="{% static 'js/carrello-torna-indietro.js' %}"></script>
 <script src="{% static 'js/carrello-form-sticky.js' %}"></script>
 <script src="{% static 'js/carrello-ajax.js' %}"></script>
 <script src="{% static 'js/carrello-intestazione-sticky.js' %}"></script>
