@@ -1,33 +1,16 @@
+{% load static %}
 {% if avviso_fase == 'preavviso' %}
-<div class="alert alert-warning alert-dismissible fade show mb-0 rounded-0 text-center" role="alert" id="avvisoChiusura">
+<div class="alert alert-warning alert-dismissible fade show mb-0 rounded-0 text-center" role="alert" id="avvisoChiusura" data-avviso-fase="{{ avviso_fase }}">
     {{ avviso_testo }}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi"></button>
 </div>
 {% elif avviso_fase == 'chiusura' %}
-<div class="alert alert-danger alert-dismissible fade show mb-0 rounded-0 text-center" role="alert" id="avvisoChiusura">
+<div class="alert alert-danger alert-dismissible fade show mb-0 rounded-0 text-center" role="alert" id="avvisoChiusura" data-avviso-fase="{{ avviso_fase }}">
     {{ avviso_testo }}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi"></button>
 </div>
 {% endif %}
 
 {% if avviso_fase %}
-<script>
-(function () {
-    var banner = document.getElementById('avvisoChiusura');
-    if (!banner) {
-        return;
-    }
-    // Chiave diversa per "preavviso" e "chiusura": chiudere il banner
-    // giallo prima dell'inizio della chiusura non deve sopprimere anche
-    // quello rosso quando compare - sono due messaggi diversi
-    var chiave = 'avvisoChiusuraChiuso-{{ avviso_fase }}';
-    if (sessionStorage.getItem(chiave) === '1') {
-        banner.remove();
-        return;
-    }
-    banner.addEventListener('closed.bs.alert', function () {
-        sessionStorage.setItem(chiave, '1');
-    });
-})();
-</script>
+<script src="{% static 'js/avviso-chiusura.js' %}"></script>
 {% endif %}
