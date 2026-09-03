@@ -14,6 +14,23 @@
         return;
     }
 
+    // Bottone "indietro" del browser dopo una modifica al carrello fatta
+    // nella pagina carrello (che non renderizza mai questo widget, vedi
+    // sopra): molti browser ripristinano la pagina precedente dalla bfcache
+    // (il DOM congelato di quando l'ha lasciata) invece di richiederla di
+    // nuovo al server, quindi badge/quantita' qui dentro resterebbero quelli
+    // di prima della modifica finche' non si ricarica a mano.
+    // "pageshow"/"event.persisted" e' il segnale che la pagina viene
+    // proprio da li' (non da un caricamento normale, dove "persisted" e'
+    // false): un reload completo la riallinea, stesso approccio gia' usato
+    // altrove nel progetto come fallback quando serve dato fresco dal
+    // server invece di rincorrerlo via JS (es. errori di fetch qui sotto)
+    window.addEventListener('pageshow', function (event) {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    });
+
     function pannelloAperto() {
         var pannello = document.getElementById('pannelloCarrelloFlottante');
         return !!pannello && !pannello.classList.contains('d-none');
@@ -146,6 +163,27 @@
     }
 
     container.addEventListener('click', function (event) {
+        // "Checkout preventivo": chiude il pannello prima di lasciar
+        // proseguire la normale navigazione del link (niente
+        // preventDefault) verso la pagina carrello, invece di lasciarlo
+        // aperto mentre la pagina cambia. Senza, tornando indietro da
+        // carrello.html (che non renderizza mai questo widget) si vedrebbe
+        // il pannello ancora aperto per un istante prima che il reload di
+        // "pageshow" qui sopra lo richiuda - una chiusura visibilmente
+        // brusca invece che gia' chiuso in partenza
+        var linkCheckout = event.target.closest('.link-checkout-flottante');
+        if (linkCheckout) {
+            var pannelloCheckout = document.getElementById('pannelloCarrelloFlottante');
+            var bottoneCheckout = document.getElementById('bottoneCarrelloFlottante');
+            if (pannelloCheckout) {
+                pannelloCheckout.classList.add('d-none');
+            }
+            if (bottoneCheckout) {
+                bottoneCheckout.classList.remove('carrello-flottante-attivo');
+            }
+            return;
+        }
+
         var bottone = event.target.closest('#bottoneCarrelloFlottante');
         if (bottone) {
             var pannello = document.getElementById('pannelloCarrelloFlottante');
