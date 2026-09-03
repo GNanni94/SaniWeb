@@ -10,13 +10,29 @@
     var BREAKPOINT_LG = 992; // stesso breakpoint "lg" di Bootstrap: sotto
                               // questa larghezza le colonne si impilano,
                               // niente comportamento "segue lo scroll"
-    var MARGINE_SUPERIORE = 16; // 1rem, stesso offset che aveva sticky-top
+    var RESPIRO = 16; // 1rem di respiro tra il fondo della riga titolo e la card
 
     var colonnaLista = document.getElementById('colonnaListaCarrello');
     var colonnaForm = document.getElementById('colonnaFormPreventivo');
     var card = document.getElementById('cardFormPreventivo');
+    var rigaIntestazione = document.querySelector('.intestazione-carrello-sticky');
     if (!colonnaLista || !colonnaForm || !card) {
         return;
+    }
+
+    // Offset superiore della card fixed/absolute: non un valore fisso, ma
+    // il fondo REALE della riga titolo "Richiedi Preventivo" qui sopra
+    // (anche lei "position: sticky", sempre agganciata subito sotto la
+    // navbar durante lo scroll - vedi ".intestazione-carrello-sticky" in
+    // carrello.css). Un margine fisso ignorava che quella riga occupa
+    // spazio proprio li': la card, ferma a "top" costante, ci scorreva
+    // sotto (z-index piu' basso della riga, 1020) invece di restare
+    // sempre visibile appena sotto di lei.
+    function margineSuperiore() {
+        if (!rigaIntestazione) {
+            return RESPIRO;
+        }
+        return rigaIntestazione.getBoundingClientRect().bottom + RESPIRO;
     }
 
     function resetta() {
@@ -62,21 +78,27 @@
         // card, quindi la barra di scroll non appare/sparisce mai.
         colonnaForm.style.minHeight = altezzaCard + 'px';
 
+        // Calcolato una sola volta per giro: dipende dalla riga titolo
+        // qui sopra, che non cambia posizione durante il resto di questa
+        // funzione.
+        var margine = margineSuperiore();
+
         // Finche' l'inizio della colonna non e' ancora salito oltre il
         // margine superiore, non c'e' ancora nulla da agganciare: il form
         // resta nel normale flusso della pagina (gia' resettato sopra).
-        if (colonnaFormRect.top >= MARGINE_SUPERIORE) {
+        if (colonnaFormRect.top >= margine) {
             return;
         }
 
         var fondoLista = colonnaLista.getBoundingClientRect().bottom;
 
-        if (fondoLista - MARGINE_SUPERIORE >= altezzaCard) {
+        if (fondoLista - margine >= altezzaCard) {
             // C'e' ancora spazio sotto: il form segue lo scroll, restando
-            // fermo a MARGINE_SUPERIORE dall'alto della finestra, alla
-            // stessa posizione orizzontale che aveva nel flusso normale.
+            // fermo a "margine" dall'alto della finestra (appena sotto la
+            // riga titolo), alla stessa posizione orizzontale che aveva
+            // nel flusso normale.
             card.style.position = 'fixed';
-            card.style.top = MARGINE_SUPERIORE + 'px';
+            card.style.top = margine + 'px';
             card.style.left = rigaCard.left + 'px';
             card.style.width = larghezzaCard + 'px';
             return;
