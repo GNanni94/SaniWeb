@@ -52,6 +52,36 @@
   color: #fff !important;
 }
 
+/* Icona "a contorno" (bi-file-earmark) col conteggio documenti al centro
+   (tabella_documenti.html): dimensione base per un conteggio a 1 cifra,
+   stessa di ".fs-5" di Bootstrap che sostituisce. Le varianti "-md"/"-lg"
+   qui sotto (classe aggiunta dal template in base al numero di cifre)
+   fanno crescere sia l'icona che il numero insieme, cosi' il numero resta
+   dentro la sagoma dell'icona anche a 2/3 cifre invece di uscirne */
+.badge-conteggio-documenti i {
+  font-size: 1.25rem;
+}
+
+.badge-conteggio-documenti .numero-documenti-categoria {
+  font-size: .6rem;
+}
+
+.badge-conteggio-documenti-md i {
+  font-size: 1.55rem;
+}
+
+.badge-conteggio-documenti-md .numero-documenti-categoria {
+  font-size: .68rem;
+}
+
+.badge-conteggio-documenti-lg i {
+  font-size: 1.9rem;
+}
+
+.badge-conteggio-documenti-lg .numero-documenti-categoria {
+  font-size: .78rem;
+}
+
 /* Bottoni Rinomina/Elimina categoria (tabella_documenti.html): disabilitati
    finche' non si seleziona una categoria (gestione-documenti.js,
    applicaFiltroCategoria), ma senza l'opacita' ridotta di default di
@@ -62,4 +92,95 @@
 #btnRinominaCategoria:disabled,
 #btnEliminaCategoria:disabled {
   opacity: 1;
+}
+
+/* Redesign di documenti.html (riquadro categoria, tile documento): classi
+   NUOVE e scoped a questa pagina invece di modificare
+   ".categoria-documenti"/".card-documento" qui sopra, condivise con
+   etichettatura_ambientale.html (che ha un proprio stile a bordo Bootstrap
+   sullo stesso ".categoria-documenti") - stesso principio di duplicazione
+   scoped gia' seguito altrove nel progetto (es. ".pillola-torna-preventivi"
+   in preventivo.css) invece di un'unica classe condivisa tra pagine con
+   estetiche diverse. */
+/* Riquadro categoria: bordo leggero e angoli arrotondati invece del vecchio
+   riquadro senza bordo (".categoria-documenti" qui sopra). "width:
+   fit-content" ripreso dal vecchio riquadro: si restringe intorno al
+   contenuto (una categoria con 1 solo documento non deve occupare tutta la
+   riga con mezzo riquadro vuoto), fino al massimo della riga se i
+   documenti bastano a riempirla */
+.documenti-categoria {
+  width: fit-content;
+  max-width: 100%;
+  background-color: var(--color-bg);
+  border: 1px solid var(--bs-border-color); /* stesso grigio bordo di Bootstrap gia' usato altrove nel sito (es. ".carrello-stepper" in carrello.css), piu' visibile di "--color-bg-alt" su sfondo bianco */
+  border-radius: 1rem;
+}
+
+.documenti-categoria-titolo {
+  color: var(--color-primary);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* Griglia dei documenti: flex-wrap (non CSS grid) apposta - un grid con
+   colonne "auto-fill" non si restringe in modo affidabile dentro un
+   contenitore "width: fit-content" come ".documenti-categoria" qui sopra
+   (la dimensione dei track dipende da uno spazio disponibile che li' e'
+   indefinito). Flex con tile a larghezza fissa (".documento-tile" sotto)
+   si comporta esattamente come il vecchio "row"/"col-auto" di Bootstrap:
+   va a capo da solo quando lo spazio finisce, senza piu' bisogno dello
+   spartitore manuale ogni 5 elementi (".w-100", vecchio documenti.html) */
+.documenti-griglia {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* centra le tile di ogni riga (anche l'ultima, quando non la riempie del tutto) invece di lasciarle appoggiate a sinistra */
+  gap: 0.75rem;
+}
+
+/* Tile documento: sfondo grigio chiaro invece del vecchio blocco blu pieno
+   (".card.card-documento" qui sopra), con la sola icona dentro un badge blu
+   a farsi notare - bordo colorato e leggero sollevamento al passaggio del
+   mouse invece di un semplice cambio di sfondo */
+.documento-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+  width: 8.5rem; /* larghezza fissa (non "flex-grow"): serve al riquadro categoria per calcolare correttamente il proprio "width: fit-content" qui sopra */
+  flex-shrink: 0;
+  padding: 1.1rem 0.6rem;
+  background-color: var(--color-bg-alt);
+  border: 2px solid transparent; /* bordo invisibile di riserva, stesso spessore di quello dell'hover: evita che la tile "salti" quando il bordo compare */
+  border-radius: 0.75rem;
+  text-decoration: none;
+  transition: border-color .15s ease, transform .15s ease;
+}
+
+.documento-tile:hover,
+.documento-tile:focus {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.documento-tile-icona {
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border-radius: 0.6rem;
+  background-color: var(--color-primary);
+  color: var(--color-text-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.documento-tile-nome {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: .01em;
+  line-height: 1.3;
 }

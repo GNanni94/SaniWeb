@@ -7,37 +7,24 @@
 
 
 <div class="container">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="text-center py-5">Documenti</h1>
-        </div>
-    </div>    
+    <div class="text-center py-4 py-md-5">
+        <h1 class="mb-0">Documenti</h1>
+    </div>
     {% for categoria in object_list %}
-    <div class="p-4 mb-5 mx-auto categoria-documenti">
-        <h4 class="text-center py-3 fs-2 text-uppercase mb-0">{{categoria.nome_categoria}}</h4>
-        {% if categoria.file_cat.all %}
-        {% comment %}
-        ".row" di Bootstrap ha margini orizzontali negativi (il gutter, ".g-4")
-        anche da vuoto: con una categoria appena creata, senza documenti, quei
-        margini negativi restavano comunque nel DOM e alteravano il calcolo di
-        "width: fit-content" su ".categoria-documenti" (vedi main.css), facendo
-        sembrare il titolo non centrato nel riquadro. Renderizzando la riga solo
-        se c'e' almeno un documento, il titolo resta l'unico contenuto e il
-        riquadro si stringe esattamente intorno a lui, centrato correttamente
-        {% endcomment %}
-        <div class="row g-4 justify-content-center">
-            {% for file in categoria.file_cat.all %}
+    {% with docs=categoria.file_cat.all %}
+    {% if docs %}
+    <div class="p-4 mb-4 mx-auto documenti-categoria">
+        <h2 class="documenti-categoria-titolo mb-3 text-uppercase text-center">{{ categoria.nome_categoria }}</h2>
+        <div class="documenti-griglia">
+            {% for file in docs %}
             {% if file.file %}
-            {% include 'partials/card_documento.html' with titolo=file.nome_file url_file=file.file.url %}
-            {% if forloop.counter|divisibleby:5 and not forloop.last %}
-            {# Spartitore invisibile largo il 100% della riga: forza il documento successivo ad andare a capo dopo ogni 5°, a prescindere dalla larghezza reale delle card (che varia in base al titolo) #}
-            <div class="w-100"></div>
-            {% endif %}
+            {% include 'partials/documento_tile.html' with titolo=file.nome_file url_file=file.file.url %}
             {% endif %}
             {% endfor %}
         </div>
-        {% endif %}
     </div>
+    {% endif %}
+    {% endwith %}
     {% endfor %}
 </div>
 
