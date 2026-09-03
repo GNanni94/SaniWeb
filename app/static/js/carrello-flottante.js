@@ -1,13 +1,13 @@
-// Widget del carrello fluttuante: bottone con badge (sempre visibile
-// tranne sulla pagina carrello, dove il widget non viene mai renderizzato -
-// vedi base.html) che si espande in un pannello con la lista dei prodotti
-// nel carrello. Ogni azione (aumenta/diminuisci/rimuovi dal pannello, o
+// Widget del carrello fluttuante: bottone (sempre visibile tranne sulla
+// pagina carrello, dove il widget non viene mai renderizzato - vedi
+// base.html) che si espande in un pannello con la lista dei prodotti nel
+// carrello. Ogni azione (aumenta/diminuisci/rimuovi dal pannello, o
 // un'aggiunta fatta altrove nel sito via aggiungi-al-carrello.js)
-// sostituisce l'intero contenitore con l'HTML gia' pronto restituito dal
-// server (stesso pattern di gestione-avvisi.js), cosi' badge e lista
-// restano sempre coerenti con lo stato reale - incluso il caso "primo
-// prodotto aggiunto" (il widget compare per la prima volta) e "ultimo
-// prodotto rimosso" (il widget sparisce, il partial non produce output).
+// aggiorna il contenuto con l'HTML gia' pronto restituito dal server
+// (stesso pattern di gestione-avvisi.js), cosi' la lista resta sempre
+// coerente con lo stato reale - incluso il caso "primo prodotto aggiunto"
+// (il widget compare per la prima volta) e "ultimo prodotto rimosso" (il
+// widget sparisce, il partial non produce output).
 (function () {
     var container = document.getElementById('carrelloFlottanteContainer');
     if (!container) {
@@ -60,8 +60,34 @@
     }
 
     window.aggiornaCarrelloFlottante = function (html, mantieniAperto) {
+        var htmlTrim = html.trim();
+        var pannelloEsistente = document.getElementById('pannelloCarrelloFlottante');
+
+        // Aggiornamento in-place: il widget c'era gia' prima di questa azione
+        // e continua ad esserci dopo (risposta non vuota) - si sostituisce
+        // solo il contenuto del pannello, lasciando intatti i nodi DOM del
+        // bottone e del bordo del pannello (".carrello-flottante-attivo"/
+        // ".su-footer" restano quindi automaticamente quelli che erano,
+        // nessuna classe da riapplicare a mano). Un innerHTML completo li
+        // ricreerebbe ad ogni singolo +/-/quantita', causando un ripaint
+        // visibile del bordo (vedi carrello-flottante.css) ad ogni azione
+        if (htmlTrim && pannelloEsistente) {
+            var tmp = document.createElement('div');
+            tmp.innerHTML = htmlTrim;
+            var nuovoPannello = tmp.querySelector('#pannelloCarrelloFlottante');
+            if (nuovoPannello) {
+                pannelloEsistente.innerHTML = nuovoPannello.innerHTML;
+            }
+            aggiornaBordoSuFooter();
+            return;
+        }
+
+        // Altrimenti non c'e' niente da preservare: primo prodotto aggiunto
+        // (il widget non esisteva ancora) o carrello appena svuotato
+        // (risposta vuota, il partial non produce output) - si ricostruisce
+        // tutto da zero, stesso comportamento di prima
         var eraAperto = mantieniAperto || pannelloAperto();
-        container.innerHTML = html;
+        container.innerHTML = htmlTrim;
         if (eraAperto) {
             var pannello = document.getElementById('pannelloCarrelloFlottante');
             if (pannello) {
@@ -70,8 +96,7 @@
             // Il bottone appena inserito e' HTML nuovo dal server: non porta
             // con se' la classe che ne segnava lo stato "aperto" (aggiunta
             // via JS, non dal template) - va riapplicata qui, altrimenti
-            // tornerebbe al colore di default ad ogni azione (aumenta/
-            // diminuisci/rimuovi) pur restando il pannello aperto
+            // tornerebbe al colore di default pur restando il pannello aperto
             var bottoneNuovo = document.getElementById('bottoneCarrelloFlottante');
             if (bottoneNuovo) {
                 bottoneNuovo.classList.add('carrello-flottante-attivo');
@@ -87,6 +112,38 @@
     aggiornaBordoSuFooter();
     window.addEventListener('scroll', aggiornaBordoSuFooter, { passive: true });
     window.addEventListener('resize', aggiornaBordoSuFooter);
+
+    // Fetch condivisa da bottoni +/-/rimuovi/svuota e dal campo quantita'
+    // qui sotto: stesso corpo (token CSRF + eventuali campi extra, es.
+    // "quantita"), stessa gestione di risposta/errore per tutti
+    function eseguiAzione(url, campiExtra) {
+        var tokenInput = container.querySelector('[name=csrfmiddlewaretoken]');
+        var corpo = new FormData();
+        if (tokenInput) {
+            corpo.append('csrfmiddlewaretoken', tokenInput.value);
+        }
+        if (campiExtra) {
+            Object.keys(campiExtra).forEach(function (nome) {
+                corpo.append(nome, campiExtra[nome]);
+            });
+        }
+
+        return fetch(url, {
+            method: 'POST',
+            body: corpo,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        }).then(function (response) {
+            return response.text().then(function (html) {
+                if (!response.ok) {
+                    window.location.reload();
+                    return;
+                }
+                window.aggiornaCarrelloFlottante(html, true);
+            });
+        }).catch(function () {
+            window.location.reload();
+        });
+    }
 
     container.addEventListener('click', function (event) {
         var bottone = event.target.closest('#bottoneCarrelloFlottante');
@@ -113,27 +170,39 @@
             return;
         }
         azione.dataset.azioneInCorso = 'true';
-
-        var tokenInput = container.querySelector('[name=csrfmiddlewaretoken]');
-        var corpo = new FormData();
-        if (tokenInput) {
-            corpo.append('csrfmiddlewaretoken', tokenInput.value);
-        }
-
-        fetch(azione.dataset.url, {
-            method: 'POST',
-            body: corpo,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        }).then(function (response) {
-            return response.text().then(function (html) {
-                if (!response.ok) {
-                    window.location.reload();
-                    return;
-                }
-                window.aggiornaCarrelloFlottante(html, true);
-            });
-        }).catch(function () {
-            window.location.reload();
-        });
+        eseguiAzione(azione.dataset.url);
     });
+
+    // Campo quantita' scrivibile da tastiera (stesso principio di
+    // carrello-ajax.js nella pagina carrello): "change" per sottomettere
+    // solo a valore commesso. Qui non c'e' un <form> a sottomettere da solo
+    // con Invio (i bottoni +/- non ne usano uno, vedi sopra), quindi Invio
+    // e' gestito a mano piu' sotto forzando un blur, che fa scattare
+    // "change" - un solo percorso di invio, nessuna duplicazione
+    container.addEventListener('change', function (event) {
+        var campo = event.target;
+        if (!campo.matches || !campo.matches('.campo-quantita-flottante')) {
+            return;
+        }
+        if (campo.dataset.azioneInCorso === 'true') {
+            return;
+        }
+        campo.dataset.azioneInCorso = 'true';
+        eseguiAzione(campo.dataset.url, { quantita: campo.value });
+    });
+
+    container.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' && event.target.matches && event.target.matches('.campo-quantita-flottante')) {
+            event.preventDefault();
+            event.target.blur();
+        }
+    });
+
+    // Seleziona il valore attuale al focus, stesso motivo di carrello-ajax.js
+    container.addEventListener('focus', function (event) {
+        var campo = event.target;
+        if (campo.matches && campo.matches('.campo-quantita-flottante')) {
+            campo.select();
+        }
+    }, true);
 })();

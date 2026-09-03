@@ -7,7 +7,6 @@
     aria-expanded="false" aria-controls="pannelloCarrelloFlottante"
     title="Preventivo" aria-label="Preventivo">
     <i class="bi bi-file-text-fill fs-4"></i>
-    <span id="badgeCarrelloFlottante" class="badge rounded-pill bg-danger">{{ totale_elementi_carrello }}</span>
   </button>
 
   <div id="pannelloCarrelloFlottante" class="d-none">
@@ -27,7 +26,9 @@
               data-url="{% url 'diminuisci_quantita' elemento.pk %}" aria-label="Diminuisci quantita">
               <i class="bi bi-dash"></i>
             </button>
-            <span class="carrello-stepper-qty">{{ elemento.quantita }}</span>
+            <input type="number" name="quantita" min="0" step="1" inputmode="numeric"
+                   value="{{ elemento.quantita }}" class="carrello-stepper-qty-input campo-quantita-flottante"
+                   data-url="{% url 'settaggio_quantita' elemento.pk %}" aria-label="Quantità">
             <button type="button" class="btn btn-navbar rounded-circle carrello-stepper-btn btn-aumenta-flottante"
               data-url="{% url 'aumenta_quantita' elemento.pk %}" aria-label="Aumenta quantita">
               <i class="bi bi-plus"></i>

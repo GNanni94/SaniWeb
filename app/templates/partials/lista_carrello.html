@@ -41,7 +41,12 @@ CarrelloListView sia in quello del frammento AJAX).
                         <i class="bi bi-dash"></i>
                     </button>
                 </form>
-                <span class="carrello-stepper-qty">{{ elementi_carrello.quantita }}</span>
+                <form method="post" action="{% url 'settaggio_quantita' elementi_carrello.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="number" name="quantita" min="0" step="1" inputmode="numeric"
+                           value="{{ elementi_carrello.quantita }}" class="carrello-stepper-qty-input"
+                           aria-label="Quantità">
+                </form>
                 <form method="post" action="{% url 'aumenta_quantita' elementi_carrello.pk %}" class="d-inline">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-navbar rounded-circle carrello-stepper-btn" aria-label="Aumenta quantità">

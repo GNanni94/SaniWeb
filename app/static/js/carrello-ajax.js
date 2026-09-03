@@ -46,6 +46,29 @@
         window.dispatchEvent(new Event('resize'));
     }
 
+    // Campo quantita' scrivibile da tastiera: "change" (non "input") per
+    // sottomettere solo a valore commesso (blur dopo una modifica, o
+    // frecce su/giu' del campo), non ad ogni carattere digitato. Il tasto
+    // Invio dentro il campo sottomette gia' il form nativamente (unico
+    // campo testuale del form), senza passare da qui - i due percorsi
+    // convergono comunque sullo stesso listener "submit" qui sotto, nessun
+    // doppio invio
+    colonnaLista.addEventListener('change', function (event) {
+        var campo = event.target;
+        if (campo.matches && campo.matches('.carrello-stepper-qty-input')) {
+            campo.form.requestSubmit();
+        }
+    });
+
+    // Seleziona il valore attuale al focus: scrivere il nuovo numero lo
+    // sostituisce subito, senza dover prima cancellare a mano quello vecchio
+    colonnaLista.addEventListener('focus', function (event) {
+        var campo = event.target;
+        if (campo.matches && campo.matches('.carrello-stepper-qty-input')) {
+            campo.select();
+        }
+    }, true);
+
     // Delegazione sulla colonna: funziona anche sulle righe rigenerate dopo
     // ogni sostituzione, senza dover ri-agganciare l'evento ogni volta
     colonnaLista.addEventListener('submit', function (event) {

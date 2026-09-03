@@ -6,29 +6,23 @@
   border: 2px solid var(--color-primary);
 }
 
-/* Bottone "Torna al catalogo" e pillola del contatore articoli nella riga
-   titolo di carrello.html: stessa identica dimensione tra i due, anche se
-   uno e' un ".btn.btn-sm" e l'altra un ".badge" - due componenti Bootstrap
-   con padding/line-height di base diversi (un badge ha "line-height: 1",
-   niente a che vedere con quello di un bottone). Ripetere qui il box di
-   ".btn-sm" pareggia i due indipendentemente da quale dei due markup li
-   genera. Da desktop (768px), stesso principio (e stessi valori) di
-   ".btn-torna-catalogo" in prodotti.css e ".pillola-torna-preventivi" in
-   preventivo.css - dimensione fissa e moderata, slegata da quella del
-   titolo h1 accanto (un font-size pari al titolo renderebbe queste pillole
-   piu' vistose del titolo stesso) */
+/* Bottone "Torna al catalogo" nella riga titolo di carrello.html: stesso
+   principio (e stessi valori) di ".btn-torna-catalogo" in prodotti.css e
+   ".pillola-torna-preventivi" in preventivo.css - dimensione fissa e
+   moderata, slegata da quella del titolo h1 accanto (un font-size pari al
+   titolo renderebbe la pillola piu' vistosa del titolo stesso) */
 .pillola-header-carrello {
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
   line-height: 1.5;
 }
 
-/* Da telefono il testo e' nascosto su entrambe (icona sola a sinistra,
-   solo il numero a destra - vedi "d-none d-md-inline" nel markup): un box
-   dimensionato dal solo padding non e' pero' un cerchio vero, la larghezza
-   segue il contenuto (un'icona e una cifra non sono mai esattamente larghe
-   quanto alte). Dimensione fissa e uguale su entrambe le direzioni per un
-   cerchio garantito, non "quasi" circolare per coincidenza */
+/* Da telefono il testo e' nascosto (icona sola - vedi "d-none d-md-inline"
+   nel markup): un box dimensionato dal solo padding non e' pero' un
+   cerchio vero, la larghezza segue il contenuto (un'icona non e' mai
+   esattamente larga quanto alta). Dimensione fissa e uguale su entrambe le
+   direzioni per un cerchio garantito, non "quasi" circolare per
+   coincidenza */
 @media (max-width: 767.98px) {
   .pillola-header-carrello {
     width: 2rem;
@@ -78,17 +72,14 @@
   left: .5rem !important;
 }
 
-.intestazione-carrello-sticky.intestazione-fissata .position-absolute.end-0 {
-  right: .5rem !important;
-}
-
-/* Da telefono (sotto la soglia xxl), quando la riga si aggancia i suoi tre
-   elementi vengono spostati dentro la pillola della navbar (vedi
-   static/js/carrello-intestazione-sticky.js): a differenza di
-   prodotti_card.html qui non c'e' nessun elemento "position: fixed" dentro
-   la riga da preservare (viene spostato l'intero <h1>, non solo un suo
-   link interno), quindi la riga risulta completamente vuota e puo'
-   collassare bordo/sfondo/padding senza dover nascondere nient'altro */
+/* Da telefono (sotto la soglia xxl), quando la riga si aggancia i suoi due
+   elementi (bottone "Torna al catalogo" e titolo) vengono spostati dentro
+   la pillola della navbar (vedi static/js/carrello-intestazione-sticky.js):
+   a differenza di prodotti_card.html qui non c'e' nessun elemento
+   "position: fixed" dentro la riga da preservare (viene spostato l'intero
+   <h1>, non solo un suo link interno), quindi la riga risulta completamente
+   vuota e puo' collassare bordo/sfondo/padding senza dover nascondere
+   nient'altro */
 .intestazione-carrello-sticky.contenuto-in-pillola-navbar {
   border-width: 0;
   border-radius: 0;
@@ -97,19 +88,17 @@
   padding-bottom: 0 !important;
 }
 
-/* "Torna al catalogo"/il contatore articoli spostati dentro la pillola
-   della navbar (".pillola-slot-indietro"/".pillola-slot-filtro" in
-   base.html/navbar.css, via carrello-intestazione-sticky.js): portano le
-   utility Bootstrap "position-absolute start-0"/"end-0", pensate per la
-   riga originale (".intestazione-carrello-sticky", "position: sticky" di
-   suo) - spostati qui dentro, il loro antenato posizionato piu' vicino
-   diventa invece la navbar intera. Stesso problema e stessa soluzione gia'
-   usate in navbar.css per ".pillola-slot-indietro .btn-torna-catalogo" */
-.pillola-slot-indietro .pillola-header-carrello,
-.pillola-slot-filtro .pillola-header-carrello {
+/* "Torna al catalogo" spostato dentro la pillola della navbar
+   (".pillola-slot-indietro" in base.html/navbar.css, via
+   carrello-intestazione-sticky.js): porta l'utility Bootstrap
+   "position-absolute start-0", pensata per la riga originale
+   (".intestazione-carrello-sticky", "position: sticky" di suo) - spostato
+   qui dentro, il suo antenato posizionato piu' vicino diventa invece la
+   navbar intera. Stesso problema e stessa soluzione gia' usate in
+   navbar.css per ".pillola-slot-indietro .btn-torna-catalogo" */
+.pillola-slot-indietro .pillola-header-carrello {
   position: static !important;
   left: auto !important;
-  right: auto !important;
 }
 
 /* Titolo "Richiedi Preventivo": stesso blu navbar del titolo categoria di
@@ -118,15 +107,6 @@
    preventivo.css) */
 .titolo-richiedi-preventivo {
   color: var(--color-primary);
-}
-
-/* Pillola del contatore articoli: sfondo/bordo neutri (non e' un'azione
-   come la pillola "Torna al catalogo" accanto), testo blu navbar */
-.pillola-contatore-carrello {
-  background-color: var(--color-bg-alt);
-  border: 1px solid var(--bs-border-color);
-  color: var(--color-primary);
-  font-weight: 600;
 }
 
 /* Blocco tag+nome prodotto, accanto alla thumbnail: "flex-basis: 0" (non
@@ -264,6 +244,34 @@
   text-align: center;
   font-weight: 700;
   line-height: 1;
+}
+
+/* Campo quantita' modificabile da tastiera (pagina carrello, non nel
+   carrello flottante, che resta di sola lettura + bottoni +/-): stesso
+   allineamento/peso della versione statica qui sopra, senza bordo ne'
+   sfondo per restare visivamente un numero e non un campo di modulo. Le
+   frecce native di incremento/decremento del browser sono nascoste: i
+   bottoni +/- circolari accanto le renderebbero ridondanti */
+.carrello-stepper-qty-input {
+  width: 2.25rem;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+  -moz-appearance: textfield;
+}
+
+.carrello-stepper-qty-input::-webkit-outer-spin-button,
+.carrello-stepper-qty-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.carrello-stepper-qty-input:focus {
+  outline: 1px solid var(--color-primary);
+  border-radius: 0.25rem;
 }
 
 /* Card del form "Richiedi preventivo" (id "Informazioni" nel canvas di

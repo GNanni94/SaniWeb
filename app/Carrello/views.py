@@ -177,18 +177,26 @@ def settaggio_quantita(request, carrelloId):
     elemento_carrello = get_object_or_404(Carrello, pk=carrelloId, cliente_id=request.user.pk)
     if request.user.is_authenticated:
         carrello_form = CarrelloForm(request.POST)
-        datiForm = carrello_form.save(commit=False)
-        logger.info(f"Richiesta settaggio quantita {datiForm.quantita} prodotto {elemento_carrello.prodotto.pk} carrello {carrelloId} utente {request.user.pk}")
-        datiForm.prodotto = elemento_carrello.prodotto
-        datiForm.cliente = request.user
-         
-        if datiForm.quantita  == 0:
-            logger.debug(f"Eliminato il prodotto {elemento_carrello.prodotto.pk} carrello {carrelloId} utente {request.user.pk} perchè andava sotto l'1")
-            elemento_carrello.delete()
-        else:  
-            elemento_carrello.quantita = datiForm.quantita 
-            elemento_carrello.save()
-        logger.info(f"Effettuato settaggio quantita {datiForm.quantita} prodotto {elemento_carrello.prodotto.pk} carrello {carrelloId} utente {request.user.pk}")
+        # is_valid() esplicito (non piu' solo save(commit=False)): un valore
+        # non numerico/mancante (campo svuotato) faceva sollevare ValueError
+        # a save(), mai gestito - con la quantita' scrivibile da tastiera
+        # (non piu' solo +/-) questo caso e' ora raggiungibile, si ignora
+        # semplicemente la richiesta invece di far crashare la view
+        if carrello_form.is_valid():
+            quantita = carrello_form.cleaned_data['quantita']
+            logger.info(f"Richiesta settaggio quantita {quantita} prodotto {elemento_carrello.prodotto.pk} carrello {carrelloId} utente {request.user.pk}")
+            if quantita <= 0:
+                logger.debug(f"Eliminato il prodotto {elemento_carrello.prodotto.pk} carrello {carrelloId} utente {request.user.pk} perchè andava sotto l'1")
+                elemento_carrello.delete()
+            else:
+                elemento_carrello.quantita = quantita
+                elemento_carrello.save()
+            logger.info(f"Effettuato settaggio quantita {quantita} prodotto {elemento_carrello.prodotto.pk} carrello {carrelloId} utente {request.user.pk}")
+        if _e_richiesta_in_background(request):
+            return _render_frammento_azione_carrello(request)
+        return redirect('carrello')
+    if _e_richiesta_in_background(request):
+        return HttpResponse(status=401)
     return redirect('carrello')
 
 

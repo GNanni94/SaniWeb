@@ -114,7 +114,7 @@ class CarrelloFlottanteAjaxViewsTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Sgrassatore forte")
-        self.assertContains(response, 'id="badgeCarrelloFlottante"')
+        self.assertContains(response, 'id="carrelloFlottante"')
 
     def test_aggiungi_con_ajax_interroga_gli_elementi_carrello_una_sola_volta(self):
         # Regressione: _render_widget_carrello_flottante (Carrello/views.py)
@@ -162,7 +162,7 @@ class CarrelloFlottanteAjaxViewsTest(TestCase):
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, ">2<")
+        self.assertContains(response, 'value="2"')
         elemento.refresh_from_db()
         self.assertEqual(elemento.quantita, 2)
 

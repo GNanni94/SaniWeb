@@ -64,12 +64,6 @@
   border-color: var(--color-bg);
 }
 
-#badgeCarrelloFlottante {
-  position: absolute;
-  top: -0.25rem;
-  right: -0.25rem;
-}
-
 #pannelloCarrelloFlottante {
   position: absolute;
   right: 0;
