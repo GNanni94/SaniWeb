@@ -1,8 +1,13 @@
 /* Sfondo di <html> (non <body>, che resta bianco per il contenuto) uguale al
    blu del footer/navbar: durante il rimbalzo elastico di Safari iOS/Android
-   oltre il fondo pagina si vede questo colore invece del bianco di default */
+   oltre il fondo pagina si vede questo colore invece del bianco di default -
+   resta come fallback estetico per i browser/versioni che non supportano
+   ancora "overscroll-behavior" qui sotto (es. Safari iOS meno recenti) */
 html {
   background-color: var(--color-primary-dark);
+  /* Disattiva il rimbalzo elastico dello scroll oltre inizio/fine pagina
+     dove supportato dal browser (Chrome/Firefox/Edge, Safari da 16.4) */
+  overscroll-behavior-y: none;
 }
 
 /* "Sticky footer": "site-main" (base.html) e' l'unico figlio con
