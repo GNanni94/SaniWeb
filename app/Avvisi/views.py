@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_http_methods, require_POST
 
 from .forms import AvvisoChiusuraForm
 from .models import AvvisoChiusura
@@ -33,10 +33,21 @@ def _risposta_form_errori(request, form, azione_url):
         # inseriti (non esiste un flusso form a pagina intera per questa
         # funzionalita')
         return redirect('gestione_avvisi')
-    return render(request, 'partials/form_avviso.html', {
+    response = render(request, 'partials/form_avviso.html', {
         'form': form,
         'azione_url': azione_url,
     }, status=400)
+    # Il form (partials/form_avviso.html) ha "hx-target=#tabella-avvisi"
+    # perche' e' l'unico bersaglio corretto per una risposta di SUCCESSO
+    # (200): questi due header dicono a htmx di ignorarlo SOLO per questa
+    # risposta e mandare invece il frammento (il form stesso, con gli
+    # errori) dentro il modal - meccanismo nativo di htmx (vedi
+    # gestione-avvisi.js), non serve nessuna logica JS per riconoscere il
+    # caso ne' per Avvisi ne' per Pagine (stesso pattern, elenco
+    # helper non condivisi in CLAUDE.md)
+    response['HX-Retarget'] = '#modalAvvisoBody'
+    response['HX-Reswap'] = 'innerHTML'
+    return response
 
 
 @staff_richiesto
@@ -61,14 +72,29 @@ def nuovo_avviso(request):
 
 
 @staff_richiesto
-@require_POST
+@require_http_methods(["GET", "POST"])
 def modifica_avviso(request, pk):
     avviso = get_object_or_404(AvvisoChiusura, pk=pk)
-    form = AvvisoChiusuraForm(request.POST, instance=avviso)
-    if form.is_valid():
-        form.save()
-        return _risposta_tabella(request)
-    return _risposta_form_errori(request, form, reverse('modifica_avviso', args=[pk]))
+    if request.method == "POST":
+        form = AvvisoChiusuraForm(request.POST, instance=avviso)
+        if form.is_valid():
+            form.save()
+            return _risposta_tabella(request)
+        return _risposta_form_errori(request, form, reverse('modifica_avviso', args=[pk]))
+    # GET: apre il pop-up "Modifica" gia' precompilato con i dati esistenti -
+    # stesso frammento usato per il salvataggio (partials/form_avviso.html),
+    # qui pero' costruito da un form non sottomesso (instance=avviso, nessun
+    # data=...) cosi' i campi mostrano i valori attuali invece di restare
+    # vuoti. Il bottone "Modifica" (partials/tabella_avvisi.html) lo chiama
+    # con hx-get, non serve piu' JS che legga i dati dalla riga e li scriva
+    # a mano nei campi del form
+    if not _is_ajax_request(request):
+        return redirect('gestione_avvisi')
+    form = AvvisoChiusuraForm(instance=avviso)
+    return render(request, 'partials/form_avviso.html', {
+        'form': form,
+        'azione_url': reverse('modifica_avviso', args=[pk]),
+    })
 
 
 @staff_richiesto

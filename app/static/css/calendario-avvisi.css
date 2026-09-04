@@ -1,0 +1,548 @@
+/* Tema Flatpickr (calendario dei campi "Data inizio"/"Data fine" del pop-up
+   Avviso di chiusura) allineato ai colori/font del sito - vedi
+   variables.css per i design token. Il file base di flatpickr (caricato
+   prima di questo in gestione_avvisi.html) resta come struttura/layout,
+   qui si sovrascrivono solo colori, forme e tipografia. */
+
+/* Angoli del pop-up "Avviso di chiusura" arrotondati con lo stesso raggio
+   gia' usato per il popup di login (#modalLogin .modal-content in
+   navbar.css, 24px), per la stessa estetica "pop-up" in tutto il sito.
+   "overflow: hidden" per coerenza con quella stessa regola, anche se qui
+   il contenuto (solo modal-body, niente modal-header a contatto) non
+   arriva mai a toccare il bordo. */
+#modalAvviso .modal-content {
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+/* Il footer (form_avviso.html, ".modal-footer") resta annidato dentro
+   "modal-body" (niente modal-header/footer come fratelli diretti in questo
+   pop-up, vedi commento li'), quindi il SUO padding (0.75rem di Bootstrap,
+   su tutti i lati) piu' il margine che Bootstrap applica ai suoi figli
+   diretti (0.25rem, anche loro su tutti i lati) si sommavano al padding di
+   "modal-body" (1rem, gia' uniforme sugli altri tre lati del pop-up) -
+   risultato: sotto il footer c'era quasi il doppio dello spazio libero
+   rispetto a sopra/ai lati delle sezioni "Periodo di chiusura"/"Motivo
+   chiusura". Si azzerano qui i tre lati NON a contatto con la linea
+   divisoria (il padding superiore resta: e' lo spazio tra la linea e la
+   checkbox/bottone, non riguarda lo spazio esterno del pop-up) */
+#modalAvvisoBody .modal-footer {
+  padding-right: 0;
+  padding-bottom: 0;
+  padding-left: 0;
+}
+
+/* "!important": il campo "attivo" (crispy_forms) porta con se' anche
+   ".mb-3" (utility di Bootstrap, "margin-bottom: 1rem !important" -
+   vedi CLAUDE.md), che altrimenti vincerebbe comunque su un semplice
+   "margin: 0" qui: il margine invisibile sotto la checkbox la spingeva
+   verso l'alto rispetto al centro della riga (il centraggio di un flex
+   item include i suoi margini) */
+#modalAvvisoBody .modal-footer > * {
+  margin: 0 !important;
+}
+
+/* Bottone "Salva" a pillola invece che rettangolare (solo qui, non su
+   ".btn-navbar" in generale: quella classe resta rettangolare ovunque
+   altrove nel sito) */
+#modalAvvisoBody .modal-footer button[type="submit"] {
+  border-radius: 999px;
+}
+
+/* Checkbox "Attiva ora": Bootstrap la posiziona con "float" + un margine
+   verticale pensato per allinearla alla PRIMA RIGA di testo della label
+   (".form-check-input { margin-top: .25em }"), non al centro del proprio
+   contenitore - accanto al bottone "Salva" (alto quanto il padding del
+   ".btn", centrato dal "align-items: center" del footer) risultava quindi
+   piu' in alto. Sostituendo float con un flex interno, checkbox e label si
+   centrano a vicenda sullo stesso asse verticale usato per centrare
+   l'intero blocco nel footer */
+#modalAvvisoBody .modal-footer .form-check {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding-left: 0;
+  min-height: 0;
+}
+
+#modalAvvisoBody .modal-footer .form-check-input {
+  float: none;
+  margin: 0;
+}
+
+#modalAvvisoBody .modal-footer .form-check-label {
+  margin: 0;
+}
+
+.flatpickr-calendar {
+  font-family: var(--font-base);
+  border-radius: 1rem;
+}
+
+/* Calendario incorporato nella pagina (non un popup che si apre al click):
+   un bordo discreto al posto dell'ombra "flottante" di default. La griglia
+   dei giorni (".flatpickr-days"/".dayContainer") resta alla sua larghezza
+   naturale (7 colonne da 39px, calcolate da flatpickr stesso) e va solo
+   centrata nello spazio del pop-up - forzarla a "width:100%" manderebbe in
+   confusione il calcolo delle colonne (bug osservato: 11 numeri su una
+   riga invece di 7) */
+.flatpickr-calendar.inline {
+  box-shadow: none;
+  border: 1px solid var(--color-bg-alt);
+  margin: 0 auto;
+}
+
+/* Header mese/anno + frecce di navigazione, sfondo blu come la navbar */
+.flatpickr-months {
+  background-color: var(--color-primary);
+  border-radius: 1rem 1rem 0 0;
+  padding: .5rem 0;
+}
+
+.flatpickr-current-month {
+  font-weight: 700;
+  color: var(--color-text-light);
+}
+
+.flatpickr-current-month .cur-month,
+.flatpickr-current-month input.cur-year {
+  color: var(--color-text-light);
+  font-weight: 700;
+}
+
+.flatpickr-prev-month svg,
+.flatpickr-next-month svg {
+  fill: var(--color-text-light);
+}
+
+/* Freccette su/giu' dello spinner dell'anno - il tema base di flatpickr le
+   disegna con la tecnica del triangolo CSS (bordi colorati su uno
+   pseudo-elemento ":after", non un fill/colore diretto), e le tiene
+   invisibili (opacity:0) finche' non si passa il mouse esattamente sopra lo
+   spinner: qui restano sempre visibili, come le frecce prev/next mese.
+   Il selettore ripete ".flatpickr-current-month" perche' il tema base ha
+   gia' una regola con questo stesso prefisso (piu' specifica delle due
+   sole classi ".numInputWrapper span.arrowUp:after") che altrimenti
+   vincerebbe comunque, pur caricando questo file dopo */
+.numInputWrapper span {
+  opacity: 1;
+}
+
+.flatpickr-current-month .numInputWrapper span.arrowUp:after {
+  border-bottom-color: var(--color-text-light);
+}
+
+.flatpickr-current-month .numInputWrapper span.arrowDown:after {
+  border-top-color: var(--color-text-light);
+}
+
+/* Bottone che sostituisce il <select> nativo del mese (nascosto via JS,
+   vedi "inizializzaSelettoreMese" in gestione-avvisi.js) - stesso testo
+   bianco in grassetto che aveva il <select>, ma senza la freccina del
+   menu a tendina nativo del browser: qui il "menu" e' il pannello a
+   pillole qui sotto, non quello che apre il browser da solo, quindi la
+   freccina non serve piu' (il comportamento "clicca per scegliere il
+   mese" resta identico) */
+.selettore-mese-avviso {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: var(--color-text-light);
+  cursor: pointer;
+}
+
+/* Pannello a pillole, stesso linguaggio del menu hamburger (navbar.css,
+   "#navbarSupportedContent .navbar-nav > .nav-item > .nav-link" per la
+   pillola, ".pallino-pagina-corrente" per il pallino blu) - "position:
+   absolute" per comparire sopra il calendario invece di spingerne giu' il
+   contenuto. "top"/"left" li scrive gestione-avvisi.js (posizionaPannello())
+   ad ogni apertura: il pannello e' agganciato a ".flatpickr-calendar" (non
+   a ".flatpickr-current-month", il cui antenato ".flatpickr-month" ha
+   "overflow:hidden" nel tema base di flatpickr e lo taglierebbe via), quindi
+   non ha piu' una posizione utile da esprimere in CSS puro rispetto al
+   bottone che lo apre */
+.selettore-mese-avviso-pannello {
+  position: absolute;
+  z-index: 1;
+  transform: translateX(-50%);
+  margin-top: .5rem;
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  padding: .5rem;
+  background-color: var(--color-bg);
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+}
+
+.opzione-mese-avviso {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .5rem 1rem;
+  background-color: var(--color-bg-alt);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color .15s ease;
+}
+
+.opzione-mese-avviso:hover,
+.opzione-mese-avviso:focus {
+  border-color: var(--color-primary);
+}
+
+/* Pallino a destra della voce = mese attualmente mostrato dal calendario,
+   stessa dimensione/colore del pallino usato nel menu hamburger per la
+   pagina corrente */
+.pallino-mese-corrente {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+}
+
+.flatpickr-prev-month:hover svg,
+.flatpickr-next-month:hover svg {
+  fill: var(--color-bg-alt);
+}
+
+/* Nomi dei giorni della settimana */
+.flatpickr-weekdays {
+  background-color: var(--color-primary);
+}
+
+span.flatpickr-weekday {
+  background-color: var(--color-primary);
+  color: var(--color-bg-alt);
+  font-weight: 700;
+}
+
+/* Numeri dei giorni: grassetto come nel riferimento estetico */
+.flatpickr-day {
+  font-weight: 700;
+  color: var(--color-text);
+  border-radius: 50%;
+}
+
+/* "Oggi", a riposo: nessun segno distintivo (ne' l'anello, ne' il sottile
+   bordo grigio del tema base di flatpickr) - con i giorni passati ormai
+   nascosti (".flatpickr-disabled" piu' sotto), "oggi" e' comunque il primo
+   giorno selezionabile della riga, non serve piu' evidenziarlo a riposo. Si
+   comporta come una data qualsiasi: l'anello compare solo al passaggio del
+   mouse/focus, tramite la regola generica qui sotto (non ha piu' una
+   regola dedicata, dato che ora e' identica a quella di un giorno normale) */
+.flatpickr-day.today {
+  border-color: transparent;
+}
+
+/* Giorni fuori dal mese corrente (mese precedente/successivo): grigio
+   chiaro, discreti, ma restano visibili e cliccabili se non e' un giorno
+   passato (vedi regola sotto) */
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+  color: #C7CCD1;
+}
+
+/* Giorni disabilitati (prima di oggi, vedi "minDate: 'today'" in
+   gestione-avvisi.js): non solo non selezionabili ma proprio non visibili.
+   "visibility:hidden" invece di "display:none" - la cella resta al suo
+   posto nella griglia (nasconde solo il contenuto), altrimenti le celle
+   successive scalerebbero a sinistra rompendo l'allineamento con le
+   intestazioni Lun/Mar/... (stesso bug gia' visto forzando la larghezza
+   della griglia) */
+.flatpickr-day.flatpickr-disabled,
+.flatpickr-day.flatpickr-disabled:hover {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Hover su un giorno "normale" (non gia' selezionato, non disabilitato,
+   non dentro un range) - "oggi" compreso, che non ha piu' una regola sua:
+   un anello (stesso motivo del "radial-gradient" spiegato sotto per
+   ".selected"), non un cerchio pieno, al posto del riempimento a tutta
+   cella del tema di base di flatpickr. "color" esplicito: il tema base ha
+   una regola apposta per l'hover di "oggi" che mette il testo bianco
+   (pensata per uno sfondo pieno scuro) - qui lo sfondo e' quasi tutto
+   trasparente (solo l'anello e' colorato), senza sovrascriverlo il testo
+   sparirebbe bianco su bianco */
+.flatpickr-day:not(.selected):not(.startRange):not(.endRange):not(.inRange):not(.flatpickr-disabled):hover,
+.flatpickr-day:not(.selected):not(.startRange):not(.endRange):not(.inRange):not(.flatpickr-disabled):focus {
+  background: radial-gradient(circle, transparent 0 12px, var(--color-primary) 12px 14px, transparent 14px) center/100% 100% no-repeat;
+  border-color: transparent;
+  color: var(--color-text);
+}
+
+/* Data scelta (inizio o fine range, "oggi" compreso): un cerchio pieno blu
+   volutamente piu' piccolo della cella (39x39px, vedi flatpickr.min.css)
+   invece di riempirla tutta - a pieno riempimento il cerchio toccherebbe il
+   bordo della cella, che e' esattamente dove inizia la "pillola" del
+   giorno adiacente selezionato (".inRange" piu' sotto), dando la falsa
+   impressione che i due si sovrappongano.
+   Le combinazioni ".prevMonthDay"/".nextMonthDay"/".inRange" servono per un
+   bug preciso: quando la data di fine cade nei primi giorni del mese
+   successivo, flatpickr la disegna anche nella vista del mese precedente
+   come riempimento grigio di fine griglia, aggiungendole PURE la classe
+   "inRange" (flatpickr.js, "buildDayElement": "if (className ===
+   nextMonthDay) dayElement.classList.add(inRange)") - quella data ha quindi
+   insieme "endRange", "nextMonthDay" e "inRange". Il tema base di flatpickr
+   ha una regola apposta per questa combinazione (3 classi, es.
+   ".endRange.nextMonthDay"), piu' specifica della nostra originale (2
+   classi, ".endRange" da solo): senza queste varianti esplicite, quella
+   regola vince e riporta il riempimento pieno originale (bug osservato:
+   "torno al mese originale e la data finale ha il cerchio grande") - stessa
+   tecnica gia' usata sopra per "oggi" e per il ponte tra date adiacenti */
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange,
+.flatpickr-day.today.selected,
+.flatpickr-day.today.startRange,
+.flatpickr-day.today.endRange,
+.flatpickr-day.selected.inRange,
+.flatpickr-day.startRange.inRange,
+.flatpickr-day.endRange.inRange,
+.flatpickr-day.selected.prevMonthDay,
+.flatpickr-day.startRange.prevMonthDay,
+.flatpickr-day.endRange.prevMonthDay,
+.flatpickr-day.selected.nextMonthDay,
+.flatpickr-day.startRange.nextMonthDay,
+.flatpickr-day.endRange.nextMonthDay,
+.flatpickr-day.selected:focus,
+.flatpickr-day.startRange:focus,
+.flatpickr-day.endRange:focus,
+.flatpickr-day.today.selected:focus,
+.flatpickr-day.today.startRange:focus,
+.flatpickr-day.today.endRange:focus {
+  background: radial-gradient(circle, var(--color-primary) 0 14px, transparent 14px) center/100% 100% no-repeat;
+  border-color: transparent;
+  color: var(--color-text-light);
+}
+
+.flatpickr-day.selected:hover,
+.flatpickr-day.startRange:hover,
+.flatpickr-day.endRange:hover,
+.flatpickr-day.today.selected:hover,
+.flatpickr-day.today.startRange:hover,
+.flatpickr-day.today.endRange:hover,
+.flatpickr-day.selected.inRange:hover,
+.flatpickr-day.startRange.inRange:hover,
+.flatpickr-day.endRange.inRange:hover,
+.flatpickr-day.selected.prevMonthDay:hover,
+.flatpickr-day.startRange.prevMonthDay:hover,
+.flatpickr-day.endRange.prevMonthDay:hover,
+.flatpickr-day.selected.nextMonthDay:hover,
+.flatpickr-day.startRange.nextMonthDay:hover,
+.flatpickr-day.endRange.nextMonthDay:hover {
+  background: radial-gradient(circle, var(--color-primary-dark) 0 14px, transparent 14px) center/100% 100% no-repeat;
+  border-color: transparent;
+  color: var(--color-text-light);
+}
+
+/* Giorni intermedi di un intervallo (nessun ".endRange" -> vedi sotto
+   perche' non puo' esistere per una singola data scelta): sfondo blu
+   tenue di default, sovrascritto sotto quando l'intervallo e' completo.
+   Le varianti ".prevMonthDay"/".nextMonthDay" servono perche' durante la
+   sola ANTEPRIMA (passaggio del mouse prima del secondo click, non ancora
+   un intervallo confermato) i giorni "in mezzo" che ricadono nel
+   riempimento di fine/inizio griglia (mese precedente/successivo) hanno
+   anche quelle classi - il tema base di flatpickr ha una regola apposta
+   per quella combinazione (3 classi, es. ".nextMonthDay.inRange"), piu'
+   specifica della nostra originale (2 classi, ".inRange" da sola): senza
+   queste varianti esplicite quella regola vince, con un altro grigio
+   (il suo, non il nostro "--color-bg-alt") e senza il "ponte" che collega
+   le celle - bug osservato: "i giorni del mese successivo sembrano
+   diversi" - stessa tecnica gia' usata altrove in questo file.
+   Grigio dedicato (non "--color-bg-alt", condiviso col resto del sito -
+   navbar, bottoni login/carrello - una modifica li' si vedrebbe ovunque):
+   leggermente piu' scuro, solo per questa fascia del calendario */
+.flatpickr-day.inRange,
+.flatpickr-day.prevMonthDay.inRange,
+.flatpickr-day.nextMonthDay.inRange {
+  background-color: #E4E7EB;
+  border-color: #E4E7EB;
+  color: var(--color-primary-dark);
+  box-shadow: -5px 0 0 #E4E7EB, 5px 0 0 #E4E7EB;
+}
+
+/* Angoli arrotondati "a pillola" solo alle estremita', non sui giorni
+   centrali - di base sempre un cerchio pieno (anche per l'unica data
+   scelta finora, prima di indicare anche la fine: flatpickr le assegna
+   comunque la classe "startRange", vedi piu' sotto), sovrascritto in
+   modo asimmetrico (arrotondato solo verso l'esterno) quando l'intervallo
+   e' completo */
+.flatpickr-day.startRange.startRange,
+.flatpickr-day.endRange.endRange {
+  border-radius: 50%;
+}
+
+.flatpickr-day.startRange:nth-child(7n+7),
+.flatpickr-day.endRange:nth-child(7n+1) {
+  box-shadow: none;
+}
+
+/* Giorni intermedi di un intervallo CONFERMATO (due click, non durante il
+   solo passaggio del mouse mentre si sceglie ancora la fine): stesso
+   identico cerchietto blu di inizio/fine, invece della fascia chiara di
+   default o di una pillola continua.
+   ".intervallo-completo" e' una classe gestita da gestione-avvisi.js sul
+   contenitore del calendario, non da flatpickr: le classi native di
+   flatpickr ("startRange"/"inRange"/"endRange") sono IDENTICHE sia per un
+   intervallo davvero scelto sia per la sola ANTEPRIMA mostrata muovendo il
+   mouse dopo il primo click (flatpickr.js, "onMouseOver") - da CSS puro i
+   due casi sono indistinguibili, va quindi tracciato a mano lo stato reale
+   (vedi "stato"/"sincronizzaClasseIntervallo" in gestione-avvisi.js) */
+.flatpickr-calendar.intervallo-completo .flatpickr-day.inRange {
+  background: radial-gradient(circle, var(--color-primary) 0 14px, transparent 14px) center/100% 100% no-repeat;
+  border-color: transparent;
+  color: var(--color-text-light);
+  box-shadow: none;
+}
+
+/* Due date scelte adiacenti (nessun giorno ".inRange" in mezzo): il tema
+   base di flatpickr disegna comunque un "ponte" tra le due con un
+   box-shadow di collegamento largo quanto l'intera cella (pensato per il
+   suo cerchio a riempimento pieno) - con il nostro cerchio piu' piccolo
+   quel box-shadow spunta come un blocco piu' grande dietro/accanto al
+   cerchio. Stessa identica combinazione di classi/selettore del tema base
+   (con ".selected" incluso, sempre presente insieme a ".startRange" sulla
+   prima data scelta) - senza, la nostra regola avrebbe specificita' minore
+   e non vincerebbe nonostante sia dichiarata dopo */
+.flatpickr-day.selected.startRange + .endRange:not(:nth-child(7n+1)),
+.flatpickr-day.startRange.startRange + .endRange:not(:nth-child(7n+1)),
+.flatpickr-day.endRange.startRange + .endRange:not(:nth-child(7n+1)) {
+  box-shadow: none;
+}
+
+/* Campo "Motivo chiusura" (form_avviso.html): crispy_forms applica da solo
+   "mb-3" al div che lo racchiude (usato qui tramite "|as_crispy_field",
+   senza un FormHelper/Layout che permetta di scegliere una classe diversa
+   per il wrapper) - qui sotto c'e' gia' l'anteprima del banner, che non ha
+   bisogno di quello spazio in piu'. "!important" necessario: le utility di
+   spaziatura di Bootstrap 5 (".mb-3" compresa) sono definite con
+   "!important" nel framework stesso, quindi l'ordine di caricamento da
+   solo (che di norma basta per battere Bootstrap, vedi CLAUDE.md) qui non
+   e' sufficiente */
+#div_id_motivo_chiusura {
+  margin-bottom: 0 !important;
+}
+
+/* Sezioni "Periodo di chiusura" e "Motivo chiusura": sfondo grigio chiaro
+   (stesso "--color-bg-alt" usato per lo sfondo delle voci del menu
+   hamburger, vedi navbar.css) e titolo centrato. ".form-label" e'
+   "display:inline-block" (default Bootstrap): "text-align:center" va
+   quindi sul contenitore, non sulla label stessa, altrimenti non avrebbe
+   alcun effetto */
+#blocco-calendario-avviso,
+#div_id_motivo_chiusura {
+  background-color: var(--color-bg-alt);
+  border: 2px solid var(--color-primary);
+  border-radius: 1rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+/* Pop-up "Avviso di chiusura" piu' largo del modal Bootstrap di default
+   (500px): il calendario (307,875px fissi, vedi commento piu' in alto) e
+   il blocco "Data inizio"/"Data fine" accanto (vedi "justify-content-
+   start" su #riga-periodo-avviso in form_avviso.html) non entravano
+   entrambi nella sezione "Periodo di chiusura" senza sovrapporsi o
+   restringere il calendario (che non puo' restringersi sotto la sua
+   larghezza fissa) - 540px lascia spazio comodo a entrambi, oltre al
+   padding della sezione uguale su tutti i lati (vedi sotto) */
+#modalAvviso .modal-dialog {
+  max-width: 540px;
+}
+
+/* Su schermi stretti Bootstrap da' al pop-up "width: auto" e un margine
+   FISSO (0.5rem per lato, non "auto"): resta comunque centrato solo perche'
+   riempie tutta la larghezza disponibile, senza spazio residuo da dividere.
+   "width: min(348px, calc(100% - .5rem))" impone lo stesso comportamento
+   fin sotto i 356px di schermo (100% - .5rem, cioe' margine di .25rem per
+   lato) ma smette di crescere oltre 348px sugli schermi piu' larghi - il
+   calendario ha una larghezza FISSA (280px, vedi sotto), quindi oltre quella
+   soglia il pop-up (e la sezione "Periodo di chiusura", che ne occupa tutta
+   la larghezza) si allargherebbe senza motivo, lasciando ai lati del
+   calendario uno spazio vuoto via via maggiore rispetto a quello sopra/sotto
+   (fisso, e' solo il padding della sezione: 348px e' calcolato apposta
+   perche' il calendario, centrato nello spazio residuo, risulti a 18px
+   esatti dal bordo sinistro/destro, lo stesso valore del padding
+   sopra/sotto). Con una larghezza esplicita (non piu' "auto" ereditato da
+   Bootstrap), "margin-left/right: auto" centra il pop-up in ENTRAMBI i
+   casi, invece del margine fisso di prima - che sopra i 356px lasciava
+   tutto lo spazio in eccesso da un lato solo, disallineando il pop-up */
+@media (max-width: 575.98px) {
+  #modalAvviso .modal-dialog {
+    width: min(348px, calc(100% - .5rem));
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Colonna di default ("Data inizio" sopra "Data fine", vedi
+   form_avviso.html): niente ".flex-column" di Bootstrap qui apposta -
+   quell'utility ha "!important" (come ".mb-3" sopra), che impedirebbe
+   proprio alla media query qui sotto di girarla in riga su schermi stretti.
+   "flex: 1 1 auto" lo fa crescere fino a riempire lo spazio rimasto nella
+   riga a destra del calendario (vedi "justify-content-start" su
+   "#riga-periodo-avviso" in form_avviso.html, che altrimenti lo terrebbe
+   incollato al calendario) - "align-items"/"justify-content: center" (assi
+   incrociato/principale di un flex in colonna) centrano "Data inizio"/
+   "Data fine" dentro questo spazio, sia in orizzontale che in verticale */
+#valori-periodo-avviso {
+  flex-direction: column;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Su schermi stretti (pop-up "Avviso di chiusura" da telefono) la griglia
+   del calendario - 307,875px fissi nel tema base di flatpickr per un
+   singolo mese (".flatpickr-days"/".dayContainer", vedi commento piu' in
+   alto: non va reso "width:100%", rompe il calcolo delle 7 colonne) - non
+   entra piu' nella sezione "Periodo di chiusura" e ne sporge fuori.
+   Sotto quella soglia "Data inizio"/"Data fine" passano sotto al
+   calendario invece che a fianco (non c'e' piu' spazio per entrambi sulla
+   stessa riga) e le celle dei giorni tornano quasi alla dimensione nativa
+   di flatpickr (39px): 280px (7 celle da 40px) entrano nella sezione anche
+   sugli schermi piu' stretti (360px) grazie al margine del pop-up ridotto
+   qui sopra, e sono leggermente piu' leggibili delle 273px/39px del primo
+   tentativo (il cui margine, sotto i 360px, non lasciava piu' spazio per
+   ingrandire ulteriormente) */
+@media (max-width: 575.98px) {
+  #riga-periodo-avviso {
+    flex-direction: column;
+  }
+
+  #valori-periodo-avviso {
+    flex-direction: row;
+    /* "flex: initial" (non piu' "1 1 auto"): qui la riga e' verticale
+       (".flex-direction: column" qui sopra su #riga-periodo-avviso), quindi
+       crescere significherebbe allungarsi in altezza, non in larghezza -
+       niente di utile da riempire, il centraggio orizzontale lo da' gia'
+       "align-items-center" (Bootstrap, sempre su #riga-periodo-avviso) */
+    flex: initial;
+  }
+
+  .flatpickr-calendar,
+  .flatpickr-days,
+  .dayContainer {
+    width: 280px;
+    min-width: 280px;
+    max-width: 280px;
+  }
+
+  .flatpickr-day {
+    max-width: 40px;
+    height: 40px;
+    line-height: 40px;
+  }
+}
+

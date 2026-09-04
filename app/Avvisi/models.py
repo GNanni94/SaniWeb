@@ -11,10 +11,7 @@ GIORNI_PREAVVISO = 14
 class AvvisoChiusura(models.Model):
     data_inizio = models.DateField()
     data_fine = models.DateField()
-    motivo_chiusura = models.CharField(
-        max_length=200,
-        help_text='Minuscolo, completa la frase "...chiusa dal X al Y compresi per ___" (es. "ferie estive", "festività natalizie").',
-    )
+    motivo_chiusura = models.CharField(max_length=200)
     attivo = models.BooleanField(default=True)
 
     class Meta:
@@ -30,6 +27,8 @@ class AvvisoChiusura(models.Model):
         return f"{self.motivo_chiusura} ({self.data_inizio} - {self.data_fine})"
 
     def _intervallo_testo(self):
+        if self.data_fine == self.data_inizio:
+            return "il {}".format(date_format(self.data_inizio, "j F").lower())
         return "dal {} al {} compresi".format(
             date_format(self.data_inizio, "j F").lower(),
             date_format(self.data_fine, "j F").lower(),

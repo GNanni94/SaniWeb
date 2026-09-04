@@ -37,6 +37,23 @@ class AvvisoChiusuraTestoTest(TestCase):
             "Le richieste ricevute in questo periodo verranno gestite al nostro rientro.",
         )
 
+    def test_testo_preavviso_singolo_giorno_non_usa_dal_al_compresi(self):
+        # data_inizio == data_fine: "dal 7 agosto al 7 agosto compresi"
+        # sarebbe ridondante, deve leggersi "il 7 agosto"
+        avviso = _crea_avviso(datetime.date(2026, 8, 7), datetime.date(2026, 8, 7), motivo="chiusura straordinaria")
+        self.assertEqual(
+            avviso.testo_preavviso(),
+            "Avviso: l'azienda sarà chiusa il 7 agosto per chiusura straordinaria.",
+        )
+
+    def test_testo_chiusura_singolo_giorno_non_usa_dal_al_compresi(self):
+        avviso = _crea_avviso(datetime.date(2026, 8, 7), datetime.date(2026, 8, 7), motivo="chiusura straordinaria")
+        self.assertEqual(
+            avviso.testo_chiusura(),
+            "L'azienda è chiusa il 7 agosto per chiusura straordinaria. "
+            "Le richieste ricevute in questo periodo verranno gestite al nostro rientro.",
+        )
+
 
 class AvvisoChiusuraCorrenteTest(TestCase):
     def setUp(self):
@@ -349,9 +366,51 @@ class ModificaAvvisoViewTest(TestCase):
         )
         self.assertEqual(response.status_code, 404)
 
-    def test_get_risponde_405(self):
+    def test_get_ajax_risponde_con_form_precompilato(self):
+        # A differenza di nuovo/elimina/toggle (solo POST), "Modifica" apre
+        # il pop-up via "hx-get" (partials/tabella_avvisi.html): il GET deve
+        # rispondere col form gia' compilato con i valori dell'avviso, non
+        # con un form vuoto
+        self.client.force_login(self.staff)
+        response = self.client.get(
+            reverse("modifica_avviso", args=[self.avviso.pk]),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "ferie estive")
+        self.assertContains(response, "2026-08-07")
+        self.assertContains(response, "2026-08-23")
+
+    def test_get_non_ajax_reindirizza_a_gestione_avvisi(self):
+        # Stesso principio delle risposte POST non-ajax: senza JS non c'e'
+        # modo di aprire il pop-up, si torna alla pagina completa
         self.client.force_login(self.staff)
         response = self.client.get(reverse("modifica_avviso", args=[self.avviso.pk]))
+        self.assertRedirects(response, reverse("gestione_avvisi"))
+
+    def test_get_pk_inesistente_risponde_404(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(
+            reverse("modifica_avviso", args=[999999]),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_utente_normale_non_autorizzato(self):
+        User = get_user_model()
+        utente = User.objects.create_user(username="normalecrud2get", email="normalecrud2get@example.com", password="testpass123")
+        self.client.force_login(utente)
+        response = self.client.get(
+            reverse("modifica_avviso", args=[self.avviso.pk]),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 302)
+
+    def test_put_risponde_405(self):
+        # GET e POST sono ora entrambi supportati (vedi test sopra): un
+        # metodo diverso deve comunque restare rifiutato
+        self.client.force_login(self.staff)
+        response = self.client.put(reverse("modifica_avviso", args=[self.avviso.pk]))
         self.assertEqual(response.status_code, 405)
 
 
@@ -416,19 +475,18 @@ class AvvisoChiusuraGestionePageContrattoJsTest(TestCase):
             'id="modalAvvisoBody"',
             'id="btnNuovoAvviso"',
             'id="form-avviso"',
-            'data-data-inizio="',
-            'data-data-fine="',
-            'data-motivo="',
-            'data-attivo="',
-            'data-url-modifica="',
-            'data-url-elimina="',
             'data-azione-nuovo="',
             'toggle-attivo-avviso',
-            # Il toggle "attivo" e' gestito da htmx (hx-post/hx-target/
-            # hx-swap), non piu' da un data-url-toggle letto da JS a mano -
-            # vedi app/static/js/gestione-avvisi.js e base.html
+            # Il toggle "attivo", il bottone "Elimina" e il bottone
+            # "Modifica" sono gestiti da htmx (hx-post/hx-get, hx-target,
+            # hx-swap, "hx-confirm" per l'elimina), non piu' da data-* letti
+            # da JS a mano - vedi app/static/js/gestione-avvisi.js e
+            # base.html
             'hx-post="',
+            'hx-get="',
             'hx-target="#tabella-avvisi"',
+            'hx-target="#modalAvvisoBody"',
+            'hx-confirm="Eliminare questo avviso?"',
         ]
         for stringa in stringhe_richieste:
             self.assertContains(response, stringa)

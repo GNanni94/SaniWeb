@@ -1,6 +1,12 @@
 from django.urls import path
 
-from .views import elimina_avviso, gestione_avvisi, modifica_avviso, nuovo_avviso, toggle_avviso
+from .views import (
+    elimina_avviso,
+    gestione_avvisi,
+    modifica_avviso,
+    nuovo_avviso,
+    toggle_avviso,
+)
 
 urlpatterns = [
     path("gestione/", gestione_avvisi, name="gestione_avvisi"),

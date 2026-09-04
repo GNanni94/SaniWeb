@@ -24,11 +24,7 @@
       </thead>
       <tbody>
         {% for avviso in avvisi %}
-        <tr data-pk="{{ avviso.pk }}"
-            data-data-inizio="{{ avviso.data_inizio|date:'Y-m-d' }}"
-            data-data-fine="{{ avviso.data_fine|date:'Y-m-d' }}"
-            data-motivo="{{ avviso.motivo_chiusura }}"
-            data-attivo="{{ avviso.attivo|yesno:'true,false' }}">
+        <tr data-pk="{{ avviso.pk }}">
           <td class="border">{{ avviso.data_inizio|date:"d F" }}</td>
           <td class="border">{{ avviso.data_fine|date:"d F" }}</td>
           <td class="border">{{ avviso.motivo_chiusura }}</td>
@@ -43,10 +39,19 @@
             </div>
           </td>
           <td class="border-0 bg-transparent text-nowrap" style="width: 1%;">
-            <button type="button" class="btn btn-sm btn-outline-navbar btn-modifica-avviso" data-url-modifica="{% url 'modifica_avviso' avviso.pk %}" title="Modifica" aria-label="Modifica">
+            <button type="button" class="btn btn-sm btn-outline-navbar"
+                    hx-get="{% url 'modifica_avviso' avviso.pk %}"
+                    hx-target="#modalAvvisoBody"
+                    hx-swap="innerHTML"
+                    title="Modifica" aria-label="Modifica">
               <i class="bi bi-pencil-square"></i>
             </button>
-            <button type="button" class="btn btn-sm btn-outline-danger btn-elimina-avviso" data-url-elimina="{% url 'elimina_avviso' avviso.pk %}" title="Elimina" aria-label="Elimina">
+            <button type="button" class="btn btn-sm btn-outline-danger"
+                    hx-post="{% url 'elimina_avviso' avviso.pk %}"
+                    hx-target="#tabella-avvisi"
+                    hx-swap="morph:outerHTML"
+                    hx-confirm="Eliminare questo avviso?"
+                    title="Elimina" aria-label="Elimina">
               <i class="bi bi-trash"></i>
             </button>
           </td>

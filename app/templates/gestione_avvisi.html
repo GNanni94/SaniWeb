@@ -4,6 +4,15 @@
 
 {% block contenuto %}
 
+{% comment %}
+base.html non ha un blocco dedicato al <head> per CSS aggiuntivo: questi due
+<link> restano qui (fuori da <head>, ma dentro <body>) invece che spostare
+"contenuto" - il browser li applica comunque correttamente, e non serve
+toccare base.html (usato da tutte le pagine del sito) solo per una pagina.
+{% endcomment %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+<link rel="stylesheet" href="{% static 'css/calendario-avvisi.css' %}">
+
 <div class="container">
     <div class="row">
         <div class="col-12 py-5">
@@ -27,10 +36,6 @@
 <div class="modal fade" id="modalAvviso" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Avviso di chiusura</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
-      </div>
       <div class="modal-body" id="modalAvvisoBody">
         {% include 'partials/form_avviso.html' %}
       </div>
@@ -38,6 +43,9 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/it.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/plugins/rangePlugin.js"></script>
 <script src="{% static 'js/gestione-avvisi.js' %}"></script>
 
 {% endblock contenuto %}
