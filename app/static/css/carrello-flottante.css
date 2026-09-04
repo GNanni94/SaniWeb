@@ -64,7 +64,7 @@
   border-color: var(--color-bg);
 }
 
-#pannelloCarrelloFlottante {
+#listaElementiCarrelloFlottante {
   position: absolute;
   right: 0;
   bottom: calc(100% + 0.75rem);
@@ -121,14 +121,14 @@
 /* Bottoni +/- quantita' (partials/carrello_flottante.html): dimensione e
    stile presi da ".carrello-stepper-btn"/".carrello-stepper" (carrello.css,
    caricato in tutte le pagine tramite base.html), stessa estetica a
-   pillola dello stepper della pagina carrello - ".btn-aumenta-flottante"/
-   ".btn-diminuisci-flottante" restano solo come selettori per il JS
+   pillola dello stepper della pagina carrello - ".btn-aumenta-elemento"/
+   ".btn-diminuisci-elemento" restano solo come selettori per il JS
    (carrello-flottante.js), senza stili propri qui */
 
 /* Bordo piu' spesso (2px invece dell'1px di default di Bootstrap) per
    "Svuota carrello": scoped alla classe usata solo qui
-   (".btn-svuota-flottante"), non a ".btn-outline-danger" (condivisa,
+   (".btn-svuota-preventivo"), non a ".btn-outline-danger" (condivisa,
    usata anche in tabella_avvisi.html/tabella_documenti.html) */
-.btn-svuota-flottante {
+.btn-svuota-preventivo {
   border-width: 2px;
 }

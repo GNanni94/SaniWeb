@@ -98,7 +98,16 @@
             window.location.reload();
             return;
         }
-        tabellaContainer.innerHTML = nuovoContenuto.innerHTML;
+        // Idiomorph (base.html) preserva le righe invariate della tabella
+        // invece di ricrearle tutte - stesso motivo/test di
+        // carrello-flottante.js, vedi Docs/AJAX/carrello_flottante.md.
+        // Fallback al vecchio innerHTML se la libreria non risultasse
+        // caricata
+        if (window.Idiomorph) {
+            Idiomorph.morph(tabellaContainer, nuovoContenuto.innerHTML, { morphStyle: 'innerHTML' });
+        } else {
+            tabellaContainer.innerHTML = nuovoContenuto.innerHTML;
+        }
     }
 
     function salvaAvviso(f) {

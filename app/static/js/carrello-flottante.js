@@ -1,7 +1,7 @@
 // Widget del carrello fluttuante: bottone (sempre visibile tranne sulla
 // pagina carrello, dove il widget non viene mai renderizzato - vedi
-// base.html) che si espande in un pannello con la lista dei prodotti nel
-// carrello. Ogni azione (aumenta/diminuisci/rimuovi dal pannello, o
+// base.html) che si espande in una lista dei prodotti nel
+// carrello. Ogni azione (aumenta/diminuisci/rimuovi dalla lista, o
 // un'aggiunta fatta altrove nel sito via aggiungi-al-carrello.js)
 // aggiorna il contenuto con l'HTML gia' pronto restituito dal server
 // (stesso pattern di gestione-avvisi.js), cosi' la lista resta sempre
@@ -31,9 +31,9 @@
         }
     });
 
-    function pannelloAperto() {
-        var pannello = document.getElementById('pannelloCarrelloFlottante');
-        return !!pannello && !pannello.classList.contains('d-none');
+    function listaElementiAperta() {
+        var listaElementi = document.getElementById('listaElementiCarrelloFlottante');
+        return !!listaElementi && !listaElementi.classList.contains('d-none');
     }
 
     // Stesso controllo di sovrapposizione gia' usato dal cerchio della
@@ -78,24 +78,44 @@
 
     window.aggiornaCarrelloFlottante = function (html, mantieniAperto) {
         var htmlTrim = html.trim();
-        var pannelloEsistente = document.getElementById('pannelloCarrelloFlottante');
+        var listaElementiEsistente = document.getElementById('listaElementiCarrelloFlottante');
 
         // Aggiornamento in-place: il widget c'era gia' prima di questa azione
         // e continua ad esserci dopo (risposta non vuota) - si sostituisce
-        // solo il contenuto del pannello, lasciando intatti i nodi DOM del
-        // bottone e del bordo del pannello (".carrello-flottante-attivo"/
+        // solo il contenuto della lista, lasciando intatti i nodi DOM del
+        // bottone e del bordo della lista (".carrello-flottante-attivo"/
         // ".su-footer" restano quindi automaticamente quelli che erano,
-        // nessuna classe da riapplicare a mano). Un innerHTML completo li
-        // ricreerebbe ad ogni singolo +/-/quantita', causando un ripaint
-        // visibile del bordo (vedi carrello-flottante.css) ad ogni azione
-        if (htmlTrim && pannelloEsistente) {
+        // nessuna classe da riapplicare a mano). Un innerHTML completo del
+        // contenitore esterno ricreerebbe anche il bottone ad ogni singolo
+        // +/-/quantita' (NON causa un ripaint visibile del bordo - verificato
+        // con test: la riapplicazione delle classi e' sincrona, il browser non
+        // disegna mai lo stato intermedio senza classi - ma sprecherebbe
+        // comunque lavoro DOM ricreando anche il bottone senza motivo)
+        if (htmlTrim && listaElementiEsistente) {
             var tmp = document.createElement('div');
             tmp.innerHTML = htmlTrim;
-            var nuovoPannello = tmp.querySelector('#pannelloCarrelloFlottante');
-            if (nuovoPannello) {
-                pannelloEsistente.innerHTML = nuovoPannello.innerHTML;
+            var nuovaListaElementi = tmp.querySelector('#listaElementiCarrelloFlottante');
+            if (nuovaListaElementi) {
+                // Idiomorph (caricata in base.html) preserva i nodi DOM
+                // invariati - es. gli <li> di prodotti la cui quantita' non
+                // e' cambiata - invece di ricrearli tutti come farebbe un
+                // innerHTML completo: preserva anche il focus/l'interazione
+                // in corso su un campo di un ALTRO prodotto della lista
+                // durante l'aggiornamento. Verificato con test (Playwright):
+                // vedi Docs/AJAX/carrello_flottante.md. Fallback al vecchio
+                // comportamento se la libreria non risultasse caricata (es.
+                // CDN irraggiungibile)
+                if (window.Idiomorph) {
+                    Idiomorph.morph(listaElementiEsistente, nuovaListaElementi.innerHTML, { morphStyle: 'innerHTML' });
+                } else {
+                    listaElementiEsistente.innerHTML = nuovaListaElementi.innerHTML;
+                }
             }
-            aggiornaBordoSuFooter();
+            // Niente aggiornaBordoSuFooter() qui: il bottone e' "position: fixed"
+            // con offset fissi (carrello-flottante.css) e la lista e' "position:
+            // absolute" (fuori dal flusso) - il numero di prodotti nella lista non
+            // puo' mai spostare il bottone, quindi il risultato sarebbe sempre
+            // identico a quello di prima di questo aggiornamento
             return;
         }
 
@@ -103,17 +123,17 @@
         // (il widget non esisteva ancora) o carrello appena svuotato
         // (risposta vuota, il partial non produce output) - si ricostruisce
         // tutto da zero, stesso comportamento di prima
-        var eraAperto = mantieniAperto || pannelloAperto();
+        var eraAperto = mantieniAperto || listaElementiAperta();
         container.innerHTML = htmlTrim;
         if (eraAperto) {
-            var pannello = document.getElementById('pannelloCarrelloFlottante');
-            if (pannello) {
-                pannello.classList.remove('d-none');
+            var listaElementi = document.getElementById('listaElementiCarrelloFlottante');
+            if (listaElementi) {
+                listaElementi.classList.remove('d-none');
             }
             // Il bottone appena inserito e' HTML nuovo dal server: non porta
             // con se' la classe che ne segnava lo stato "aperto" (aggiunta
             // via JS, non dal template) - va riapplicata qui, altrimenti
-            // tornerebbe al colore di default pur restando il pannello aperto
+            // tornerebbe al colore di default pur restando la lista aperta
             var bottoneNuovo = document.getElementById('bottoneCarrelloFlottante');
             if (bottoneNuovo) {
                 bottoneNuovo.classList.add('carrello-flottante-attivo');
@@ -163,20 +183,20 @@
     }
 
     container.addEventListener('click', function (event) {
-        // "Checkout preventivo": chiude il pannello prima di lasciar
+        // "Checkout preventivo": chiude la lista prima di lasciar
         // proseguire la normale navigazione del link (niente
-        // preventDefault) verso la pagina carrello, invece di lasciarlo
-        // aperto mentre la pagina cambia. Senza, tornando indietro da
+        // preventDefault) verso la pagina carrello, invece di lasciarla
+        // aperta mentre la pagina cambia. Senza, tornando indietro da
         // carrello.html (che non renderizza mai questo widget) si vedrebbe
-        // il pannello ancora aperto per un istante prima che il reload di
-        // "pageshow" qui sopra lo richiuda - una chiusura visibilmente
-        // brusca invece che gia' chiuso in partenza
-        var linkCheckout = event.target.closest('.link-checkout-flottante');
+        // la lista ancora aperta per un istante prima che il reload di
+        // "pageshow" qui sopra la richiuda - una chiusura visibilmente
+        // brusca invece che gia' chiusa in partenza
+        var linkCheckout = event.target.closest('.link-checkout-preventivo');
         if (linkCheckout) {
-            var pannelloCheckout = document.getElementById('pannelloCarrelloFlottante');
+            var listaElementiCheckout = document.getElementById('listaElementiCarrelloFlottante');
             var bottoneCheckout = document.getElementById('bottoneCarrelloFlottante');
-            if (pannelloCheckout) {
-                pannelloCheckout.classList.add('d-none');
+            if (listaElementiCheckout) {
+                listaElementiCheckout.classList.add('d-none');
             }
             if (bottoneCheckout) {
                 bottoneCheckout.classList.remove('carrello-flottante-attivo');
@@ -186,21 +206,21 @@
 
         var bottone = event.target.closest('#bottoneCarrelloFlottante');
         if (bottone) {
-            var pannello = document.getElementById('pannelloCarrelloFlottante');
-            if (pannello) {
-                pannello.classList.toggle('d-none');
-                // Colore del bottone legato esplicitamente allo stato del
-                // pannello (aperto/chiuso), non lasciato a hover/focus del
+            var listaElementi = document.getElementById('listaElementiCarrelloFlottante');
+            if (listaElementi) {
+                listaElementi.classList.toggle('d-none');
+                // Colore del bottone legato esplicitamente allo stato della
+                // lista (aperta/chiusa), non lasciato a hover/focus del
                 // browser - altrimenti un secondo click per chiudere (che è
                 // comunque un click, quindi anch'esso mette a fuoco il
                 // bottone) potrebbe non far tornare il colore a quello di
                 // default in modo affidabile
-                bottone.classList.toggle('carrello-flottante-attivo', !pannello.classList.contains('d-none'));
+                bottone.classList.toggle('carrello-flottante-attivo', !listaElementi.classList.contains('d-none'));
             }
             return;
         }
 
-        var azione = event.target.closest('.btn-aumenta-flottante, .btn-diminuisci-flottante, .btn-rimuovi-flottante, .btn-svuota-flottante');
+        var azione = event.target.closest('.btn-aumenta-elemento, .btn-diminuisci-elemento, .btn-rimuovi-elemento, .btn-svuota-preventivo');
         if (!azione) {
             return;
         }
@@ -219,7 +239,7 @@
     // "change" - un solo percorso di invio, nessuna duplicazione
     container.addEventListener('change', function (event) {
         var campo = event.target;
-        if (!campo.matches || !campo.matches('.campo-quantita-flottante')) {
+        if (!campo.matches || !campo.matches('.campo-quantita-elemento')) {
             return;
         }
         if (campo.dataset.azioneInCorso === 'true') {
@@ -230,7 +250,7 @@
     });
 
     container.addEventListener('keydown', function (event) {
-        if (event.key === 'Enter' && event.target.matches && event.target.matches('.campo-quantita-flottante')) {
+        if (event.key === 'Enter' && event.target.matches && event.target.matches('.campo-quantita-elemento')) {
             event.preventDefault();
             event.target.blur();
         }
@@ -239,7 +259,7 @@
     // Seleziona il valore attuale al focus, stesso motivo di carrello-ajax.js
     container.addEventListener('focus', function (event) {
         var campo = event.target;
-        if (campo.matches && campo.matches('.campo-quantita-flottante')) {
+        if (campo.matches && campo.matches('.campo-quantita-elemento')) {
             campo.select();
         }
     }, true);

@@ -519,7 +519,7 @@
      margine/padding attorno): senza "overflow: hidden" i suoi angoli alti,
      dritti di suo, spunterebbero fuori dall'angolo arrotondato del
      modal-content invece di seguirne la curva - stesso principio gia'
-     usato per "#pannelloCarrelloFlottante" (overflow-y: auto) in
+     usato per "#listaElementiCarrelloFlottante" (overflow-y: auto) in
      carrello-flottante.css */
   overflow: hidden;
 }

@@ -116,7 +116,16 @@
                     window.location.href = url;
                     return;
                 }
-                container.innerHTML = nuovoContenuto.innerHTML;
+                // Idiomorph (base.html) patcha solo i nodi cambiati invece
+                // di ricreare l'intera griglia - stesso motivo/test di
+                // carrello-flottante.js, vedi Docs/AJAX/carrello_flottante.md.
+                // Fallback al vecchio innerHTML se la libreria non risultasse
+                // caricata
+                if (window.Idiomorph) {
+                    Idiomorph.morph(container, nuovoContenuto.innerHTML, { morphStyle: 'innerHTML' });
+                } else {
+                    container.innerHTML = nuovoContenuto.innerHTML;
+                }
                 // Sincronizza il campo nascosto della ricerca e il
                 // titolo/tab del browser con lo stato appena ricevuto dal
                 // server (sempre corretto per la pagina/sottocategoria

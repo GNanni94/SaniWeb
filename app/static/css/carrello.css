@@ -168,7 +168,7 @@
 
 /* Bottone di eliminazione riga: cerchio "btn-outline-danger" (stesso
    componente Bootstrap gia' usato altrove nel sito, es.
-   ".btn-svuota-flottante" in carrello-flottante.css) invece del vecchio
+   ".btn-svuota-preventivo" in carrello-flottante.css) invece del vecchio
    link/icona nudi */
 .carrello-delete-btn {
   width: 2.25rem;
@@ -220,7 +220,7 @@
 
 /* Stepper +/- della quantita': contenitore a pillola con bottoni circolari,
    stesso linguaggio visivo (dimensione/forma) dei bottoni +/- del carrello
-   flottante (".btn-aumenta-flottante"/".btn-diminuisci-flottante" in
+   flottante (".btn-aumenta-elemento"/".btn-diminuisci-elemento" in
    carrello-flottante.css) - classi separate perche' vivono in un contesto
    diverso (due <form> distinti che ricaricano la pagina, non fetch via JS) */
 .carrello-stepper {

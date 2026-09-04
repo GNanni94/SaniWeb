@@ -26,7 +26,7 @@
 /* Freccia dentro un cerchio blu navbar, al posto del vecchio bottone
    "Vai al dettaglio dell'ordine": dimensione fissa per un cerchio
    perfetto, stesso principio gia' usato per i bottoni +/- del carrello
-   flottante (vedi ".btn-aumenta-flottante"/".btn-diminuisci-flottante"
+   flottante (vedi ".btn-aumenta-elemento"/".btn-diminuisci-elemento"
    in carrello-flottante.css) */
 .freccia-preventivo {
   width: 2.5rem;

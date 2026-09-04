@@ -35,7 +35,16 @@
             window.location.reload();
             return;
         }
-        colonnaLista.replaceChild(nuovaLista, listaAttuale);
+        // Idiomorph (base.html) preserva i nodi <li> dei prodotti la cui
+        // quantita' non e' cambiata invece di ricrearli tutti - stesso
+        // motivo/test di carrello-flottante.js, vedi
+        // Docs/AJAX/carrello_flottante.md. Fallback al vecchio replaceChild
+        // se la libreria non risultasse caricata
+        if (window.Idiomorph) {
+            Idiomorph.morph(listaAttuale, nuovaLista.outerHTML);
+        } else {
+            colonnaLista.replaceChild(nuovaLista, listaAttuale);
+        }
         if (contatoreNumero) {
             contatoreNumero.textContent = totale;
         }
