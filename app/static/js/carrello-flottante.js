@@ -36,45 +36,18 @@
         return !!listaElementi && !listaElementi.classList.contains('d-none');
     }
 
-    // Stesso controllo di sovrapposizione gia' usato dal cerchio della
-    // ricerca in prodotti_card.html (vedi "siSovrappongono"/
-    // "finisceSuSfondoBlu" li'): serve anche in 2D (non solo verticale)
-    // per le card prodotto, disposte anche in colonne (griglia_prodotti.html,
-    // "col-6"), a differenza del footer di pagina che e' sempre a piena
-    // larghezza
-    function siSovrappongono(a, b) {
-        return a.top < b.bottom && a.bottom > b.top && a.left < b.right && a.right > b.left;
-    }
-
-    // Il bottone (fisso in basso a destra) prende il bordo bianco quando
-    // finisce sopra uno sfondo blu navbar: il footer della pagina (una
-    // volta che, scorrendo, arriva dietro di lui - resta sempre dietro
-    // essendo l'ultimo elemento della pagina, quindi basta confrontare il
-    // suo bordo superiore con quello inferiore del bottone) oppure il
-    // footer blu pieno di una card prodotto (".card-footer-btn" in
-    // prodotti.css, presente solo su prodotti_card.html - "querySelectorAll"
-    // torna una lista vuota altrove, innocuo)
-    function bottoneSuSfondoBlu(rigaBottone) {
-        var footer = document.querySelector('.site-footer');
-        if (footer && footer.getBoundingClientRect().top < rigaBottone.bottom) {
-            return true;
-        }
-        var footerCard = document.querySelectorAll('.card.card-prodotto .card-footer-btn');
-        for (var i = 0; i < footerCard.length; i++) {
-            if (siSovrappongono(footerCard[i].getBoundingClientRect(), rigaBottone)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    function aggiornaBordoSuFooter() {
-        var bottone = document.getElementById('bottoneCarrelloFlottante');
-        if (!bottone) {
-            return;
-        }
-        bottone.classList.toggle('su-footer', bottoneSuSfondoBlu(bottone.getBoundingClientRect()));
-    }
+    // Bordo bianco quando il bottone (fisso in basso a destra) finisce
+    // sopra uno sfondo blu (footer di pagina, o footer di una card prodotto
+    // in prodotti_card.html): logica condivisa in
+    // sovrapposizione-sfondo-blu.js (caricato prima di questo file in
+    // base.html), gia' usata dal cerchio di ricerca in prodotti_card.html/
+    // prodotti_tabella.html e da dashboard-prodotti-immagini.js. Una
+    // funzione (non un riferimento diretto al bottone) perche' il bottone
+    // puo' essere distrutto e ricreato (widget rigenerato da zero, vedi
+    // sotto) - la utility lo ricerca sempre fresco nel DOM
+    var aggiornaBordoSuFooter = creaAggiornatoreSuSfondoBlu(function () {
+        return document.getElementById('bottoneCarrelloFlottante');
+    }, 'su-footer', '.card.card-prodotto .card-footer-btn');
 
     window.aggiornaCarrelloFlottante = function (html, mantieniAperto) {
         var htmlTrim = html.trim();
@@ -145,10 +118,6 @@
         // sul footer
         aggiornaBordoSuFooter();
     };
-
-    aggiornaBordoSuFooter();
-    window.addEventListener('scroll', aggiornaBordoSuFooter, { passive: true });
-    window.addEventListener('resize', aggiornaBordoSuFooter);
 
     // Fetch condivisa da bottoni +/-/rimuovi/svuota e dal campo quantita'
     // qui sotto: stesso corpo (token CSRF + eventuali campi extra, es.

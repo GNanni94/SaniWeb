@@ -99,18 +99,21 @@
     });
 
     // Bordo bianco (".su-sfondo-blu" in prodotti.css) quando il cerchio
-    // finisce sopra il footer di pagina - stesso principio di
-    // prodotti_card.html/prodotti_tabella.html (qui non ci sono card con un
-    // proprio footer blu, solo il footer di pagina)
-    function aggiornaBordoSuSfondoBlu() {
-        var footer = document.querySelector('.site-footer');
-        var suSfondoBlu = !!footer && footer.getBoundingClientRect().top < ricercaWrapper.getBoundingClientRect().bottom;
-        ricercaWrapper.classList.toggle('su-sfondo-blu', suSfondoBlu);
-    }
-
-    aggiornaBordoSuSfondoBlu();
-    window.addEventListener('scroll', aggiornaBordoSuSfondoBlu, { passive: true });
-    window.addEventListener('resize', aggiornaBordoSuSfondoBlu);
+    // finisce sopra il footer di pagina - logica condivisa in
+    // sovrapposizione-sfondo-blu.js (caricato prima di questo file), stesso
+    // principio di prodotti_card.html/prodotti_tabella.html (qui non ci
+    // sono card con un proprio footer blu, solo il footer di pagina, quindi
+    // nessun selettore di card passato)
+    //
+    // Dichiarata con "var" (non "function"): a differenza di una function
+    // declaration, non viene "hoistata" con il proprio valore - ma qui va
+    // bene comunque, perche' il richiamo esplicito dentro
+    // "applicaFiltroRicerca" qui sopra scatta solo in risposta all'input
+    // dell'utente, ben dopo che questo script ha finito di essere eseguito
+    // per intero
+    var aggiornaBordoSuSfondoBlu = creaAggiornatoreSuSfondoBlu(function () {
+        return ricercaWrapper;
+    }, 'su-sfondo-blu');
 
     function tokenCsrf() {
         var tokenInput = formCsrf.querySelector('[name=csrfmiddlewaretoken]');
