@@ -24,7 +24,7 @@
       </thead>
       <tbody>
         {% for avviso in avvisi %}
-        <tr data-pk="{{ avviso.pk }}">
+        <tr id="avviso-riga-{{ avviso.pk }}" data-pk="{{ avviso.pk }}">
           <td class="border">{{ avviso.data_inizio|date:"d F" }}</td>
           <td class="border">{{ avviso.data_fine|date:"d F" }}</td>
           <td class="border">{{ avviso.motivo_chiusura }}</td>

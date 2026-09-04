@@ -17,7 +17,7 @@ class AvvisoChiusura(models.Model):
     class Meta:
         verbose_name = "Avviso di chiusura"
         verbose_name_plural = "Avvisi di chiusura"
-        ordering = ("-data_inizio",)
+        ordering = ("data_inizio",)
 
     def clean(self):
         if self.data_fine < self.data_inizio:
