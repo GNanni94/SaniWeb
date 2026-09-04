@@ -250,6 +250,30 @@ $(document).ready(function () {
                 });
             });
 
+            // Bottoni "Precedente"/"Successivo": stessi simboli "«"/"»" gia'
+            // usati per lo stesso ruolo nella paginazione a card
+            // (griglia_prodotti.html, "&laquo;"/"&raquo;"), al posto del
+            // testo che DataTables genera da solo (tradotto dal file di
+            // lingua caricato via "language.url" qui sopra - non
+            // personalizzabile aggiungendo "language.paginate" accanto a
+            // "url", vedi il commento su quell'opzione). I due pulsanti
+            // vengono pero' RICREATI da zero ad ogni "draw" (cambio pagina,
+            // filtro, ricerca - non solo al caricamento iniziale), quindi la
+            // sostituzione va ripetuta ad ogni draw, non solo qui in
+            // "initComplete"
+            function sostituisciSimboliPrecedenteSuccessivo() {
+                var bottonePrecedente = document.querySelector('#listProdottiTable_wrapper .paginate_button.previous');
+                var bottoneSuccessivo = document.querySelector('#listProdottiTable_wrapper .paginate_button.next');
+                if (bottonePrecedente) {
+                    bottonePrecedente.textContent = '«';
+                }
+                if (bottoneSuccessivo) {
+                    bottoneSuccessivo.textContent = '»';
+                }
+            }
+            sostituisciSimboliPrecedenteSuccessivo();
+            $('#listProdottiTable').on('draw.dt', sostituisciSimboliPrecedenteSuccessivo);
+
             // Icona del filtro piena ("bi-funnel-fill", contenuto bianco)
             // solo quando e' selezionata una sottocategoria specifica, a
             // contorno ("bi-funnel", il contenuto lascia trasparire il blu
