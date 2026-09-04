@@ -338,7 +338,9 @@ Aperto/gestito da static/js/login-modal.js.
 {% endif %}
 
 
-<body data-login-url="{% url 'login' %}">
+<body data-login-url="{% url 'login' %}"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}", "X-Requested-With": "XMLHttpRequest"}'
+      hx-ext="morph">
 
 {% include 'partials/avviso_chiusura.html' %}
 {% include 'partials/avviso_precursore.html' %}
@@ -462,6 +464,22 @@ Aperto/gestito da static/js/login-modal.js.
        verificando prima che l'API (Idiomorph.morph con morphStyle:
        'innerHTML') sia rimasta compatibile -->
   <script src="https://cdn.jsdelivr.net/npm/idiomorph@0.4.0/dist/idiomorph.min.js"></script>
+
+  <!-- ESPERIMENTO (in corso di valutazione): htmx, per sostituire
+       gradualmente il boilerplate fetch/CSRF/target scritto a mano nei file
+       AJAX del progetto con attributi dichiarativi nell'HTML. Si parte da
+       UN solo caso (il toggle "attivo" in gestione_avvisi.html) prima di
+       estenderlo. L'header CSRF viene letto dal valore che Django scrive
+       nella pagina (mai dal cookie, stessa convenzione del resto del sito -
+       vedi CLAUDE.md), e "X-Requested-With" replica l'header che il fetch()
+       scritto a mano manda gia' oggi: le view esistenti (_is_ajax_request)
+       riconoscono le richieste di htmx senza bisogno di modifiche lato
+       Python. "idiomorph-htmx.min.js" e' la build di Idiomorph (sopra) che
+       si registra come estensione "morph" di htmx, per lo swap
+       "morph:outerHTML" - va caricata DOPO sia htmx sia Idiomorph -->
+  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/idiomorph@0.4.0/dist/idiomorph-htmx.min.js"></script>
+
   <script src="{% static 'js/sovrapposizione-sfondo-blu.js' %}"></script>
   <script src="{% static 'js/carrello-flottante.js' %}"></script>
   <script src="{% static 'js/login-modal.js' %}"></script>

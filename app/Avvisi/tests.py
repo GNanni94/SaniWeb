@@ -424,7 +424,11 @@ class AvvisoChiusuraGestionePageContrattoJsTest(TestCase):
             'data-url-elimina="',
             'data-azione-nuovo="',
             'toggle-attivo-avviso',
-            'data-url-toggle="',
+            # Il toggle "attivo" e' gestito da htmx (hx-post/hx-target/
+            # hx-swap), non piu' da un data-url-toggle letto da JS a mano -
+            # vedi app/static/js/gestione-avvisi.js e base.html
+            'hx-post="',
+            'hx-target="#tabella-avvisi"',
         ]
         for stringa in stringhe_richieste:
             self.assertContains(response, stringa)

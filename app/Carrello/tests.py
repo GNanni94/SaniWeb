@@ -280,13 +280,13 @@ class CarrelloSvuotaTest(TestCase):
         for prodotto in self.prodotti[:2]:
             Carrello.objects.create(cliente=self.utente, prodotto=prodotto, quantita=1)
         response = self.client.get(reverse("home"))
-        self.assertNotContains(response, "Svuota carrello")
+        self.assertNotContains(response, "Svuota Preventivo")
 
     def test_bottone_svuota_presente_da_tre_righe_in_su(self):
         for prodotto in self.prodotti:
             Carrello.objects.create(cliente=self.utente, prodotto=prodotto, quantita=1)
         response = self.client.get(reverse("home"))
-        self.assertContains(response, "Svuota carrello")
+        self.assertContains(response, "Svuota Preventivo")
 
 
 class AggiungiProdottoConPrecursoreTest(TestCase):

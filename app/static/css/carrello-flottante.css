@@ -126,7 +126,7 @@
    (carrello-flottante.js), senza stili propri qui */
 
 /* Bordo piu' spesso (2px invece dell'1px di default di Bootstrap) per
-   "Svuota carrello": scoped alla classe usata solo qui
+   "Svuota Preventivo": scoped alla classe usata solo qui
    (".btn-svuota-preventivo"), non a ".btn-outline-danger" (condivisa,
    usata anche in tabella_avvisi.html/tabella_documenti.html) */
 .btn-svuota-preventivo {

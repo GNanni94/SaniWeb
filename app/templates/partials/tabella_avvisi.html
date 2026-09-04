@@ -35,7 +35,9 @@
           <td class="border-0 bg-transparent">
             <div class="form-check form-switch d-flex justify-content-center">
               <input class="form-check-input toggle-attivo-avviso" type="checkbox" role="switch"
-                     data-url-toggle="{% url 'toggle_avviso' avviso.pk %}"
+                     hx-post="{% url 'toggle_avviso' avviso.pk %}"
+                     hx-target="#tabella-avvisi"
+                     hx-swap="morph:outerHTML"
                      {% if avviso.attivo %}checked{% endif %}
                      aria-label="Attivo">
             </div>

@@ -57,24 +57,14 @@
         }
     });
 
-    tabellaContainer.addEventListener('change', function (event) {
-        var toggle = event.target.closest('.toggle-attivo-avviso');
-        if (!toggle) {
-            return;
-        }
-        var pk = toggle.closest('tr').dataset.pk;
-        postConCsrfESostituisciTabella(toggle.dataset.urlToggle, function () {
-            // Ripristina il focus da tastiera sullo stesso toggle: la
-            // tabella e' stata appena ricostruita da zero (nuovi elementi,
-            // anche se sembrano identici), quindi il browser sposterebbe
-            // altrimenti il focus in cima alla pagina - scomodo per chi
-            // naviga solo da tastiera e vuole togglare piu' righe di fila
-            var nuovoToggle = tabellaContainer.querySelector('tr[data-pk="' + pk + '"] .toggle-attivo-avviso');
-            if (nuovoToggle) {
-                nuovoToggle.focus();
-            }
-        });
-    });
+    // Il toggle "attivo" (partials/tabella_avvisi.html) e' gestito da htmx
+    // (hx-post/hx-target/hx-swap="morph:outerHTML" sull'input stesso), non
+    // da JS scritto a mano - vedi base.html per l'header CSRF condiviso e
+    // Docs/AJAX/carrello_flottante.md per come funziona lo swap "morph".
+    // Idiomorph (via l'estensione htmx) tende gia' a preservare il nodo del
+    // checkbox invariato, quindi il focus da tastiera sopravvive spesso da
+    // solo, senza bisogno del "ricorda il pk, ritrova il checkbox, rimetti
+    // il focus" che serviva con un innerHTML/outerHTML pieno
 
     // Delegazione sul body del modal (non sul form direttamente): il form
     // viene sostituito per intero ad ogni errore di validazione, un
