@@ -6,7 +6,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ValidationError
-from django.db.models import Count, Q
+from django.db.models import Count, Prefetch, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -163,22 +163,25 @@ def anteprima_documento(request, pk):
 
 
 def _categorie_con_conteggio():
-    # "num_documenti": usato sia dalla colonna sinistra (badge con il
-    # conteggio accanto a ogni categoria) sia, indirettamente, come elenco
-    # aggiornato di categorie per lo snapshot del form vuoto - vedi
-    # commento su "opzioniCategoriaAggiornate" in tabella_documenti.html
-    return CategoriaFile.objects.annotate(num_documenti=Count('file_cat')).order_by('nome_categoria')
+    # "num_documenti": mostrato nel badge di ogni cartella nell'albero.
+    # "Prefetch" coi documenti gia' ordinati per nome: partials/albero_documenti.html
+    # itera "categoria.file_cat.all" per popolare ogni cartella, senza una
+    # query aggiuntiva per categoria (altrimenti N+1, una query per ogni
+    # cartella nel ciclo del template)
+    return CategoriaFile.objects.annotate(
+        num_documenti=Count('file_cat')
+    ).prefetch_related(
+        Prefetch('file_cat', queryset=File.objects.order_by('nome_file'))
+    ).order_by('nome_categoria')
 
 
-def _risposta_tabella_documenti(request):
+def _risposta_albero_documenti(request):
     if not _is_ajax_request_documenti(request):
         # Nessun JS e form comunque sottomesso come navigazione vera: un
         # frammento nudo sarebbe una pagina rotta, si torna alla pagina
         # completa (POST-redirect-GET)
         return redirect('gestione_documenti')
-    documenti = File.objects.select_related('categoria').order_by('nome_file')
-    return render(request, 'partials/tabella_documenti.html', {
-        'documenti': documenti,
+    return render(request, 'partials/albero_documenti.html', {
         'categorie': _categorie_con_conteggio(),
     })
 
@@ -194,10 +197,8 @@ def _risposta_form_documento_errori(request, form, azione_url):
 
 @dashboard_richiesto
 def gestione_documenti(request):
-    documenti = File.objects.select_related('categoria').order_by('nome_file')
     form = DocumentoForm()
     return render(request, 'gestione_documenti.html', {
-        'documenti': documenti,
         'form': form,
         'azione_url': reverse('nuovo_documento'),
         'categorie': _categorie_con_conteggio(),
@@ -210,7 +211,7 @@ def nuovo_documento(request):
     form = DocumentoForm(request.POST, request.FILES)
     if form.is_valid():
         form.save()
-        return _risposta_tabella_documenti(request)
+        return _risposta_albero_documenti(request)
     return _risposta_form_documento_errori(request, form, reverse('nuovo_documento'))
 
 
@@ -221,7 +222,7 @@ def modifica_documento(request, pk):
     form = DocumentoForm(request.POST, request.FILES, instance=documento)
     if form.is_valid():
         form.save()
-        return _risposta_tabella_documenti(request)
+        return _risposta_albero_documenti(request)
     return _risposta_form_documento_errori(request, form, reverse('modifica_documento', args=[pk]))
 
 
@@ -235,7 +236,7 @@ def elimina_documento(request, pk):
         # orfano su disco
         documento.file.delete(save=False)
     documento.delete()
-    return _risposta_tabella_documenti(request)
+    return _risposta_albero_documenti(request)
 
 
 @dashboard_richiesto
@@ -253,7 +254,7 @@ def rinomina_categoria(request, pk):
         return JsonResponse({'errore': "Esiste gia' una categoria con questo nome."}, status=400)
     categoria.nome_categoria = nuovo_nome
     categoria.save()
-    return _risposta_tabella_documenti(request)
+    return _risposta_albero_documenti(request)
 
 
 @dashboard_richiesto
@@ -269,4 +270,4 @@ def elimina_categoria(request, pk):
             documento.file.delete(save=False)
         documento.delete()
     categoria.delete()
-    return _risposta_tabella_documenti(request)
+    return _risposta_albero_documenti(request)

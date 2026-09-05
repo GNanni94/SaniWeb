@@ -634,17 +634,16 @@ class GestioneDocumentiViewTest(TestCase):
         self.client.force_login(self.staff)
         response = self.client.get(reverse("gestione_documenti"))
         contenuto = response.content.decode()
-        self.assertIn('data-categoria-pk="%d"' % categoria.pk, contenuto)
-        indice_categoria = contenuto.index('data-categoria-pk="%d"' % categoria.pk)
-        indice_prossimo_bottone = contenuto.index("</button>", indice_categoria)
-        blocco_categoria = contenuto[indice_categoria:indice_prossimo_bottone]
-        self.assertIn("bi-file", blocco_categoria)
-        self.assertIn("2", blocco_categoria)
-        indice_altra = contenuto.index('data-categoria-pk="%d"' % altra_categoria.pk)
-        indice_prossimo_bottone_altra = contenuto.index("</button>", indice_altra)
-        blocco_altra_categoria = contenuto[indice_altra:indice_prossimo_bottone_altra]
-        self.assertIn("bi-file", blocco_altra_categoria)
-        self.assertIn("0", blocco_altra_categoria)
+        self.assertIn('id="cartella-%d"' % categoria.pk, contenuto)
+        indice_categoria = contenuto.index('id="cartella-%d"' % categoria.pk)
+        indice_prossima_cartella = contenuto.index('id="cartella-', indice_categoria + 1)
+        blocco_categoria = contenuto[indice_categoria:indice_prossima_cartella]
+        self.assertIn('numero-documenti-categoria', blocco_categoria)
+        self.assertIn(">2<", blocco_categoria)
+        indice_altra = contenuto.index('id="cartella-%d"' % altra_categoria.pk)
+        blocco_altra_categoria = contenuto[indice_altra:]
+        self.assertIn('numero-documenti-categoria', blocco_altra_categoria)
+        self.assertIn(">0<", blocco_altra_categoria)
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
@@ -962,26 +961,26 @@ class GestioneDocumentiContrattoJsTest(TestCase):
         response = self.client.get(reverse("gestione_documenti"))
         self.assertEqual(response.status_code, 200)
         stringhe_richieste = [
-            'id="tabella-documenti"',
+            'id="albero-documenti"',
             'id="modalDocumento"',
             'id="modalDocumentoBody"',
             'id="btnNuovoDocumento"',
             'id="form-documento"',
-            'id="listaCategorieDocumenti"',
-            'id="numeroCategorieDocumenti"',
-            'id="messaggioSelezionaCategoria"',
-            'id="messaggioNessunDocumentoCategoria"',
+            'id="anteprima-documento"',
+            'data-pk="',
             'data-nome-file="',
             'data-categoria-pk="',
             'data-url-modifica="',
             'data-url-elimina="',
+            'data-url-anteprima="',
             'btn-modifica-documento',
             'btn-elimina-documento',
-            'id="btnRinominaCategoria"',
-            'id="btnEliminaCategoria"',
+            'btn-rinomina-categoria',
+            'btn-elimina-categoria',
             'data-nome-categoria="',
             'data-url-rinomina-categoria="',
             'data-url-elimina-categoria="',
+            'id="opzioniCategoriaAggiornate"',
         ]
         for stringa in stringhe_richieste:
             self.assertContains(response, stringa)

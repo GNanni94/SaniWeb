@@ -21,7 +21,26 @@
         </div>
     </div>
 
-    {% include 'partials/tabella_documenti.html' %}
+    <div class="row">
+      <div class="col-12 col-md-4 mb-4 mb-md-0">
+        {% include 'partials/albero_documenti.html' %}
+      </div>
+      <div class="col-12 col-md-8">
+        <div class="rounded p-3" style="border: 2px solid var(--color-primary);">
+          {% comment %}
+          Pannello di anteprima PDF: vuoto all'apertura pagina, aggiornato
+          da gestione-documenti.js/mostraAnteprimaDocumento cliccando un
+          documento nell'albero a sinistra (partials/anteprima_documento.html).
+          Il messaggio iniziale qui sotto viene salvato dal JS all'avvio
+          per poterci tornare quando il documento in anteprima viene
+          eliminato (vedi "anteprimaInizialeHTML").
+          {% endcomment %}
+          <div id="anteprima-documento">
+            <p class="text-center text-muted mt-4">Seleziona un documento per vederne l'anteprima.</p>
+          </div>
+        </div>
+      </div>
+    </div>
 </div>
 
 <div class="modal fade" id="modalDocumento" tabindex="-1" aria-hidden="true">

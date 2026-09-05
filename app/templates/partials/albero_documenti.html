@@ -1,0 +1,109 @@
+<div class="rounded p-2 pt-3" style="border: 2px solid var(--color-primary);">
+  {% comment %}
+  Un id vero (non solo "data-categoria-pk") su ogni cartella e ogni
+  documento: cartelle (ordinate per nome_categoria) e documenti (ordinati
+  per nome_file) possono cambiare posizione rinominandoli - senza un id
+  stabile Idiomorph puo' riassociare per errore il nodo DOM di una
+  cartella/riga vecchia a un'altra dopo un riordino (bug reale gia'
+  trovato e corretto in questo stesso progetto per Avvisi/tabella_avvisi.html).
+  {% endcomment %}
+  <div id="albero-documenti" class="accordion">
+    {% for categoria in categorie %}
+    <div class="accordion-item" id="cartella-{{ categoria.pk }}"
+         data-categoria-pk="{{ categoria.pk }}"
+         data-nome-categoria="{{ categoria.nome_categoria }}"
+         data-url-rinomina-categoria="{% url 'rinomina_categoria' categoria.pk %}"
+         data-url-elimina-categoria="{% url 'elimina_categoria' categoria.pk %}">
+      <h2 class="accordion-header d-flex align-items-center">
+        {% comment %}
+        "div role=button" invece di un vero "<button>" (stesso motivo gia'
+        presente nel vecchio elenco categorie di tabella_documenti.html):
+        deve poter contenere l'input di rinomina qui sotto, e un <input>
+        dentro un <button> non e' HTML valido. Bootstrap intercetta i
+        click su "[data-bs-toggle=collapse]" a prescindere dal tag,
+        funziona identico a un bottone vero per aprire/chiudere - Invio/
+        Spazio da tastiera li gestisce gestione-documenti.js.
+        {% endcomment %}
+        <div class="accordion-button collapsed flex-grow-1" role="button" tabindex="0"
+             data-bs-toggle="collapse" data-bs-target="#corpoCartella{{ categoria.pk }}"
+             aria-expanded="false" aria-controls="corpoCartella{{ categoria.pk }}">
+          <span class="testo-categoria flex-grow-1 text-truncate">{{ categoria.nome_categoria }}</span>
+          <input type="text" class="form-control form-control-sm d-none input-rinomina-categoria me-2" value="{{ categoria.nome_categoria }}">
+          <span class="position-relative d-inline-flex badge-conteggio-documenti{% if categoria.num_documenti > 99 %} badge-conteggio-documenti-lg{% elif categoria.num_documenti > 9 %} badge-conteggio-documenti-md{% endif %} ms-2">
+            <i class="bi bi-file-earmark" style="color: var(--color-primary);"></i>
+            <span class="position-absolute top-50 start-50 translate-middle fw-bold numero-documenti-categoria" style="color: var(--color-primary);">{{ categoria.num_documenti }}</span>
+          </span>
+        </div>
+        {% comment %}
+        Sostituiscono i vecchi #btnRinominaCategoria/#btnEliminaCategoria
+        (fissi in cima al riquadro, abilitati solo a categoria
+        selezionata): visibili solo quando QUESTA cartella e' aperta,
+        pilotato via CSS dalla classe "collapsed" che Bootstrap stesso
+        aggiunge/rimuove sul div qui sopra (vedi documenti.css) - nessun
+        JS aggiuntivo necessario per la visibilita'.
+        {% endcomment %}
+        <span class="icone-cartella-aperta align-items-center gap-2 px-2">
+          <button type="button" class="btn btn-sm p-0 border-0 btn-rinomina-categoria" title="Rinomina categoria" aria-label="Rinomina categoria">
+            <i class="bi bi-pencil-square fs-5" style="color: var(--color-primary);"></i>
+          </button>
+          <button type="button" class="btn btn-sm p-0 border-0 btn-elimina-categoria" title="Elimina categoria" aria-label="Elimina categoria">
+            <i class="bi bi-trash fs-5" style="color: var(--bs-danger);"></i>
+          </button>
+        </span>
+      </h2>
+      <div id="corpoCartella{{ categoria.pk }}" class="accordion-collapse collapse" data-bs-parent="#albero-documenti">
+        <div class="accordion-body p-2">
+          {% with documenti=categoria.file_cat.all %}
+          {% if documenti %}
+          <div class="list-group">
+            {% for documento in documenti %}
+            <div class="list-group-item d-flex justify-content-between align-items-center"
+                 id="documento-riga-{{ documento.pk }}"
+                 data-pk="{{ documento.pk }}"
+                 data-nome-file="{{ documento.nome_file }}"
+                 data-categoria-pk="{{ categoria.pk }}"
+                 data-file-url="{% if documento.file %}{{ documento.file.url }}{% endif %}"
+                 data-url-anteprima="{% url 'anteprima_documento' documento.pk %}">
+              <button type="button" class="btn btn-link text-start text-decoration-none documento-nome-btn p-0 flex-grow-1">
+                <span class="d-block">{{ documento.nome_file }}</span>
+                <small class="text-muted">Aggiunto il {{ documento.creato_il|date:"d F Y" }} &middot; Modificato il {{ documento.modificato_il|date:"d F Y" }}</small>
+              </button>
+              <span class="text-nowrap ms-2">
+                <button type="button" class="btn btn-sm btn-outline-navbar btn-modifica-documento" data-url-modifica="{% url 'modifica_documento' documento.pk %}" title="Modifica" aria-label="Modifica">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger btn-elimina-documento" data-url-elimina="{% url 'elimina_documento' documento.pk %}" title="Elimina" aria-label="Elimina">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </span>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="text-center text-muted mb-0">Nessun documento in questa cartella.</p>
+          {% endif %}
+          {% endwith %}
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-center text-muted mb-0">Nessuna cartella configurata.</p>
+    {% endfor %}
+  </div>
+</div>
+
+{% comment %}
+Elenco aggiornato delle categorie, sempre presente in questa risposta
+(anche quando questo partial e' incluso nella pagina intera): serve solo
+al JS (gestione-documenti.js, sostituisciAlbero) per tenere aggiornata la
+select "categoria" dello snapshot del form vuoto usato da "+ Nuovo
+documento", altrimenti una categoria creata al volo (form_documento.html,
+campo "Nome categoria") resterebbe invisibile li' finche' non si ricarica
+l'intera pagina.
+{% endcomment %}
+<select id="opzioniCategoriaAggiornate" class="d-none">
+  <option value="">+ Nuova categoria</option>
+  {% for categoria in categorie %}
+  <option value="{{ categoria.pk }}">{{ categoria.nome_categoria }}</option>
+  {% endfor %}
+</select>
