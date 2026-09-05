@@ -58,18 +58,6 @@ PREPEND_WWW = os.environ.get("PREPEND_WWW", "0") in ("1", "True", "true", "TRUE"
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 
-# Solo in sviluppo locale: permette di incorporare i file /media/ (es. il
-# PDF nel pannello di anteprima di Gestione Documenti, vedi
-# partials/anteprima_documento.html) in un <object>/<iframe> della stessa
-# pagina. "SAMEORIGIN" (non "ALLOWALL"): protegge comunque da clickjacking
-# da domini esterni, serve solo a permettere alla pagina stessa di
-# incorporare il proprio media. In staging/produzione (DEBUG=False) nginx
-# serve /media/ direttamente senza passare da Django, quindi questa riga
-# non ha effetto li' - il comportamento di sicurezza in prod resta quello
-# di default (nessun override, DENY).
-if DEBUG:
-    X_FRAME_OPTIONS = "SAMEORIGIN"
-
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
