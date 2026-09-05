@@ -25,7 +25,7 @@
     // vuoto, perche' il form ri-renderizzato dal server e' "bound"
     var formInizialeHTML = modalBody.innerHTML;
     // Snapshot del messaggio iniziale del pannello anteprima
-    // (gestione_documenti.html): usato per tornarvi quando il documento
+    // (gestione_documenti.html): usato per tornarci quando il documento
     // in anteprima viene eliminato (vedi sostituisciAlbero)
     var anteprimaInizialeHTML = anteprima.innerHTML;
 
