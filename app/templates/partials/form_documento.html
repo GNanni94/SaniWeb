@@ -1,26 +1,50 @@
 {% load crispy_forms_tags %}
 <form id="form-documento" method="post" action="{{ azione_url }}" enctype="multipart/form-data" data-azione-nuovo="{% url 'nuovo_documento' %}">
   {% csrf_token %}
-  {{ form.categoria|as_crispy_field }}
-  <div id="campoCategoriaNuova">
-    {{ form.categoria_nuova|as_crispy_field }}
-  </div>
-  <div id="campoFile">
-    {{ form.file|as_crispy_field }}
-  </div>
   {% comment %}
-  Mostrato solo in modifica (vedi gestione-documenti.js,
-  impostaCampoFileEsistente) al posto del campo file sopra, che in quel
-  caso viene disabilitato: il file non e' sostituibile da qui, l'input
-  disabilitato non viene inviato con il form e il server mantiene quello
-  gia' salvato (Pagine/forms.py, DocumentoForm.clean_file)
+  Riquadro grigio che raggruppa "Categoria" e, solo quando si sta creando
+  una categoria al volo (select su "+ Nuova categoria"), il campo "Nome
+  categoria" - li presenta come un'unica scelta ("categoria esistente" O
+  "nuova categoria"), invece di due campi scollegati. Si accorcia da solo
+  quando "campoCategoriaNuova" torna "d-none" (selezionata una categoria
+  gia' esistente): nessun CSS/JS in piu' necessario, un contenitore senza
+  altezza fissa segue semplicemente lo spazio occupato dai figli visibili.
   {% endcomment %}
-  <div id="campoFileAttuale" class="mb-3 d-none">
-    <label class="form-label">File attuale</label>
-    <div>
-      <a id="linkFileAttuale" href="#" target="_blank" class="text-reset"></a>
+  <div class="gruppo-campo-documento">
+    {{ form.categoria|as_crispy_field }}
+    <div id="campoCategoriaNuova">
+      {{ form.categoria_nuova|as_crispy_field }}
     </div>
   </div>
-  {{ form.nome_file|as_crispy_field }}
-  <button type="submit" class="btn btn-navbar">Salva</button>
+  {% comment %}
+  Stesso raggruppamento sopra, per "File"/"File attuale" (mutuamente
+  esclusivi: nuovo documento mostra il primo, modifica il secondo, vedi
+  gestione-documenti.js/impostaCampoFileEsistente) insieme a "Nome file" -
+  la selezione del file e il suo nome, non due campi scollegati. Si
+  accorcia comunque da solo, esattamente della riga in meno di "File"/
+  "File attuale" quando l'altro dei due e' nascosto ("Nome file" invece
+  resta sempre visibile in entrambi i casi).
+  {% endcomment %}
+  <div class="gruppo-campo-documento">
+    <div id="campoFile">
+      {{ form.file|as_crispy_field }}
+    </div>
+    {% comment %}
+    Mostrato solo in modifica (vedi gestione-documenti.js,
+    impostaCampoFileEsistente) al posto del campo file sopra, che in quel
+    caso viene disabilitato: il file non e' sostituibile da qui, l'input
+    disabilitato non viene inviato con il form e il server mantiene quello
+    gia' salvato (Pagine/forms.py, DocumentoForm.clean_file)
+    {% endcomment %}
+    <div id="campoFileAttuale" class="mb-3 d-none">
+      <label class="form-label">File attuale</label>
+      <div>
+        <a id="linkFileAttuale" href="#" target="_blank" class="text-reset"></a>
+      </div>
+    </div>
+    {{ form.nome_file|as_crispy_field }}
+  </div>
+  <div class="d-flex justify-content-center">
+    <button type="submit" class="btn btn-navbar rounded-pill">Salva</button>
+  </div>
 </form>

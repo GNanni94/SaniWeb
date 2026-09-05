@@ -321,6 +321,24 @@
     margin: 0;
   }
 
+  /* Stesso identico bug/fix di ".titolo-richiedi-preventivo" qui sopra
+     (l'intero <h1> spostato, non solo un link al suo interno), per i tre
+     titoli fissi delle pagine di gestione (gestione_documenti.html,
+     gestione_avvisi.html, dashboard_prodotti_senza_immagine.html - vedi
+     ".btn-pillola-intestazione-gestione" in componenti-condivisi.css):
+     senza "display: inline-block" il titolo non si rimpiccioliva mai
+     (restava sempre largo quanto lo slot) e andava a capo su due righe
+     invece di restringersi - bug reale gia' capitato qui, mai risolto per
+     queste tre pagine finora */
+  .pillola-slot-titolo #titoloGestioneDocumenti,
+  .pillola-slot-titolo #titoloGestioneAvvisi,
+  .pillola-slot-titolo #titoloProdottiSenzaImmagine {
+    display: inline-block;
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0;
+  }
+
   /* "Torna al catalogo"/filtro spostati nella pillola: gia' cerchietti
      blu su sfondo bianco di loro (vedi ".btn-torna-catalogo"/
      "#prodottiCardFiltro"/"#filtroSottocategoria" in prodotti.css, stessa
@@ -356,6 +374,26 @@
   .pillola-slot-indietro .btn-torna-catalogo {
     position: static !important;
     left: auto !important;
+  }
+
+  /* Stesso identico problema di ".btn-torna-catalogo" qui sopra, per le
+     pagine di gestione che condividono l'intestazione a pillola sticky
+     (gestione_documenti.html, gestione_avvisi.html,
+     dashboard_prodotti_senza_immagine.html - vedi ".btn-pillola-intestazione-gestione"
+     in componenti-condivisi.css): "#btnTornaDashboard" e' lo stesso id su
+     tutte e tre, il bottone di destra cambia per pagina ma porta sempre
+     ".slot-controlli-intestazione-fine". Mai risolto per queste pagine
+     finora - bug reale gia' capitato (i due cerchietti finiscono ai bordi
+     dello schermo invece che dentro la pillola, sovrapposti/sfalsati
+     rispetto a lei) */
+  .pillola-slot-indietro #btnTornaDashboard {
+    position: static !important;
+    left: auto !important;
+  }
+
+  .pillola-slot-filtro .slot-controlli-intestazione-fine {
+    position: static !important;
+    right: auto !important;
   }
 
   #navbarSupportedContent {

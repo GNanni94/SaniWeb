@@ -14,6 +14,9 @@
     var modalEl = document.getElementById('modalDocumento');
     var modalBody = document.getElementById('modalDocumentoBody');
     var btnNuovo = document.getElementById('btnNuovoDocumento');
+    var btnRinominaCategoria = document.getElementById('btnRinominaCategoria');
+    var btnEliminaCategoria = document.getElementById('btnEliminaCategoria');
+    var wrapperAzioniCategoria = document.querySelector('.pannello-documenti-azioni-categoria');
     if (!albero || !anteprima || !modalEl || !modalBody) {
         return;
     }
@@ -116,6 +119,53 @@
         return item ? item.dataset.categoriaPk : null;
     }
 
+    // Riga del documento correntemente in anteprima (".active", vedi
+    // mostraAnteprimaDocumento) - valida solo se la sua cartella e'
+    // ancora aperta: chiudendo la cartella la riga resta "active" nel DOM
+    // (il collapse la nasconde soltanto via CSS) ma i bottoni fissi non
+    // devono restare agganciati a un documento che non si vede piu'
+    function documentoSelezionatoAttivo() {
+        var riga = albero.querySelector('.list-group-item.active');
+        if (!riga) {
+            return null;
+        }
+        var corpo = riga.closest('.accordion-collapse');
+        return (corpo && corpo.classList.contains('show')) ? riga : null;
+    }
+
+    // Rinomina/Elimina categoria (bottoni fissi sul contorno del riquadro,
+    // vedi partials/albero_documenti.html) agiscono sul documento
+    // selezionato se ce n'e' uno, altrimenti sulla cartella correntemente
+    // aperta - disabilitati se non c'e' ne' l'uno ne' l'altro. Richiamata
+    // dopo ogni apertura/chiusura reale (eventi Bootstrap
+    // "shown.bs.collapse"/"hidden.bs.collapse", vedi sotto), dopo ogni
+    // riapertura sintetica via riapriCartella() (che non passa da
+    // bootstrap.Collapse quindi non genera quegli eventi) e dopo ogni
+    // cambio di documento in anteprima (mostraAnteprimaDocumento)
+    function aggiornaBottoniAzione() {
+        var riga = documentoSelezionatoAttivo();
+        var pkCategoria = cartellaApertaPk();
+        var nessunaSelezione = !riga && pkCategoria === null;
+        if (wrapperAzioniCategoria) {
+            // "azioni-categoria-nascosta" invece di "d-none": stessa
+            // funzione (nascosti del tutto, ne' cliccabili ne'
+            // raggiungibili da tastiera - "disabled" sui due bottoni,
+            // gestito qui in passato, era ridondante ed e' stato tolto
+            // insieme all'attributo "disabled" nel template) ma
+            // transizionabile in altezza/opacita' (vedi documenti.css),
+            // "display" non lo e'
+            wrapperAzioniCategoria.classList.toggle('azioni-categoria-nascosta', nessunaSelezione);
+        }
+        if (btnRinominaCategoria) {
+            btnRinominaCategoria.title = riga ? 'Modifica documento' : 'Rinomina categoria';
+            btnRinominaCategoria.setAttribute('aria-label', btnRinominaCategoria.title);
+        }
+        if (btnEliminaCategoria) {
+            btnEliminaCategoria.title = riga ? 'Elimina documento' : 'Elimina categoria';
+            btnEliminaCategoria.setAttribute('aria-label', btnEliminaCategoria.title);
+        }
+    }
+
     // Riapplica lo stato "aperta" a una cartella dopo un refresh AJAX
     // (il markup fresco dal server arriva sempre tutto chiuso): imposta
     // direttamente le classi che Bootstrap stesso userebbe, senza bisogno
@@ -142,11 +192,11 @@
         }
         var item = rigaCategoriaInRinomina;
         rigaCategoriaInRinomina = null;
-        var span = item.querySelector('.testo-categoria');
+        var bottone = item.querySelector('.accordion-button');
         var input = item.querySelector('.input-rinomina-categoria');
-        if (span && input) {
+        if (bottone && input) {
             input.classList.add('d-none');
-            span.classList.remove('d-none');
+            bottone.classList.remove('d-none');
         }
     }
 
@@ -155,14 +205,19 @@
         if (!item) {
             return;
         }
-        var span = item.querySelector('.testo-categoria');
+        // Nasconde l'intero bottone (non solo ".testo-categoria"), badge
+        // compreso: l'input e' un suo fratello nell'intestazione (mai
+        // annidato dentro di lui, vedi commento nel template), quindi per
+        // farlo comparire "al centro dove sta il titolo" serve toglierlo
+        // di mezzo del tutto, non solo nascondere il testo
+        var bottone = item.querySelector('.accordion-button');
         var input = item.querySelector('.input-rinomina-categoria');
-        if (!span || !input) {
+        if (!bottone || !input) {
             return;
         }
         rigaCategoriaInRinomina = item;
         input.value = item.dataset.nomeCategoria;
-        span.classList.add('d-none');
+        bottone.classList.add('d-none');
         input.classList.remove('d-none');
         input.focus();
         input.select();
@@ -206,6 +261,33 @@
         });
     }
 
+    // Apre il modal precompilato per modificare "riga" (l'elemento
+    // "[data-pk]" di un documento): niente piu' matita per riga (rimossa,
+    // vedi albero_documenti.html), solo il bottone fisso in cima quando
+    // questo e' il documento selezionato (vedi documentoSelezionatoAttivo/
+    // aggiornaBottoniAzione) - "data-url-modifica" e' sulla riga stessa
+    function apriModalModificaDocumento(riga) {
+        var f = formCorrente();
+        if (!f) {
+            return;
+        }
+        f.action = riga.dataset.urlModifica;
+        f.elements['nome_file'].value = riga.dataset.nomeFile;
+        f.elements['categoria'].value = riga.dataset.categoriaPk;
+        aggiornaVisibilitaCategoriaNuova(f);
+        fileAttualeInModifica = { url: riga.dataset.fileUrl, nome: riga.dataset.nomeFile };
+        impostaCampoFileEsistente(f, fileAttualeInModifica.url, fileAttualeInModifica.nome);
+        modalBootstrap.show();
+    }
+
+    // Stessa fattorizzazione di apriModalModificaDocumento, per il cestino
+    function confermaEliminaDocumento(riga) {
+        if (!window.confirm('Eliminare questo documento?')) {
+            return;
+        }
+        postConCsrfESostituisciAlbero(riga.dataset.urlElimina);
+    }
+
     function eliminaCategoria(item) {
         var numeroSpan = item.querySelector('.numero-documenti-categoria');
         var numDocumenti = numeroSpan ? (parseInt(numeroSpan.textContent, 10) || 0) : 0;
@@ -216,6 +298,17 @@
             return;
         }
         postConCsrfESostituisciAlbero(item.dataset.urlEliminaCategoria);
+    }
+
+    // Click sul documento gia' selezionato (vedi il chiamante piu' sotto):
+    // lo deseleziona invece di rifare la stessa fetch, il pannello torna al
+    // messaggio iniziale e i bottoni fissi tornano ad agire sulla cartella
+    function deselezionaDocumento() {
+        albero.querySelectorAll('.list-group-item.active').forEach(function (r) {
+            r.classList.remove('active');
+        });
+        anteprima.innerHTML = anteprimaInizialeHTML;
+        aggiornaBottoniAzione();
     }
 
     // Fetch GET (nessun CSRF necessario) verso l'endpoint di sola lettura
@@ -249,6 +342,7 @@
                 if (rigaCliccata) {
                     rigaCliccata.classList.add('active');
                 }
+                aggiornaBottoniAzione();
             });
         }).catch(function () {
             window.location.reload();
@@ -323,6 +417,12 @@
                 anteprima.innerHTML = anteprimaInizialeHTML;
             }
         }
+
+        // Dopo aver ripristinato sia la cartella aperta che il documento in
+        // anteprima: i bottoni fissi devono riflettere lo stato finale, non
+        // quello a meta' (es. cartella riaperta ma documento non ancora
+        // ri-evidenziato)
+        aggiornaBottoniAzione();
     }
 
     function salvaDocumento(f) {
@@ -386,6 +486,82 @@
 
     agganciaToggleCategoria();
 
+    // Apertura/chiusura reale di una cartella (click su una pillola, non la
+    // riapertura sintetica di riapriCartella() dopo un refresh, gestita a
+    // parte): Bootstrap genera questi eventi su "#corpoCartella{pk}" e
+    // risalgono per bubbling fino a "albero". "shown"/"hidden" (non
+    // "show"/"hide"): questi ultimi partono si' subito al click, ma
+    // PRIMA che Bootstrap tolga/rimetta la classe "collapsed" sul bottone
+    // (bug reale gia' capitato qui provando a usarli per anticipare
+    // l'animazione: "cartellaApertaPk()" leggeva ancora lo stato vecchio,
+    // i due bottoni fissi comparivano/sparivano al contrario - alla
+    // chiusura invece che all'apertura). "shown"/"hidden" restano quindi
+    // la fonte di verita' (stato sempre corretto, a fine transizione), la
+    // reattivita' immediata al click e' gestita a parte qui sotto
+    albero.addEventListener('shown.bs.collapse', aggiornaBottoniAzione);
+    albero.addEventListener('hidden.bs.collapse', aggiornaBottoniAzione);
+
+    // Chiusura di una cartella che contiene il documento selezionato: lo
+    // deseleziona subito, prima ancora che l'animazione di chiusura finisca
+    // ("hide.bs.collapse" parte all'inizio della chiusura - qui va bene
+    // usarlo nonostante la nota sopra, perche' non dipende dallo stato
+    // "collapsed" del bottone ma solo da quale riga sia gia' attiva e da
+    // quale corpo si sta chiudendo) - "event.target" e' il
+    // "corpoCartella{pk}" che si sta chiudendo, "contains" verifica se la
+    // riga attiva e' al suo interno
+    albero.addEventListener('hide.bs.collapse', function (event) {
+        var rigaAttiva = albero.querySelector('.list-group-item.active');
+        if (rigaAttiva && event.target.contains(rigaAttiva)) {
+            deselezionaDocumento();
+        }
+    });
+
+    // Reattivita' immediata al click su una pillola (o al tasto Invio/
+    // Spazio da tastiera, che sotto simula un click vero - vedi il
+    // listener "keydown" qui sotto): "requestAnimationFrame" rimanda
+    // l'aggiornamento al fotogramma successivo, quando la gestione
+    // sincrona del click (compresa quella di Bootstrap, che tocca la
+    // classe "collapsed" nel proprio handler su "document", eseguito
+    // DOPO questo perche' piu' lontano nella risalita dell'evento) e' gia'
+    // sicuramente conclusa - a differenza di "show.bs.collapse" (vedi
+    // sopra) non dipende dal fatto che Bootstrap abbia gia' aggiornato lo
+    // stato quando l'evento arriva, quindi legge sempre il valore corretto
+    // e comunque quasi subito (un fotogramma), non a fine animazione
+    albero.addEventListener('click', function (event) {
+        if (event.target.closest('.accordion-button')) {
+            requestAnimationFrame(aggiornaBottoniAzione);
+        }
+    });
+
+    if (btnRinominaCategoria) {
+        btnRinominaCategoria.addEventListener('click', function () {
+            var riga = documentoSelezionatoAttivo();
+            if (riga) {
+                apriModalModificaDocumento(riga);
+                return;
+            }
+            var pk = cartellaApertaPk();
+            if (pk !== null) {
+                iniziaRinominaCategoria(pk);
+            }
+        });
+    }
+
+    if (btnEliminaCategoria) {
+        btnEliminaCategoria.addEventListener('click', function () {
+            var riga = documentoSelezionatoAttivo();
+            if (riga) {
+                confermaEliminaDocumento(riga);
+                return;
+            }
+            var pk = cartellaApertaPk();
+            var item = pk !== null ? document.getElementById('cartella-' + pk) : null;
+            if (item) {
+                eliminaCategoria(item);
+            }
+        });
+    }
+
     if (btnNuovo) {
         btnNuovo.addEventListener('click', function () {
             fileAttualeInModifica = null;
@@ -420,55 +596,15 @@
             return;
         }
 
-        var btnRinominaCategoria = event.target.closest('.btn-rinomina-categoria');
-        if (btnRinominaCategoria) {
-            var itemRinomina = btnRinominaCategoria.closest('[data-categoria-pk]');
-            if (itemRinomina) {
-                iniziaRinominaCategoria(itemRinomina.dataset.categoriaPk);
-            }
-            return;
-        }
-
-        var btnEliminaCategoria = event.target.closest('.btn-elimina-categoria');
-        if (btnEliminaCategoria) {
-            var itemElimina = btnEliminaCategoria.closest('[data-categoria-pk]');
-            if (itemElimina) {
-                eliminaCategoria(itemElimina);
-            }
-            return;
-        }
-
-        var btnModificaDocumento = event.target.closest('.btn-modifica-documento');
-        if (btnModificaDocumento) {
-            var riga = btnModificaDocumento.closest('[data-pk]');
-            var f = formCorrente();
-            if (!f || !riga) {
-                return;
-            }
-            f.action = btnModificaDocumento.dataset.urlModifica;
-            f.elements['nome_file'].value = riga.dataset.nomeFile;
-            f.elements['categoria'].value = riga.dataset.categoriaPk;
-            aggiornaVisibilitaCategoriaNuova(f);
-            fileAttualeInModifica = { url: riga.dataset.fileUrl, nome: riga.dataset.nomeFile };
-            impostaCampoFileEsistente(f, fileAttualeInModifica.url, fileAttualeInModifica.nome);
-            modalBootstrap.show();
-            return;
-        }
-
-        var btnEliminaDocumento = event.target.closest('.btn-elimina-documento');
-        if (btnEliminaDocumento) {
-            if (!window.confirm('Eliminare questo documento?')) {
-                return;
-            }
-            postConCsrfESostituisciAlbero(btnEliminaDocumento.dataset.urlElimina);
-            return;
-        }
-
         var btnNomeDocumento = event.target.closest('.documento-nome-btn');
         if (btnNomeDocumento) {
             var rigaDocumento = btnNomeDocumento.closest('[data-pk]');
             if (rigaDocumento) {
-                mostraAnteprimaDocumento(rigaDocumento.dataset.pk, rigaDocumento.dataset.urlAnteprima);
+                if (rigaDocumento.classList.contains('active')) {
+                    deselezionaDocumento();
+                } else {
+                    mostraAnteprimaDocumento(rigaDocumento.dataset.pk, rigaDocumento.dataset.urlAnteprima);
+                }
             }
         }
     });

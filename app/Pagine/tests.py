@@ -146,7 +146,6 @@ class DashboardProdottiSenzaImmagineViewTest(TestCase):
         ])
         self.client.force_login(self.staff)
         response = self.client.get(reverse("dashboard_prodotti_senza_immagine"))
-        self.assertContains(response, 'id="colonnaCategoria"')
         self.assertContains(response, "Sgrassatori")
 
     def test_prodotto_senza_categoria_ne_sottocategoria_mostra_trattino(self):
@@ -377,6 +376,7 @@ class DashboardProdottiSenzaImmagineContrattoJsTest(TestCase):
         self.assertContains(response, 'data-url-carica="')
         self.assertContains(response, 'data-codice="')
         self.assertContains(response, 'data-nome="')
+        self.assertContains(response, 'data-categoria-pk="')
         self.assertContains(response, 'data-unita-di-misura="')
         self.assertContains(response, 'data-descrizione="')
         self.assertContains(response, 'id="modalCaricaImmagineProdotto"')
@@ -389,8 +389,9 @@ class DashboardProdottiSenzaImmagineContrattoJsTest(TestCase):
         self.assertContains(response, 'id="previewProdottoDescrizione"')
         self.assertContains(response, 'id="previewImmagineProdotto"')
         self.assertContains(response, 'data-default-src="')
-        self.assertContains(response, 'id="colonnaCodice"')
-        self.assertContains(response, 'id="colonnaCategoria"')
+        self.assertContains(response, 'id="filtroCategoriaProdottiWrapper"')
+        self.assertContains(response, 'id="filtroCategoriaProdotti"')
+        self.assertContains(response, 'filtro-dropdown-item')
         self.assertContains(response, 'id="erroreCaricaImmagineProdotto"')
         self.assertContains(response, 'id="btnConfermaCaricaImmagineProdotto"')
         self.assertContains(response, 'dashboard-prodotti-immagini.js')
@@ -973,17 +974,15 @@ class GestioneDocumentiContrattoJsTest(TestCase):
             'data-url-modifica="',
             'data-url-elimina="',
             'data-url-anteprima="',
-            'btn-modifica-documento',
-            'btn-elimina-documento',
-            'btn-rinomina-categoria',
-            'btn-elimina-categoria',
+            'id="btnRinominaCategoria"',
+            'id="btnEliminaCategoria"',
             'data-nome-categoria="',
             'data-url-rinomina-categoria="',
             'data-url-elimina-categoria="',
             'id="opzioniCategoriaAggiornate"',
             'testo-categoria',
             'input-rinomina-categoria',
-            'icone-cartella-aperta',
+            'btn-cerchio-cartella',
             'documento-nome-btn',
             'numero-documenti-categoria',
             'id="corpoCartella',

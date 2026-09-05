@@ -1,4 +1,24 @@
-<div class="rounded p-2 pt-3" style="border: 2px solid var(--color-primary);">
+<div class="pannello-documenti p-2">
+  {% comment %}
+  Rinomina/Elimina categoria: due bottoni fissi sopra la lista di cartelle,
+  nascosti del tutto ("azioni-categoria-nascosta" qui, stato iniziale
+  coerente col rendering server - nessuna cartella e' mai aperta
+  all'apertura pagina, vedi documenti.css per la transizione) finche' non
+  c'e' ne' una cartella aperta ne' un documento selezionato -
+  gestione-documenti.js li mostra/nasconde seguendo l'apertura/chiusura
+  dell'accordion sotto (stessa funzione "cartellaApertaPk" gia' usata per
+  ricordare la cartella aperta dopo un refresh) e li fa agire sulla
+  cartella correntemente aperta (o sul documento selezionato, vedi
+  documentoSelezionatoAttivo).
+  {% endcomment %}
+  <div class="pannello-documenti-azioni-categoria azioni-categoria-nascosta">
+    <button type="button" id="btnRinominaCategoria" class="btn btn-outline-navbar rounded-circle btn-cerchio-cartella" title="Rinomina categoria" aria-label="Rinomina categoria">
+      <i class="bi bi-pencil-square"></i>
+    </button>
+    <button type="button" id="btnEliminaCategoria" class="btn btn-outline-danger rounded-circle btn-cerchio-cartella" title="Elimina categoria" aria-label="Elimina categoria">
+      <i class="bi bi-trash"></i>
+    </button>
+  </div>
   {% comment %}
   Un id vero (non solo "data-categoria-pk") su ogni cartella e ogni
   documento: cartelle (ordinate per nome_categoria) e documenti (ordinati
@@ -16,11 +36,8 @@
          data-url-elimina-categoria="{% url 'elimina_categoria' categoria.pk %}">
       <h2 class="accordion-header d-flex align-items-center">
         {% comment %}
-        "div role=button" invece di un vero "<button>" (stesso motivo gia'
-        presente nel vecchio elenco categorie di tabella_documenti.html):
-        deve poter contenere l'input di rinomina qui sotto, e un <input>
-        dentro un <button> non e' HTML valido. Bootstrap intercetta i
-        click su "[data-bs-toggle=collapse]" a prescindere dal tag,
+        "div role=button" invece di un vero "<button>": Bootstrap intercetta
+        i click su "[data-bs-toggle=collapse]" a prescindere dal tag,
         funziona identico a un bottone vero per aprire/chiudere - Invio/
         Spazio da tastiera li gestisce gestione-documenti.js.
         {% endcomment %}
@@ -28,28 +45,24 @@
              data-bs-toggle="collapse" data-bs-target="#corpoCartella{{ categoria.pk }}"
              aria-expanded="false" aria-controls="corpoCartella{{ categoria.pk }}">
           <span class="testo-categoria flex-grow-1 text-truncate">{{ categoria.nome_categoria }}</span>
-          <input type="text" class="form-control form-control-sm d-none input-rinomina-categoria me-2" value="{{ categoria.nome_categoria }}">
           <span class="position-relative d-inline-flex badge-conteggio-documenti{% if categoria.num_documenti > 99 %} badge-conteggio-documenti-lg{% elif categoria.num_documenti > 9 %} badge-conteggio-documenti-md{% endif %} ms-2">
             <i class="bi bi-file-earmark" style="color: var(--color-primary);"></i>
             <span class="position-absolute top-50 start-50 translate-middle fw-bold numero-documenti-categoria" style="color: var(--color-primary);">{{ categoria.num_documenti }}</span>
           </span>
         </div>
         {% comment %}
-        Sostituiscono i vecchi #btnRinominaCategoria/#btnEliminaCategoria
-        (fissi in cima al riquadro, abilitati solo a categoria
-        selezionata): visibili solo quando QUESTA cartella e' aperta,
-        pilotato via CSS dalla classe "collapsed" che Bootstrap stesso
-        aggiunge/rimuove sul div qui sopra (vedi documenti.css) - nessun
-        JS aggiuntivo necessario per la visibilita'.
+        Campo di rinomina FRATELLO del div sopra, mai annidato dentro di
+        lui: un click al suo interno, anche con "stopPropagation" nel JS,
+        arriverebbe comunque al gestore collapse di Bootstrap (il match e'
+        su "closest([data-bs-toggle=collapse])", indipendente dalla fase
+        dell'evento) e aprirebbe/chiuderebbe la cartella per sbaglio - bug
+        reale gia' capitato qui. Da fratello, il click sull'input non trova
+        alcun antenato con quell'attributo e Bootstrap lo ignora del tutto.
+        Nascosto di default ("d-none"), mostrato/centrato da
+        gestione-documenti.js/iniziaRinominaCategoria insieme al bottone
+        sopra che si nasconde (vedi documenti.css per il centraggio).
         {% endcomment %}
-        <span class="icone-cartella-aperta align-items-center gap-2 px-2">
-          <button type="button" class="btn btn-sm p-0 border-0 btn-rinomina-categoria" title="Rinomina categoria" aria-label="Rinomina categoria">
-            <i class="bi bi-pencil-square fs-5" style="color: var(--color-primary);"></i>
-          </button>
-          <button type="button" class="btn btn-sm p-0 border-0 btn-elimina-categoria" title="Elimina categoria" aria-label="Elimina categoria">
-            <i class="bi bi-trash fs-5" style="color: var(--bs-danger);"></i>
-          </button>
-        </span>
+        <input type="text" class="form-control form-control-sm d-none input-rinomina-categoria mx-auto" value="{{ categoria.nome_categoria }}">
       </h2>
       <div id="corpoCartella{{ categoria.pk }}" class="accordion-collapse collapse" data-bs-parent="#albero-documenti">
         <div class="accordion-body p-2">
@@ -57,25 +70,29 @@
           {% if documenti %}
           <div class="list-group">
             {% for documento in documenti %}
+            {% comment %}
+            Niente piu' matita/cestino per riga: modifica/elimina di un
+            documento passano dai due bottoni fissi in cima al riquadro
+            (vedi ".pannello-documenti-azioni-categoria"), che agiscono sul
+            documento selezionato invece che sulla categoria quando ce n'e'
+            uno (vedi gestione-documenti.js, documentoSelezionatoAttivo/
+            aggiornaBottoniAzione) - "data-url-modifica"/"data-url-elimina"
+            si spostano quindi sulla riga stessa.
+            {% endcomment %}
             <div class="list-group-item d-flex justify-content-between align-items-center"
                  id="documento-riga-{{ documento.pk }}"
                  data-pk="{{ documento.pk }}"
                  data-nome-file="{{ documento.nome_file }}"
                  data-categoria-pk="{{ categoria.pk }}"
                  data-file-url="{% if documento.file %}{{ documento.file.url }}{% endif %}"
-                 data-url-anteprima="{% url 'anteprima_documento' documento.pk %}">
-              <button type="button" class="btn btn-link text-start text-decoration-none documento-nome-btn p-0 flex-grow-1">
+                 data-url-anteprima="{% url 'anteprima_documento' documento.pk %}"
+                 data-url-modifica="{% url 'modifica_documento' documento.pk %}"
+                 data-url-elimina="{% url 'elimina_documento' documento.pk %}">
+              <button type="button" class="btn btn-link text-center text-decoration-none documento-nome-btn p-0 flex-grow-1">
                 <span class="d-block">{{ documento.nome_file }}</span>
-                <small class="text-muted">Aggiunto il {{ documento.creato_il|date:"d F Y" }} &middot; Modificato il {{ documento.modificato_il|date:"d F Y" }}</small>
+                <small class="d-block text-muted">Aggiunto il {{ documento.creato_il|date:"d F Y" }}</small>
+                <small class="d-block text-muted">Modificato il {{ documento.modificato_il|date:"d F Y" }}</small>
               </button>
-              <span class="text-nowrap ms-2">
-                <button type="button" class="btn btn-sm btn-outline-navbar btn-modifica-documento" data-url-modifica="{% url 'modifica_documento' documento.pk %}" title="Modifica" aria-label="Modifica">
-                  <i class="bi bi-pencil-square"></i>
-                </button>
-                <button type="button" class="btn btn-sm btn-outline-danger btn-elimina-documento" data-url-elimina="{% url 'elimina_documento' documento.pk %}" title="Elimina" aria-label="Elimina">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </span>
             </div>
             {% endfor %}
           </div>

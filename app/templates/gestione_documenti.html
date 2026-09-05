@@ -5,20 +5,28 @@
 {% block contenuto %}
 
 <div class="container">
-    <div class="row">
-        <div class="col-12 py-5">
-            <div class="d-flex align-items-center position-relative">
-                <a href="{% url 'dashboard_admin' %}" class="btn btn-navbar btn-sm position-absolute start-0" title="Torna alla dashboard">
-                    <i class="bi bi-arrow-left"></i>
-                    <span class="d-none d-md-inline">Torna alla dashboard</span>
-                </a>
-                <h1 class="mb-0 mx-auto">Gestione Documenti</h1>
-                <button type="button" class="btn btn-navbar btn-sm position-absolute end-0" data-bs-toggle="modal" data-bs-target="#modalDocumento" id="btnNuovoDocumento" title="Nuovo documento">
-                    <i class="bi bi-plus-lg"></i>
-                    <span class="d-none d-md-inline">Nuovo documento</span>
-                </button>
-            </div>
-        </div>
+    {% comment %}
+    Riga titolo agganciata allo scroll, stesso comportamento (e stesso CSS,
+    riusato cosi' com'e', vedi prodotti.css) di
+    partials/intestazione_categoria.html su prodotti_card.html/
+    prodotti_tabella.html: "#sentinellaIntestazione" da' lo spazio vero prima
+    della riga (vedi commento su "padding-top: 0" in prodotti.css),
+    ".intestazione-categoria-sticky" la aggancia sotto la navbar da desktop
+    con un contorno a pillola quando scrolla, e la sposta dentro la pillola
+    della navbar da telefono (static/js/intestazione-documenti-sticky.js).
+    {% endcomment %}
+    <div id="sentinellaIntestazione" class="sentinella-intestazione"></div>
+
+    <div class="d-flex align-items-center position-relative pt-5 mb-4 intestazione-categoria-sticky">
+        <a href="{% url 'dashboard_admin' %}" id="btnTornaDashboard" class="btn btn-navbar btn-sm rounded-pill btn-pillola-intestazione-gestione position-absolute start-0" title="Torna alla dashboard">
+            <i class="bi bi-arrow-left"></i>
+            <span class="d-none d-md-inline">Torna alla dashboard</span>
+        </a>
+        <h1 id="titoloGestioneDocumenti" class="mb-0 mx-auto">Gestione Documenti</h1>
+        <button type="button" class="btn btn-navbar btn-sm rounded-pill btn-pillola-intestazione-gestione slot-controlli-intestazione-fine position-absolute end-0" data-bs-toggle="modal" data-bs-target="#modalDocumento" id="btnNuovoDocumento" title="Nuovo documento">
+            <i class="bi bi-plus-lg"></i>
+            <span class="d-none d-md-inline">Nuovo documento</span>
+        </button>
     </div>
 
     <div class="row">
@@ -26,7 +34,7 @@
         {% include 'partials/albero_documenti.html' %}
       </div>
       <div class="col-12 col-md-8">
-        <div class="rounded p-3" style="border: 2px solid var(--color-primary);">
+        <div class="pannello-documenti p-3">
           {% comment %}
           Pannello di anteprima PDF: vuoto all'apertura pagina, aggiornato
           da gestione-documenti.js/mostraAnteprimaDocumento cliccando un
@@ -46,10 +54,6 @@
 <div class="modal fade" id="modalDocumento" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Documento</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
-      </div>
       <div class="modal-body" id="modalDocumentoBody">
         {% include 'partials/form_documento.html' %}
       </div>
@@ -58,5 +62,7 @@
 </div>
 
 <script src="{% static 'js/gestione-documenti.js' %}"></script>
+<script src="{% static 'js/pillola-titolo-sticky.js' %}"></script>
+<script src="{% static 'js/intestazione-documenti-sticky.js' %}"></script>
 
 {% endblock contenuto %}
