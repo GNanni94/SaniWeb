@@ -482,6 +482,24 @@ def _crea_documento(nome_file="Certificato qualita", categoria=None):
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class FileModelDateTest(TestCase):
+    def test_creato_il_e_modificato_il_impostati_automaticamente_alla_creazione(self):
+        documento = _crea_documento()
+        self.assertIsNotNone(documento.creato_il)
+        self.assertIsNotNone(documento.modificato_il)
+
+    def test_modificato_il_cambia_al_salvataggio_creato_il_resta_invariato(self):
+        documento = _crea_documento()
+        creato_il_originale = documento.creato_il
+        modificato_il_originale = documento.modificato_il
+        documento.nome_file = "Nome aggiornato"
+        documento.save()
+        documento.refresh_from_db()
+        self.assertEqual(documento.creato_il, creato_il_originale)
+        self.assertGreaterEqual(documento.modificato_il, modificato_il_originale)
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class DocumentoFormTest(TestCase):
     def setUp(self):
         self.categoria = _crea_categoria_file()

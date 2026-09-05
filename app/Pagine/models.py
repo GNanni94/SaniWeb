@@ -10,9 +10,11 @@ class CategoriaFile(models.Model):
         return  self.nome_categoria
 
 class File(models.Model):
-    nome_file=models.CharField(max_length=100, blank=True, null=True) 
-    file = models.FileField(upload_to="documenti/", null=True)   
+    nome_file=models.CharField(max_length=100, blank=True, null=True)
+    file = models.FileField(upload_to="documenti/", null=True)
     categoria = models.ForeignKey(CategoriaFile, on_delete=models.CASCADE, related_name='file_cat')
+    creato_il = models.DateTimeField(auto_now_add=True)
+    modificato_il = models.DateTimeField(auto_now=True)
 
     def __str__ (self):
         return  self.nome_file
