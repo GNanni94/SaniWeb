@@ -75,7 +75,7 @@
    (#navbarSupportedContent .navbar-nav > .nav-item > .nav-link in
    navbar.css). Scoped a "#form-login" (non alla classe condivisa
    ".btn-outline-navbar", usata anche altrove: tabella_avvisi.html,
-   tabella_documenti.html, carrello_flottante.html) */
+   albero_documenti.html, carrello_flottante.html) */
 #form-login .btn-outline-navbar {
   background-color: var(--color-bg-alt);
   border-width: 2px;

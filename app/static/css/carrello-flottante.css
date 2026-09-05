@@ -128,7 +128,7 @@
 /* Bordo piu' spesso (2px invece dell'1px di default di Bootstrap) per
    "Svuota Preventivo": scoped alla classe usata solo qui
    (".btn-svuota-preventivo"), non a ".btn-outline-danger" (condivisa,
-   usata anche in tabella_avvisi.html/tabella_documenti.html) */
+   usata anche in tabella_avvisi.html/albero_documenti.html) */
 .btn-svuota-preventivo {
   border-width: 2px;
 }

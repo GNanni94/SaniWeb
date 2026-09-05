@@ -981,6 +981,14 @@ class GestioneDocumentiContrattoJsTest(TestCase):
             'data-url-rinomina-categoria="',
             'data-url-elimina-categoria="',
             'id="opzioniCategoriaAggiornate"',
+            'testo-categoria',
+            'input-rinomina-categoria',
+            'icone-cartella-aperta',
+            'documento-nome-btn',
+            'numero-documenti-categoria',
+            'id="corpoCartella',
+            'id="documento-riga-',
+            'data-file-url="',
         ]
         for stringa in stringhe_richieste:
             self.assertContains(response, stringa)
