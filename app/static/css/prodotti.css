@@ -293,79 +293,10 @@
   height: calc(1.5em + 0.5rem + 4px);
 }
 
-/* ".ricerca-a-comparsa"/".ricerca-a-comparsa-input"/".filtro-a-comparsa-select"
-   qui sotto (fino alla fine della media query sotto i 576px piu' in basso):
-   aggancio riusabile dello stesso componente "lente/filtro che si espandono
-   in pillola/cerchio" per altre pagine (es. dashboard_prodotti_senza_immagine.html,
-   prodotti_tabella.html). "#ricercaProdottiWrapper"/"#prodottiCardSearch"/
-   "#filtroProdottiWrapper"/"#prodottiCardFiltro" di prodotti_card.html NON
-   sono piu' in questi selettori: quel componente li' ha lo stesso stile
-   sempre (non solo sotto i 576px, vedi piu' in basso "Filtro e ricerca di
-   prodotti_card.html come cerchio/pillola anche da desktop"), quindi le
-   regole "classiche" qui sotto (bordo blu su casella normale) non devono
-   applicarsi a loro a nessuna larghezza */
-:is(.ricerca-a-comparsa-input) {
-  border-color: var(--color-primary);
-  border-width: 2px;
-  height: calc(1.5em + 0.75rem + 4px);
-}
-
-/* Toglie il glow azzurro che Bootstrap mette di default su ".form-control:focus":
-   sotto i 576px il bordo destro del campo e' impostato a 0 per fondersi con la
-   lente accanto (vedi sotto), ma il box-shadow del focus segue comunque il
-   perimetro intero dell'elemento e ricreava li' una riga verticale visibile */
-:is(.ricerca-a-comparsa-input):focus {
-  box-shadow: none;
-}
-
 .filtro-a-comparsa-select {
   border-color: var(--color-primary);
   border-width: 2px;
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%231B5AA0' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
-}
-
-/* Ricerca da sm in su (>=576px, complementare alla media query "max-width:
-   575.98px" sopra, che riguarda solo il comportamento animato da telefono):
-   qui il campo resta sempre aperto, quindi l'icona lente non ha bisogno di
-   essere un bottone "attaccato" separato - la si ingloba dentro il campo
-   stesso, sovrapposta in posizione assoluta, per un look da singola casella
-   di ricerca invece di campo+bottone affiancati. Non riguarda
-   "#ricercaProdottiWrapper" di prodotti_card.html, per lo stesso motivo
-   spiegato sopra */
-@media (min-width: 576px) {
-  .ricerca-a-comparsa .ricerca-form {
-    position: relative;
-  }
-
-  .ricerca-a-comparsa .ricerca-a-comparsa-input {
-    /* Angoli tutti arrotondati (non solo a sinistra): Bootstrap toglierebbe
-       di suo quelli destri perche' l'input non e' l'ultimo figlio
-       dell'".input-group" - qui invece deve sembrare un campo a se stante,
-       dato che il bottone non e' piu' visivamente "attaccato" */
-    border-radius: var(--bs-border-radius) !important;
-    /* Spazio a destra per non far scorrere il testo sotto l'icona */
-    padding-right: 2.25rem;
-  }
-
-  .ricerca-a-comparsa .ricerca-toggle-btn {
-    position: absolute;
-    top: 50%;
-    right: .25rem;
-    transform: translateY(-50%);
-    z-index: 5;
-    background-color: transparent !important;
-    border: 0 !important;
-    padding: 0 .5rem;
-    color: var(--color-primary);
-  }
-
-  /* ".ricerca-a-comparsa" e' pensato anche per usi "position: absolute" (es.
-     dashboard_prodotti_senza_immagine.html, non dentro un contesto flex)
-     dove "flex-grow" non ha alcun effetto: qui serve quindi una larghezza
-     esplicita perche' il campo non resti "shrink-to-fit" ridotto al minimo */
-  .ricerca-a-comparsa {
-    width: 12rem;
-  }
 }
 
 /* Filtro e ricerca come cerchio/pillola anche da desktop, non piu' select/
@@ -388,22 +319,21 @@
    #prodottiCardFiltro) e prodotti_tabella.html (#ricercaTabellaWrapper/
    #ricercaTabellaProdotti/#filtroTabellaWrapper/#filtroSottocategoria,
    quest'ultimo id gia' presente nel markup, gli altri tre assegnati via JS
-   in "initComplete" - vedi prodotti_tabella.html), non le classi riusabili
-   ".ricerca-a-comparsa"/".filtro-a-comparsa-select": quelle restano cosi'
-   invariate per le altre pagine che le condividono senza replicare questo
-   stesso aspetto a cerchio (es. dashboard_prodotti_senza_immagine.html) */
+   in "initComplete" - vedi prodotti_tabella.html). La RICERCA include anche
+   la classe ".ricerca-a-comparsa"/".ricerca-a-comparsa-input", usata anche
+   da dashboard_prodotti_senza_immagine.html */
 @media (min-width: 576px) {
-  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper) {
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, .ricerca-a-comparsa) {
     flex-grow: 0 !important;
     width: 42px;
     transition: width .3s ease;
   }
 
-  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper).ricerca-espansa {
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, .ricerca-a-comparsa).ricerca-espansa {
     width: 12rem;
   }
 
-  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper) .ricerca-form {
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, .ricerca-a-comparsa) .ricerca-form {
     position: static;
     flex-wrap: nowrap;
     align-items: center;
@@ -419,11 +349,11 @@
     transition: background-color .3s ease;
   }
 
-  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper).ricerca-espansa .ricerca-form {
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, .ricerca-a-comparsa).ricerca-espansa .ricerca-form {
     background-color: var(--color-bg);
   }
 
-  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper) :is(#prodottiCardSearch, #ricercaTabellaProdotti) {
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, .ricerca-a-comparsa) :is(#prodottiCardSearch, #ricercaTabellaProdotti, .ricerca-a-comparsa-input) {
     border: 0 !important;
     border-radius: 0 !important;
     background-color: transparent !important;
@@ -439,29 +369,14 @@
     transition: padding .3s ease, opacity .2s ease .1s;
   }
 
-  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper).ricerca-espansa :is(#prodottiCardSearch, #ricercaTabellaProdotti) {
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, .ricerca-a-comparsa).ricerca-espansa :is(#prodottiCardSearch, #ricercaTabellaProdotti, .ricerca-a-comparsa-input) {
     padding-left: .75rem;
     padding-right: .75rem;
     opacity: 1;
   }
 
-  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper) .ricerca-toggle-btn {
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, .ricerca-a-comparsa) .ricerca-toggle-btn {
     position: static;
-    /* "top"/"transform" espliciti (non solo "position: static" sopra): per
-       prodotti_tabella.html il wrapper porta anche la classe riusabile
-       ".ricerca-a-comparsa" (serve al comportamento da telefono, vedi sotto
-       i 576px piu' in basso) - la sua regola desktop qui sopra
-       (".ricerca-a-comparsa .ricerca-toggle-btn") imposta "top: 50%" +
-       "transform: translateY(-50%)" per un bottone "position: absolute".
-       "position" passa a "static" (vinta per specificita', selettore per
-       id), ma "transform" si applica comunque anche su un elemento
-       "static" (non dipende dallo schema di posizionamento): senza questo
-       reset restava la traslazione verticale del -50% dell'ALTEZZA DEL
-       BOTTONE (19px, non della riga), che lo spostava fuori dal cerchio
-       ritagliato da ".ricerca-form" (overflow:hidden) - icona lente
-       tagliata a meta'. Per prodotti_card.html (niente ".ricerca-a-comparsa"
-       nel suo markup) questo reset e' un no-op, i valori di default
-       coincidono gia' */
     top: auto;
     transform: none;
     flex: none;
@@ -479,18 +394,18 @@
     margin-left: 0 !important;
   }
 
-  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper).ricerca-espansa .ricerca-toggle-btn {
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, .ricerca-a-comparsa).ricerca-espansa .ricerca-toggle-btn {
     border-radius: 0 calc(var(--bs-border-radius) - 2px) calc(var(--bs-border-radius) - 2px) 0 !important;
   }
 
-  :is(#filtroProdottiWrapper, #filtroTabellaWrapper) {
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) {
     position: relative;
     flex-grow: 0 !important;
     flex-basis: 42px;
     max-width: 42px !important;
   }
 
-  :is(#filtroProdottiWrapper, #filtroTabellaWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria) {
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti) {
     width: 100%;
     height: 42px;
     color: transparent;
@@ -526,15 +441,16 @@
      stessa specificita' del "width: 100%" sopra - due id): niente piu'
      dipendenza dal contenuto per la loro dimensione */
   #filtroProdottiWrapper #prodottiCardFiltro,
-  #filtroTabellaWrapper #filtroSottocategoria {
+  #filtroTabellaWrapper #filtroSottocategoria,
+  #filtroCategoriaProdottiWrapper #filtroCategoriaProdotti {
     width: 42px;
   }
 
   /* Hover/focus piu' scuro (".btn-navbar:hover/:focus" qui sotto, stesso
      "var(--color-primary-dark)"), per coerenza visiva col bottone "Torna al
      catalogo" nella stessa riga */
-  :is(#filtroProdottiWrapper, #filtroTabellaWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria):hover,
-  :is(#filtroProdottiWrapper, #filtroTabellaWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria):focus {
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti):hover,
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti):focus {
     background-color: var(--color-primary-dark);
     border-color: var(--color-primary-dark);
     box-shadow: none;
@@ -551,12 +467,12 @@
      poco sopra) e sulla pillola quando e' chiusa ("mostra solo l'icona":
      da aperta e' bianca con dentro il campo di testo, niente da scurire
      al passaggio del mouse li' sopra) */
-  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper) .ricerca-toggle-btn:hover,
-  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper) .ricerca-toggle-btn:focus {
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, .ricerca-a-comparsa) .ricerca-toggle-btn:hover,
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, .ricerca-a-comparsa) .ricerca-toggle-btn:focus {
     background-color: var(--color-primary-dark) !important;
   }
 
-  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper):not(.ricerca-espansa) .ricerca-form:hover {
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, .ricerca-a-comparsa):not(.ricerca-espansa) .ricerca-form:hover {
     background-color: var(--color-primary-dark);
     border-color: var(--color-primary-dark);
   }
@@ -816,7 +732,7 @@
    prodotti_tabella.html quello script non e' caricato (il filtro naviga via
    DataTables, non AJAX): l'icona resta quindi sempre "bi-funnel" a
    contorno, indipendentemente dalla sottocategoria selezionata */
-:is(#filtroProdottiWrapper, #filtroTabellaWrapper) .filtro-icon-overlay {
+:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) .filtro-icon-overlay {
   display: block;
   position: absolute;
   top: 50%;
@@ -844,7 +760,7 @@
    (1030, vedi navbar.css) sia la riga sticky (1020, vedi
    ".intestazione-categoria-sticky" sopra), altrimenti aprendo il menu
    durante lo scroll finirebbe sotto a una delle due */
-:is(#filtroProdottiWrapper, #filtroTabellaWrapper) .filtro-dropdown-menu {
+:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) .filtro-dropdown-menu {
   min-width: 12rem;
   z-index: 1035;
   padding: .75rem;
@@ -866,7 +782,7 @@
    sempre a prescindere dalla classe ".show"), tenendo il menu visibile in
    permanenza invece che solo dopo il click sul bottone - bug reale gia'
    capitato qui */
-:is(#filtroProdottiWrapper, #filtroTabellaWrapper) .filtro-dropdown-menu.show {
+:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) .filtro-dropdown-menu.show {
   display: flex;
   flex-direction: column;
   gap: .5rem;
@@ -884,7 +800,7 @@
    flex. Bordo trasparente a riposo, stesso spessore di quello colorato
    sotto: col "box-sizing: border-box" di Bootstrap il passaggio a colorato
    non sposta/ridimensiona la pillola */
-:is(#filtroProdottiWrapper, #filtroTabellaWrapper) .filtro-dropdown-item {
+:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) .filtro-dropdown-item {
   display: flex;
   align-items: center;
   color: var(--color-text);
@@ -895,9 +811,9 @@
   transition: border-color .15s ease;
 }
 
-:is(#filtroProdottiWrapper, #filtroTabellaWrapper) .filtro-dropdown-item:hover,
-:is(#filtroProdottiWrapper, #filtroTabellaWrapper) .filtro-dropdown-item:focus,
-:is(#filtroProdottiWrapper, #filtroTabellaWrapper) .filtro-dropdown-item:active {
+:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) .filtro-dropdown-item:hover,
+:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) .filtro-dropdown-item:focus,
+:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) .filtro-dropdown-item:active {
   border-color: var(--color-primary);
   color: var(--color-text);
 }
@@ -916,7 +832,7 @@
    mostrato via JS al volo (filtro-prodotti-ajax.js in prodotti_card.html,
    script inline in prodotti_tabella.html - sposta la classe "active" senza
    ricaricare la pagina) */
-:is(#filtroProdottiWrapper, #filtroTabellaWrapper) .filtro-item-dot {
+:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) .filtro-item-dot {
   width: 8px;
   height: 8px;
   flex-shrink: 0;
@@ -926,7 +842,7 @@
   visibility: hidden;
 }
 
-:is(#filtroProdottiWrapper, #filtroTabellaWrapper) .filtro-dropdown-item.active .filtro-item-dot {
+:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) .filtro-dropdown-item.active .filtro-item-dot {
   visibility: visible;
 }
 
@@ -1220,12 +1136,12 @@
      chiusa: qui il filtro resta sempre nella riga del titolo (non diventa
      mai un bottone fluttuante, vedi sopra), quindi deve intonarsi con lei
      invece che con la ricerca */
-  :is(#filtroProdottiWrapper, #filtroTabellaWrapper) {
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) {
     flex-basis: 32px;
     max-width: 32px !important;
   }
 
-  :is(#filtroProdottiWrapper, #filtroTabellaWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria) {
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti) {
     height: 32px;
     border-radius: 50%;
   }
@@ -1235,7 +1151,8 @@
      larghezza propria anche qui sotto i 576px): "#prodottiCardFiltro"/
      "#filtroSottocategoria" sono due <button> vuoti, non piu' due <select> */
   #filtroProdottiWrapper #prodottiCardFiltro,
-  #filtroTabellaWrapper #filtroSottocategoria {
+  #filtroTabellaWrapper #filtroSottocategoria,
+  #filtroCategoriaProdottiWrapper #filtroCategoriaProdotti {
     width: 32px;
   }
 

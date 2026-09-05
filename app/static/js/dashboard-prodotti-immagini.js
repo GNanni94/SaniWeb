@@ -11,7 +11,8 @@
     var messaggioNessunRisultato = document.getElementById('messaggio-nessun-risultato-ricerca');
     var ricercaWrapper = document.getElementById('ricercaCodiceWrapper');
     var ricercaToggleBtn = document.getElementById('toggleRicercaCodiceProdotto');
-    var colonnaCodiceTh = document.getElementById('colonnaCodice');
+    var filtroWrapper = document.getElementById('filtroCategoriaProdottiWrapper');
+    var listaFiltro = filtroWrapper ? filtroWrapper.querySelector('.filtro-dropdown-menu') : null;
     var formCsrf = document.getElementById('csrf-dashboard-prodotti');
     var modalEl = document.getElementById('modalCaricaImmagineProdotto');
     var previewCodice = document.getElementById('previewProdottoCodice');
@@ -24,7 +25,7 @@
     var errore = document.getElementById('erroreCaricaImmagineProdotto');
     var btnConferma = document.getElementById('btnConfermaCaricaImmagineProdotto');
     if (!tabellaContainer || !tabella || !messaggioVuoto || !inputRicerca || !messaggioNessunRisultato
-        || !ricercaWrapper || !ricercaToggleBtn || !colonnaCodiceTh
+        || !ricercaWrapper || !ricercaToggleBtn
         || !formCsrf || !modalEl || !previewCodice
         || !previewUnita || !previewTitolo || !previewDescrizione
         || !input || !btnScegli || !preview || !errore || !btnConferma) {
@@ -33,15 +34,19 @@
     var modalBootstrap = new bootstrap.Modal(modalEl);
     var rigaCorrente = null;
 
-    // Filtro live per codice prodotto (match "contiene", case-insensitive):
-    // riusata anche dopo un upload riuscito (che rimuove una riga), cosi'
-    // il conteggio di righe visibili resta corretto anche a filtro attivo
+    // null = nessuna categoria selezionata nel filtro, altrimenti pk della
+    // categoria scelta come stringa
+    var categoriaSelezionataPk = null;
+
+    // Filtra le righe per codice prodotto e per categoria selezionata
     function applicaFiltroRicerca() {
         var testo = inputRicerca.value.trim().toLowerCase();
         var righe = tabellaContainer.querySelectorAll('tr');
         var visibili = 0;
         righe.forEach(function (riga) {
-            var corrisponde = riga.dataset.codice.toLowerCase().indexOf(testo) !== -1;
+            var corrispondeTesto = riga.dataset.codice.toLowerCase().indexOf(testo) !== -1;
+            var corrispondeCategoria = categoriaSelezionataPk === null || riga.dataset.categoriaPk === categoriaSelezionataPk;
+            var corrisponde = corrispondeTesto && corrispondeCategoria;
             riga.classList.toggle('d-none', !corrisponde);
             if (corrisponde) {
                 visibili++;
@@ -60,15 +65,54 @@
         // resterebbe quello di prima finche' non si scrolla/ridimensiona
         aggiornaBordoSuSfondoBlu();
 
-        // Nasconde anche la pillola di ricerca quando l'ultimo prodotto
-        // viene rimosso (upload riuscito senza ricaricare la pagina): senza
-        // questo restava visibile, diversamente da un caricamento fresco
-        // della stessa pagina ormai vuota (vedi "{% if not prodotti %}" nel
-        // template)
+        // Nasconde le pillole di ricerca/filtro quando l'ultimo prodotto viene rimosso
         ricercaWrapper.classList.toggle('d-none', nessunProdotto);
+        if (filtroWrapper) {
+            filtroWrapper.classList.toggle('d-none', nessunProdotto);
+        }
     }
 
     inputRicerca.addEventListener('input', applicaFiltroRicerca);
+
+    // Marca come attiva la voce del filtro scelta
+    function impostaVoceFiltroAttiva(voceScelta) {
+        if (!listaFiltro) {
+            return;
+        }
+        var voci = listaFiltro.querySelectorAll('.filtro-dropdown-item');
+        for (var i = 0; i < voci.length; i++) {
+            voci[i].classList.toggle('active', voci[i] === voceScelta);
+        }
+    }
+
+    function aggiornaClasseFiltroAttivo() {
+        if (!filtroWrapper || !listaFiltro) {
+            return;
+        }
+        var iconaFiltro = filtroWrapper.querySelector('.filtro-icon-overlay');
+        var primaVoce = listaFiltro.querySelector('.filtro-dropdown-item');
+        if (!iconaFiltro || !primaVoce) {
+            return;
+        }
+        var attivo = !primaVoce.classList.contains('active');
+        iconaFiltro.classList.toggle('bi-funnel-fill', attivo);
+        iconaFiltro.classList.toggle('bi-funnel', !attivo);
+    }
+
+    if (listaFiltro) {
+        listaFiltro.addEventListener('click', function (event) {
+            var voce = event.target.closest('.filtro-dropdown-item');
+            if (!voce) {
+                return;
+            }
+            event.preventDefault();
+            impostaVoceFiltroAttiva(voce);
+            aggiornaClasseFiltroAttivo();
+            categoriaSelezionataPk = voce.dataset.categoriaPk || null;
+            applicaFiltroRicerca();
+        });
+        aggiornaClasseFiltroAttivo();
+    }
 
     // Da telefono la lente si apre al click e mette il focus nel campo (il
     // filtro e' gia' live mentre si scrive, quindi un secondo click sulla
@@ -216,49 +260,4 @@
             });
     });
 
-    // Ordinamento per colonna (Codice, Categoria, ...): ogni colonna
-    // ordinabile e' indipendente dal resto (guardia separata sull'elemento),
-    // cosi' se uno di questi header manca il resto della pagina (apertura
-    // del pop-up, upload) continua a funzionare comunque.
-    function abilitaOrdinamentoColonna(idIntestazione, indiceColonna) {
-        var intestazione = document.getElementById(idIntestazione);
-        if (!intestazione) {
-            return;
-        }
-        var ascendente = true;
-
-        function ordina() {
-            var righe = Array.prototype.slice.call(tabellaContainer.querySelectorAll('tr'));
-            righe.sort(function (a, b) {
-                var valoreA = a.children[indiceColonna].textContent.trim().toLowerCase();
-                var valoreB = b.children[indiceColonna].textContent.trim().toLowerCase();
-                if (valoreA < valoreB) {
-                    return ascendente ? -1 : 1;
-                }
-                if (valoreA > valoreB) {
-                    return ascendente ? 1 : -1;
-                }
-                return 0;
-            });
-            righe.forEach(function (riga) {
-                tabellaContainer.appendChild(riga);
-            });
-            intestazione.setAttribute('aria-sort', ascendente ? 'ascending' : 'descending');
-            ascendente = !ascendente;
-        }
-
-        intestazione.addEventListener('click', function (event) {
-            ordina();
-        });
-        intestazione.addEventListener('keydown', function (event) {
-            if (event.key !== 'Enter' && event.key !== ' ') {
-                return;
-            }
-            event.preventDefault();
-            ordina();
-        });
-    }
-
-    abilitaOrdinamentoColonna('colonnaCodice', 0);
-    abilitaOrdinamentoColonna('colonnaCategoria', 2);
 })();

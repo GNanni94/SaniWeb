@@ -57,8 +57,14 @@ def dashboard_prodotti_senza_immagine(request):
         Q(categoria__nome_categoria__iexact="prodotti chimici")
         & (Q(gruppo=0) | Q(gruppo__isnull=True))
     ).order_by('codice_prodotto')
+    # Categorie distinte tra i prodotti filtrati, ordinate per nome
+    categorie_presenti = sorted(
+        {prodotto.categoria for prodotto in prodotti if prodotto.categoria_id},
+        key=lambda categoria: categoria.nome_categoria.lower()
+    )
     return render(request, 'dashboard_prodotti_senza_immagine.html', {
         'prodotti': prodotti,
+        'categorie_presenti': categorie_presenti,
         'default_immagine_articolo': DEFAULT_IMMAGINE_ARTICOLO,
     })
 
