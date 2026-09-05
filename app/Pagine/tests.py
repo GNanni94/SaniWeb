@@ -985,3 +985,55 @@ class GestioneDocumentiContrattoJsTest(TestCase):
         ]
         for stringa in stringhe_richieste:
             self.assertContains(response, stringa)
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class AnteprimaDocumentoViewTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.staff = User.objects.create_user(
+            username="staffanteprima1", email="staffanteprima1@example.com", password="testpass123", is_staff=True
+        )
+        self.utente = User.objects.create_user(
+            username="normaleanteprima1", email="normaleanteprima1@example.com", password="testpass123"
+        )
+        self.documento = _crea_documento(nome_file="Certificato ISO")
+
+    def test_ajax_risponde_con_embed_del_pdf(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(
+            reverse("anteprima_documento", args=[self.documento.pk]),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "anteprima-documento-embed")
+        self.assertContains(response, self.documento.file.url)
+
+    def test_non_ajax_reindirizza_a_gestione_documenti(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("anteprima_documento", args=[self.documento.pk]))
+        self.assertRedirects(response, reverse("gestione_documenti"))
+
+    def test_pk_inesistente_risponde_404(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(
+            reverse("anteprima_documento", args=[999999]),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_anonimo_reindirizzato_al_login(self):
+        response = self.client.get(
+            reverse("anteprima_documento", args=[self.documento.pk]),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith(reverse("login")))
+
+    def test_utente_normale_reindirizzato_alla_home(self):
+        self.client.force_login(self.utente)
+        response = self.client.get(
+            reverse("anteprima_documento", args=[self.documento.pk]),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertRedirects(response, reverse("home"))

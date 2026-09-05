@@ -1,0 +1,16 @@
+{% comment %}
+Frammento restituito da "anteprima_documento" (Pagine/views.py), iniettato
+in "#anteprima-documento" da gestione-documenti.js/mostraAnteprimaDocumento
+quando si clicca un documento nell'albero. "<object>" invece di "<embed>"/
+"<iframe>": ha un fallback nativo del browser (il contenuto tra i tag viene
+mostrato SOLO se il browser non riesce a renderizzare il "data") - utile
+per un file preesistente/corrotto che non fosse davvero un PDF valido,
+senza bisogna di una verifica lato server (DocumentoForm.clean_file
+garantisce gia' che ogni upload NUOVO sia un PDF vero).
+{% endcomment %}
+<object data="{{ documento.file.url }}" type="application/pdf" class="anteprima-documento-embed">
+  <p class="text-center text-muted mt-4">
+    Impossibile visualizzare il PDF in questa pagina.
+    <a href="{{ documento.file.url }}" target="_blank">Apri il file in una nuova scheda</a>.
+  </p>
+</object>
