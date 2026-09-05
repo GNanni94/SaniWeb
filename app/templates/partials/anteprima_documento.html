@@ -7,10 +7,23 @@ mostrato SOLO se il browser non riesce a renderizzare il "data") - utile
 per un file preesistente/corrotto che non fosse davvero un PDF valido,
 senza bisogna di una verifica lato server (DocumentoForm.clean_file
 garantisce gia' che ogni upload NUOVO sia un PDF vero).
+
+L'id univoco basato sul pk (oltre alla classe, invariata, usata dal CSS)
+serve solo a Idiomorph: senza un id che cambia da un documento all'altro,
+Idiomorph riconosce l'"<object>" gia' presente nel contenitore come "lo
+stesso elemento" e si limita a morfarne gli attributi (compreso "data=")
+invece di sostituirlo - cambiare "data=" su un <object> gia' caricato dal
+browser (con un plugin PDF gia' istanziato dentro) non ricarica in modo
+affidabile il nuovo file in tutti i browser. Con l'id che include il pk,
+Idiomorph vede un elemento di root diverso e lo sostituisce.
 {% endcomment %}
-<object data="{{ documento.file.url }}" type="application/pdf" class="anteprima-documento-embed">
+{% if documento.file %}
+<object id="anteprima-documento-embed-{{ documento.pk }}" data="{{ documento.file.url }}" type="application/pdf" class="anteprima-documento-embed">
   <p class="text-center text-muted mt-4">
     Impossibile visualizzare il PDF in questa pagina.
     <a href="{{ documento.file.url }}" target="_blank">Apri il file in una nuova scheda</a>.
   </p>
 </object>
+{% else %}
+<p class="text-center text-muted mt-4">Nessun file disponibile per questo documento.</p>
+{% endif %}
