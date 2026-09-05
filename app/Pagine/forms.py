@@ -17,6 +17,18 @@ class DocumentoForm(forms.ModelForm):
         self.fields["nome_file"].required = True
         self.fields["categoria"].required = False
         self.fields["categoria"].empty_label = "+ Nuova categoria"
+        # Ordine alfabetico: usato per popolare il menu a tendina "Seleziona
+        # categoria" in form_documento.html (un giro su
+        # "form.categoria.field.queryset"), stessa coerenza gia' garantita
+        # per l'accordion delle cartelle (Pagine/views.py, _categorie_con_conteggio)
+        self.fields["categoria"].queryset = CategoriaFile.objects.order_by("nome_categoria")
+        # Renderizzati senza "|as_crispy_field" in form_documento.html (devono
+        # stare nella stessa riga del rispettivo cerchio - "Carica File" per
+        # "nome_file", "Cambia categoria" per "categoria_nuova" - non nel
+        # blocco verticale etichetta-sopra-campo di crispy): la classe
+        # Bootstrap che crispy aggiungerebbe da sola va quindi impostata qui
+        self.fields["nome_file"].widget.attrs["class"] = "form-control"
+        self.fields["categoria_nuova"].widget.attrs["class"] = "form-control"
 
     def clean(self):
         cleaned_data = super().clean()

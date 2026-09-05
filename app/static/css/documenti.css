@@ -30,27 +30,6 @@
   border-top-color: #fff;
 }
 
-/* Documento evidenziato nell'albero (partials/albero_documenti.html,
-   gestione-documenti.js/mostraAnteprimaDocumento aggiunge/rimuove la
-   classe ".active" di Bootstrap): stesso blu della navbar invece
-   dell'azzurro "primary" di default di Bootstrap, coerente col resto del
-   sito - sostituisce la vecchia evidenziazione della categoria
-   selezionata (rimossa insieme al filtro lato client) */
-#albero-documenti .list-group-item.active {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-/* Nome file e date, sullo sfondo blu navbar del documento evidenziato
-   sopra: vanno ribaltati in bianco per restare leggibili, stesso
-   principio gia' in uso per l'icona/numero della cartella qui sotto.
-   "!important" necessario per vincere il colore di default del testo,
-   piu' specifico di un semplice selettore di classe */
-#albero-documenti .list-group-item.active .documento-nome-btn,
-#albero-documenti .list-group-item.active .text-muted {
-  color: #fff !important;
-}
-
 /* Cartelle come pillole (albero_documenti.html), stesso trattamento delle
    voci del menu hamburger (".navbar-nav > .nav-item > .nav-link" in
    navbar.css): sfondo grigio chiaro a riposo, bordo trasparente che
@@ -126,6 +105,12 @@
    parita' di "!important") */
 #albero-documenti .accordion-button:not(.collapsed) .testo-categoria {
   flex-grow: 0 !important;
+}
+
+/* Contorno blu sulla riga documento selezionabile per Modifica/Elimina */
+.documento-riga-selezionabile {
+  cursor: pointer;
+  border-color: var(--color-primary);
 }
 
 /* Campo di rinomina inline (sostituisce ".testo-categoria" nascosto, vedi
@@ -215,6 +200,21 @@
   flex-shrink: 0;
   border-width: 2px;
   background-color: var(--color-bg);
+}
+
+/* Cerchio grigio scuro pieno, senza contorno, per il bottone Annulla */
+#btnAnnullaModalita {
+  background-color: var(--color-text);
+  border-color: transparent;
+  color: var(--color-text-light);
+}
+
+#btnAnnullaModalita:hover,
+#btnAnnullaModalita:focus {
+  background-color: var(--color-text);
+  border-color: transparent;
+  color: var(--color-text-light);
+  filter: brightness(1.2);
 }
 
 /* Icona "a contorno" (bi-file-earmark) col conteggio documenti al centro
@@ -338,60 +338,28 @@
   line-height: 1.3;
 }
 
-/* Riquadri di gestione_documenti.html (albero cartelle a sinistra,
-   pannello anteprima a destra): stesso raggio "pop-up" da 24px gia' usato
-   per i modal di Login/Avviso di chiusura ("#modalLogin .modal-content" in
-   navbar.css, "#modalAvviso .modal-content" in calendario-avvisi.css), al
-   posto della classe ".rounded" di Bootstrap (troppo squadrata) - stessa
-   estetica "pop-up" anche qui, pur non essendo un modal. "overflow: hidden"
-   per lo stesso motivo di quelle due regole (i due cerchi Rinomina/Elimina
-   categoria sopra sono ora nel flusso normale, non sporgono piu' dal
-   bordo, quindi non serve piu' l'eccezione che c'era qui prima) */
+/* Riquadro cartelle (gestione_documenti.html, unica colonna - niente piu'
+   pannello di anteprima a destra, tolto su richiesta esplicita): stesso
+   raggio "pop-up" da 24px gia' usato per i modal di Login/Avviso di
+   chiusura ("#modalLogin .modal-content" in navbar.css, "#modalAvviso
+   .modal-content" in calendario-avvisi.css), al posto della classe
+   ".rounded" di Bootstrap (troppo squadrata) - stessa estetica "pop-up"
+   anche qui, pur non essendo un modal. "overflow: hidden" perche' i due
+   cerchi Rinomina/Elimina categoria sopra sono nel flusso normale, non
+   sporgono dal bordo */
 .pannello-documenti {
   border-radius: 24px;
   overflow: hidden;
-}
-
-/* Spazio in piu' sopra il riquadro cartelle (icone Rinomina/Elimina +
-   accordion, gia' insieme dentro questo stesso div), tra lui e la riga
-   titolo della pagina sopra: solo per QUESTA istanza di ".pannello-documenti"
-   (quella con la lista dentro), non per il gemello a destra (anteprima),
-   che non ha le due icone fisse e non ne ha bisogno - ":has()" gia' in uso
-   in questo progetto (vedi ".site-navbar:has(...)" in navbar.css) */
-.pannello-documenti:has(#albero-documenti) {
   margin-top: 1.5rem;
 }
 
-/* Da telefono (sotto la soglia "md" di Bootstrap, la stessa a cui
-   gestione_documenti.html passa da due colonne affiancate a una sola,
-   vedi "col-12 col-md-4"/"col-12 col-md-8"): meno spazio tra il riquadro
-   qui sopra e il titolo della pagina, richiesto esplicitamente solo per
-   questa larghezza */
+/* Da telefono (sotto la soglia "md" di Bootstrap): meno spazio tra il
+   riquadro qui sopra e il titolo della pagina, richiesto esplicitamente
+   solo per questa larghezza */
 @media (max-width: 767.98px) {
-  .pannello-documenti:has(#albero-documenti) {
+  .pannello-documenti {
     margin-top: .75rem;
   }
-}
-
-/* Pannello di anteprima documento (gestione_documenti.html, colonna
-   destra): l'<object> di partials/anteprima_documento.html deve riempire
-   il riquadro invece di usare le dimensioni minime di default del
-   browser per gli elementi incorporati - nessuna utility Bootstrap
-   equivalente per dimensionare un embed PDF */
-.anteprima-documento-embed {
-  display: block;
-  width: 100%;
-  height: 75vh;
-  min-height: 480px;
-  border: 0;
-  /* Stesso raggio "pop-up" da 24px gia' usato per ".pannello-documenti"
-     (il riquadro che lo contiene) e per i modal di Login/Avviso di
-     chiusura, invece di un valore diverso a caso */
-  border-radius: 24px;
-  /* Un "<object>" e' un elemento sostituito come un iframe: senza
-     "overflow: hidden" il PDF renderizzato al suo interno ignorerebbe
-     "border-radius" e continuerebbe a riempire l'angolo con spigoli vivi */
-  overflow: hidden;
 }
 
 /* Pop-up "Nuovo/Modifica documento" (gestione_documenti.html,
@@ -405,9 +373,9 @@
   overflow: hidden;
 }
 
-/* Riquadri che raggruppano "Categoria"/"Nome categoria" e "File"/"File
-   attuale"+"Nome file" (partials/form_documento.html): stesso stile esatto
-   gia' usato per le sezioni "Periodo di chiusura"/"Motivo chiusura" nel
+/* Riquadri che raggruppano "Categoria"/"Nome categoria" e "File"/"Nome
+   file" (partials/form_documento.html): stesso stile esatto gia' usato
+   per le sezioni "Periodo di chiusura"/"Motivo chiusura" nel
    pop-up di gestione avvisi ("#blocco-calendario-avviso"/
    "#div_id_motivo_chiusura" in calendario-avvisi.css) - sfondo grigio,
    bordo blu, angoli arrotondati, etichette centrate. Niente altezza fissa:
@@ -422,22 +390,117 @@
   text-align: center;
 }
 
-/* I campi crispy hanno gia' un loro "mb-3": va azzerato sull'ultimo di
-   ogni riquadro (qui per id, come gia' fatto per "#div_id_motivo_chiusura"
-   in calendario-avvisi.css) altrimenti si sommerebbe al padding del
-   riquadro invece di definire da solo lo spazio in basso. "Nome categoria"
-   compare SOTTO "Categoria" solo quando visibile: il suo spazio va quindi
-   riaggiunto a parte con un "margin-top" sul contenitore
-   ("#campoCategoriaNuova" e' "d-none" quando nascosto, quindi il margine
-   qui non ha alcun effetto in quel caso) invece che sul campo stesso, cosi'
-   "Categoria" puo' restare sempre a "margin-bottom: 0" a prescindere da
-   quale dei due stati e' attivo */
+/* I campi crispy hanno gia' un loro "mb-3": va azzerato sull'ultimo
+   elemento sempre presente di ogni riquadro (qui per id, come gia' fatto
+   per "#div_id_motivo_chiusura" in calendario-avvisi.css) altrimenti si
+   sommerebbe al padding del riquadro invece di definire da solo lo spazio
+   in basso */
 .gruppo-campo-documento #div_id_categoria,
-.gruppo-campo-documento #div_id_categoria_nuova,
 .gruppo-campo-documento #div_id_nome_file {
   margin-bottom: 0 !important;
 }
 
-#campoCategoriaNuova {
+/* Nasconde il <select> nativo di categoria, lascia visibile la sua etichetta */
+#campoCategoria #div_id_categoria select {
+  display: none;
+}
+
+/* Menu "Seleziona categoria": ombra, angoli arrotondati, scroll oltre 16rem */
+.dropdown-menu-categoria {
+  background-color: var(--color-bg);
+  border: none;
+  border-radius: 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+  padding: .5rem;
+  max-height: 16rem;
+  overflow-y: auto;
+}
+
+.dropdown-item-categoria {
+  background-color: var(--color-bg-alt);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  padding: .5rem 1rem;
+  margin-bottom: .35rem;
+}
+
+.dropdown-item-categoria:last-child {
+  margin-bottom: 0;
+}
+
+.dropdown-item-categoria:hover,
+.dropdown-item-categoria:focus {
+  background-color: var(--color-bg-alt);
+  color: var(--color-text);
+  border-color: var(--color-primary);
+}
+
+/* Pallino sulla categoria gia' assegnata al documento, nel menu "Seleziona categoria" */
+.dropdown-item-categoria .pallino-pagina-corrente {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+}
+
+/* Apertura/chiusura animata di "Nome categoria", con padding per non tagliare l'alone di focus del campo */
+#rigaNomeCategoria {
+  max-height: 6rem;
+  opacity: 1;
+  overflow: hidden;
   margin-top: 1rem;
+  padding: 0 .3rem .3rem;
+  transition: max-height .25s ease, opacity .2s ease, margin-top .25s ease;
+}
+
+#rigaNomeCategoria.campo-categoria-nascosto {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+}
+
+/* Sfondo grigio sul campo "Nome categoria" di sola lettura */
+#rigaNomeCategoria .form-control[readonly] {
+  background-color: var(--color-bg-alt);
+}
+
+/* Nessun alone di focus sul campo di sola lettura */
+#rigaNomeCategoria .form-control[readonly]:focus {
+  box-shadow: none;
+}
+
+/* Campi di testo e selettore categoria (partials/form_documento.html):
+   angoli tondi come il resto del pop-up (pillole/cerchi gia' usati per
+   bottoni e riquadri) invece dello squadrato di default di Bootstrap.
+   Scoped a ".gruppo-campo-documento" (non un ".form-control"/".form-select"
+   generico): non deve toccare, per esempio, ".input-rinomina-categoria"
+   nell'albero cartelle, gia' pillola di suo con un raggio diverso (999px
+   qui coincide, ma resta un caso a parte non collegato a questa regola) */
+.gruppo-campo-documento .form-control,
+.gruppo-campo-documento .form-select {
+  border-radius: 999px;
+}
+
+/* "Nome file" accanto al cerchio "Carica File" (partials/form_documento.html,
+   ".riga-nome-file"): un "form-control" e' "width: 100%" di default, che
+   qui spingerebbe il cerchio fuori dalla riga (o sotto, andando a capo)
+   invece di restringersi per lasciargli spazio - "min-width: 0" necessario
+   perche' un flex item di default non si restringe mai sotto la sua
+   larghezza intrinseca */
+.riga-nome-file .form-control {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+}
+
+/* Campo file nativo di Django (etichetta + <input>, generato da crispy):
+   mai mostrato a video, l'utente vede solo il cerchio "Carica File" accanto
+   a "Nome file" (vedi partials/form_documento.html) - un <input
+   type="file"> nascosto puo' comunque essere aperto via ".click()" da un
+   vero gesto dell'utente (gestione-documenti.js, mostraSelettoreFile),
+   tecnica comune per bottoni "Carica file" personalizzati */
+#campoFile #div_id_file {
+  display: none;
 }

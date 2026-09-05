@@ -1,24 +1,21 @@
 <div class="pannello-documenti p-2">
   {% comment %}
-  Rinomina/Elimina categoria: due bottoni fissi sopra la lista di cartelle,
-  nascosti del tutto ("azioni-categoria-nascosta" qui, stato iniziale
-  coerente col rendering server - nessuna cartella e' mai aperta
-  all'apertura pagina, vedi documenti.css per la transizione) finche' non
-  c'e' ne' una cartella aperta ne' un documento selezionato -
-  gestione-documenti.js li mostra/nasconde seguendo l'apertura/chiusura
-  dell'accordion sotto (stessa funzione "cartellaApertaPk" gia' usata per
-  ricordare la cartella aperta dopo un refresh) e li fa agire sulla
-  cartella correntemente aperta (o sul documento selezionato, vedi
-  documentoSelezionatoAttivo).
+  Modifica/Elimina: visibili solo a cartella aperta, agiscono sulla
+  categoria aperta o su un documento al suo interno (gestione-documenti.js,
+  impostaModalita). Il terzo bottone (X) annulla.
   {% endcomment %}
-  <div class="pannello-documenti-azioni-categoria azioni-categoria-nascosta">
-    <button type="button" id="btnRinominaCategoria" class="btn btn-outline-navbar rounded-circle btn-cerchio-cartella" title="Rinomina categoria" aria-label="Rinomina categoria">
+  <div id="pannelloAzioni" class="pannello-documenti-azioni-categoria azioni-categoria-nascosta">
+    <button type="button" id="btnModifica" class="btn btn-outline-navbar rounded-circle btn-cerchio-cartella" title="Modifica" aria-label="Modifica">
       <i class="bi bi-pencil-square"></i>
     </button>
-    <button type="button" id="btnEliminaCategoria" class="btn btn-outline-danger rounded-circle btn-cerchio-cartella" title="Elimina categoria" aria-label="Elimina categoria">
+    <button type="button" id="btnElimina" class="btn btn-outline-danger rounded-circle btn-cerchio-cartella" title="Elimina" aria-label="Elimina">
       <i class="bi bi-trash"></i>
     </button>
+    <button type="button" id="btnAnnullaModalita" class="btn rounded-circle btn-cerchio-cartella d-none" title="Annulla" aria-label="Annulla">
+      <i class="bi bi-x-lg"></i>
+    </button>
   </div>
+  <p id="messaggioModalita" class="text-center text-muted small d-none"></p>
   {% comment %}
   Un id vero (non solo "data-categoria-pk") su ogni cartella e ogni
   documento: cartelle (ordinate per nome_categoria) e documenti (ordinati
@@ -71,28 +68,30 @@
           <div class="list-group">
             {% for documento in documenti %}
             {% comment %}
-            Niente piu' matita/cestino per riga: modifica/elimina di un
-            documento passano dai due bottoni fissi in cima al riquadro
-            (vedi ".pannello-documenti-azioni-categoria"), che agiscono sul
-            documento selezionato invece che sulla categoria quando ce n'e'
-            uno (vedi gestione-documenti.js, documentoSelezionatoAttivo/
-            aggiornaBottoniAzione) - "data-url-modifica"/"data-url-elimina"
-            si spostano quindi sulla riga stessa.
+            "data-url-*": URL per il POST di modifica/eliminazione del
+            documento. "data-file-nome": percorso del file sullo storage,
+            usato per l'anteprima nel modal di modifica.
             {% endcomment %}
             <div class="list-group-item d-flex justify-content-between align-items-center"
                  id="documento-riga-{{ documento.pk }}"
                  data-pk="{{ documento.pk }}"
                  data-nome-file="{{ documento.nome_file }}"
                  data-categoria-pk="{{ categoria.pk }}"
-                 data-file-url="{% if documento.file %}{{ documento.file.url }}{% endif %}"
-                 data-url-anteprima="{% url 'anteprima_documento' documento.pk %}"
-                 data-url-modifica="{% url 'modifica_documento' documento.pk %}"
-                 data-url-elimina="{% url 'elimina_documento' documento.pk %}">
-              <button type="button" class="btn btn-link text-center text-decoration-none documento-nome-btn p-0 flex-grow-1">
+                 data-url-modifica-documento="{% url 'modifica_documento' documento.pk %}"
+                 data-url-elimina-documento="{% url 'elimina_documento' documento.pk %}"
+                 {% if documento.file %}data-file-nome="{{ documento.file.name }}"{% endif %}>
+              {% if documento.file %}
+              <a href="{{ documento.file.url }}" target="_blank" class="text-center text-decoration-none documento-nome-btn flex-grow-1">
                 <span class="d-block">{{ documento.nome_file }}</span>
                 <small class="d-block text-muted">Aggiunto il {{ documento.creato_il|date:"d F Y" }}</small>
                 <small class="d-block text-muted">Modificato il {{ documento.modificato_il|date:"d F Y" }}</small>
-              </button>
+              </a>
+              {% else %}
+              <span class="text-center text-muted flex-grow-1">
+                <span class="d-block">{{ documento.nome_file }}</span>
+                <small class="d-block">Nessun file disponibile</small>
+              </span>
+              {% endif %}
             </div>
             {% endfor %}
           </div>

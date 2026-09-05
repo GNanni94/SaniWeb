@@ -2,7 +2,6 @@ from django.urls import path, include
 from django.views.generic import TemplateView
 from .views import (
     DocumentoView,
-    anteprima_documento,
     carica_immagine_prodotto,
     dashboard_admin,
     dashboard_prodotti_senza_immagine,
@@ -29,7 +28,6 @@ urlpatterns = [
     path("dashboard/documenti/nuovo/", nuovo_documento, name="nuovo_documento"),
     path("dashboard/documenti/<int:pk>/modifica/", modifica_documento, name="modifica_documento"),
     path("dashboard/documenti/<int:pk>/elimina/", elimina_documento, name="elimina_documento"),
-    path("dashboard/documenti/<int:pk>/anteprima/", anteprima_documento, name="anteprima_documento"),
     path("dashboard/documenti/categorie/<int:pk>/rinomina/", rinomina_categoria, name="rinomina_categoria"),
     path("dashboard/documenti/categorie/<int:pk>/elimina/", elimina_categoria, name="elimina_categoria"),
 ]

@@ -154,14 +154,6 @@ def _is_ajax_request_documenti(request):
     return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
 
-@dashboard_richiesto
-def anteprima_documento(request, pk):
-    documento = get_object_or_404(File, pk=pk)
-    if not _is_ajax_request_documenti(request):
-        return redirect('gestione_documenti')
-    return render(request, 'partials/anteprima_documento.html', {'documento': documento})
-
-
 def _categorie_con_conteggio():
     # "num_documenti": mostrato nel badge di ogni cartella nell'albero.
     # "Prefetch" coi documenti gia' ordinati per nome: partials/albero_documenti.html

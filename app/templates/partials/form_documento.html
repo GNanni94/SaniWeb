@@ -1,48 +1,93 @@
 {% load crispy_forms_tags %}
-<form id="form-documento" method="post" action="{{ azione_url }}" enctype="multipart/form-data" data-azione-nuovo="{% url 'nuovo_documento' %}">
+{% comment %}
+"novalidate": disattiva la validazione nativa del browser sul form.
+{% endcomment %}
+<form id="form-documento" method="post" action="{{ azione_url }}" enctype="multipart/form-data" data-azione-nuovo="{% url 'nuovo_documento' %}" novalidate>
   {% csrf_token %}
   {% comment %}
-  Riquadro grigio che raggruppa "Categoria" e, solo quando si sta creando
-  una categoria al volo (select su "+ Nuova categoria"), il campo "Nome
-  categoria" - li presenta come un'unica scelta ("categoria esistente" O
-  "nuova categoria"), invece di due campi scollegati. Si accorcia da solo
-  quando "campoCategoriaNuova" torna "d-none" (selezionata una categoria
-  gia' esistente): nessun CSS/JS in piu' necessario, un contenitore senza
-  altezza fissa segue semplicemente lo spazio occupato dai figli visibili.
+  Il <select> di categoria resta nascosto: "Seleziona categoria" apre il
+  menu a tendina, "Crea categoria" mostra "Nome categoria" vuoto e
+  modificabile.
   {% endcomment %}
   <div class="gruppo-campo-documento">
-    {{ form.categoria|as_crispy_field }}
-    <div id="campoCategoriaNuova">
-      {{ form.categoria_nuova|as_crispy_field }}
+    <div id="campoCategoria">
+      {{ form.categoria|as_crispy_field }}
     </div>
+    <div class="d-flex flex-wrap justify-content-center gap-2">
+      <div class="dropdown">
+        <button type="button" id="btnSelezionaCategoria" class="btn btn-navbar rounded-pill dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          Seleziona categoria
+        </button>
+        <ul class="dropdown-menu dropdown-menu-categoria" aria-labelledby="btnSelezionaCategoria">
+          {% for cat in form.categoria.field.queryset %}
+          <li>
+            <a class="dropdown-item dropdown-item-categoria d-flex align-items-center gap-2" href="#" data-pk="{{ cat.pk }}" data-nome="{{ cat.nome_categoria }}">
+              {{ cat.nome_categoria }}
+              {% if form.categoria.value|stringformat:"s" == cat.pk|stringformat:"s" %}
+              <span class="pallino-pagina-corrente" aria-hidden="true"></span>
+              {% endif %}
+            </a>
+          </li>
+          {% empty %}
+          <li><span class="dropdown-item-text text-muted">Nessuna categoria esistente</span></li>
+          {% endfor %}
+        </ul>
+      </div>
+      <button type="button" id="btnCreaCategoria" class="btn btn-navbar rounded-pill">Crea categoria</button>
+    </div>
+    <div id="rigaNomeCategoria" class="campo-categoria-nascosto">
+      <label for="{{ form.categoria_nuova.id_for_label }}" class="form-label">Nome categoria</label>
+      {{ form.categoria_nuova }}
+    </div>
+    {% if form.categoria_nuova.errors %}
+    <div id="erroreCategoriaNuova" class="text-danger small mt-1">{{ form.categoria_nuova.errors|striptags }}</div>
+    {% endif %}
   </div>
   {% comment %}
-  Stesso raggruppamento sopra, per "File"/"File attuale" (mutuamente
-  esclusivi: nuovo documento mostra il primo, modifica il secondo, vedi
-  gestione-documenti.js/impostaCampoFileEsistente) insieme a "Nome file" -
-  la selezione del file e il suo nome, non due campi scollegati. Si
-  accorcia comunque da solo, esattamente della riga in meno di "File"/
-  "File attuale" quando l'altro dei due e' nascosto ("Nome file" invece
-  resta sempre visibile in entrambi i casi).
+  Stesso raggruppamento sopra, per "Nome file" insieme al campo file: unico
+  bottone a cerchio accanto al campo (non piu' una pillola "Carica File" a
+  parte), invece di due righe separate - il campo di testo si restringe
+  per lasciargli spazio.
   {% endcomment %}
   <div class="gruppo-campo-documento">
+    {% comment %}
+    Il vero campo file di Django (etichetta + <input>, vedi "#campoFile
+    #div_id_file" in documenti.css) resta nel DOM ma non si vede mai:
+    l'unico modo per aprire il selettore nativo del sistema operativo e'
+    il cerchio "#btnCaricaFile" qui sotto (gestione-documenti.js,
+    mostraSelettoreFile - un <input type=file> nascosto puo' comunque
+    essere aperto via ".click()" da un vero gesto dell'utente). L'icona
+    del cerchio cambia da upload a reload una volta scelto un file (o, in
+    modifica, per il file gia' presente - vedi gestione-documenti.js,
+    impostaCampoFileEsistente), stessa azione "mostraSelettoreFile" in
+    entrambi gli stati - solo l'icona segnala se si sta scegliendo un
+    file per la prima volta o sostituendo quello gia' scelto.
+    {% endcomment %}
     <div id="campoFile">
       {{ form.file|as_crispy_field }}
     </div>
-    {% comment %}
-    Mostrato solo in modifica (vedi gestione-documenti.js,
-    impostaCampoFileEsistente) al posto del campo file sopra, che in quel
-    caso viene disabilitato: il file non e' sostituibile da qui, l'input
-    disabilitato non viene inviato con il form e il server mantiene quello
-    gia' salvato (Pagine/forms.py, DocumentoForm.clean_file)
-    {% endcomment %}
-    <div id="campoFileAttuale" class="mb-3 d-none">
-      <label class="form-label">File attuale</label>
-      <div>
-        <a id="linkFileAttuale" href="#" target="_blank" class="text-reset"></a>
-      </div>
+    <label for="{{ form.nome_file.id_for_label }}" class="form-label">Nome file</label>
+    <div class="riga-nome-file d-flex align-items-center justify-content-center gap-2">
+      {{ form.nome_file }}
+      <button type="button" id="btnCaricaFile" class="btn btn-navbar rounded-circle btn-cerchio-cartella flex-shrink-0" title="Carica file" aria-label="Carica file">
+        <i class="bi bi-upload" id="iconaCaricaFile"></i>
+      </button>
     </div>
-    {{ form.nome_file|as_crispy_field }}
+    {% comment %}
+    Nome del file vero e proprio (con estensione, a differenza di "Nome
+    file" sopra), cliccabile per aprirlo - una verifica immediata che sia
+    il file giusto, senza dover prima salvare. Nascosto finche' non c'e'
+    ne' un file appena scelto ne' un file gia' presente in modifica (vedi
+    gestione-documenti.js, impostaCampoFileEsistente): un file appena
+    scelto (non ancora caricato sul server) apre un URL locale temporaneo
+    ("blob:", creato con URL.createObjectURL - revocato appena se ne
+    sceglie un altro, per non accumularli in memoria), un file gia'
+    presente apre il suo URL reale.
+    {% endcomment %}
+    <a id="linkFileSelezionato" href="#" target="_blank" class="d-none d-block small mt-2 text-reset text-truncate"></a>
+    {% if form.nome_file.errors %}
+    <div class="text-danger small mt-1">{{ form.nome_file.errors|striptags }}</div>
+    {% endif %}
   </div>
   <div class="d-flex justify-content-center">
     <button type="submit" class="btn btn-navbar rounded-pill">Salva</button>

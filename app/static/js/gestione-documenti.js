@@ -1,23 +1,25 @@
 // Gestione documenti: apertura/precompilazione del pop-up, salvataggio/
-// eliminazione di documenti e categorie via AJAX (fetch), caricamento
-// dell'anteprima PDF nel pannello destro - senza mai ricaricare la
-// pagina. Stesso pattern di gestione-avvisi.js (header X-Requested-With,
-// il server risponde con un frammento HTML che sostituisce quello
-// esistente nella pagina). Il vecchio filtro per categoria (tabella
-// piatta + colonna categorie separata) e' sparito: l'albero
-// (partials/albero_documenti.html) mostra sempre tutte le cartelle,
-// aperte/chiuse una alla volta via accordion Bootstrap nativo
-// (data-bs-toggle="collapse").
+// eliminazione di documenti e categorie via AJAX (fetch) - senza mai
+// ricaricare la pagina. Stesso pattern di gestione-avvisi.js (header
+// X-Requested-With, il server risponde con un frammento HTML che
+// sostituisce quello esistente nella pagina). L'albero
+// (partials/albero_documenti.html) mostra tutte le cartelle, aperte/
+// chiuse una alla volta via accordion Bootstrap nativo
+// (data-bs-toggle="collapse"). Cliccare il nome di un documento apre il
+// file in una nuova scheda, tranne mentre "Modifica"/"Elimina" e' armato
+// (impostaModalita piu' sotto).
+
 (function () {
     var albero = document.getElementById('albero-documenti');
-    var anteprima = document.getElementById('anteprima-documento');
     var modalEl = document.getElementById('modalDocumento');
     var modalBody = document.getElementById('modalDocumentoBody');
     var btnNuovo = document.getElementById('btnNuovoDocumento');
-    var btnRinominaCategoria = document.getElementById('btnRinominaCategoria');
-    var btnEliminaCategoria = document.getElementById('btnEliminaCategoria');
-    var wrapperAzioniCategoria = document.querySelector('.pannello-documenti-azioni-categoria');
-    if (!albero || !anteprima || !modalEl || !modalBody) {
+    var wrapperAzioni = document.getElementById('pannelloAzioni');
+    var btnModifica = document.getElementById('btnModifica');
+    var btnElimina = document.getElementById('btnElimina');
+    var btnAnnullaModalita = document.getElementById('btnAnnullaModalita');
+    var messaggioModalita = document.getElementById('messaggioModalita');
+    if (!albero || !modalEl || !modalBody) {
         return;
     }
     var modalBootstrap = new bootstrap.Modal(modalEl);
@@ -27,10 +29,6 @@
     // ripristinerebbe i valori (invalidi) appena sottomessi, non un form
     // vuoto, perche' il form ri-renderizzato dal server e' "bound"
     var formInizialeHTML = modalBody.innerHTML;
-    // Snapshot del messaggio iniziale del pannello anteprima
-    // (gestione_documenti.html): usato per tornarci quando il documento
-    // in anteprima viene eliminato (vedi sostituisciAlbero)
-    var anteprimaInizialeHTML = anteprima.innerHTML;
 
     function formCorrente() {
         return document.getElementById('form-documento');
@@ -45,58 +43,180 @@
         return tokenInput ? tokenInput.value : null;
     }
 
-    // Il campo "Nuova categoria" serve solo quando la select e' sull'opzione
-    // vuota ("+ Nuova categoria", vedi Pagine/forms.py) - altrimenti resta
-    // nascosto, cosi' non si rischia di compilarlo per sbaglio insieme a
-    // una categoria gia' scelta
-    function aggiornaVisibilitaCategoriaNuova(f) {
-        var select = f.elements['categoria'];
-        var campo = document.getElementById('campoCategoriaNuova');
-        if (!select || !campo) {
-            return;
+    // Testo dell'opzione correntemente selezionata in "categoria" (il vero
+    // <select>, sempre nascosto - vedi "#campoCategoria #div_id_categoria"
+    // in documenti.css): usato per mostrare il nome nel campo di sola
+    // lettura "Nome categoria" senza un giro separato sul server, dato che
+    // le opzioni sono gia' tutte nel DOM
+    function testoOpzioneSelezionata(select) {
+        if (!select || select.selectedIndex < 0) {
+            return '';
         }
-        campo.classList.toggle('d-none', select.value !== '');
+        return select.options[select.selectedIndex].textContent;
     }
 
-    function agganciaToggleCategoria() {
+    // Sposta il pallino ".pallino-pagina-corrente" sulla voce di pk dato
+    // nel menu "Seleziona categoria", o lo rimuove se pk e' nullo
+    function aggiornaPallinoCategoria(f, pk) {
+        var menu = f ? f.querySelector('.dropdown-menu-categoria') : null;
+        if (!menu) {
+            return;
+        }
+        var precedente = menu.querySelector('.pallino-pagina-corrente');
+        if (precedente) {
+            precedente.remove();
+        }
+        if (!pk) {
+            return;
+        }
+        var voce = menu.querySelector('.dropdown-item-categoria[data-pk="' + pk + '"]');
+        if (voce) {
+            var pallino = document.createElement('span');
+            pallino.className = 'pallino-pagina-corrente';
+            pallino.setAttribute('aria-hidden', 'true');
+            voce.appendChild(pallino);
+        }
+    }
+
+    // Rimuove "#erroreCategoriaNuova" dal form, se presente
+    function nascondiErroreCategoriaNuova(f) {
+        var errore = f ? f.querySelector('#erroreCategoriaNuova') : null;
+        if (errore) {
+            errore.remove();
+        }
+    }
+
+    // Imposta il <select> "categoria" e il campo "Nome categoria" (di sola
+    // lettura) sulla categoria scelta dal menu "Seleziona categoria"
+    function impostaCategoriaEsistente(pk, nome) {
         var f = formCorrente();
-        if (!f || !f.elements['categoria']) {
+        var riga = document.getElementById('rigaNomeCategoria');
+        var campoNome = f ? f.elements['categoria_nuova'] : null;
+        if (!f || !riga || !campoNome || !f.elements['categoria']) {
             return;
         }
-        aggiornaVisibilitaCategoriaNuova(f);
-        f.elements['categoria'].addEventListener('change', function () {
-            aggiornaVisibilitaCategoriaNuova(f);
-        });
+        f.elements['categoria'].value = pk;
+        campoNome.value = nome;
+        campoNome.readOnly = true;
+        riga.classList.remove('campo-categoria-nascosto');
+        aggiornaPallinoCategoria(f, pk);
+        nascondiErroreCategoriaNuova(f);
     }
 
-    // In modifica il file non e' sostituibile da qui: si mostra un link al
-    // file gia' caricato al posto dell'input, disabilitato cosi' non viene
-    // inviato col form (il server mantiene quello attuale, vedi
-    // Pagine/forms.py, DocumentoForm.clean_file) e non blocca il submit con
-    // la validazione HTML5 "required" del campo (i campi disabilitati non
-    // vengono validati)
-    function impostaCampoFileEsistente(f, url, nome) {
-        var inputFile = f.elements['file'];
-        var campoFile = document.getElementById('campoFile');
-        var campoAttuale = document.getElementById('campoFileAttuale');
-        var linkAttuale = document.getElementById('linkFileAttuale');
-        if (!inputFile || !campoFile || !campoAttuale || !linkAttuale) {
+    // Svuota il <select> "categoria" e mostra "Nome categoria" vuoto e modificabile
+    function attivaCreaCategoria() {
+        var f = formCorrente();
+        var riga = document.getElementById('rigaNomeCategoria');
+        var campoNome = f ? f.elements['categoria_nuova'] : null;
+        if (!f || !riga || !campoNome || !f.elements['categoria']) {
             return;
         }
-        inputFile.disabled = true;
-        campoFile.classList.add('d-none');
-        linkAttuale.href = url || '#';
-        linkAttuale.textContent = nome || '';
-        campoAttuale.classList.remove('d-none');
+        f.elements['categoria'].value = '';
+        campoNome.value = '';
+        campoNome.readOnly = false;
+        riga.classList.remove('campo-categoria-nascosto');
+        aggiornaPallinoCategoria(f, null);
+        nascondiErroreCategoriaNuova(f);
+    }
+
+    // Riallinea le due pillole/"Nome categoria" allo stato gia' presente
+    // nel form corrente (il vero <select> e "categoria_nuova", entrambi
+    // "bound" - valorizzati dal server dopo un errore di validazione, o
+    // dalla precompilazione della cartella aperta in "+ Nuovo documento"
+    // qui sotto): serve perche' in entrambi i casi il markup fresco non
+    // sa nulla dello stato solo-client (sola lettura o meno, riga visibile
+    // o meno) impostato dai click sulle pillole
+    function sincronizzaStatoCategoria() {
+        var f = formCorrente();
+        var riga = document.getElementById('rigaNomeCategoria');
+        if (!f || !riga || !f.elements['categoria'] || !f.elements['categoria_nuova']) {
+            return;
+        }
+        var select = f.elements['categoria'];
+        var campoNome = f.elements['categoria_nuova'];
+        if (select.value) {
+            campoNome.value = testoOpzioneSelezionata(select);
+            campoNome.readOnly = true;
+            riga.classList.remove('campo-categoria-nascosto');
+        } else if (campoNome.value.trim()) {
+            campoNome.readOnly = false;
+            riga.classList.remove('campo-categoria-nascosto');
+        } else {
+            campoNome.readOnly = false;
+            riga.classList.add('campo-categoria-nascosto');
+        }
+    }
+
+    // In modifica il file non ha bisogno di essere ri-scelto per forza:
+    // l'icona del cerchio "Carica File" passa da upload a reload per
+    // segnalare che un file e' gia' presente (nuovo documento -> file
+    // scelto, o modifica -> file gia' salvato), senza comparire/sparire
+    // una riga separata - il bottone e la sua azione (mostraSelettoreFile)
+    // restano gli stessi in entrambi gli stati, cambia solo l'icona. Sotto
+    // "Nome file" compare anche un link cliccabile al file vero e proprio
+    // (nome con estensione, url passato da chi chiama - un file appena
+    // scelto usa un URL locale temporaneo, vedi il listener "change" piu'
+    // sotto), verifica immediata che sia quello giusto senza dover prima
+    // salvare
+    function impostaCampoFileEsistente(url, nome) {
+        var icona = document.getElementById('iconaCaricaFile');
+        var btn = document.getElementById('btnCaricaFile');
+        var link = document.getElementById('linkFileSelezionato');
+        if (!icona || !btn) {
+            return;
+        }
+        icona.classList.remove('bi-upload');
+        icona.classList.add('bi-arrow-repeat');
+        btn.title = 'Cambia file';
+        btn.setAttribute('aria-label', 'Cambia file');
+        if (link) {
+            link.href = url || '#';
+            link.textContent = nome || '';
+            link.classList.remove('d-none');
+        }
+    }
+
+    // Click sul cerchio "Carica File"/"Cambia file" (vedi
+    // impostaCampoFileEsistente sopra): apre subito la finestra di scelta
+    // file del sistema operativo. Il vero <input type="file"> (generato da
+    // crispy, vedi "#campoFile #div_id_file" in documenti.css) resta
+    // sempre nascosto, mai mostrato a video - un input file nascosto puo'
+    // comunque essere aperto via ".click()" da un vero gesto dell'utente,
+    // tecnica comune per bottoni "Carica file" personalizzati
+    function mostraSelettoreFile() {
+        var f = formCorrente();
+        var inputFile = f ? f.elements['file'] : null;
+        if (inputFile) {
+            inputFile.click();
+        }
     }
 
     // null = modal in modalita' "nuovo documento"; altrimenti {url, nome}
-    // del file del documento in modifica - serve a riapplicare
-    // impostaCampoFileEsistente() dopo che un errore di validazione
-    // sostituisce l'intero modalBody con un form fresco dal server (che non
-    // sa nulla di questo stato solo-client), stesso motivo per cui anche
-    // agganciaToggleCategoria() viene rieseguita li' sotto
+    // del file gia' presente (modifica) o appena scelto (nuovo documento) -
+    // serve a riapplicare impostaCampoFileEsistente() dopo che un errore
+    // di validazione sostituisce l'intero modalBody con un form fresco dal
+    // server (che non sa nulla di questo stato solo-client), stesso
+    // motivo per cui anche sincronizzaStatoCategoria() viene rieseguita li'
+    // sotto
     var fileAttualeInModifica = null;
+
+    // Oggetto File dell'ultimo file scelto dal selettore, non ancora caricato
+    var fileNuovoScelto = null;
+
+    // URL locale temporaneo ("blob:", vedi il listener "change" piu' sotto)
+    // dell'ultimo file appena scelto (non ancora caricato sul server): va
+    // revocato esplicitamente quando non serve piu' (se ne sceglie un
+    // altro, o il modal torna alla modalita' "nuovo documento"), altrimenti
+    // resterebbe allocato in memoria per tutta la vita della pagina
+    var blobFileScelto = null;
+
+    function revocaBlobFileScelto() {
+        if (blobFileScelto) {
+            URL.revokeObjectURL(blobFileScelto);
+            blobFileScelto = null;
+        }
+        fileNuovoScelto = null;
+    }
 
     // null = nessuna categoria in rinomina; altrimenti l'"accordion-item"
     // (l'intero blocco cartella, non solo l'intestazione) la cui rinomina
@@ -104,6 +224,9 @@
     // ripristinando testo/input senza dover tracciare pk e nome originale
     // separatamente
     var rigaCategoriaInRinomina = null;
+
+    // null = nessuna modalita' armata; altrimenti 'modifica' o 'elimina'
+    var modalita = null;
 
     // Legge dal DOM quale cartella e' attualmente aperta (al piu' una,
     // l'accordion Bootstrap le chiude a vicenda via "data-bs-parent"):
@@ -119,51 +242,63 @@
         return item ? item.dataset.categoriaPk : null;
     }
 
-    // Riga del documento correntemente in anteprima (".active", vedi
-    // mostraAnteprimaDocumento) - valida solo se la sua cartella e'
-    // ancora aperta: chiudendo la cartella la riga resta "active" nel DOM
-    // (il collapse la nasconde soltanto via CSS) ma i bottoni fissi non
-    // devono restare agganciati a un documento che non si vede piu'
-    function documentoSelezionatoAttivo() {
-        var riga = albero.querySelector('.list-group-item.active');
-        if (!riga) {
-            return null;
+    // Mostra/nasconde il pannello "Modifica"/"Elimina" in base alla
+    // cartella aperta, e richiama aggiornaVistaModalita()
+    function aggiornaBottoniAzione() {
+        if (wrapperAzioni) {
+            wrapperAzioni.classList.toggle('azioni-categoria-nascosta', cartellaApertaPk() === null);
         }
-        var corpo = riga.closest('.accordion-collapse');
-        return (corpo && corpo.classList.contains('show')) ? riga : null;
+        aggiornaVistaModalita();
     }
 
-    // Rinomina/Elimina categoria (bottoni fissi sul contorno del riquadro,
-    // vedi partials/albero_documenti.html) agiscono sul documento
-    // selezionato se ce n'e' uno, altrimenti sulla cartella correntemente
-    // aperta - disabilitati se non c'e' ne' l'uno ne' l'altro. Richiamata
-    // dopo ogni apertura/chiusura reale (eventi Bootstrap
-    // "shown.bs.collapse"/"hidden.bs.collapse", vedi sotto), dopo ogni
-    // riapertura sintetica via riapriCartella() (che non passa da
-    // bootstrap.Collapse quindi non genera quegli eventi) e dopo ogni
-    // cambio di documento in anteprima (mostraAnteprimaDocumento)
-    function aggiornaBottoniAzione() {
-        var riga = documentoSelezionatoAttivo();
-        var pkCategoria = cartellaApertaPk();
-        var nessunaSelezione = !riga && pkCategoria === null;
-        if (wrapperAzioniCategoria) {
-            // "azioni-categoria-nascosta" invece di "d-none": stessa
-            // funzione (nascosti del tutto, ne' cliccabili ne'
-            // raggiungibili da tastiera - "disabled" sui due bottoni,
-            // gestito qui in passato, era ridondante ed e' stato tolto
-            // insieme all'attributo "disabled" nel template) ma
-            // transizionabile in altezza/opacita' (vedi documenti.css),
-            // "display" non lo e'
-            wrapperAzioniCategoria.classList.toggle('azioni-categoria-nascosta', nessunaSelezione);
+    // Toglie (attivo=false) o ripristina (attivo=true) "data-bs-toggle" sul
+    // bottone della cartella aperta, salvando il valore originale in
+    // "data-bs-toggle-salvato"
+    function impostaToggleCartelle(attivo) {
+        var disabilitati = albero.querySelectorAll('.accordion-button[data-bs-toggle-salvato]');
+        Array.prototype.forEach.call(disabilitati, function (bottone) {
+            bottone.setAttribute('data-bs-toggle', bottone.dataset.bsToggleSalvato);
+            delete bottone.dataset.bsToggleSalvato;
+        });
+        if (attivo) {
+            return;
         }
-        if (btnRinominaCategoria) {
-            btnRinominaCategoria.title = riga ? 'Modifica documento' : 'Rinomina categoria';
-            btnRinominaCategoria.setAttribute('aria-label', btnRinominaCategoria.title);
+        var pk = cartellaApertaPk();
+        var bottone = pk !== null ? document.querySelector('#cartella-' + pk + ' .accordion-button') : null;
+        if (bottone && bottone.hasAttribute('data-bs-toggle')) {
+            bottone.dataset.bsToggleSalvato = bottone.getAttribute('data-bs-toggle');
+            bottone.removeAttribute('data-bs-toggle');
         }
-        if (btnEliminaCategoria) {
-            btnEliminaCategoria.title = riga ? 'Elimina documento' : 'Elimina categoria';
-            btnEliminaCategoria.setAttribute('aria-label', btnEliminaCategoria.title);
+    }
+
+    // Mostra/nasconde il bottone Annulla e il messaggio guida, evidenzia
+    // le righe documento selezionabili, attiva/disattiva il toggle della cartella aperta
+    function aggiornaVistaModalita() {
+        if (btnAnnullaModalita) {
+            btnAnnullaModalita.classList.toggle('d-none', !modalita);
         }
+        if (messaggioModalita) {
+            messaggioModalita.classList.toggle('d-none', !modalita);
+            if (modalita) {
+                messaggioModalita.textContent = 'Scegli la categoria o un file al suo interno';
+            }
+        }
+        impostaToggleCartelle(!modalita);
+        var righe = albero.querySelectorAll('.list-group-item[data-pk]');
+        Array.prototype.forEach.call(righe, function (riga) {
+            riga.classList.toggle('documento-riga-selezionabile', !!modalita);
+        });
+    }
+
+    // Arma "azione", o la disarma se era gia' quella attiva
+    function impostaModalita(azione) {
+        modalita = modalita === azione ? null : azione;
+        aggiornaVistaModalita();
+    }
+
+    function annullaModalita() {
+        modalita = null;
+        aggiornaVistaModalita();
     }
 
     // Riapplica lo stato "aperta" a una cartella dopo un refresh AJAX
@@ -261,33 +396,7 @@
         });
     }
 
-    // Apre il modal precompilato per modificare "riga" (l'elemento
-    // "[data-pk]" di un documento): niente piu' matita per riga (rimossa,
-    // vedi albero_documenti.html), solo il bottone fisso in cima quando
-    // questo e' il documento selezionato (vedi documentoSelezionatoAttivo/
-    // aggiornaBottoniAzione) - "data-url-modifica" e' sulla riga stessa
-    function apriModalModificaDocumento(riga) {
-        var f = formCorrente();
-        if (!f) {
-            return;
-        }
-        f.action = riga.dataset.urlModifica;
-        f.elements['nome_file'].value = riga.dataset.nomeFile;
-        f.elements['categoria'].value = riga.dataset.categoriaPk;
-        aggiornaVisibilitaCategoriaNuova(f);
-        fileAttualeInModifica = { url: riga.dataset.fileUrl, nome: riga.dataset.nomeFile };
-        impostaCampoFileEsistente(f, fileAttualeInModifica.url, fileAttualeInModifica.nome);
-        modalBootstrap.show();
-    }
-
-    // Stessa fattorizzazione di apriModalModificaDocumento, per il cestino
-    function confermaEliminaDocumento(riga) {
-        if (!window.confirm('Eliminare questo documento?')) {
-            return;
-        }
-        postConCsrfESostituisciAlbero(riga.dataset.urlElimina);
-    }
-
+    // Chiede conferma ed elimina la categoria; ritorna true/false a seconda della conferma
     function eliminaCategoria(item) {
         var numeroSpan = item.querySelector('.numero-documenti-categoria');
         var numDocumenti = numeroSpan ? (parseInt(numeroSpan.textContent, 10) || 0) : 0;
@@ -295,58 +404,10 @@
             ? 'Eliminare la categoria "' + item.dataset.nomeCategoria + '"? Verranno eliminati anche i ' + numDocumenti + ' documenti al suo interno.'
             : 'Eliminare la categoria "' + item.dataset.nomeCategoria + '"?';
         if (!window.confirm(messaggio)) {
-            return;
+            return false;
         }
         postConCsrfESostituisciAlbero(item.dataset.urlEliminaCategoria);
-    }
-
-    // Click sul documento gia' selezionato (vedi il chiamante piu' sotto):
-    // lo deseleziona invece di rifare la stessa fetch, il pannello torna al
-    // messaggio iniziale e i bottoni fissi tornano ad agire sulla cartella
-    function deselezionaDocumento() {
-        albero.querySelectorAll('.list-group-item.active').forEach(function (r) {
-            r.classList.remove('active');
-        });
-        anteprima.innerHTML = anteprimaInizialeHTML;
-        aggiornaBottoniAzione();
-    }
-
-    // Fetch GET (nessun CSRF necessario) verso l'endpoint di sola lettura
-    // anteprima_documento (Pagine/views.py): inietta il PDF nel pannello
-    // destro ed evidenzia la riga cliccata, rimuovendo l'evidenziazione
-    // dalla precedente
-    function mostraAnteprimaDocumento(pk, url) {
-        if (!url) {
-            return;
-        }
-        fetch(url, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        }).then(function (response) {
-            return response.text().then(function (html) {
-                if (!response.ok) {
-                    // pk non piu' valido (es. eliminato da un'altra
-                    // scheda) o altro errore imprevisto: un reload mostra
-                    // lo stato reale
-                    window.location.reload();
-                    return;
-                }
-                if (window.Idiomorph) {
-                    Idiomorph.morph(anteprima, html, { morphStyle: 'innerHTML' });
-                } else {
-                    anteprima.innerHTML = html;
-                }
-                albero.querySelectorAll('.list-group-item.active').forEach(function (r) {
-                    r.classList.remove('active');
-                });
-                var rigaCliccata = document.getElementById('documento-riga-' + pk);
-                if (rigaCliccata) {
-                    rigaCliccata.classList.add('active');
-                }
-                aggiornaBottoniAzione();
-            });
-        }).catch(function () {
-            window.location.reload();
-        });
+        return true;
     }
 
     // Riporta nello snapshot del form vuoto (usato da "+ Nuovo documento")
@@ -354,15 +415,40 @@
     // server: senza questo, una categoria creata al volo (campo "Nome
     // categoria" in form_documento.html) resterebbe invisibile li' finche'
     // non si ricarica l'intera pagina - lo snapshot e' catturato una sola
-    // volta all'avvio (vedi sopra) e altrimenti non si aggiorna mai da solo
+    // volta all'avvio (vedi sopra) e altrimenti non si aggiorna mai da solo.
+    // Ricostruisce anche le voci del menu "Seleziona categoria" dalle stesse opzioni.
     function aggiornaOpzioniCategoriaNelFormVuoto(opzioniHTML) {
         var tmp = document.createElement('div');
         tmp.innerHTML = formInizialeHTML;
         var select = tmp.querySelector('#id_categoria');
-        if (!select) {
+        var menu = tmp.querySelector('.dropdown-menu-categoria');
+        if (!select || !menu) {
             return;
         }
         select.innerHTML = opzioniHTML;
+        menu.innerHTML = '';
+        Array.prototype.forEach.call(select.options, function (opzione) {
+            if (!opzione.value) {
+                return;
+            }
+            var li = document.createElement('li');
+            var a = document.createElement('a');
+            a.className = 'dropdown-item dropdown-item-categoria d-flex align-items-center gap-2';
+            a.href = '#';
+            a.dataset.pk = opzione.value;
+            a.dataset.nome = opzione.textContent;
+            a.textContent = opzione.textContent;
+            li.appendChild(a);
+            menu.appendChild(li);
+        });
+        if (!menu.children.length) {
+            var liVuoto = document.createElement('li');
+            var span = document.createElement('span');
+            span.className = 'dropdown-item-text text-muted';
+            span.textContent = 'Nessuna categoria esistente';
+            liVuoto.appendChild(span);
+            menu.appendChild(liVuoto);
+        }
         formInizialeHTML = tmp.innerHTML;
     }
 
@@ -378,11 +464,9 @@
         }
 
         // Stato puramente client-side, letto dal vivo dal DOM PRIMA dello
-        // swap (il markup fresco dal server non sa cosa fosse aperto/in
-        // anteprima prima del refresh)
+        // swap (il markup fresco dal server non sa quale cartella fosse
+        // aperta prima del refresh)
         var pkCartellaAperta = cartellaApertaPk();
-        var rigaAttiva = albero.querySelector('.list-group-item.active');
-        var pkDocumentoInAnteprima = rigaAttiva ? rigaAttiva.dataset.pk : null;
 
         // Idiomorph (base.html) preserva le cartelle/righe invariate
         // invece di ricrearle tutte - stesso motivo/test di
@@ -404,24 +488,6 @@
         if (pkCartellaAperta !== null) {
             riapriCartella(pkCartellaAperta);
         }
-
-        // Ripristina l'evidenziazione del documento in anteprima se esiste
-        // ancora; altrimenti (appena eliminato, oppure la sua cartella e'
-        // stata eliminata a cascata) il pannello torna al messaggio
-        // iniziale
-        if (pkDocumentoInAnteprima !== null) {
-            var rigaAncoraPresente = document.getElementById('documento-riga-' + pkDocumentoInAnteprima);
-            if (rigaAncoraPresente) {
-                rigaAncoraPresente.classList.add('active');
-            } else {
-                anteprima.innerHTML = anteprimaInizialeHTML;
-            }
-        }
-
-        // Dopo aver ripristinato sia la cartella aperta che il documento in
-        // anteprima: i bottoni fissi devono riflettere lo stato finale, non
-        // quello a meta' (es. cartella riaperta ma documento non ancora
-        // ri-evidenziato)
         aggiornaBottoniAzione();
     }
 
@@ -440,9 +506,19 @@
                     // gli errori: sostituisce il contenuto del modal, che
                     // resta aperto
                     modalBody.innerHTML = html;
-                    agganciaToggleCategoria();
+                    sincronizzaStatoCategoria();
                     if (fileAttualeInModifica) {
-                        impostaCampoFileEsistente(formCorrente(), fileAttualeInModifica.url, fileAttualeInModifica.nome);
+                        impostaCampoFileEsistente(fileAttualeInModifica.url, fileAttualeInModifica.nome);
+                    } else if (fileNuovoScelto) {
+                        // Reimbusta il file scelto nel nuovo <input type=file> tramite DataTransfer
+                        var fFresco = formCorrente();
+                        var inputFile = fFresco ? fFresco.elements['file'] : null;
+                        if (inputFile) {
+                            var trasferimento = new DataTransfer();
+                            trasferimento.items.add(fileNuovoScelto);
+                            inputFile.files = trasferimento.files;
+                        }
+                        impostaCampoFileEsistente(blobFileScelto, fileNuovoScelto.name);
                     }
                 } else {
                     // Qualunque altro errore (403 CSRF scaduto, 404, 500,
@@ -484,7 +560,44 @@
         });
     }
 
-    agganciaToggleCategoria();
+    // Apre il modal precompilato con i dati del documento scelto, per la sua modifica
+    function apriModaleModificaDocumento(riga) {
+        revocaBlobFileScelto();
+        fileAttualeInModifica = null;
+        modalBody.innerHTML = formInizialeHTML;
+        var f = formCorrente();
+        if (!f) {
+            return;
+        }
+        f.action = riga.dataset.urlModificaDocumento;
+        if (f.elements['nome_file']) {
+            f.elements['nome_file'].value = riga.dataset.nomeFile || '';
+        }
+        var categoriaPk = riga.dataset.categoriaPk;
+        var vocePillola = f.querySelector('.dropdown-item-categoria[data-pk="' + categoriaPk + '"]');
+        if (vocePillola) {
+            impostaCategoriaEsistente(categoriaPk, vocePillola.dataset.nome);
+        }
+        var linkFile = riga.querySelector('.documento-nome-btn');
+        if (linkFile && riga.dataset.fileNome) {
+            fileAttualeInModifica = { url: linkFile.href, nome: riga.dataset.fileNome.split('/').pop() };
+            impostaCampoFileEsistente(fileAttualeInModifica.url, fileAttualeInModifica.nome);
+        }
+        annullaModalita();
+        modalBootstrap.show();
+    }
+
+    // Chiede conferma ed elimina il documento scelto
+    function eliminaDocumentoScelto(riga) {
+        var nome = riga.dataset.nomeFile || 'questo documento';
+        if (!window.confirm('Eliminare "' + nome + '"?')) {
+            return;
+        }
+        postConCsrfESostituisciAlbero(riga.dataset.urlEliminaDocumento);
+        annullaModalita();
+    }
+
+    sincronizzaStatoCategoria();
 
     // Apertura/chiusura reale di una cartella (click su una pillola, non la
     // riapertura sintetica di riapriCartella() dopo un refresh, gestita a
@@ -500,21 +613,6 @@
     // reattivita' immediata al click e' gestita a parte qui sotto
     albero.addEventListener('shown.bs.collapse', aggiornaBottoniAzione);
     albero.addEventListener('hidden.bs.collapse', aggiornaBottoniAzione);
-
-    // Chiusura di una cartella che contiene il documento selezionato: lo
-    // deseleziona subito, prima ancora che l'animazione di chiusura finisca
-    // ("hide.bs.collapse" parte all'inizio della chiusura - qui va bene
-    // usarlo nonostante la nota sopra, perche' non dipende dallo stato
-    // "collapsed" del bottone ma solo da quale riga sia gia' attiva e da
-    // quale corpo si sta chiudendo) - "event.target" e' il
-    // "corpoCartella{pk}" che si sta chiudendo, "contains" verifica se la
-    // riga attiva e' al suo interno
-    albero.addEventListener('hide.bs.collapse', function (event) {
-        var rigaAttiva = albero.querySelector('.list-group-item.active');
-        if (rigaAttiva && event.target.contains(rigaAttiva)) {
-            deselezionaDocumento();
-        }
-    });
 
     // Reattivita' immediata al click su una pillola (o al tasto Invio/
     // Spazio da tastiera, che sotto simula un click vero - vedi il
@@ -533,40 +631,28 @@
         }
     });
 
-    if (btnRinominaCategoria) {
-        btnRinominaCategoria.addEventListener('click', function () {
-            var riga = documentoSelezionatoAttivo();
-            if (riga) {
-                apriModalModificaDocumento(riga);
-                return;
-            }
-            var pk = cartellaApertaPk();
-            if (pk !== null) {
-                iniziaRinominaCategoria(pk);
-            }
+    if (btnModifica) {
+        btnModifica.addEventListener('click', function () {
+            impostaModalita('modifica');
         });
     }
 
-    if (btnEliminaCategoria) {
-        btnEliminaCategoria.addEventListener('click', function () {
-            var riga = documentoSelezionatoAttivo();
-            if (riga) {
-                confermaEliminaDocumento(riga);
-                return;
-            }
-            var pk = cartellaApertaPk();
-            var item = pk !== null ? document.getElementById('cartella-' + pk) : null;
-            if (item) {
-                eliminaCategoria(item);
-            }
+    if (btnElimina) {
+        btnElimina.addEventListener('click', function () {
+            impostaModalita('elimina');
         });
+    }
+
+    if (btnAnnullaModalita) {
+        btnAnnullaModalita.addEventListener('click', annullaModalita);
     }
 
     if (btnNuovo) {
         btnNuovo.addEventListener('click', function () {
+            annullaModalita();
             fileAttualeInModifica = null;
+            revocaBlobFileScelto();
             modalBody.innerHTML = formInizialeHTML;
-            agganciaToggleCategoria();
             // Precompila la categoria della cartella aperta, se c'e'
             // (comodo per aggiungere piu' documenti di fila alla stessa
             // cartella)
@@ -575,9 +661,9 @@
                 var f = formCorrente();
                 if (f && f.elements['categoria']) {
                     f.elements['categoria'].value = pkCartellaAperta;
-                    aggiornaVisibilitaCategoriaNuova(f);
                 }
             }
+            sincronizzaStatoCategoria();
         });
     }
 
@@ -593,19 +679,43 @@
             // di arrivarci, senza toccare il comportamento nativo
             // dell'input (focus, selezione testo)
             event.stopPropagation();
+        }
+    });
+
+    // Click mentre "Modifica"/"Elimina" e' armato: agisce sulla categoria
+    // aperta o su un documento al suo interno
+    albero.addEventListener('click', function (event) {
+        if (!modalita) {
             return;
         }
-
-        var btnNomeDocumento = event.target.closest('.documento-nome-btn');
-        if (btnNomeDocumento) {
-            var rigaDocumento = btnNomeDocumento.closest('[data-pk]');
-            if (rigaDocumento) {
-                if (rigaDocumento.classList.contains('active')) {
-                    deselezionaDocumento();
-                } else {
-                    mostraAnteprimaDocumento(rigaDocumento.dataset.pk, rigaDocumento.dataset.urlAnteprima);
-                }
+        var pk = cartellaApertaPk();
+        if (pk === null) {
+            return;
+        }
+        var bottoneCategoria = event.target.closest('.accordion-button');
+        if (bottoneCategoria) {
+            var item = bottoneCategoria.closest('.accordion-item[data-categoria-pk]');
+            if (!item || item.dataset.categoriaPk !== pk) {
+                return;
             }
+            event.preventDefault();
+            if (modalita === 'modifica') {
+                iniziaRinominaCategoria(pk);
+                annullaModalita();
+            } else if (modalita === 'elimina' && eliminaCategoria(item)) {
+                annullaModalita();
+            }
+            return;
+        }
+        var riga = event.target.closest('.list-group-item[data-pk]');
+        if (!riga) {
+            return;
+        }
+        event.preventDefault();
+        if (modalita === 'modifica') {
+            apriModaleModificaDocumento(riga);
+        } else if (modalita === 'elimina') {
+            eliminaDocumentoScelto(riga);
         }
     });
 
@@ -653,5 +763,57 @@
         }
         event.preventDefault();
         salvaDocumento(f);
+    });
+
+    // Delegato su "modalBody" (stabile, mai ricreato - solo il suo
+    // "innerHTML" cambia tra un documento e l'altro o dopo un errore di
+    // validazione) invece che sul bottone stesso, che altrimenti andrebbe
+    // riagganciato ad ogni sostituzione del contenuto del modal
+    modalBody.addEventListener('click', function (event) {
+        if (event.target.closest('#btnCaricaFile')) {
+            mostraSelettoreFile();
+            return;
+        }
+        if (event.target.closest('#btnCreaCategoria')) {
+            attivaCreaCategoria();
+            return;
+        }
+        var voceCategoria = event.target.closest('.dropdown-item-categoria');
+        if (voceCategoria) {
+            // "href=#" e' solo un aggancio per il menu Bootstrap: senza
+            // preventDefault la pagina salterebbe in cima
+            event.preventDefault();
+            if (voceCategoria.dataset.pk) {
+                impostaCategoriaEsistente(voceCategoria.dataset.pk, voceCategoria.dataset.nome);
+            }
+            return;
+        }
+    });
+
+    // Scelto un file dal selettore nativo (vedi mostraSelettoreFile sopra):
+    // l'icona del cerchio passa da upload a reload e sotto compare il link
+    // cliccabile al file (impostaCampoFileEsistente) - qui con un URL
+    // locale temporaneo ("blob:", URL.createObjectURL), dato che il file
+    // non e' ancora stato caricato sul server: la precedente (se c'era,
+    // cambiando scelta piu' volte) va revocata prima, altrimenti restano
+    // allocate in memoria finche' non si chiude la pagina. Precompila
+    // anche "Nome file" con lo stesso nome (senza estensione, un "Nome"
+    // non deve ripetere ".pdf" - gia' garantito PDF da
+    // DocumentoForm.clean_file): il cliente lo trova gia' pronto, e lo
+    // cambia solo se vuole un nome diverso invece di doverlo scrivere da
+    // zero ogni volta
+    modalBody.addEventListener('change', function (event) {
+        var input = event.target.closest('#form-documento [name="file"]');
+        if (input && input.files && input.files[0]) {
+            var file = input.files[0];
+            revocaBlobFileScelto();
+            blobFileScelto = URL.createObjectURL(file);
+            fileNuovoScelto = file;
+            impostaCampoFileEsistente(blobFileScelto, file.name);
+            var f = formCorrente();
+            if (f && f.elements['nome_file']) {
+                f.elements['nome_file'].value = file.name.replace(/\.[^.]+$/, '');
+            }
+        }
     });
 })();
