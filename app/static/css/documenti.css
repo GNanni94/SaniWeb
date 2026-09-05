@@ -30,30 +30,46 @@
   border-top-color: #fff;
 }
 
-/* Categoria selezionata nella colonna sinistra di gestione_documenti.html
-   (partials/tabella_documenti.html, evidenziata in JS da
-   gestione-documenti.js/applicaFiltroCategoria con la classe ".active" di
-   Bootstrap): stesso blu della navbar invece dell'azzurro "primary" di
-   default di Bootstrap, coerente col resto del sito */
-#listaCategorieDocumenti .list-group-item.active {
+/* Documento evidenziato nell'albero (partials/albero_documenti.html,
+   gestione-documenti.js/mostraAnteprimaDocumento aggiunge/rimuove la
+   classe ".active" di Bootstrap): stesso blu della navbar invece
+   dell'azzurro "primary" di default di Bootstrap, coerente col resto del
+   sito - sostituisce la vecchia evidenziazione della categoria
+   selezionata (rimossa insieme al filtro lato client) */
+#albero-documenti .list-group-item.active {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
 }
 
-/* L'icona "bi-file-earmark" e il numero al suo interno hanno un colore blu
-   navbar impostato inline (stesso sfondo pagina attorno, vedi
-   tabella_documenti.html) per leggersi sullo sfondo bianco di riposo: una
-   volta selezionata la categoria lo sfondo del bottone diventa blu navbar
-   (sopra), quindi vanno ribaltati in bianco per restare leggibili.
-   "!important" necessario per vincere lo "style" inline, piu' specifico di
-   qualunque selettore in un foglio esterno */
-#listaCategorieDocumenti .list-group-item.active i,
-#listaCategorieDocumenti .list-group-item.active span {
+/* Nome file e date, sullo sfondo blu navbar del documento evidenziato
+   sopra: vanno ribaltati in bianco per restare leggibili, stesso
+   principio gia' in uso per l'icona/numero della cartella qui sotto.
+   "!important" necessario per vincere il colore di default del testo,
+   piu' specifico di un semplice selettore di classe */
+#albero-documenti .list-group-item.active .documento-nome-btn,
+#albero-documenti .list-group-item.active .text-muted {
   color: #fff !important;
 }
 
+/* Icone Rinomina/Elimina categoria nell'intestazione dell'accordion
+   (albero_documenti.html): visibili solo quando questa e' la cartella
+   attualmente aperta - sostituiscono i vecchi #btnRinominaCategoria/
+   #btnEliminaCategoria, fissi in cima al riquadro e disabilitati finche'
+   non si selezionava una categoria. "collapsed" e' la classe che
+   Bootstrap stesso aggiunge/rimuove sul div ".accordion-button" quando il
+   collapse collegato si chiude/apre (vedi data-bs-toggle="collapse" nel
+   template): nessun JS custom necessario per pilotare la visibilita' di
+   queste icone. */
+.icone-cartella-aperta {
+  display: none;
+}
+
+.accordion-button:not(.collapsed) ~ .icone-cartella-aperta {
+  display: flex;
+}
+
 /* Icona "a contorno" (bi-file-earmark) col conteggio documenti al centro
-   (tabella_documenti.html): dimensione base per un conteggio a 1 cifra,
+   (albero_documenti.html, intestazione di ogni cartella): dimensione base per un conteggio a 1 cifra,
    stessa di ".fs-5" di Bootstrap che sostituisce. Le varianti "-md"/"-lg"
    qui sotto (classe aggiunta dal template in base al numero di cifre)
    fanno crescere sia l'icona che il numero insieme, cosi' il numero resta
@@ -80,18 +96,6 @@
 
 .badge-conteggio-documenti-lg .numero-documenti-categoria {
   font-size: .78rem;
-}
-
-/* Bottoni Rinomina/Elimina categoria (tabella_documenti.html): disabilitati
-   finche' non si seleziona una categoria (gestione-documenti.js,
-   applicaFiltroCategoria), ma senza l'opacita' ridotta di default di
-   Bootstrap per i bottoni disabilitati - risultava "sbiadita". Restano a
-   piena opacita' e con lo stesso colore (matita blu navbar, cestino rosso)
-   anche da disabilitati, comunque distinguibili come "non cliccabili" dal
-   cursore */
-#btnRinominaCategoria:disabled,
-#btnEliminaCategoria:disabled {
-  opacity: 1;
 }
 
 /* Redesign di documenti.html (riquadro categoria, tile documento): classi
@@ -183,4 +187,17 @@
   text-transform: uppercase;
   letter-spacing: .01em;
   line-height: 1.3;
+}
+
+/* Pannello di anteprima documento (gestione_documenti.html, colonna
+   destra): l'<object> di partials/anteprima_documento.html deve riempire
+   il riquadro invece di usare le dimensioni minime di default del
+   browser per gli elementi incorporati - nessuna utility Bootstrap
+   equivalente per dimensionare un embed PDF */
+.anteprima-documento-embed {
+  display: block;
+  width: 100%;
+  height: 75vh;
+  min-height: 480px;
+  border: 0;
 }
