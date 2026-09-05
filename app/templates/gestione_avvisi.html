@@ -14,20 +14,22 @@ toccare base.html (usato da tutte le pagine del sito) solo per una pagina.
 <link rel="stylesheet" href="{% static 'css/calendario-avvisi.css' %}">
 
 <div class="container">
-    <div class="row">
-        <div class="col-12 py-5">
-            <div class="d-flex align-items-center position-relative">
-                <a href="{% url 'dashboard_admin' %}" class="btn btn-navbar btn-sm position-absolute start-0" title="Torna alla dashboard">
-                    <i class="bi bi-arrow-left"></i>
-                    <span class="d-none d-md-inline">Torna alla dashboard</span>
-                </a>
-                <h1 class="mb-0 mx-auto">Avvisi di chiusura</h1>
-                <button type="button" class="btn btn-navbar btn-sm position-absolute end-0" data-bs-toggle="modal" data-bs-target="#modalAvviso" id="btnNuovoAvviso" title="Nuovo avviso">
-                    <i class="bi bi-plus-lg"></i>
-                    <span class="d-none d-md-inline">Nuovo avviso</span>
-                </button>
-            </div>
-        </div>
+    {% comment %}
+    Riga titolo agganciata sotto la navbar da desktop durante lo scroll,
+    spostata nella pillola della navbar da telefono (static/js/intestazione-avvisi-sticky.js).
+    {% endcomment %}
+    <div id="sentinellaIntestazione" class="sentinella-intestazione"></div>
+
+    <div class="d-flex align-items-center position-relative pt-5 mb-4 intestazione-categoria-sticky">
+        <a href="{% url 'dashboard_admin' %}" id="btnTornaDashboard" class="btn btn-navbar btn-sm rounded-pill btn-pillola-intestazione-gestione position-absolute start-0" title="Torna alla dashboard">
+            <i class="bi bi-arrow-left"></i>
+            <span class="d-none d-md-inline">Torna alla dashboard</span>
+        </a>
+        <h1 id="titoloGestioneAvvisi" class="mb-0 mx-auto">Avvisi di chiusura</h1>
+        <button type="button" class="btn btn-navbar btn-sm rounded-pill btn-pillola-intestazione-gestione slot-controlli-intestazione-fine position-absolute end-0" data-bs-toggle="modal" data-bs-target="#modalAvviso" id="btnNuovoAvviso" title="Nuovo avviso">
+            <i class="bi bi-plus-lg"></i>
+            <span class="d-none d-md-inline">Nuovo avviso</span>
+        </button>
     </div>
 
     {% include 'partials/tabella_avvisi.html' %}
@@ -47,5 +49,7 @@ toccare base.html (usato da tutte le pagine del sito) solo per una pagina.
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/it.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/plugins/rangePlugin.js"></script>
 <script src="{% static 'js/gestione-avvisi.js' %}"></script>
+<script src="{% static 'js/pillola-titolo-sticky.js' %}"></script>
+<script src="{% static 'js/intestazione-avvisi-sticky.js' %}"></script>
 
 {% endblock contenuto %}
