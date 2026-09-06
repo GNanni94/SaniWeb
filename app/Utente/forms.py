@@ -37,6 +37,10 @@ class MessaggioForm(ModelForm):
             "contenuto": forms.Textarea(attrs={"rows": 1}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["contenuto"].label = "Messaggio"
+
 
 
 

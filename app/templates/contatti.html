@@ -11,28 +11,6 @@
   <div id="contenuto">
     <div id="cont" class="container">
 
-      {% comment %}
-      Versione compatta della tabella orari, solo da telefono (sotto i
-      576px): spostata in cima alla pagina, prima del form, dato che essendo
-      piccola (2 righe) non "pesa" quanto la versione completa da desktop -
-      vedi anche piu' sotto, dentro "#info", per la versione completa
-      {% endcomment %}
-      <div class="d-block d-sm-none text-center pt-5">
-        <h3>Orari di apertura</h3>
-        <table id="orari-compatto" class="table table-sm align-middle">
-          <tbody>
-            <tr>
-              <td>Lunedi-Venerdi </td>
-              <td> 8.00-12.00 / 13.45-17.45</td>
-            </tr>
-            <tr>
-              <td>Sabato-Domenica </td>
-              <td>Chiuso</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
       <div class="row pt-5">
 
         <div class="col-md-7">
@@ -42,10 +20,29 @@
             <form id="form-contatti" action="" method="post" class="mb-3">
               
               {% csrf_token %}
-              {{ cliente|crispy }}
+              <div class="row">
+                <div class="col-md-6">
+                  {{ cliente.nome|as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                  {{ cliente.cognome_ragione_sociale|as_crispy_field }}
+                </div>
+              </div>
+              {{ cliente.email|as_crispy_field }}
+              <div class="row">
+                <div class="col-md-6">
+                  {{ cliente.citta|as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                  {{ cliente.indirizzo|as_crispy_field }}
+                </div>
+              </div>
+              {{ cliente.telefono|as_crispy_field }}
               {{ messaggio|crispy }}
 
-              <button class="btn btn-navbar"  type="submit">Invia</button>
+              <div class="text-end">
+                <button class="btn btn-navbar" type="submit">Invia</button>
+              </div>
             </form>
             
 
@@ -53,44 +50,16 @@
         </div>
 
         <div id="info" class="col-md-5 text-center">
-
-          <div class="justify-content-center d-none d-sm-block">
+          <div>
             <h3>Orari di apertura</h3>
-            <table id="orari" class="table">
+            <table id="orari" class="table table-sm align-middle">
               <tbody>
-
                 <tr>
-                  <td>Lunedi: </td>
+                  <td>Lunedi-Venerdi </td>
                   <td> 8.00-12.00 / 13.45-17.45</td>
                 </tr>
                 <tr>
-                  <td>Martedi: </td>
-                  <td> 8.00-12.00 / 13.45-17.45</td>
-
-                </tr>
-                <tr>
-                  <td>Mercoledi: </td>
-                  <td> 8.00-12.00 / 13.45-17.45</td>
-
-                </tr>
-                <tr>
-                  <td>Giovedi: </td>
-                  <td> 8.00-12.00 / 13.45-17.45</td>
-
-                </tr>
-                <tr>
-                  <td>Venerdi: </td>
-                  <td> 8.00-12.00 / 13.45-17.45</td>
-
-                </tr>
-
-                <tr>
-                  <td>Sabato: </td>
-                  <td>Chiuso</td>
-                </tr>
-
-                <tr>
-                  <td>Domenica: </td>
+                  <td>Sabato-Domenica </td>
                   <td>Chiuso</td>
                 </tr>
               </tbody>
@@ -103,7 +72,6 @@
               <script src="{% static 'js/contatti-mappa.js' %}"></script>
             </div>
           </div>
-
         </div>
 
       </div>

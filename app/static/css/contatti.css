@@ -7,6 +7,8 @@
 
 #map {
   position: relative; /* per contenere il banner ".map-hint" qui sotto */
+  border-radius: .75rem;
+  overflow: hidden; /* ritaglia la mappa secondo l'angolo arrotondato */
 }
 
 /* Da telefono (sotto i 576px, stesso breakpoint della tabella orari
@@ -58,13 +60,15 @@
   opacity: 1;
 }
 
-/* Tabelle orari (contatti.html), sia la versione compatta da telefono
-   (#orari-compatto) sia quella completa da desktop (#orari): riquadro
-   dello stesso blu della navbar, per farle risaltare rispetto al resto
-   della pagina */
-#orari-compatto,
+/* Tabella orari (contatti.html): riquadro dello stesso blu della navbar,
+   per farla risaltare rispetto al resto della pagina */
 #orari {
   border: 2px solid var(--color-primary);
+  border-radius: .75rem;
+  border-collapse: separate; /* necessario perche' il border-radius sia visibile */
+  border-spacing: 0;
+  overflow: hidden; /* applica l'angolo arrotondato anche alle celle interne */
+  margin-bottom: 0;
 }
 
 /* Tabella orari da desktop (#orari): il titolo "Orari di apertura" (h3) e'
@@ -74,4 +78,11 @@
    iniziare esattamente allo stesso livello */
 #orari {
   margin-top: 35px;
+}
+
+/* Toglie il bordo inferiore che Bootstrap mette su ogni cella
+   (".table > :not(caption) > * > *"): sull'ultima riga risulterebbe una
+   seconda linea visibile appena dentro il bordo blu della tabella */
+#orari tbody tr:last-child > * {
+  border-bottom-width: 0;
 }

@@ -48,6 +48,24 @@
   box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
 }
 
+/* Campi del form di contatti.html a forma di pillola */
+#form-contatti .form-control {
+  border-radius: 999px;
+}
+
+/* Campo "Messaggio" (textarea multi-riga): raggio fisso invece della
+   pillola, che seguendo l'altezza del campo diventerebbe sempre piu'
+   ovale man mano che il testo va a capo, deformando il bordo attorno al
+   testo */
+#form-contatti textarea.form-control {
+  border-radius: .75rem;
+}
+
+/* Pulsante "Invia" a forma di pillola */
+#form-contatti button[type="submit"] {
+  border-radius: 999px;
+}
+
 /* Stesso trattamento dei form qui sopra, applicato ai campi del form di
    login.html (email e password) */
 #form-login .form-control:not(.is-invalid) {
