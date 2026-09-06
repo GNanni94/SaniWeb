@@ -380,7 +380,6 @@ class DashboardProdottiSenzaImmagineContrattoJsTest(TestCase):
         self.assertContains(response, 'data-unita-di-misura="')
         self.assertContains(response, 'data-descrizione="')
         self.assertContains(response, 'id="modalCaricaImmagineProdotto"')
-        self.assertContains(response, 'id="modalCaricaImmagineProdottoTitolo"')
         self.assertContains(response, 'id="inputImmagineProdottoModal"')
         self.assertContains(response, 'id="btnScegliImmagineProdotto"')
         self.assertContains(response, 'id="previewProdottoCodice"')

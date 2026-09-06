@@ -246,6 +246,15 @@
   margin-bottom: 0;
 }
 
+/* Angoli arrotondati sul pop-up "Carica immagine" (si apre cliccando una
+   riga della tabella qui sopra), stesso raggio/bordo blu gia' usati per
+   "#modalDocumento .modal-content" in documenti.css e "#modalLogin
+   .modal-content" in navbar.css */
+#modalCaricaImmagineProdotto .modal-content {
+  border-radius: 24px;
+  overflow: hidden;
+}
+
 /* Tabella prodotti (DataTables): sotto i 576px il testo "Showing x to y..."
    (con "float" di default) non ci sta piu' affiancato alla paginazione e
    va a capo in modo disordinato: lo mettiamo su una riga propria a piena

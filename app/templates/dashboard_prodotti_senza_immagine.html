@@ -87,18 +87,14 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalCaricaImmagineProdotto" tabindex="-1" aria-hidden="true" aria-labelledby="modalCaricaImmagineProdottoTitolo">
+<div class="modal fade" id="modalCaricaImmagineProdotto" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content" style="border: 2px solid var(--color-primary);">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalCaricaImmagineProdottoTitolo">Carica immagine</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
-      </div>
       <div class="modal-body">
         <input type="file" accept="image/*" class="d-none" id="inputImmagineProdottoModal">
         <div class="d-flex justify-content-between mb-3">
-          <button type="button" class="btn btn-navbar" id="btnScegliImmagineProdotto">Scegli immagine</button>
-          <button type="button" class="btn btn-navbar" id="btnConfermaCaricaImmagineProdotto" disabled>Conferma</button>
+          <button type="button" class="btn btn-navbar rounded-pill" id="btnScegliImmagineProdotto">Scegli immagine</button>
+          <button type="button" class="btn btn-navbar rounded-pill" id="btnConfermaCaricaImmagineProdotto" disabled>Conferma</button>
         </div>
 
         <div class="text-danger small mb-2" id="erroreCaricaImmagineProdotto"></div>
