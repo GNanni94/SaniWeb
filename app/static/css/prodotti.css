@@ -1123,15 +1123,16 @@
      ricerca, qui per il filtro "solo icona a imbuto" da telefono (es.
      prodotti_tabella.html, che non ha gli id "#filtroProdottiWrapper"/
      "#prodottiCardFiltro" di prodotti_card.html) - additivo, non cambia
-     nulla per gli id esistenti */
-  :is(#filtroProdottiWrapper, .filtro-a-comparsa) {
+     nulla per gli id esistenti. Include anche "#filtroCategoriaProdottiWrapper"/
+     "#filtroCategoriaProdotti" (dashboard_prodotti_senza_immagine.html) */
+  :is(#filtroProdottiWrapper, #filtroCategoriaProdottiWrapper, .filtro-a-comparsa) {
     position: relative;
     flex-grow: 0 !important;
     flex-basis: 40px; /* stessa larghezza della lente chiusa, per coerenza */
     max-width: 40px !important;
   }
 
-  :is(#filtroProdottiWrapper, .filtro-a-comparsa) :is(#prodottiCardFiltro, .filtro-a-comparsa-select) {
+  :is(#filtroProdottiWrapper, #filtroCategoriaProdottiWrapper, .filtro-a-comparsa) :is(#prodottiCardFiltro, #filtroCategoriaProdotti, .filtro-a-comparsa-select) {
     width: 100%;
     height: calc(1.5em + 0.75rem + 4px); /* stessa altezza della ricerca */
     color: transparent;

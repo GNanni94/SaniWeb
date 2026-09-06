@@ -18,7 +18,12 @@
             <span class="d-none d-md-inline">Torna alla dashboard</span>
         </a>
         <h1 id="titoloProdottiSenzaImmagine" class="mb-0 mx-auto">Prodotti senza immagine</h1>
-        <div class="d-flex align-items-center gap-2 slot-controlli-intestazione-fine position-absolute top-50 end-0 translate-middle-y">
+        {% comment %}
+        Niente "top-50"/"translate-middle-y": "#ricercaCodiceWrapper" qui
+        dentro e' "position: fixed" rispetto alla finestra, un "transform"
+        su questo contenitore lo ancorerebbe a lui invece che allo schermo.
+        {% endcomment %}
+        <div class="d-flex align-items-center gap-2 slot-controlli-intestazione-fine position-absolute end-0">
             {% comment %}
             Dropdown di filtro per categoria: filtra le righe della tabella
             gia' in pagina. "MOSTRA TUTTO" e' sempre la prima voce.

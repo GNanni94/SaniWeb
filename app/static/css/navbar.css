@@ -394,6 +394,7 @@
   .pillola-slot-filtro .slot-controlli-intestazione-fine {
     position: static !important;
     right: auto !important;
+    transform: none !important;
   }
 
   #navbarSupportedContent {
