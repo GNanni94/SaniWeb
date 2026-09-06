@@ -122,6 +122,7 @@
             <th scope="col">Nome documento</th>
             <th scope="col">Sezione</th>
             <th scope="col">File</th>
+            <th scope="col">Azioni</th>
           </tr>
         </thead>
         <tbody>
@@ -149,6 +150,16 @@
               {% else %}
               <span class="text-muted">Nessun file disponibile</span>
               {% endif %}
+            </td>
+            <td>
+              <div class="d-flex justify-content-center gap-2">
+                <button type="button" class="btn btn-outline-danger rounded-circle btn-cerchio-cartella btn-elimina-categoria-riga" title="Elimina categoria" aria-label="Elimina categoria">
+                  <i class="bi bi-folder-x"></i>
+                </button>
+                <button type="button" class="btn btn-outline-danger rounded-circle btn-cerchio-cartella btn-elimina-documento-riga" title="Elimina documento" aria-label="Elimina documento">
+                  <i class="bi bi-file-earmark-x"></i>
+                </button>
+              </div>
             </td>
           </tr>
           {% endfor %}

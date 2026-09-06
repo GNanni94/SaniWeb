@@ -785,9 +785,26 @@
 
     if (tabellaDocumenti) {
         // Click su una riga: apre il pop-up di modifica del documento,
-        // tranne sul link del file (deve aprirlo, non aprire il pop-up)
+        // tranne sul link del file (deve aprirlo, non aprire il pop-up) e
+        // sui due bottoni di eliminazione rapida qui sotto
         tabellaDocumenti.addEventListener('click', function (event) {
             if (event.target.closest('a')) {
+                return;
+            }
+            var btnEliminaCategoria = event.target.closest('.btn-elimina-categoria-riga');
+            if (btnEliminaCategoria) {
+                var cellaSezione = btnEliminaCategoria.closest('tr').querySelector('.sezione-cella-riga');
+                if (cellaSezione) {
+                    eliminaCategoria(cellaSezione);
+                }
+                return;
+            }
+            var btnEliminaDocumento = event.target.closest('.btn-elimina-documento-riga');
+            if (btnEliminaDocumento) {
+                var rigaDocumento = btnEliminaDocumento.closest('tr[data-pk]');
+                if (rigaDocumento) {
+                    eliminaDocumentoScelto(rigaDocumento);
+                }
                 return;
             }
             var riga = event.target.closest('tr[data-pk]');
