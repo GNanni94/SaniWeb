@@ -119,6 +119,11 @@
   border-color: var(--color-primary);
 }
 
+/* Righe cliccabili di "#tabella-documenti": cursore a mano */
+#tabella-documenti tbody tr[data-pk] {
+  cursor: pointer;
+}
+
 /* Campo di rinomina inline (sostituisce ".testo-categoria" nascosto, vedi
    gestione-documenti.js/iniziaRinominaCategoria): un "form-control" di
    Bootstrap e' "width: 100%" di default, che qui riempirebbe l'intera
@@ -399,11 +404,18 @@
 /* Pop-up "Nuovo/Modifica documento" (gestione_documenti.html,
    #modalDocumento): stessi angoli arrotondati/bordo blu gia' usati per il
    modal di Login ("#modalLogin .modal-content" in navbar.css) e per quello
-   di Avviso di chiusura */
+   di Avviso di chiusura. Niente "overflow: hidden" qui (a differenza degli
+   altri due modal): taglierebbe il menu "Seleziona categoria" quando
+   sporge oltre il bordo del modal. Il modal non ha un header/footer con
+   sfondo proprio - c'e' solo "#modalDocumentoBody" - quindi l'arrotondamento
+   basta applicarlo direttamente li' sotto, senza bisogno di clippare nulla */
 #modalDocumento .modal-content {
   border-radius: 24px;
   border: 2px solid var(--color-primary);
-  overflow: hidden;
+}
+
+#modalDocumentoBody {
+  border-radius: 24px;
 }
 
 /* Riquadri che raggruppano "Categoria"/"Nome categoria" e "File"/"Nome
@@ -421,6 +433,18 @@
   padding: 1rem;
   margin-bottom: 1rem;
   text-align: center;
+}
+
+/* Nessun margine sotto l'ultimo riquadro (quello preceduto da un altro
+   riquadro uguale): lo spazio prima di "Salva" e' sul bottone stesso
+   (margin-top qui sotto), cosi' il fondo del pop-up resta alla stessa
+   distanza dal bordo di top/lati anche quando "Salva" e' nascosto */
+.gruppo-campo-documento + .gruppo-campo-documento {
+  margin-bottom: 0;
+}
+
+#form-documento button[type="submit"] {
+  margin-top: 1rem;
 }
 
 /* I campi crispy hanno gia' un loro "mb-3": va azzerato sull'ultimo

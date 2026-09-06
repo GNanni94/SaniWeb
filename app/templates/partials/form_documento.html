@@ -5,49 +5,10 @@
 <form id="form-documento" method="post" action="{{ azione_url }}" enctype="multipart/form-data" data-azione-nuovo="{% url 'nuovo_documento' %}" novalidate>
   {% csrf_token %}
   {% comment %}
-  Il <select> di categoria resta nascosto: "Seleziona categoria" apre il
-  menu a tendina, "Crea categoria" mostra "Nome categoria" vuoto e
-  modificabile.
-  {% endcomment %}
-  <div class="gruppo-campo-documento">
-    <div id="campoCategoria">
-      {{ form.categoria|as_crispy_field }}
-    </div>
-    <div class="d-flex flex-wrap justify-content-center gap-2">
-      <div class="dropdown">
-        <button type="button" id="btnSelezionaCategoria" class="btn btn-navbar rounded-pill dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          Seleziona categoria
-        </button>
-        <ul class="dropdown-menu dropdown-menu-categoria" aria-labelledby="btnSelezionaCategoria">
-          {% for cat in form.categoria.field.queryset %}
-          <li>
-            <a class="dropdown-item dropdown-item-categoria d-flex align-items-center gap-2" href="#" data-pk="{{ cat.pk }}" data-nome="{{ cat.nome_categoria }}">
-              {{ cat.nome_categoria }}
-              {% if form.categoria.value|stringformat:"s" == cat.pk|stringformat:"s" %}
-              <span class="pallino-pagina-corrente" aria-hidden="true"></span>
-              {% endif %}
-            </a>
-          </li>
-          {% empty %}
-          <li><span class="dropdown-item-text text-muted">Nessuna categoria esistente</span></li>
-          {% endfor %}
-        </ul>
-      </div>
-      <button type="button" id="btnCreaCategoria" class="btn btn-navbar rounded-pill">Crea categoria</button>
-    </div>
-    <div id="rigaNomeCategoria" class="campo-categoria-nascosto">
-      <label for="{{ form.categoria_nuova.id_for_label }}" class="form-label">Nome categoria</label>
-      {{ form.categoria_nuova }}
-    </div>
-    {% if form.categoria_nuova.errors %}
-    <div id="erroreCategoriaNuova" class="text-danger small mt-1">{{ form.categoria_nuova.errors|striptags }}</div>
-    {% endif %}
-  </div>
-  {% comment %}
-  Stesso raggruppamento sopra, per "Nome file" insieme al campo file: unico
-  bottone a cerchio accanto al campo (non piu' una pillola "Carica File" a
-  parte), invece di due righe separate - il campo di testo si restringe
-  per lasciargli spazio.
+  Stesso raggruppamento di "Categoria" sotto, per "Nome file" insieme al
+  campo file: unico bottone a cerchio accanto al campo (non piu' una
+  pillola "Carica File" a parte), invece di due righe separate - il campo
+  di testo si restringe per lasciargli spazio.
   {% endcomment %}
   <div class="gruppo-campo-documento">
     {% comment %}
@@ -89,7 +50,46 @@
     <div class="text-danger small mt-1">{{ form.nome_file.errors|striptags }}</div>
     {% endif %}
   </div>
+  {% comment %}
+  Il <select> di categoria resta nascosto: "Seleziona categoria" apre il
+  menu a tendina, "Crea categoria" mostra "Nome categoria" vuoto e
+  modificabile.
+  {% endcomment %}
+  <div class="gruppo-campo-documento">
+    <div id="campoCategoria">
+      {{ form.categoria|as_crispy_field }}
+    </div>
+    <div class="d-flex flex-wrap justify-content-center gap-2">
+      <div class="dropdown">
+        <button type="button" id="btnSelezionaCategoria" class="btn btn-navbar rounded-pill dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          Seleziona categoria
+        </button>
+        <ul class="dropdown-menu dropdown-menu-categoria" aria-labelledby="btnSelezionaCategoria">
+          {% for cat in form.categoria.field.queryset %}
+          <li>
+            <a class="dropdown-item dropdown-item-categoria d-flex align-items-center gap-2" href="#" data-pk="{{ cat.pk }}" data-nome="{{ cat.nome_categoria }}">
+              {{ cat.nome_categoria }}
+              {% if form.categoria.value|stringformat:"s" == cat.pk|stringformat:"s" %}
+              <span class="pallino-pagina-corrente" aria-hidden="true"></span>
+              {% endif %}
+            </a>
+          </li>
+          {% empty %}
+          <li><span class="dropdown-item-text text-muted">Nessuna categoria esistente</span></li>
+          {% endfor %}
+        </ul>
+      </div>
+      <button type="button" id="btnCreaCategoria" class="btn btn-navbar rounded-pill">Crea categoria</button>
+    </div>
+    <div id="rigaNomeCategoria" class="campo-categoria-nascosto">
+      <label for="{{ form.categoria_nuova.id_for_label }}" class="form-label">Nome categoria</label>
+      {{ form.categoria_nuova }}
+    </div>
+    {% if form.categoria_nuova.errors %}
+    <div id="erroreCategoriaNuova" class="text-danger small mt-1">{{ form.categoria_nuova.errors|striptags }}</div>
+    {% endif %}
+  </div>
   <div class="d-flex justify-content-center">
-    <button type="submit" class="btn btn-navbar rounded-pill">Salva</button>
+    <button type="submit" class="btn btn-navbar rounded-pill d-none">Salva</button>
   </div>
 </form>

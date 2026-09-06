@@ -194,6 +194,49 @@
         }
     }
 
+    // Valore di "nome_file" all'apertura del pop-up (modifica: quello del
+    // documento; nuovo documento: stringa vuota) - confrontato col valore
+    // corrente in valutaBottoneSalva() per stabilire se e' stato modificato
+    var nomeFileOriginale = '';
+
+    // Pk della categoria all'apertura del pop-up (modifica: quella del
+    // documento; nuovo documento: quella della cartella aperta, se c'e',
+    // altrimenti stringa vuota) - stesso principio di "nomeFileOriginale" sopra
+    var categoriaOriginalePk = '';
+
+    // Mostra o nasconde il bottone "Salva" (nascosto di default,
+    // form_documento.html) a seconda che il form differisca o meno dai
+    // valori originali sopra: nome file diverso, un nuovo file scelto
+    // (fileNuovoScelto piu' sotto), una categoria esistente diversa da
+    // quella originale, o un nome di categoria da creare non vuoto e non
+    // gia' presente tra quelle esistenti
+    function valutaBottoneSalva() {
+        var f = formCorrente();
+        var btn = f ? f.querySelector('button[type="submit"]') : null;
+        if (!f || !btn) {
+            return;
+        }
+        var campoNomeFile = f.elements['nome_file'];
+        var nomeFileModificato = !!campoNomeFile && campoNomeFile.value.trim() !== nomeFileOriginale;
+
+        var campoCategoria = f.elements['categoria'];
+        var categoriaSelezionata = campoCategoria ? campoCategoria.value : '';
+        var categoriaDiversa = !!categoriaSelezionata && categoriaSelezionata !== categoriaOriginalePk;
+
+        var campoCategoriaNuova = f.elements['categoria_nuova'];
+        var nomeCategoriaNuova = campoCategoriaNuova ? campoCategoriaNuova.value.trim() : '';
+        var categoriaNuovaValida = false;
+        if (nomeCategoriaNuova && campoCategoria) {
+            var giaEsistente = Array.prototype.some.call(campoCategoria.options, function (opzione) {
+                return opzione.value && opzione.textContent.trim().toLowerCase() === nomeCategoriaNuova.toLowerCase();
+            });
+            categoriaNuovaValida = !giaEsistente;
+        }
+
+        var modificato = nomeFileModificato || !!fileNuovoScelto || categoriaDiversa || categoriaNuovaValida;
+        btn.classList.toggle('d-none', !modificato);
+    }
+
     // null = modal in modalita' "nuovo documento"; altrimenti {url, nome}
     // del file gia' presente (modifica) o appena scelto (nuovo documento) -
     // serve a riapplicare impostaCampoFileEsistente() dopo che un errore
@@ -584,6 +627,7 @@
                         }
                         impostaCampoFileEsistente(blobFileScelto, fileNuovoScelto.name);
                     }
+                    valutaBottoneSalva();
                 } else {
                     // Qualunque altro errore (403 CSRF scaduto, 404, 500,
                     // ...) non porta un frammento form_documento.html
@@ -634,10 +678,12 @@
             return;
         }
         f.action = riga.dataset.urlModificaDocumento;
+        nomeFileOriginale = riga.dataset.nomeFile || '';
         if (f.elements['nome_file']) {
-            f.elements['nome_file'].value = riga.dataset.nomeFile || '';
+            f.elements['nome_file'].value = nomeFileOriginale;
         }
         var categoriaPk = riga.dataset.categoriaPk;
+        categoriaOriginalePk = categoriaPk || '';
         var vocePillola = f.querySelector('.dropdown-item-categoria[data-pk="' + categoriaPk + '"]');
         if (vocePillola) {
             impostaCategoriaEsistente(categoriaPk, vocePillola.dataset.nome);
@@ -648,6 +694,7 @@
             impostaCampoFileEsistente(fileAttualeInModifica.url, fileAttualeInModifica.nome);
         }
         annullaModalita();
+        valutaBottoneSalva();
         modalBootstrap.show();
     }
 
@@ -719,10 +766,12 @@
             fileAttualeInModifica = null;
             revocaBlobFileScelto();
             modalBody.innerHTML = formInizialeHTML;
+            nomeFileOriginale = '';
             // Precompila la categoria della cartella aperta, se c'e'
             // (comodo per aggiungere piu' documenti di fila alla stessa
             // cartella)
             var pkCartellaAperta = cartellaApertaPk();
+            categoriaOriginalePk = pkCartellaAperta || '';
             if (pkCartellaAperta !== null) {
                 var f = formCorrente();
                 if (f && f.elements['categoria']) {
@@ -730,10 +779,24 @@
                 }
             }
             sincronizzaStatoCategoria();
+            valutaBottoneSalva();
         });
     }
 
     if (tabellaDocumenti) {
+        // Click su una riga: apre il pop-up di modifica del documento,
+        // tranne sul link del file (deve aprirlo, non aprire il pop-up)
+        tabellaDocumenti.addEventListener('click', function (event) {
+            if (event.target.closest('a')) {
+                return;
+            }
+            var riga = event.target.closest('tr[data-pk]');
+            if (!riga) {
+                return;
+            }
+            apriModaleModificaDocumento(riga);
+        });
+
         // Invio/Esc dentro il campo di rinomina inline della cella "Sezione"
         tabellaDocumenti.addEventListener('keydown', function (event) {
             var inputCategoria = event.target.closest('.input-rinomina-categoria');
@@ -867,6 +930,7 @@
         }
         if (event.target.closest('#btnCreaCategoria')) {
             attivaCreaCategoria();
+            valutaBottoneSalva();
             return;
         }
         var voceCategoria = event.target.closest('.dropdown-item-categoria');
@@ -876,8 +940,17 @@
             event.preventDefault();
             if (voceCategoria.dataset.pk) {
                 impostaCategoriaEsistente(voceCategoria.dataset.pk, voceCategoria.dataset.nome);
+                valutaBottoneSalva();
             }
             return;
+        }
+    });
+
+    // Digitazione in un campo testo del form (es. "Nome file", "Nome
+    // categoria"): rivaluta se mostrare o nascondere il bottone "Salva"
+    modalBody.addEventListener('input', function (event) {
+        if (event.target.closest('#form-documento')) {
+            valutaBottoneSalva();
         }
     });
 
@@ -901,6 +974,7 @@
             blobFileScelto = URL.createObjectURL(file);
             fileNuovoScelto = file;
             impostaCampoFileEsistente(blobFileScelto, file.name);
+            valutaBottoneSalva();
             var f = formCorrente();
             if (f && f.elements['nome_file']) {
                 f.elements['nome_file'].value = file.name.replace(/\.[^.]+$/, '');
