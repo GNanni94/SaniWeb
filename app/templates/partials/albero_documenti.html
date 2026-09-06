@@ -60,7 +60,7 @@
           gestione-documenti.js/iniziaRinominaCategoria insieme al bottone
           sopra che si nasconde (vedi documenti.css per il centraggio).
           {% endcomment %}
-          <input type="text" class="form-control form-control-sm d-none input-rinomina-categoria mx-auto" value="{{ categoria.nome_categoria }}">
+          <input type="text" id="input-rinomina-categoria-{{ categoria.pk }}" class="form-control form-control-sm d-none input-rinomina-categoria mx-auto" value="{{ categoria.nome_categoria }}">
         </h2>
         <div id="corpoCartella{{ categoria.pk }}" class="accordion-collapse collapse" data-bs-parent="#albero-documenti">
           <div class="accordion-body p-2">
@@ -111,27 +111,10 @@
   {% comment %}
   Tabella per schermi da 768px in su (stesso "table table-sm table-hover
   text-center align-middle" di Avvisi/Prodotti senza immagine), invece
-  dell'albero a cartelle sopra (solo da telefono). Modifica/Elimina non
-  sono piu' per riga: due bottoni generici sopra la tabella armano una
-  modalita' (gestione-documenti.js, impostaModalitaTabella), poi si
-  clicca il bersaglio su cui agire - la cella "Sezione" per la categoria,
-  il resto della riga per il documento - stesso principio gia' usato per
-  l'albero da telefono (impostaModalita).
+  dell'albero a cartelle sopra (solo da telefono).
   {% endcomment %}
   <div id="tabella-documenti" class="d-none d-md-block">
     {% if documenti_totali %}
-    <div class="d-flex justify-content-end align-items-center gap-2 mb-2">
-      <button type="button" id="btnModificaTabella" class="btn btn-outline-navbar rounded-circle btn-cerchio-cartella" title="Modifica" aria-label="Modifica">
-        <i class="bi bi-pencil-square"></i>
-      </button>
-      <button type="button" id="btnEliminaTabella" class="btn btn-outline-danger rounded-circle btn-cerchio-cartella" title="Elimina" aria-label="Elimina">
-        <i class="bi bi-trash"></i>
-      </button>
-      <button type="button" id="btnAnnullaModalitaTabella" class="btn rounded-circle btn-cerchio-cartella d-none" title="Annulla" aria-label="Annulla">
-        <i class="bi bi-x-lg"></i>
-      </button>
-    </div>
-    <p id="messaggioModalitaTabella" class="text-end text-muted small d-none"></p>
     <div class="table-responsive">
       <table class="table table-bordered table-sm table-hover text-center align-middle">
         <thead class="table-navbar align-middle">
@@ -150,10 +133,7 @@
               data-url-modifica-documento="{% url 'modifica_documento' documento.pk %}"
               data-url-elimina-documento="{% url 'elimina_documento' documento.pk %}"
               {% if documento.file %}data-file-nome="{{ documento.file.name }}"{% endif %}>
-            <td class="nome-documento-cella-riga">
-              <span class="testo-nome-documento-riga">{{ documento.nome_file }}</span>
-              <input type="text" class="form-control form-control-sm d-none input-rinomina-documento" value="{{ documento.nome_file }}">
-            </td>
+            <td>{{ documento.nome_file }}</td>
             <td class="sezione-cella-riga"
                 data-categoria-pk="{{ categoria.pk }}"
                 data-nome-categoria="{{ categoria.nome_categoria }}"
@@ -161,7 +141,7 @@
                 data-url-elimina-categoria="{% url 'elimina_categoria' categoria.pk %}"
                 data-num-documenti="{{ categoria.num_documenti }}">
               <span class="testo-sezione-riga">{{ categoria.nome_categoria }}</span>
-              <input type="text" class="form-control form-control-sm d-none input-rinomina-categoria" value="{{ categoria.nome_categoria }}">
+              <input type="text" id="input-rinomina-categoria-riga-{{ documento.pk }}" class="form-control form-control-sm d-none input-rinomina-categoria" value="{{ categoria.nome_categoria }}">
             </td>
             <td>
               {% if documento.file %}
