@@ -13,14 +13,23 @@
     </div>
 
     {% comment %}
-    Stesso riquadro bordato (bordo blu navbar) usato per le categorie di
-    documenti in documenti.html: un unico bordo intorno a tutti i
-    documenti della pagina, non uno per ciascuno
+    Stesso riquadro categoria e stesse tile documento di documenti.html
+    (documenti-categoria/documenti-griglia/documento-tile in documenti.css)
     {% endcomment %}
-    <div class="border rounded p-4 mb-5 mx-auto categoria-documenti">
-        <div class="row g-4 justify-content-center">
-            {% include 'partials/card_documento.html' with titolo="Aziende" url_file="/media/pdfEtichettaturaAmbientale/ETICHETTATURA-AMBIENTALE-VERSIONE-0-02-01-23.pdf" %}
-            {% include 'partials/card_documento.html' with titolo="Privati" url_file="/media/pdfEtichettaturaAmbientale/ETICHETTATURA-AMBIENTALE-PRIVATI-VERS.0-DEL-02-01-23.pdf" %}
+    <div class="p-4 mb-4 mx-auto documenti-categoria">
+        <div class="documenti-griglia">
+            <a class="documento-tile" href="/media/pdfEtichettaturaAmbientale/ETICHETTATURA-AMBIENTALE-VERSIONE-0-02-01-23.pdf" target="_blank">
+                <span class="documento-tile-icona">
+                    <i class="bi bi-filetype-pdf"></i>
+                </span>
+                <span class="documento-tile-nome">Aziende</span>
+            </a>
+            <a class="documento-tile" href="/media/pdfEtichettaturaAmbientale/ETICHETTATURA-AMBIENTALE-PRIVATI-VERS.0-DEL-02-01-23.pdf" target="_blank">
+                <span class="documento-tile-icona">
+                    <i class="bi bi-filetype-pdf"></i>
+                </span>
+                <span class="documento-tile-nome">Privati</span>
+            </a>
         </div>
     </div>
 </div>

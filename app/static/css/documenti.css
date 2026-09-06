@@ -1,42 +1,4 @@
-/* Riquadro che racchiude ogni categoria di documenti (titolo + card PDF),
-   per separarle visivamente l'una dall'altra (documenti.html), senza bordo */
-.categoria-documenti {
-  /* Il riquadro si stringe intorno al proprio contenuto (una categoria con
-     1 solo documento non deve occupare la larghezza del container con
-     mezzo riquadro vuoto), ma non supera mai la larghezza disponibile su
-     schermi piccoli */
-  width: fit-content;
-  max-width: 100%;
-}
-
-/* Card documento (documenti.html, etichettatura_ambientale.html - vedi
-   partials/card_documento.html): stesso blu della navbar invece del bianco
-   di default, dato che stanno su sfondo bianco e altrimenti si vedrebbe solo
-   il bordo grigio chiaro di Bootstrap a distinguerle dalla pagina.
-   Selettore con due classi (invece di una sola, che avrebbe comunque la
-   stessa specificita' di ".card" di Bootstrap) apposta per vincere sempre,
-   a prescindere dall'ordine di caricamento dei fogli di stile (stessa nota
-   gia' presente altrove in questo file per ".alert-info") */
-.card.card-documento {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-/* Separatore tra il corpo (titolo) e il footer (icona PDF) della card:
-   di default il "card-footer" di Bootstrap ha un bordo superiore grigio
-   chiaro, invisibile sullo sfondo blu impostato sopra. Lo si rende bianco
-   per farlo risaltare */
-.card.card-documento .card-footer {
-  border-top-color: #fff;
-}
-
-/* Cartelle come pillole (albero_documenti.html), stesso trattamento delle
-   voci del menu hamburger (".navbar-nav > .nav-item > .nav-link" in
-   navbar.css): sfondo grigio chiaro a riposo, bordo trasparente che
-   diventa blu su hover, "border-radius: 999px". L'accordion di Bootstrap
-   di default unisce le voci con un bordo continuo (niente spazio, angoli
-   squadrati tranne su prima/ultima voce) - la variabile azzera quel
-   bordo, "gap" aggiunge lo spazio tra una pillola e l'altra */
+/* Cartelle come pillole (albero_documenti.html): niente bordo tra le voci dell'accordion, spazio tra una pillola e l'altra */
 #albero-documenti.accordion {
   --bs-accordion-border-width: 0;
   display: flex;
@@ -44,23 +6,13 @@
   gap: .5rem;
 }
 
-/* La pillola vera e propria e' l'intera riga di intestazione (bottone di
-   apertura/chiusura a tutta larghezza, "flex-grow-1" nel template).
-   ":has()" gia' in uso in questo progetto (vedi ".site-navbar:has(...)" in
-   navbar.css) */
+/* Pillola dell'intestazione cartella (riga intera cliccabile) */
 #albero-documenti .accordion-header {
   background-color: var(--color-bg-alt);
   border: 2px solid transparent;
   border-radius: 999px;
   padding: .25rem;
-  /* Solo "border-color" e' animato (serve all'hover, sotto): Bootstrap
-     toglie "collapsed" nell'istante stesso del click, prima ancora che
-     l'elenco sotto inizi ad aprirsi - se anche "background-color" sfumasse
-     qui, sfondo e centraggio del testo (quest'ultimo non animabile via
-     transition, "justify-content" scatta sempre di colpo) cambierebbero in
-     due tempi diversi sullo stesso elemento, un vero e proprio glitch
-     visibile soprattutto su mobile (pillola a piena larghezza, colonna
-     intera invece di meta' desktop) */
+  /* Anima solo il bordo, non lo sfondo */
   transition: border-color .15s ease;
 }
 
@@ -69,10 +21,7 @@
   border-color: var(--color-primary);
 }
 
-/* Pillole piu' compatte del bottone-accordion di default di Bootstrap:
-   riduce le variabili del suo stesso padding (--bs-accordion-btn-padding-*)
-   invece di sovrascrivere "padding" a peso morto, cosi' resta coerente se
-   Bootstrap le usa altrove al suo interno */
+/* Pillole piu' compatte del bottone-accordion di default di Bootstrap */
 #albero-documenti .accordion-button {
   --bs-accordion-btn-padding-x: .85rem;
   --bs-accordion-btn-padding-y: .5rem;
@@ -81,11 +30,7 @@
   box-shadow: none;
 }
 
-/* Cartella aperta: sfondo pieno blu navbar su tutta la riga di
-   intestazione, stesso trattamento gia' usato per il documento evidenziato
-   nell'elenco (".list-group-item.active" piu' sotto). Angoli arrotondati
-   solo in alto: si aggancia visivamente all'elenco documenti che appare
-   sotto invece di restare una pillola isolata */
+/* Cartella aperta: sfondo blu pieno, angoli arrotondati solo in alto per agganciarsi all'elenco sotto */
 #albero-documenti .accordion-header:has(.accordion-button:not(.collapsed)) {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
@@ -97,12 +42,7 @@
   justify-content: center;
 }
 
-/* Da chiusa il titolo resta a sinistra e il badge a destra (".flex-grow-1"
-   nel template spinge il badge in fondo alla riga) - da aperta invece il
-   gruppo titolo+badge si centra: "flex-grow-1" e' un'utility Bootstrap
-   dichiarata "!important" di suo, va vinta con un selettore piu' specifico
-   (non basta un semplice "!important" in piu', conta la specificita' a
-   parita' di "!important") */
+/* Da aperta il titolo si centra invece di restare a sinistra */
 #albero-documenti .accordion-button:not(.collapsed) .testo-categoria {
   flex-grow: 0 !important;
 }
@@ -113,8 +53,7 @@
   border-color: var(--color-primary);
 }
 
-/* Stesso contorno per una riga di "#tabella-documenti": "border-color" su
-   un <tr> non ha effetto visivo di suo, il bordo lo disegnano le celle */
+/* Stesso contorno applicato alle celle (il bordo su <tr> non ha effetto visivo) */
 #tabella-documenti tr.documento-riga-selezionabile > td {
   border-color: var(--color-primary);
 }
@@ -124,49 +63,28 @@
   cursor: pointer;
 }
 
-/* Campo di rinomina inline (sostituisce ".testo-categoria" nascosto, vedi
-   gestione-documenti.js/iniziaRinominaCategoria): un "form-control" di
-   Bootstrap e' "width: 100%" di default, che qui riempirebbe l'intera
-   pillola invece di restare una casella compatta al centro insieme al
-   badge (stesso posto del titolo, vedi ".justify-content: center" sopra) */
+/* Campo di rinomina inline: casella compatta al centro della pillola invece di "width: 100%" */
 #albero-documenti .input-rinomina-categoria {
   width: auto;
   max-width: 12rem;
   flex: 0 1 auto;
-  /* Il box e' centrato nella pillola (vedi sopra), ma un <input> di
-     default allinea il testo al suo interno a sinistra: senza questo il
-     nome digitato resterebbe appiccicato la' invece di comparire al centro
-     del box, dove sta il titolo quando non e' in modifica */
+  /* Testo centrato nel box */
   text-align: center;
 }
 
-/* Testo/icona/numero della cartella aperta ribaltati in bianco, stesso
-   principio gia' in uso per il documento evidenziato piu' sotto -
-   "!important" necessario per vincere il colore inline scritto nel
-   template (albero_documenti.html) */
+/* Testo/icona/numero della cartella aperta in bianco */
 #albero-documenti .accordion-button:not(.collapsed) .testo-categoria,
 #albero-documenti .accordion-button:not(.collapsed) .badge-conteggio-documenti i,
 #albero-documenti .accordion-button:not(.collapsed) .numero-documenti-categoria {
   color: #fff !important;
 }
 
-/* Freccia dell'accordion (pseudo-elemento ::after di Bootstrap) rimossa:
-   il badge col conteggio documenti (vedi sotto) basta da solo a far capire
-   che l'intestazione e' cliccabile/apribile, la freccia era ridondante */
+/* Freccia dell'accordion rimossa: il badge col conteggio basta a indicare che e' cliccabile */
 #albero-documenti .accordion-button::after {
   display: none;
 }
 
-/* Rinomina/Elimina categoria (partials/albero_documenti.html): non piu'
-   "position: absolute" (galleggiavano sopra il riquadro senza occupare
-   spazio, sempre uguale che fossero visibili o nascosti) - nel flusso
-   normale, cosi' quando compaiono spingono giu' la lista di cartelle sotto
-   invece di sovrapporlesi, e quando sono nascosti lo spazio torna
-   interamente alla lista, senza vuoto riservato. "max-height" animato
-   (non "d-none", "display" non e' transizionabile: passa da "none" a
-   tutt'altro in un solo scatto, senza via di mezzo) invece di
-   "height: auto" (idem, non transizionabile) - "2rem" e' gia' piu' dei
-   32px reali dei due cerchi, quindi non li ritaglia mai da aperti */
+/* Rinomina/Elimina categoria (partials/albero_documenti.html): nel flusso normale, spinge giu' la lista quando compare */
 .pannello-documenti-azioni-categoria {
   display: flex;
   justify-content: center;
@@ -179,13 +97,7 @@
   transition: max-height .25s ease, opacity .2s ease, margin-bottom .25s ease, visibility .25s;
 }
 
-/* Stato nascosto (classe aggiunta/tolta da gestione-documenti.js/
-   aggiornaBottoniAzione al posto di "d-none", stesso principio): altezza e
-   margine collassati a 0, dissolvenza in opacita'. "visibility: hidden"
-   (non transizionabile di suo, ma la sua stessa "transition" qui sopra le
-   da' comunque un "transition-delay" implicito pari alla durata delle
-   altre proprieta' nello stesso elenco) toglie i due bottoni dalla
-   navigazione da tastiera mentre sono collassati, non solo dalla vista */
+/* Stato nascosto: altezza/margine collassati, dissolvenza in opacita', tolto anche dalla navigazione da tastiera */
 .pannello-documenti-azioni-categoria.azioni-categoria-nascosta {
   max-height: 0;
   margin-bottom: 0;
@@ -193,14 +105,7 @@
   visibility: hidden;
 }
 
-/* Stessa dimensione (32px) dei cerchi-icona del menu hamburger
-   (".navbar-nav > .nav-item > .nav-link > .bi" in navbar.css), colore a
-   contorno invece che pieno (".btn-outline-navbar"/".btn-outline-danger",
-   gia' usate identiche per Modifica/Elimina documento poco sotto in questo
-   stesso file). Sfondo pieno (non trasparente): sopra il bordo/sfondo
-   bianco della pagina, un cerchio "a contorno" trasparente si vedrebbe a
-   meta' sul bianco e a meta' sul blu del riquadro - lo sfondo bianco pieno
-   lo rende leggibile in entrambi i casi */
+/* Cerchio icona (32px) con sfondo pieno, leggibile sia su bianco che su blu */
 .btn-cerchio-cartella {
   width: 2rem;
   height: 2rem;
@@ -228,9 +133,7 @@
   filter: brightness(1.2);
 }
 
-/* Cerchio a contorno grigio (invece di blu/rosso come Modifica/Elimina)
-   per il bottone Annulla della tabella desktop: icona nera sia a riposo
-   che all'hover, solo lo sfondo si riempie di grigio chiaro */
+/* Cerchio a contorno grigio per Annulla nella tabella desktop */
 #btnAnnullaModalitaTabella {
   background-color: transparent;
   border-color: var(--bs-border-color);
@@ -244,12 +147,7 @@
   color: var(--color-text);
 }
 
-/* Icona "a contorno" (bi-file-earmark) col conteggio documenti al centro
-   (albero_documenti.html, intestazione di ogni cartella): dimensione base per un conteggio a 1 cifra,
-   stessa di ".fs-5" di Bootstrap che sostituisce. Le varianti "-md"/"-lg"
-   qui sotto (classe aggiunta dal template in base al numero di cifre)
-   fanno crescere sia l'icona che il numero insieme, cosi' il numero resta
-   dentro la sagoma dell'icona anche a 2/3 cifre invece di uscirne */
+/* Icona con conteggio documenti al centro (intestazione cartella): varianti -md/-lg sotto per 2/3 cifre */
 .badge-conteggio-documenti i {
   font-size: 1.25rem;
 }
@@ -274,25 +172,12 @@
   font-size: .78rem;
 }
 
-/* Redesign di documenti.html (riquadro categoria, tile documento): classi
-   NUOVE e scoped a questa pagina invece di modificare
-   ".categoria-documenti"/".card-documento" qui sopra, condivise con
-   etichettatura_ambientale.html (che ha un proprio stile a bordo Bootstrap
-   sullo stesso ".categoria-documenti") - stesso principio di duplicazione
-   scoped gia' seguito altrove nel progetto (es. ".pillola-torna-preventivi"
-   in preventivo.css) invece di un'unica classe condivisa tra pagine con
-   estetiche diverse. */
-/* Riquadro categoria: bordo leggero e angoli arrotondati invece del vecchio
-   riquadro senza bordo (".categoria-documenti" qui sopra). "width:
-   fit-content" ripreso dal vecchio riquadro: si restringe intorno al
-   contenuto (una categoria con 1 solo documento non deve occupare tutta la
-   riga con mezzo riquadro vuoto), fino al massimo della riga se i
-   documenti bastano a riempirla */
+/* Riquadro categoria (documenti.html): bordo leggero e angoli arrotondati, si adatta al contenuto */
 .documenti-categoria {
   width: fit-content;
   max-width: 100%;
   background-color: var(--color-bg);
-  border: 1px solid var(--bs-border-color); /* stesso grigio bordo di Bootstrap gia' usato altrove nel sito (es. ".carrello-stepper" in carrello.css), piu' visibile di "--color-bg-alt" su sfondo bianco */
+  border: 1px solid var(--bs-border-color);
   border-radius: 1rem;
 }
 
@@ -302,36 +187,26 @@
   font-weight: 700;
 }
 
-/* Griglia dei documenti: flex-wrap (non CSS grid) apposta - un grid con
-   colonne "auto-fill" non si restringe in modo affidabile dentro un
-   contenitore "width: fit-content" come ".documenti-categoria" qui sopra
-   (la dimensione dei track dipende da uno spazio disponibile che li' e'
-   indefinito). Flex con tile a larghezza fissa (".documento-tile" sotto)
-   si comporta esattamente come il vecchio "row"/"col-auto" di Bootstrap:
-   va a capo da solo quando lo spazio finisce, senza piu' bisogno dello
-   spartitore manuale ogni 5 elementi (".w-100", vecchio documenti.html) */
+/* Griglia dei documenti: le tile vanno a capo da sole quando lo spazio finisce */
 .documenti-griglia {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center; /* centra le tile di ogni riga (anche l'ultima, quando non la riempie del tutto) invece di lasciarle appoggiate a sinistra */
+  justify-content: center; /* centra le tile di ogni riga */
   gap: 0.75rem;
 }
 
-/* Tile documento: sfondo grigio chiaro invece del vecchio blocco blu pieno
-   (".card.card-documento" qui sopra), con la sola icona dentro un badge blu
-   a farsi notare - bordo colorato e leggero sollevamento al passaggio del
-   mouse invece di un semplice cambio di sfondo */
+/* Tile documento: sfondo grigio chiaro, icona in un badge blu */
 .documento-tile {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 0.5rem;
-  width: 8.5rem; /* larghezza fissa (non "flex-grow"): serve al riquadro categoria per calcolare correttamente il proprio "width: fit-content" qui sopra */
+  width: 8.5rem; /* larghezza fissa */
   flex-shrink: 0;
   padding: 1.1rem 0.6rem;
   background-color: var(--color-bg-alt);
-  border: 2px solid transparent; /* bordo invisibile di riserva, stesso spessore di quello dell'hover: evita che la tile "salti" quando il bordo compare */
+  border: 2px solid transparent; /* bordo invisibile di riserva, per evitare "salti" all'hover */
   border-radius: 0.75rem;
   text-decoration: none;
   transition: border-color .15s ease, transform .15s ease;
@@ -365,50 +240,28 @@
   line-height: 1.3;
 }
 
-/* Riquadro cartelle (gestione_documenti.html, unica colonna - niente piu'
-   pannello di anteprima a destra, tolto su richiesta esplicita): stesso
-   raggio "pop-up" da 24px gia' usato per i modal di Login/Avviso di
-   chiusura ("#modalLogin .modal-content" in navbar.css, "#modalAvviso
-   .modal-content" in calendario-avvisi.css), al posto della classe
-   ".rounded" di Bootstrap (troppo squadrata) - stessa estetica "pop-up"
-   anche qui, pur non essendo un modal. "overflow: hidden" perche' i due
-   cerchi Rinomina/Elimina categoria sopra sono nel flusso normale, non
-   sporgono dal bordo */
+/* Riquadro cartelle (gestione_documenti.html): stessi angoli arrotondati "pop-up" dei modal */
 .pannello-documenti {
   border-radius: 24px;
   overflow: hidden;
   margin-top: 1.5rem;
 }
 
-/* Da telefono (sotto la soglia "md" di Bootstrap): meno spazio tra il
-   riquadro qui sopra e il titolo della pagina, richiesto esplicitamente
-   solo per questa larghezza */
+/* Da telefono: meno spazio tra il riquadro e il titolo della pagina */
 @media (max-width: 767.98px) {
   .pannello-documenti {
     margin-top: .75rem;
   }
 }
 
-/* Angoli arrotondati sulla tabella desktop, stessa tecnica di
-   "#listProdottiTable" in prodotti.css: "border-radius"+"overflow: hidden"
-   direttamente sulla "<table>" (non su ".table-responsive" attorno), che
-   qui e' gia' "border-collapse: separate" di default (Bootstrap non la
-   forza a "collapse") - con "collapse" i bordi delle celle vincerebbero
-   sempre sul bordo/arrotondamento della tabella stessa */
+/* Angoli arrotondati sulla tabella desktop */
 #tabella-documenti table {
   border-radius: .75rem;
   overflow: hidden;
   margin-bottom: 0;
 }
 
-/* Pop-up "Nuovo/Modifica documento" (gestione_documenti.html,
-   #modalDocumento): stessi angoli arrotondati/bordo blu gia' usati per il
-   modal di Login ("#modalLogin .modal-content" in navbar.css) e per quello
-   di Avviso di chiusura. Niente "overflow: hidden" qui (a differenza degli
-   altri due modal): taglierebbe il menu "Seleziona categoria" quando
-   sporge oltre il bordo del modal. Il modal non ha un header/footer con
-   sfondo proprio - c'e' solo "#modalDocumentoBody" - quindi l'arrotondamento
-   basta applicarlo direttamente li' sotto, senza bisogno di clippare nulla */
+/* Pop-up "Nuovo/Modifica documento": angoli arrotondati e bordo blu, senza "overflow: hidden" per non tagliare il menu "Seleziona categoria" */
 #modalDocumento .modal-content {
   border-radius: 24px;
   border: 2px solid var(--color-primary);
@@ -418,14 +271,7 @@
   border-radius: 24px;
 }
 
-/* Riquadri che raggruppano "Categoria"/"Nome categoria" e "File"/"Nome
-   file" (partials/form_documento.html): stesso stile esatto gia' usato
-   per le sezioni "Periodo di chiusura"/"Motivo chiusura" nel
-   pop-up di gestione avvisi ("#blocco-calendario-avviso"/
-   "#div_id_motivo_chiusura" in calendario-avvisi.css) - sfondo grigio,
-   bordo blu, angoli arrotondati, etichette centrate. Niente altezza fissa:
-   si accorciano da soli quando il secondo campo di ogni coppia torna
-   "d-none" */
+/* Riquadri "Categoria"/"Nome categoria" e "File"/"Nome file" (partials/form_documento.html): sfondo grigio, bordo blu, etichette centrate */
 .gruppo-campo-documento {
   background-color: var(--color-bg-alt);
   border: 2px solid var(--color-primary);
@@ -435,10 +281,7 @@
   text-align: center;
 }
 
-/* Nessun margine sotto l'ultimo riquadro (quello preceduto da un altro
-   riquadro uguale): lo spazio prima di "Salva" e' sul bottone stesso
-   (margin-top qui sotto), cosi' il fondo del pop-up resta alla stessa
-   distanza dal bordo di top/lati anche quando "Salva" e' nascosto */
+/* Nessun margine sotto l'ultimo riquadro di una coppia */
 .gruppo-campo-documento + .gruppo-campo-documento {
   margin-bottom: 0;
 }
@@ -447,11 +290,7 @@
   margin-top: 1rem;
 }
 
-/* I campi crispy hanno gia' un loro "mb-3": va azzerato sull'ultimo
-   elemento sempre presente di ogni riquadro (qui per id, come gia' fatto
-   per "#div_id_motivo_chiusura" in calendario-avvisi.css) altrimenti si
-   sommerebbe al padding del riquadro invece di definire da solo lo spazio
-   in basso */
+/* Azzera il margine sotto dei campi crispy, gia' dato dal padding del riquadro */
 .gruppo-campo-documento #div_id_categoria,
 .gruppo-campo-documento #div_id_nome_file {
   margin-bottom: 0 !important;
@@ -528,36 +367,20 @@
   box-shadow: none;
 }
 
-/* Campi di testo e selettore categoria (partials/form_documento.html):
-   angoli tondi come il resto del pop-up (pillole/cerchi gia' usati per
-   bottoni e riquadri) invece dello squadrato di default di Bootstrap.
-   Scoped a ".gruppo-campo-documento" (non un ".form-control"/".form-select"
-   generico): non deve toccare, per esempio, ".input-rinomina-categoria"
-   nell'albero cartelle, gia' pillola di suo con un raggio diverso (999px
-   qui coincide, ma resta un caso a parte non collegato a questa regola) */
+/* Campi di testo e selettore categoria: angoli tondi come il resto del pop-up */
 .gruppo-campo-documento .form-control,
 .gruppo-campo-documento .form-select {
   border-radius: 999px;
 }
 
-/* "Nome file" accanto al cerchio "Carica File" (partials/form_documento.html,
-   ".riga-nome-file"): un "form-control" e' "width: 100%" di default, che
-   qui spingerebbe il cerchio fuori dalla riga (o sotto, andando a capo)
-   invece di restringersi per lasciargli spazio - "min-width: 0" necessario
-   perche' un flex item di default non si restringe mai sotto la sua
-   larghezza intrinseca */
+/* "Nome file" accanto al cerchio "Carica File": si restringe per lasciargli spazio invece di spingerlo fuori riga */
 .riga-nome-file .form-control {
   flex: 1 1 auto;
   min-width: 0;
   width: auto;
 }
 
-/* Campo file nativo di Django (etichetta + <input>, generato da crispy):
-   mai mostrato a video, l'utente vede solo il cerchio "Carica File" accanto
-   a "Nome file" (vedi partials/form_documento.html) - un <input
-   type="file"> nascosto puo' comunque essere aperto via ".click()" da un
-   vero gesto dell'utente (gestione-documenti.js, mostraSelettoreFile),
-   tecnica comune per bottoni "Carica file" personalizzati */
+/* Campo file nativo di Django nascosto: l'utente vede solo il cerchio "Carica File" */
 #campoFile #div_id_file {
   display: none;
 }

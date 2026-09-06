@@ -18,7 +18,12 @@
         <div class="documenti-griglia">
             {% for file in docs %}
             {% if file.file %}
-            {% include 'partials/documento_tile.html' with titolo=file.nome_file url_file=file.file.url %}
+            <a class="documento-tile" href="{{ file.file.url }}" target="_blank">
+                <span class="documento-tile-icona">
+                    <i class="bi bi-filetype-pdf"></i>
+                </span>
+                <span class="documento-tile-nome">{{ file.nome_file }}</span>
+            </a>
             {% endif %}
             {% endfor %}
         </div>
