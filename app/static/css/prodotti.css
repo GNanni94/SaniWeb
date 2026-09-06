@@ -398,14 +398,14 @@
     border-radius: 0 calc(var(--bs-border-radius) - 2px) calc(var(--bs-border-radius) - 2px) 0 !important;
   }
 
-  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) {
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) {
     position: relative;
     flex-grow: 0 !important;
     flex-basis: 42px;
     max-width: 42px !important;
   }
 
-  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti) {
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti, #filtroSezioneDocumenti) {
     width: 100%;
     height: 42px;
     color: transparent;
@@ -442,15 +442,16 @@
      dipendenza dal contenuto per la loro dimensione */
   #filtroProdottiWrapper #prodottiCardFiltro,
   #filtroTabellaWrapper #filtroSottocategoria,
-  #filtroCategoriaProdottiWrapper #filtroCategoriaProdotti {
+  #filtroCategoriaProdottiWrapper #filtroCategoriaProdotti,
+  #filtroSezioneDocumentiWrapper #filtroSezioneDocumenti {
     width: 42px;
   }
 
   /* Hover/focus piu' scuro (".btn-navbar:hover/:focus" qui sotto, stesso
      "var(--color-primary-dark)"), per coerenza visiva col bottone "Torna al
      catalogo" nella stessa riga */
-  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti):hover,
-  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti):focus {
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti, #filtroSezioneDocumenti):hover,
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti, #filtroSezioneDocumenti):focus {
     background-color: var(--color-primary-dark);
     border-color: var(--color-primary-dark);
     box-shadow: none;
@@ -732,7 +733,7 @@
    prodotti_tabella.html quello script non e' caricato (il filtro naviga via
    DataTables, non AJAX): l'icona resta quindi sempre "bi-funnel" a
    contorno, indipendentemente dalla sottocategoria selezionata */
-:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) .filtro-icon-overlay {
+:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) .filtro-icon-overlay {
   display: block;
   position: absolute;
   top: 50%;
@@ -760,7 +761,7 @@
    (1030, vedi navbar.css) sia la riga sticky (1020, vedi
    ".intestazione-categoria-sticky" sopra), altrimenti aprendo il menu
    durante lo scroll finirebbe sotto a una delle due */
-:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) .filtro-dropdown-menu {
+:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) .filtro-dropdown-menu {
   min-width: 12rem;
   z-index: 1035;
   padding: .75rem;
@@ -782,7 +783,7 @@
    sempre a prescindere dalla classe ".show"), tenendo il menu visibile in
    permanenza invece che solo dopo il click sul bottone - bug reale gia'
    capitato qui */
-:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) .filtro-dropdown-menu.show {
+:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) .filtro-dropdown-menu.show {
   display: flex;
   flex-direction: column;
   gap: .5rem;
@@ -800,7 +801,7 @@
    flex. Bordo trasparente a riposo, stesso spessore di quello colorato
    sotto: col "box-sizing: border-box" di Bootstrap il passaggio a colorato
    non sposta/ridimensiona la pillola */
-:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) .filtro-dropdown-item {
+:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) .filtro-dropdown-item {
   display: flex;
   align-items: center;
   color: var(--color-text);
@@ -811,9 +812,9 @@
   transition: border-color .15s ease;
 }
 
-:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) .filtro-dropdown-item:hover,
-:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) .filtro-dropdown-item:focus,
-:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) .filtro-dropdown-item:active {
+:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) .filtro-dropdown-item:hover,
+:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) .filtro-dropdown-item:focus,
+:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) .filtro-dropdown-item:active {
   border-color: var(--color-primary);
   color: var(--color-text);
 }
@@ -832,7 +833,7 @@
    mostrato via JS al volo (filtro-prodotti-ajax.js in prodotti_card.html,
    script inline in prodotti_tabella.html - sposta la classe "active" senza
    ricaricare la pagina) */
-:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) .filtro-item-dot {
+:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) .filtro-item-dot {
   width: 8px;
   height: 8px;
   flex-shrink: 0;
@@ -842,7 +843,7 @@
   visibility: hidden;
 }
 
-:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) .filtro-dropdown-item.active .filtro-item-dot {
+:is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) .filtro-dropdown-item.active .filtro-item-dot {
   visibility: visible;
 }
 
@@ -1136,12 +1137,12 @@
      chiusa: qui il filtro resta sempre nella riga del titolo (non diventa
      mai un bottone fluttuante, vedi sopra), quindi deve intonarsi con lei
      invece che con la ricerca */
-  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) {
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) {
     flex-basis: 32px;
     max-width: 32px !important;
   }
 
-  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti) {
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti, #filtroSezioneDocumenti) {
     height: 32px;
     border-radius: 50%;
   }
@@ -1152,7 +1153,8 @@
      "#filtroSottocategoria" sono due <button> vuoti, non piu' due <select> */
   #filtroProdottiWrapper #prodottiCardFiltro,
   #filtroTabellaWrapper #filtroSottocategoria,
-  #filtroCategoriaProdottiWrapper #filtroCategoriaProdotti {
+  #filtroCategoriaProdottiWrapper #filtroCategoriaProdotti,
+  #filtroSezioneDocumentiWrapper #filtroSezioneDocumenti {
     width: 32px;
   }
 

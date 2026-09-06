@@ -113,6 +113,12 @@
   border-color: var(--color-primary);
 }
 
+/* Stesso contorno per una riga di "#tabella-documenti": "border-color" su
+   un <tr> non ha effetto visivo di suo, il bordo lo disegnano le celle */
+#tabella-documenti tr.documento-riga-selezionabile > td {
+  border-color: var(--color-primary);
+}
+
 /* Campo di rinomina inline (sostituisce ".testo-categoria" nascosto, vedi
    gestione-documenti.js/iniziaRinominaCategoria): un "form-control" di
    Bootstrap e' "width: 100%" di default, che qui riempirebbe l'intera
@@ -215,6 +221,22 @@
   border-color: transparent;
   color: var(--color-text-light);
   filter: brightness(1.2);
+}
+
+/* Cerchio a contorno grigio (invece di blu/rosso come Modifica/Elimina)
+   per il bottone Annulla della tabella desktop: icona nera sia a riposo
+   che all'hover, solo lo sfondo si riempie di grigio chiaro */
+#btnAnnullaModalitaTabella {
+  background-color: transparent;
+  border-color: var(--bs-border-color);
+  color: var(--color-text);
+}
+
+#btnAnnullaModalitaTabella:hover,
+#btnAnnullaModalitaTabella:focus {
+  background-color: var(--color-bg-alt);
+  border-color: var(--bs-border-color);
+  color: var(--color-text);
 }
 
 /* Icona "a contorno" (bi-file-earmark) col conteggio documenti al centro
@@ -362,11 +384,22 @@
   }
 }
 
+/* Angoli arrotondati sulla tabella desktop, stessa tecnica di
+   "#listProdottiTable" in prodotti.css: "border-radius"+"overflow: hidden"
+   direttamente sulla "<table>" (non su ".table-responsive" attorno), che
+   qui e' gia' "border-collapse: separate" di default (Bootstrap non la
+   forza a "collapse") - con "collapse" i bordi delle celle vincerebbero
+   sempre sul bordo/arrotondamento della tabella stessa */
+#tabella-documenti table {
+  border-radius: .75rem;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+
 /* Pop-up "Nuovo/Modifica documento" (gestione_documenti.html,
    #modalDocumento): stessi angoli arrotondati/bordo blu gia' usati per il
    modal di Login ("#modalLogin .modal-content" in navbar.css) e per quello
-   di Avviso di chiusura - niente modal-header/titolo qui, stessa struttura
-   di "#modalAvviso" (solo modal-body, si chiude cliccando fuori/Esc) */
+   di Avviso di chiusura */
 #modalDocumento .modal-content {
   border-radius: 24px;
   border: 2px solid var(--color-primary);

@@ -181,6 +181,7 @@ def _risposta_albero_documenti(request):
         return redirect('gestione_documenti')
     return render(request, 'partials/albero_documenti.html', {
         'categorie': _categorie_con_conteggio(),
+        'documenti_totali': File.objects.exists(),
     })
 
 
@@ -200,6 +201,7 @@ def gestione_documenti(request):
         'form': form,
         'azione_url': reverse('nuovo_documento'),
         'categorie': _categorie_con_conteggio(),
+        'documenti_totali': File.objects.exists(),
     })
 
 

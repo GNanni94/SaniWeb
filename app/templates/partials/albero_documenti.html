@@ -1,110 +1,184 @@
 <div class="pannello-documenti p-2">
-  {% comment %}
-  Modifica/Elimina: visibili solo a cartella aperta, agiscono sulla
-  categoria aperta o su un documento al suo interno (gestione-documenti.js,
-  impostaModalita). Il terzo bottone (X) annulla.
-  {% endcomment %}
-  <div id="pannelloAzioni" class="pannello-documenti-azioni-categoria azioni-categoria-nascosta">
-    <button type="button" id="btnModifica" class="btn btn-outline-navbar rounded-circle btn-cerchio-cartella" title="Modifica" aria-label="Modifica">
-      <i class="bi bi-pencil-square"></i>
-    </button>
-    <button type="button" id="btnElimina" class="btn btn-outline-danger rounded-circle btn-cerchio-cartella" title="Elimina" aria-label="Elimina">
-      <i class="bi bi-trash"></i>
-    </button>
-    <button type="button" id="btnAnnullaModalita" class="btn rounded-circle btn-cerchio-cartella d-none" title="Annulla" aria-label="Annulla">
-      <i class="bi bi-x-lg"></i>
-    </button>
-  </div>
-  <p id="messaggioModalita" class="text-center text-muted small d-none"></p>
-  {% comment %}
-  Un id vero (non solo "data-categoria-pk") su ogni cartella e ogni
-  documento: cartelle (ordinate per nome_categoria) e documenti (ordinati
-  per nome_file) possono cambiare posizione rinominandoli - senza un id
-  stabile Idiomorph puo' riassociare per errore il nodo DOM di una
-  cartella/riga vecchia a un'altra dopo un riordino (bug reale gia'
-  trovato e corretto in questo stesso progetto per Avvisi/tabella_avvisi.html).
-  {% endcomment %}
-  <div id="albero-documenti" class="accordion">
-    {% for categoria in categorie %}
-    <div class="accordion-item" id="cartella-{{ categoria.pk }}"
-         data-categoria-pk="{{ categoria.pk }}"
-         data-nome-categoria="{{ categoria.nome_categoria }}"
-         data-url-rinomina-categoria="{% url 'rinomina_categoria' categoria.pk %}"
-         data-url-elimina-categoria="{% url 'elimina_categoria' categoria.pk %}">
-      <h2 class="accordion-header d-flex align-items-center">
-        {% comment %}
-        "div role=button" invece di un vero "<button>": Bootstrap intercetta
-        i click su "[data-bs-toggle=collapse]" a prescindere dal tag,
-        funziona identico a un bottone vero per aprire/chiudere - Invio/
-        Spazio da tastiera li gestisce gestione-documenti.js.
-        {% endcomment %}
-        <div class="accordion-button collapsed flex-grow-1" role="button" tabindex="0"
-             data-bs-toggle="collapse" data-bs-target="#corpoCartella{{ categoria.pk }}"
-             aria-expanded="false" aria-controls="corpoCartella{{ categoria.pk }}">
-          <span class="testo-categoria flex-grow-1 text-truncate">{{ categoria.nome_categoria }}</span>
-          <span class="position-relative d-inline-flex badge-conteggio-documenti{% if categoria.num_documenti > 99 %} badge-conteggio-documenti-lg{% elif categoria.num_documenti > 9 %} badge-conteggio-documenti-md{% endif %} ms-2">
-            <i class="bi bi-file-earmark" style="color: var(--color-primary);"></i>
-            <span class="position-absolute top-50 start-50 translate-middle fw-bold numero-documenti-categoria" style="color: var(--color-primary);">{{ categoria.num_documenti }}</span>
-          </span>
-        </div>
-        {% comment %}
-        Campo di rinomina FRATELLO del div sopra, mai annidato dentro di
-        lui: un click al suo interno, anche con "stopPropagation" nel JS,
-        arriverebbe comunque al gestore collapse di Bootstrap (il match e'
-        su "closest([data-bs-toggle=collapse])", indipendente dalla fase
-        dell'evento) e aprirebbe/chiuderebbe la cartella per sbaglio - bug
-        reale gia' capitato qui. Da fratello, il click sull'input non trova
-        alcun antenato con quell'attributo e Bootstrap lo ignora del tutto.
-        Nascosto di default ("d-none"), mostrato/centrato da
-        gestione-documenti.js/iniziaRinominaCategoria insieme al bottone
-        sopra che si nasconde (vedi documenti.css per il centraggio).
-        {% endcomment %}
-        <input type="text" class="form-control form-control-sm d-none input-rinomina-categoria mx-auto" value="{{ categoria.nome_categoria }}">
-      </h2>
-      <div id="corpoCartella{{ categoria.pk }}" class="accordion-collapse collapse" data-bs-parent="#albero-documenti">
-        <div class="accordion-body p-2">
-          {% with documenti=categoria.file_cat.all %}
-          {% if documenti %}
-          <div class="list-group">
-            {% for documento in documenti %}
-            {% comment %}
-            "data-url-*": URL per il POST di modifica/eliminazione del
-            documento. "data-file-nome": percorso del file sullo storage,
-            usato per l'anteprima nel modal di modifica.
-            {% endcomment %}
-            <div class="list-group-item d-flex justify-content-between align-items-center"
-                 id="documento-riga-{{ documento.pk }}"
-                 data-pk="{{ documento.pk }}"
-                 data-nome-file="{{ documento.nome_file }}"
-                 data-categoria-pk="{{ categoria.pk }}"
-                 data-url-modifica-documento="{% url 'modifica_documento' documento.pk %}"
-                 data-url-elimina-documento="{% url 'elimina_documento' documento.pk %}"
-                 {% if documento.file %}data-file-nome="{{ documento.file.name }}"{% endif %}>
-              {% if documento.file %}
-              <a href="{{ documento.file.url }}" target="_blank" class="text-center text-decoration-none documento-nome-btn flex-grow-1">
-                <span class="d-block">{{ documento.nome_file }}</span>
-                <small class="d-block text-muted">Aggiunto il {{ documento.creato_il|date:"d F Y" }}</small>
-                <small class="d-block text-muted">Modificato il {{ documento.modificato_il|date:"d F Y" }}</small>
-              </a>
-              {% else %}
-              <span class="text-center text-muted flex-grow-1">
-                <span class="d-block">{{ documento.nome_file }}</span>
-                <small class="d-block">Nessun file disponibile</small>
-              </span>
-              {% endif %}
-            </div>
-            {% endfor %}
+  <div class="d-md-none">
+    {% comment %}
+    Modifica/Elimina: visibili solo a cartella aperta, agiscono sulla
+    categoria aperta o su un documento al suo interno (gestione-documenti.js,
+    impostaModalita). Il terzo bottone (X) annulla.
+    {% endcomment %}
+    <div id="pannelloAzioni" class="pannello-documenti-azioni-categoria azioni-categoria-nascosta">
+      <button type="button" id="btnModifica" class="btn btn-outline-navbar rounded-circle btn-cerchio-cartella" title="Modifica" aria-label="Modifica">
+        <i class="bi bi-pencil-square"></i>
+      </button>
+      <button type="button" id="btnElimina" class="btn btn-outline-danger rounded-circle btn-cerchio-cartella" title="Elimina" aria-label="Elimina">
+        <i class="bi bi-trash"></i>
+      </button>
+      <button type="button" id="btnAnnullaModalita" class="btn rounded-circle btn-cerchio-cartella d-none" title="Annulla" aria-label="Annulla">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <p id="messaggioModalita" class="text-center text-muted small d-none"></p>
+    {% comment %}
+    Un id vero (non solo "data-categoria-pk") su ogni cartella e ogni
+    documento: cartelle (ordinate per nome_categoria) e documenti (ordinati
+    per nome_file) possono cambiare posizione rinominandoli - senza un id
+    stabile Idiomorph puo' riassociare per errore il nodo DOM di una
+    cartella/riga vecchia a un'altra dopo un riordino (bug reale gia'
+    trovato e corretto in questo stesso progetto per Avvisi/tabella_avvisi.html).
+    {% endcomment %}
+    <div id="albero-documenti" class="accordion">
+      {% for categoria in categorie %}
+      <div class="accordion-item" id="cartella-{{ categoria.pk }}"
+           data-categoria-pk="{{ categoria.pk }}"
+           data-nome-categoria="{{ categoria.nome_categoria }}"
+           data-url-rinomina-categoria="{% url 'rinomina_categoria' categoria.pk %}"
+           data-url-elimina-categoria="{% url 'elimina_categoria' categoria.pk %}">
+        <h2 class="accordion-header d-flex align-items-center">
+          {% comment %}
+          "div role=button" invece di un vero "<button>": Bootstrap intercetta
+          i click su "[data-bs-toggle=collapse]" a prescindere dal tag,
+          funziona identico a un bottone vero per aprire/chiudere - Invio/
+          Spazio da tastiera li gestisce gestione-documenti.js.
+          {% endcomment %}
+          <div class="accordion-button collapsed flex-grow-1" role="button" tabindex="0"
+               data-bs-toggle="collapse" data-bs-target="#corpoCartella{{ categoria.pk }}"
+               aria-expanded="false" aria-controls="corpoCartella{{ categoria.pk }}">
+            <span class="testo-categoria flex-grow-1 text-truncate">{{ categoria.nome_categoria }}</span>
+            <span class="position-relative d-inline-flex badge-conteggio-documenti{% if categoria.num_documenti > 99 %} badge-conteggio-documenti-lg{% elif categoria.num_documenti > 9 %} badge-conteggio-documenti-md{% endif %} ms-2">
+              <i class="bi bi-file-earmark" style="color: var(--color-primary);"></i>
+              <span class="position-absolute top-50 start-50 translate-middle fw-bold numero-documenti-categoria" style="color: var(--color-primary);">{{ categoria.num_documenti }}</span>
+            </span>
           </div>
-          {% else %}
-          <p class="text-center text-muted mb-0">Nessun documento in questa cartella.</p>
-          {% endif %}
-          {% endwith %}
+          {% comment %}
+          Campo di rinomina FRATELLO del div sopra, mai annidato dentro di
+          lui: un click al suo interno, anche con "stopPropagation" nel JS,
+          arriverebbe comunque al gestore collapse di Bootstrap (il match e'
+          su "closest([data-bs-toggle=collapse])", indipendente dalla fase
+          dell'evento) e aprirebbe/chiuderebbe la cartella per sbaglio - bug
+          reale gia' capitato qui. Da fratello, il click sull'input non trova
+          alcun antenato con quell'attributo e Bootstrap lo ignora del tutto.
+          Nascosto di default ("d-none"), mostrato/centrato da
+          gestione-documenti.js/iniziaRinominaCategoria insieme al bottone
+          sopra che si nasconde (vedi documenti.css per il centraggio).
+          {% endcomment %}
+          <input type="text" class="form-control form-control-sm d-none input-rinomina-categoria mx-auto" value="{{ categoria.nome_categoria }}">
+        </h2>
+        <div id="corpoCartella{{ categoria.pk }}" class="accordion-collapse collapse" data-bs-parent="#albero-documenti">
+          <div class="accordion-body p-2">
+            {% with documenti=categoria.file_cat.all %}
+            {% if documenti %}
+            <div class="list-group">
+              {% for documento in documenti %}
+              {% comment %}
+              "data-url-*": URL per il POST di modifica/eliminazione del
+              documento. "data-file-nome": percorso del file sullo storage,
+              usato per l'anteprima nel modal di modifica.
+              {% endcomment %}
+              <div class="list-group-item d-flex justify-content-between align-items-center"
+                   id="documento-riga-{{ documento.pk }}"
+                   data-pk="{{ documento.pk }}"
+                   data-nome-file="{{ documento.nome_file }}"
+                   data-categoria-pk="{{ categoria.pk }}"
+                   data-url-modifica-documento="{% url 'modifica_documento' documento.pk %}"
+                   data-url-elimina-documento="{% url 'elimina_documento' documento.pk %}"
+                   {% if documento.file %}data-file-nome="{{ documento.file.name }}"{% endif %}>
+                {% if documento.file %}
+                <a href="{{ documento.file.url }}" target="_blank" class="text-center text-decoration-none documento-nome-btn flex-grow-1">
+                  <span class="d-block">{{ documento.nome_file }}</span>
+                  <small class="d-block text-muted">Aggiunto il {{ documento.creato_il|date:"d F Y" }}</small>
+                  <small class="d-block text-muted">Modificato il {{ documento.modificato_il|date:"d F Y" }}</small>
+                </a>
+                {% else %}
+                <span class="text-center text-muted flex-grow-1">
+                  <span class="d-block">{{ documento.nome_file }}</span>
+                  <small class="d-block">Nessun file disponibile</small>
+                </span>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-center text-muted mb-0">Nessun documento in questa cartella.</p>
+            {% endif %}
+            {% endwith %}
+          </div>
         </div>
       </div>
+      {% empty %}
+      <p class="text-center text-muted mb-0">Nessuna cartella configurata.</p>
+      {% endfor %}
     </div>
-    {% empty %}
-    <p class="text-center text-muted mb-0">Nessuna cartella configurata.</p>
-    {% endfor %}
+  </div>
+  {% comment %}
+  Tabella per schermi da 768px in su (stesso "table table-sm table-hover
+  text-center align-middle" di Avvisi/Prodotti senza immagine), invece
+  dell'albero a cartelle sopra (solo da telefono). Modifica/Elimina non
+  sono piu' per riga: due bottoni generici sopra la tabella armano una
+  modalita' (gestione-documenti.js, impostaModalitaTabella), poi si
+  clicca il bersaglio su cui agire - la cella "Sezione" per la categoria,
+  il resto della riga per il documento - stesso principio gia' usato per
+  l'albero da telefono (impostaModalita).
+  {% endcomment %}
+  <div id="tabella-documenti" class="d-none d-md-block">
+    {% if documenti_totali %}
+    <div class="d-flex justify-content-end align-items-center gap-2 mb-2">
+      <button type="button" id="btnModificaTabella" class="btn btn-outline-navbar rounded-circle btn-cerchio-cartella" title="Modifica" aria-label="Modifica">
+        <i class="bi bi-pencil-square"></i>
+      </button>
+      <button type="button" id="btnEliminaTabella" class="btn btn-outline-danger rounded-circle btn-cerchio-cartella" title="Elimina" aria-label="Elimina">
+        <i class="bi bi-trash"></i>
+      </button>
+      <button type="button" id="btnAnnullaModalitaTabella" class="btn rounded-circle btn-cerchio-cartella d-none" title="Annulla" aria-label="Annulla">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <p id="messaggioModalitaTabella" class="text-end text-muted small d-none"></p>
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm table-hover text-center align-middle">
+        <thead class="table-navbar align-middle">
+          <tr>
+            <th scope="col">Nome documento</th>
+            <th scope="col">Sezione</th>
+            <th scope="col">File</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for categoria in categorie %}
+          {% for documento in categoria.file_cat.all %}
+          <tr data-pk="{{ documento.pk }}"
+              data-nome-file="{{ documento.nome_file }}"
+              data-categoria-pk="{{ categoria.pk }}"
+              data-url-modifica-documento="{% url 'modifica_documento' documento.pk %}"
+              data-url-elimina-documento="{% url 'elimina_documento' documento.pk %}"
+              {% if documento.file %}data-file-nome="{{ documento.file.name }}"{% endif %}>
+            <td class="nome-documento-cella-riga">
+              <span class="testo-nome-documento-riga">{{ documento.nome_file }}</span>
+              <input type="text" class="form-control form-control-sm d-none input-rinomina-documento" value="{{ documento.nome_file }}">
+            </td>
+            <td class="sezione-cella-riga"
+                data-categoria-pk="{{ categoria.pk }}"
+                data-nome-categoria="{{ categoria.nome_categoria }}"
+                data-url-rinomina-categoria="{% url 'rinomina_categoria' categoria.pk %}"
+                data-url-elimina-categoria="{% url 'elimina_categoria' categoria.pk %}"
+                data-num-documenti="{{ categoria.num_documenti }}">
+              <span class="testo-sezione-riga">{{ categoria.nome_categoria }}</span>
+              <input type="text" class="form-control form-control-sm d-none input-rinomina-categoria" value="{{ categoria.nome_categoria }}">
+            </td>
+            <td>
+              {% if documento.file %}
+              <a href="{{ documento.file.url }}" target="_blank" class="documento-nome-btn">{{ documento.file.name|cut:"documenti/" }}</a>
+              {% else %}
+              <span class="text-muted">Nessun file disponibile</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-center text-muted mb-0">Nessun documento configurato.</p>
+    {% endif %}
   </div>
 </div>
 

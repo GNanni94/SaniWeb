@@ -116,6 +116,24 @@
   }
 }
 
+/* Bottone a cerchio nella riga di intestazione di gestione (es. "+ Nuovo
+   documento" in gestione_documenti.html), invece della pillola con testo
+   di ".btn-pillola-intestazione-gestione" sopra: solo icona, stessa
+   dimensione dei cerchi filtro/ricerca riusati da piu' pagine (32px da
+   telefono, 42px da desktop - vedi prodotti.css) */
+.btn-cerchio-intestazione-gestione {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+@media (min-width: 768px) {
+  .btn-cerchio-intestazione-gestione {
+    width: 42px;
+    height: 42px;
+  }
+}
+
 /* Spazio tra i controlli laterali e il contorno a pillola quando
    l'intestazione si aggancia sotto la navbar durante lo scroll
    (".intestazione-fissata", aggiunta via JS - vedi
