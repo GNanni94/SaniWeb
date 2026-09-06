@@ -236,6 +236,16 @@
   width: 100% !important;
 }
 
+/* Bordi tondi della tabella di dashboard_prodotti_senza_immagine.html, stessa
+   tecnica di "#listProdottiTable" qui sopra ("border-radius" + "overflow:
+   hidden" direttamente sulla "<table>", niente "!important" sul "width" qui:
+   non e' DataTables, nessun width inline da vincere) */
+#tabella-prodotti-senza-immagine {
+  border-radius: .75rem;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+
 /* Tabella prodotti (DataTables): sotto i 576px il testo "Showing x to y..."
    (con "float" di default) non ci sta piu' affiancato alla paginazione e
    va a capo in modo disordinato: lo mettiamo su una riga propria a piena
