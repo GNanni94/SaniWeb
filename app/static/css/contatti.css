@@ -5,8 +5,51 @@
   color: #000;
 }
 
+/* Layout a 3 sezioni della pagina Contatti (orari, form, mappa): sezioni
+   fratelle in un unico contenitore CSS grid, cosi' la disposizione si
+   cambia riscrivendo solo "grid-template-areas" senza toccare l'HTML.
+   Da mobile (nessuna area definita) restano impilate nell'ordine del DOM:
+   orari, form, mappa. */
+.contatti-layout {
+  display: grid;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .contatti-layout {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "form orari"
+      "form mappa";
+    column-gap: 3rem;
+    row-gap: 1rem;
+  }
+
+  .sezione-form {
+    grid-area: form;
+  }
+
+  .sezione-orari {
+    grid-area: orari;
+  }
+
+  .sezione-mappa {
+    grid-area: mappa;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* La riga "mappa" e' 1fr: si allunga fino a pareggiare il fondo del
+     form (che occupa entrambe le righe della colonna di sinistra) */
+  .sezione-mappa #map {
+    flex: 1 1 auto;
+  }
+}
+
 #map {
   position: relative; /* per contenere il banner ".map-hint" qui sotto */
+  min-height: 244px; /* altezza di partenza da mobile, dove non e' in un flex che la fa crescere */
   border-radius: .75rem;
   overflow: hidden; /* ritaglia la mappa secondo l'angolo arrotondato */
 }
@@ -69,15 +112,6 @@
   border-spacing: 0;
   overflow: hidden; /* applica l'angolo arrotondato anche alle celle interne */
   margin-bottom: 0;
-}
-
-/* Tabella orari da desktop (#orari): il titolo "Orari di apertura" (h3) e'
-   piu' basso del titolo "RICHIEDI INFORMAZIONI" (h4) della colonna
-   affiancata, quindi la tabella partirebbe piu' in alto rispetto alla
-   casella "Nome" del form. Margine misurato via devtools per farla
-   iniziare esattamente allo stesso livello */
-#orari {
-  margin-top: 35px;
 }
 
 /* Toglie il bordo inferiore che Bootstrap mette su ogni cella
