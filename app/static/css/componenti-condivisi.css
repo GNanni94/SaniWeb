@@ -1,8 +1,4 @@
-/* Bottone dello stesso blu della navbar, per chi non deve usare i colori
-   semantici di Bootstrap (success/danger/ecc.) ma il blu del sito - es. il
-   bottone "Manda istruzioni" in password_reset_form.html. Il blu "primary"
-   di default di Bootstrap (--bs-primary) e' un altro azzurro piu' chiaro,
-   diverso da var(--color-primary): non basta ".btn-primary" */
+/* Bottone dello stesso blu della navbar, invece dei colori semantici di Bootstrap */
 .btn.btn-navbar {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
@@ -16,8 +12,7 @@
   color: #fff;
 }
 
-/* Variante outline dello stesso blu, per bottoni secondari accanto a un
-   ".btn-navbar" pieno (es. login.html: "Log In" pieno + "Registrati" outline) */
+/* Variante outline dello stesso blu, per bottoni secondari accanto a un ".btn-navbar" pieno */
 .btn.btn-outline-navbar {
   background-color: transparent;
   border-color: var(--color-primary);
@@ -31,9 +26,7 @@
   color: #fff;
 }
 
-/* Variante come ".btn-navbar" ma con bordo bianco invece che dello stesso
-   blu dello sfondo: per un bottone pieno su sfondo blu navbar, dove
-   altrimenti (bordo blu su sfondo blu navbar) non si distinguerebbe */
+/* Variante come ".btn-navbar" ma con bordo bianco, per un bottone pieno su sfondo blu navbar */
 .btn.btn-navbar-bordo-bianco {
   background-color: var(--color-primary);
   border-color: var(--color-text-light);
@@ -47,9 +40,7 @@
   color: var(--color-text-light);
 }
 
-/* Variante "invertita" di ".btn-navbar": sfondo bianco, testo/icona blu
-   navbar invece del contrario. L'icona (bootstrap-icons, font) segue
-   "color" come il testo, nessuna regola separata necessaria per colorarla */
+/* Variante "invertita" di ".btn-navbar": sfondo bianco, testo/icona blu navbar */
 .btn.btn-navbar-invertito {
   background-color: var(--color-bg);
   border-color: var(--color-bg);
@@ -63,9 +54,7 @@
   color: var(--color-primary-dark);
 }
 
-/* Sfondo trasparente (si vede il blu della navbar dietro), bordo e testo
-   bianchi - usata per i bottoni Login/Registrati (solo icona, visibili
-   solo da telefono) nella navbar (base.html) */
+/* Sfondo trasparente, bordo e testo bianchi - usata per i bottoni Login/Registrati nella navbar */
 .btn.btn-navbar-trasparente {
   background-color: transparent;
   border-color: var(--color-text-light);
@@ -79,10 +68,7 @@
   color: var(--color-text-light);
 }
 
-/* Variante colore tabella (stesso blu della navbar), da usare su <thead>
-   come le varianti ".table-light"/".table-dark" gia' pronte di Bootstrap -
-   stessa struttura di variabili CSS di quelle (--bs-table-*), cosi' resta
-   compatibile con table-hover/table-bordered/table-striped */
+/* Variante colore tabella (blu navbar), compatibile con table-hover/table-bordered/table-striped */
 .table-navbar {
   --bs-table-color: #fff;
   --bs-table-bg: var(--color-primary);
@@ -97,18 +83,7 @@
   border-color: var(--bs-table-border-color);
 }
 
-/* Bottoni ai lati del titolo, nelle pagine di gestione con intestazione a
-   pillola sticky (gestione_documenti.html, gestione_avvisi.html,
-   dashboard_prodotti_senza_immagine.html - vedi ".intestazione-categoria-sticky"
-   in prodotti.css, riusata anche li'): "btn-sm" va bene da telefono (solo
-   icona), ma da desktop, dove compare anche il testo, risultano piccoli
-   rispetto all'<h1> accanto - li si ingrandisce leggermente sopra il
-   breakpoint "md" (768px), stesso trattamento gia' usato per
-   ".btn-torna-catalogo" in prodotti_card.html (prodotti.css), qui con nome
-   generico perche' condiviso da piu' pagine di gestione (nessuna "torna al
-   catalogo"). Non legato alla dimensione del titolo stesso (un font-size
-   pari a quello dell'h1 renderebbe i bottoni piu' vistosi del titolo) -
-   restano un elemento secondario, quindi una taglia fissa e moderata. */
+/* Bottoni ai lati del titolo nelle pagine di gestione con intestazione sticky: dimensione leggermente ingrandita da desktop */
 @media (min-width: 768px) {
   .btn-pillola-intestazione-gestione {
     padding: 0.5rem 1.25rem;
@@ -116,11 +91,7 @@
   }
 }
 
-/* Bottone a cerchio nella riga di intestazione di gestione (es. "+ Nuovo
-   documento" in gestione_documenti.html), invece della pillola con testo
-   di ".btn-pillola-intestazione-gestione" sopra: solo icona, stessa
-   dimensione dei cerchi filtro/ricerca riusati da piu' pagine (32px da
-   telefono, 42px da desktop - vedi prodotti.css) */
+/* Bottone a cerchio nella riga di intestazione di gestione, solo icona */
 .btn-cerchio-intestazione-gestione {
   width: 32px;
   height: 32px;
@@ -134,21 +105,7 @@
   }
 }
 
-/* Spazio tra i controlli laterali e il contorno a pillola quando
-   l'intestazione si aggancia sotto la navbar durante lo scroll
-   (".intestazione-fissata", aggiunta via JS - vedi
-   ".intestazione-categoria-sticky.intestazione-fissata" in prodotti.css):
-   stesso ".5rem" di spaziatura gia' usato li' per ".btn-torna-catalogo"/
-   ".controlli-categoria-wrapper" di prodotti_card.html, qui con selettori
-   generici per le pagine di gestione (gestione_documenti.html,
-   gestione_avvisi.html, dashboard_prodotti_senza_immagine.html): a
-   sinistra l'id "#btnTornaDashboard" e' gia' lo stesso identico su tutte
-   e tre (stesso bottone, stessa destinazione), a destra ogni pagina ha un
-   controllo diverso (un bottone azione, o - su dashboard_prodotti_senza_immagine.html -
-   il wrapper di filtro+ricerca), marcato con la classe generica
-   ".slot-controlli-intestazione-fine". "!important" necessario per vincere
-   "start-0"/"end-0" di Bootstrap, gia' "!important" di loro (stesso motivo
-   della regola equivalente in prodotti.css) */
+/* Spazio tra i controlli laterali e il contorno a pillola quando l'intestazione si aggancia sotto la navbar durante lo scroll */
 .intestazione-categoria-sticky.intestazione-fissata #btnTornaDashboard {
   left: .5rem !important;
 }
@@ -157,12 +114,7 @@
   right: .5rem !important;
 }
 
-/* Avviso "devi registrarti per il preventivo" (partials/alert_preventivo.html),
-   usato in catalogo.html, prodotti_tabella.html e prodotti_card.html - stesso
-   blu della navbar/footer del sito invece del celeste di default di
-   ".alert-info". Selettore con due classi (invece di una sola, che avrebbe
-   comunque la stessa specificita' di ".alert-info" di Bootstrap) apposta per
-   vincere sempre, a prescindere dall'ordine di caricamento dei fogli di stile */
+/* Avviso "devi registrarti per il preventivo": blu navbar/footer invece del celeste di default di ".alert-info" */
 .alert-info.catalogo-alert-preventivo {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
@@ -174,11 +126,7 @@
   text-decoration: underline;
 }
 
-/* Solo da md in su: l'avviso si aggancia in alto a destra della riga del
-   titolo (invece di seguire il flusso normale sotto il titolo su schermi
-   piccoli, dove l'avviso va a capo per non sovrapporsi). Bootstrap 5.3 non
-   ha varianti responsive per le utility di posizionamento (niente
-   "position-md-absolute"), quindi qui serve CSS custom */
+/* Solo da md in su: l'avviso si aggancia in alto a destra della riga del titolo */
 @media (min-width: 768px) {
   .alert.catalogo-alert-preventivo {
     position: absolute;
@@ -187,14 +135,7 @@
   }
 }
 
-/* Pagine prodotti (prodotti_card.html e prodotti_tabella.html): qui l'avviso
-   non sta piu' agganciato al titolo (vedi sopra) ma nella riga di
-   ricerca/filtro sotto, quindi va annullato l'agganciamento assoluto pensato
-   per il titolo - altrimenti si posizionerebbe rispetto al primo antenato
-   con position non-static trovato risalendo il DOM, con risultato
-   imprevedibile.
-   Tre classi (invece di due) apposta: serve piu' specificita' della regola
-   sopra per vincere a prescindere dall'ordine nel file */
+/* Pagine prodotti: annulla l'agganciamento assoluto dell'avviso, qui posizionato nella riga di ricerca/filtro sotto il titolo */
 .alert.catalogo-alert-preventivo.catalogo-alert-inline {
   position: static;
 }

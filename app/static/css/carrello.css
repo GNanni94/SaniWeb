@@ -1,28 +1,16 @@
-/* Card dei prodotti nel carrello (carrello.html, dentro #colonnaListaCarrello):
-   bordo dello stesso blu della navbar per farla risaltare, come le altre card
-   con lo stesso trattamento nel sito (dettaglio_preventivo.html,
-   dashboard_admin.html, ecc.) */
+/* Card dei prodotti nel carrello: bordo blu navbar */
 #colonnaListaCarrello .card {
   border: 2px solid var(--color-primary);
 }
 
-/* Bottone "Torna al catalogo" nella riga titolo di carrello.html: stesso
-   principio (e stessi valori) di ".btn-torna-catalogo" in prodotti.css e
-   ".pillola-torna-preventivi" in preventivo.css - dimensione fissa e
-   moderata, slegata da quella del titolo h1 accanto (un font-size pari al
-   titolo renderebbe la pillola piu' vistosa del titolo stesso) */
+/* Bottone "Torna al catalogo" a dimensione fissa, indipendente dal titolo h1 accanto */
 .pillola-header-carrello {
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
   line-height: 1.5;
 }
 
-/* Da telefono il testo e' nascosto (icona sola - vedi "d-none d-md-inline"
-   nel markup): un box dimensionato dal solo padding non e' pero' un
-   cerchio vero, la larghezza segue il contenuto (un'icona non e' mai
-   esattamente larga quanto alta). Dimensione fissa e uguale su entrambe le
-   direzioni per un cerchio garantito, non "quasi" circolare per
-   coincidenza */
+/* Da telefono: solo icona, dimensione fissa uguale su entrambe le direzioni per un cerchio */
 @media (max-width: 767.98px) {
   .pillola-header-carrello {
     width: 2rem;
@@ -42,15 +30,7 @@
   }
 }
 
-/* Riga titolo "Richiedi Preventivo" fissata in cima allo scroll (da
-   telefono e da desktop), attaccata subito sotto la navbar: stesso
-   meccanismo (sentinella + IntersectionObserver + bordo "a pillola" quando
-   agganciata) gia' usato per la riga titolo di prodotti_card.html/
-   prodotti_tabella.html (".intestazione-categoria-sticky" in prodotti.css),
-   con classe e script dedicati (static/js/carrello-intestazione-sticky.js)
-   invece di riusare quelli - stesso principio di duplicazione scoped gia'
-   seguito altrove nel progetto (es. ".pillola-torna-preventivi" in
-   preventivo.css) */
+/* Riga titolo "Richiedi Preventivo" fissata sotto la navbar durante lo scroll, con bordo a pillola quando agganciata */
 .intestazione-carrello-sticky {
   position: sticky !important;
   top: var(--altezza-navbar, 0px);
@@ -72,14 +52,7 @@
   left: .5rem !important;
 }
 
-/* Da telefono (sotto la soglia xxl), quando la riga si aggancia i suoi due
-   elementi (bottone "Torna al catalogo" e titolo) vengono spostati dentro
-   la pillola della navbar (vedi static/js/carrello-intestazione-sticky.js):
-   a differenza di prodotti_card.html qui non c'e' nessun elemento
-   "position: fixed" dentro la riga da preservare (viene spostato l'intero
-   <h1>, non solo un suo link interno), quindi la riga risulta completamente
-   vuota e puo' collassare bordo/sfondo/padding senza dover nascondere
-   nient'altro */
+/* Quando bottone "Torna al catalogo" e titolo sono spostati nella pillola della navbar, la riga resta vuota: bordo/sfondo/padding collassati */
 .intestazione-carrello-sticky.contenuto-in-pillola-navbar {
   border-width: 0;
   border-radius: 0;
@@ -88,47 +61,24 @@
   padding-bottom: 0 !important;
 }
 
-/* "Torna al catalogo" spostato dentro la pillola della navbar
-   (".pillola-slot-indietro" in base.html/navbar.css, via
-   carrello-intestazione-sticky.js): porta l'utility Bootstrap
-   "position-absolute start-0", pensata per la riga originale
-   (".intestazione-carrello-sticky", "position: sticky" di suo) - spostato
-   qui dentro, il suo antenato posizionato piu' vicino diventa invece la
-   navbar intera. Stesso problema e stessa soluzione gia' usate in
-   navbar.css per ".pillola-slot-indietro .btn-torna-catalogo" */
+/* Bottone "Torna al catalogo" spostato nella pillola della navbar: posizionamento statico invece di assoluto */
 .pillola-slot-indietro .pillola-header-carrello {
   position: static !important;
   left: auto !important;
 }
 
-/* Titolo "Richiedi Preventivo": stesso blu navbar del titolo categoria di
-   prodotti_card.html (".titolo-categoria-link" in prodotti.css) e del
-   titolo di dettaglio_preventivo.html (".titolo-dettaglio-preventivo" in
-   preventivo.css) */
+/* Titolo "Richiedi Preventivo" dello stesso blu della navbar */
 .titolo-richiedi-preventivo {
   color: var(--color-primary);
 }
 
-/* Blocco tag+nome prodotto, accanto alla thumbnail: "flex-basis: 0" (non
-   "auto", il default che avrebbe comunque ".flex-grow-1" da solo) e'
-   essenziale, non solo "min-width: 0" - senza, l'ingombro di partenza usato
-   per decidere gli a-capo tra elementi flex e' quello del nome TUTTO su una
-   riga (il suo "contenuto naturale"): con un nome lungo quell'ingombro non
-   entra piu' accanto alla thumbnail, e va a capo l'intero blocco (tag+nome
-   sotto la thumbnail invece che accanto), non solo il testo del nome -
-   risultato una card visibilmente diversa dalle altre in base alla sola
-   lunghezza del nome prodotto. Con "flex-basis: 0" l'ingombro di partenza è
-   zero: il blocco resta sempre nella riga della thumbnail e riceve poi lo
-   spazio rimanente (".flex-grow-1"), dentro cui il nome va a capo
-   normalmente da solo (una o due righe) senza spostare la thumbnail */
+/* Blocco tag+nome prodotto accanto alla thumbnail: flex-basis 0 mantiene il blocco sulla riga della thumbnail, il nome va a capo internamente */
 .carrello-item-info {
   flex-basis: 0;
   min-width: 0;
 }
 
-/* Miniatura prodotto nella card del carrello: dimensione fissa (non piu'
-   "img-fluid" a piena larghezza della colonna) cosi' thumbnail, testo,
-   stepper e cestino restano sempre allineati sulla stessa riga da desktop */
+/* Miniatura prodotto a dimensione fissa, allineata con testo, stepper e cestino sulla stessa riga da desktop */
 .carrello-item-thumb {
   width: 84px;
   height: 84px;
@@ -146,8 +96,7 @@
   object-fit: contain;
 }
 
-/* Codice prodotto e categoria come pillole informative sopra al nome del
-   prodotto, invece del testo semplice che avevano prima */
+/* Codice prodotto e categoria come pillole informative sopra al nome del prodotto */
 .carrello-tag-codice {
   background-color: var(--color-bg-alt);
   color: #6b7683;
@@ -166,10 +115,7 @@
   letter-spacing: .02em;
 }
 
-/* Bottone di eliminazione riga: cerchio "btn-outline-danger" (stesso
-   componente Bootstrap gia' usato altrove nel sito, es.
-   ".btn-svuota-preventivo" in carrello-flottante.css) invece del vecchio
-   link/icona nudi */
+/* Bottone di eliminazione riga a cerchio */
 .carrello-delete-btn {
   width: 2.25rem;
   height: 2.25rem;
@@ -181,11 +127,7 @@
   flex-shrink: 0;
 }
 
-/* Riga di stepper+unita' di misura: da desktop sta semplicemente accanto
-   al resto (nessuno spazio forzato tra i due, ".carrello-item-qty-spacer"
-   qui sotto resta a larghezza 0). Da telefono va a capo su una riga propria
-   (separata da un bordo) e i due spazi ai lati diventano elastici, cosi' lo
-   stepper resta centrato e l'unita' di misura resta ancorata a destra */
+/* Riga stepper+unita' di misura: accanto al resto da desktop, su riga propria con stepper centrato e unita' a destra da telefono */
 .carrello-item-qty-row {
   flex-shrink: 0;
 }
@@ -218,11 +160,7 @@
   }
 }
 
-/* Stepper +/- della quantita': contenitore a pillola con bottoni circolari,
-   stesso linguaggio visivo (dimensione/forma) dei bottoni +/- del carrello
-   flottante (".btn-aumenta-elemento"/".btn-diminuisci-elemento" in
-   carrello-flottante.css) - classi separate perche' vivono in un contesto
-   diverso (due <form> distinti che ricaricano la pagina, non fetch via JS) */
+/* Stepper +/- della quantita': contenitore a pillola con bottoni circolari */
 .carrello-stepper {
   background-color: var(--color-bg-alt);
   border: 1px solid var(--bs-border-color);
@@ -246,12 +184,7 @@
   line-height: 1;
 }
 
-/* Campo quantita' modificabile da tastiera (pagina carrello, non nel
-   carrello flottante, che resta di sola lettura + bottoni +/-): stesso
-   allineamento/peso della versione statica qui sopra, senza bordo ne'
-   sfondo per restare visivamente un numero e non un campo di modulo. Le
-   frecce native di incremento/decremento del browser sono nascoste: i
-   bottoni +/- circolari accanto le renderebbero ridondanti */
+/* Campo quantita' modificabile da tastiera, senza bordo/sfondo e senza le frecce native di incremento/decremento */
 .carrello-stepper-qty-input {
   width: 2.25rem;
   border: none;
@@ -274,19 +207,13 @@
   border-radius: 0.25rem;
 }
 
-/* Card del form "Richiedi preventivo" (id "Informazioni" nel canvas di
-   design): stesso bordo blu delle card della lista prodotti qui sopra.
-   "overflow: hidden" perche' la fascia del titolo qui sotto
-   (".carrello-summary-header") deve seguire gli angoli arrotondati della
-   card invece di sporgere oltre */
+/* Card del form "Richiedi preventivo": bordo blu, overflow nascosto per far seguire alla fascia titolo gli angoli arrotondati */
 #cardFormPreventivo {
   border: 2px solid var(--color-primary);
   overflow: hidden;
 }
 
-/* Fascia titolo "Informazioni": stesso principio della fascia del titolo
-   "Preventivo" nel pannello del carrello flottante
-   (".titolo-carrello-flottante" in carrello-flottante.css) */
+/* Fascia titolo "Informazioni" con sfondo blu navbar */
 .carrello-summary-header {
   background-color: var(--color-primary);
 }

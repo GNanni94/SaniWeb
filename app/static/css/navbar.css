@@ -4,33 +4,23 @@
   position: relative;
 }
 
-/* Navbar fissata in cima durante lo scroll (da telefono e da desktop):
-   riguarda tutto il sito (questa navbar e' in base.html, condivisa da ogni
-   pagina). "--altezza-navbar" (impostata via JS in altezza-navbar.js,
-   misurando l'altezza reale della navbar) e' disponibile per pagine che
-   vogliano posizionare propri elementi fissati subito sotto di lei senza
-   sovrapporsi */
+/* Navbar fissata in cima durante lo scroll; imposta "--altezza-navbar"
+   (misurata via JS in altezza-navbar.js) per le pagine che vogliono
+   posizionare propri elementi subito sotto di lei */
 .site-navbar {
   position: sticky;
   top: 0;
   z-index: 1030;
 }
 
-/* Sfondo scurito dietro al pannello del menu hamburger da telefono (vedi
-   ".hamburger-backdrop" in base.html, fuori da "<nav>" apposta - li' un
-   commento spiega perche'). Invisibile/non cliccabile di base: la regola
-   che lo mostra all'apertura del menu sta nel media query piu' in basso */
+/* Sfondo scurito dietro al pannello del menu hamburger da telefono
+   (".hamburger-backdrop" in base.html, fuori da "<nav>"); invisibile e
+   non cliccabile finche' il menu non si apre, vedi il media query sotto */
 .hamburger-backdrop {
   position: fixed;
   inset: 0;
-  /* Sopra (1025) a ".intestazione-categoria-sticky" (prodotti.css, z-index
-     1020: la riga "Torna al catalogo"/titolo/filtro agganciata in cima
-     durante lo scroll di prodotti_card.html/prodotti_tabella.html) - a
-     parita' di z-index (1020 su entrambi, prima di questa modifica)
-     vincerebbe lei per ordine nel DOM (viene dopo questo elemento in
-     base.html), restando illuminata sopra al backdrop invece di scurirsi
-     insieme al resto della pagina. Resta comunque sotto ".site-navbar"
-     (1030), che deve restare sopra */
+  /* z-index sopra a ".intestazione-categoria-sticky" (prodotti.css, 1020),
+     ma sotto ".site-navbar" (1030) */
   z-index: 1025;
   background-color: rgba(0, 0, 0, .5);
   opacity: 0;
@@ -38,50 +28,35 @@
   transition: opacity .3s ease;
 }
 
-/* Stessa dimensione (30px, misurata) dell'icona del bottone hamburger, per
-   le icone di Login/Registrati da telefono */
+/* Dimensione delle icone Login/Registrati da telefono, uguale a quella
+   dell'icona del bottone hamburger (30px) */
 .icona-dimensione-hamburger {
   font-size: 30px;
 }
 
-/* Bootstrap mette di suo un bordo su ".navbar-toggler" (rgba(0,0,0,.15),
-   indipendente dalla classe utility ".border"): lo togliamo esplicitamente */
+/* Rimuove il bordo che Bootstrap applica di default a ".navbar-toggler" */
 .navbar-toggler {
   border: none;
 }
 
-/* Pillola bianca che raggruppa logo + icone (login/registrati o profilo)
-   in un unico blocco visivo, staccato dall'hamburger - sotto la soglia xxl
-   (vedi navbar-toggler piu' sotto e ".site-navbar" reso trasparente nel
-   media query qui sotto). Da desktop torna "invisibile": i due figli
-   (logo, icone) diventano flex-item diretti di ".container-fluid" con il
-   proprio "order-xxl-*" (base.html), come prima dell'introduzione di
-   questa pillola - "display: contents" fa sparire il box (sfondo,
-   bordo, padding inclusi) senza toccare il DOM ne' duplicare markup */
+/* Pillola bianca che raggruppa logo e icone (login/registrati o profilo)
+   in un unico blocco visivo, staccata dall'hamburger sotto la soglia xxl;
+   da desktop diventa invisibile ("display: contents" nel media query sotto) */
 .navbar-pillola-brand {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: .5rem;
   flex-grow: 1;
-  /* Senza, questo flex-item di ".container-fluid" non si restringe mai
-     sotto la larghezza "naturale" (non troncata) del suo contenuto: con
-     "flex-wrap: nowrap" qui sotto serve a farla stare sulla riga
-     dell'hamburger anche quando due icone (caso anonimo) o un titolo
-     categoria lungo (caso agganciato) sforerebbero lo spazio residuo -
-     l'ellissi/il fit-text del contenuto interno gestiscono poi il resto */
+  /* Permette al blocco di restringersi sotto la larghezza naturale del
+     contenuto, cosi' resta sulla riga dell'hamburger */
   min-width: 0;
-  height: 56px; /* stessa altezza della pillola hamburger accanto (vedi ".navbar-toggler" piu' sotto) */
+  height: 56px; /* stessa altezza della pillola hamburger accanto */
   background-color: var(--color-bg);
   border: 2px solid var(--color-primary);
   border-radius: 999px;
-  /* Padding orizzontale ridotto apposta su entrambi i lati (logo a
-     sinistra, icone/profilo a destra): stessi ".65rem" sui due lati,
-     uguali alla distanza verticale che logo/icone hanno gia' sopra/sotto
-     per via del centraggio flex (altezza pillola 56px, meno 2px di bordo
-     per lato, meno i 30px di logo/icone, diviso 2 = 11px ~= .65rem) -
-     cosi' logo e icone stanno vicino ai rispettivi bordi della pillola
-     invece che centrati con margini ampi */
+  /* Padding orizzontale ridotto, uguale alla distanza verticale gia' data
+     dal centraggio flex */
   padding: 0 .65rem;
 }
 
@@ -91,70 +66,43 @@
   }
 }
 
-/* Sotto la soglia xxl (hamburger attivo): il pannello del menu e' sempre
-   in overlay (fixed), anche durante l'animazione di apertura di Bootstrap,
-   cosi' scivola sopra il contenuto invece di spingerlo giu' senza scatti */
+/* Sotto la soglia xxl (hamburger attivo): il pannello del menu resta in
+   overlay (fixed) anche durante l'animazione di apertura di Bootstrap */
 @media (max-width: 1399.98px) {
-  /* Niente piu' striscia blu piena: le due pillole (hamburger + logo/icone
-     qui sotto) prendono il suo posto, staccate tra loro. La riga resta
-     della sua altezza normale nel flusso della pagina (niente scroll del
-     contenuto sotto la navbar, a differenza di siti come store.google.com
-     che se lo possono permettere avendo una barra ricaricata sull'header):
-     cambia solo il riempimento, cosi' avvisi/altezza-navbar.js/sticky del
-     resto del sito restano invariati */
+  /* Sfondo trasparente: le due pillole (hamburger + logo/icone qui sotto)
+     prendono il posto della striscia blu piena */
   .site-navbar {
     background-color: transparent;
   }
 
-  /* Spazio tra le due pillole (hamburger + logo/icone): senza "gap" restano
-     appiccicate, dato che ".navbar-pillola-brand" ha "flex-grow: 1" e
-     riempie tutto lo spazio libero della riga fino al bordo dell'ovale
-     hamburger. Non influisce su "#navbarSupportedContent" (order-4): e'
-     "position: fixed" quindi fuori dal flusso flex, "gap" lo ignora */
+  /* Spazio tra le due pillole (hamburger + logo/icone) */
   .site-navbar .container-fluid {
     gap: .75rem;
-    /* Bootstrap lascia "flex-wrap: wrap" attivo sotto la soglia xxl: senza
-       "nowrap", quando ".navbar-pillola-brand" e' troppo larga per lo
-       spazio rimasto accanto all'hamburger (due icone Login/Registrati, o
-       titolo categoria lungo agganciato), il browser la manda a capo su
-       una riga propria - decisione presa sulla larghezza "naturale" del
-       contenuto, PRIMA che ellissi/fit-text abbiano modo di intervenire.
-       Con "nowrap" resta sempre sulla riga e si restringe (min-width:0 su
-       ".navbar-pillola-brand" qui sopra), lasciando che siano
-       ellissi/fit-text a gestire il contenuto che non ci sta */
+    /* Impedisce alla pillola logo/icone di andare a capo su una riga
+       propria quando lo spazio residuo non basta, lasciando che si
+       restringa (ellissi/fit-text gestiscono il contenuto interno) */
     flex-wrap: nowrap;
   }
 
-  /* ":has()" invece del solito combinatore "~" (usato altrove in questo
-     file per le stesse animazioni, es. qui sotto per le voci del menu):
-     ".hamburger-backdrop" sta fuori da "<nav>" (vedi base.html), quindi
-     non e' un sibling diretto del bottone hamburger - "~" non potrebbe
-     raggiungerlo */
+  /* Usa ":has()" perche' ".hamburger-backdrop" non e' un sibling diretto
+     del bottone hamburger */
   .site-navbar:has(.navbar-toggler[aria-expanded="true"]) ~ .hamburger-backdrop {
     opacity: 1;
     pointer-events: auto;
-    /* Sopra (1041) anche al carrello flottante (carrello-flottante.css,
-       z-index 1040: normalmente sopra alla navbar per conto suo, qui va
-       scurito insieme al resto quando il menu e' aperto). Solo in questo
-       stato attivo, non sul valore di riposo del backdrop qui sopra: non
-       deve interferire con l'ordine "a riposo" (navbar 1030, carrello
-       flottante 1040 sopra di lei) usato altrove */
+    /* z-index sopra anche al carrello flottante (carrello-flottante.css,
+       1040), attivo solo mentre il menu e' aperto */
     z-index: 1041;
   }
 
-  /* La navbar (pillole hamburger/logo + pannello #navbarSupportedContent,
-     tutti dentro di lei) deve restare sopra al backdrop appena scurito
-     (1041 qui sopra, altrimenti sopra 1030 di lei) mentre il menu e'
-     aperto - solo in questo stato, altrimenti a riposo tornerebbe sopra
-     anche al carrello flottante (1040), cambiandone l'ordine normale */
+  /* La navbar resta sopra al backdrop scurito (1041 qui sopra) solo mentre
+     il menu e' aperto */
   .site-navbar:has(.navbar-toggler[aria-expanded="true"]) {
     z-index: 1042;
   }
 
-  /* Bottone hamburger come ovale verticale pieno staccato dal resto
-     (come su store.google.com), invece di un'icona "nuda" sullo sfondo
-     della navbar. Stessa altezza della pillola logo/icone accanto (vedi
-     ".navbar-pillola-brand" piu' in alto) */
+  /* Bottone hamburger come ovale pieno staccato dal resto, invece di
+     un'icona "nuda" sullo sfondo della navbar; stessa altezza della
+     pillola logo/icone accanto */
   .navbar-toggler {
     width: 44px;
     height: 56px;
@@ -167,27 +115,16 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
   }
 
-  /* Dentro la pillola bianca (".navbar-pillola-brand") il logo/testo e le
-     icone non stanno piu' sullo sfondo blu: colori scuri/blu invece del
-     bianco usato dal resto della navbar (vedi ".site-navbar .nav-link,
-     .navbar-brand" e ".icona-profilo-navbar" piu' in basso, pensati per
-     lo sfondo blu di desktop, l'unico contesto rimasto dove si applicano) */
-  /* Specificita' a 3 classi apposta: senza ".site-navbar" davanti pareggia
-     con ".site-navbar .navbar-brand" (bianco, per il resto della navbar)
-     qui sotto nel file, e vincerebbe quest'ultima in quanto dichiarata
-     dopo - a parita' di specificita' vince l'ordine nel foglio di stile,
-     non quale regola sta dentro un media query piu' specifico */
+  /* Colore scuro per logo/icone dentro la pillola bianca, al posto del
+     bianco usato dal resto della navbar */
   .site-navbar .navbar-pillola-brand .navbar-brand {
     color: var(--color-text);
   }
 
   .navbar-pillola-brand .btn-navbar-trasparente {
     color: var(--color-primary);
-    /* Azzera il padding laterale di ".btn-sm" (Bootstrap, ".5rem" di
-       default): qui i bottoni Login/Registrati sono solo icona, il
-       padding orizzontale serviva solo a distanziarli senza guadagnare
-       nulla in leggibilita' - tolto per racimolare larghezza nella
-       pillola, che con due icone puo' andare a capo sotto l'hamburger */
+    /* Azzera il padding laterale di ".btn-sm" (Bootstrap): qui i bottoni
+       Login/Registrati sono solo icona */
     padding: .25rem 0;
   }
 
@@ -199,35 +136,22 @@
 
   .navbar-pillola-brand .icona-profilo-navbar {
     color: var(--color-primary);
-    /* Stessa dimensione (35px) del logo nella stessa pillola - "fs-2" in
-       base.html (~40px) resta invariato per il resto della navbar/pannello,
-       dove questa icona e' molto piu' grande delle altre voci circostanti.
-       Caso loggato: un'icona sola, spazio abbondante nella pillola, nessun
-       rischio di wrap (a differenza delle icone Login/Registrati del caso
-       anonimo, non toccate qui) */
+    /* Dimensione dell'icona profilo dentro la pillola, uguale a quella del
+       logo accanto */
     font-size: 35px;
   }
 
-  /* "min-width: 0" sul link logo (non solo sul testo al suo interno):
-     senza, un flex item non si restringe mai sotto la sua larghezza
-     intrinseca di default (qui quella del testo "SaniScope-chimica" per
-     intero), vincendo sempre su "overflow"/"text-overflow" del testo
-     qui sotto - vedi lo stesso principio gia' usato per ".pillola-slot-titolo".
-     "margin-right: 0" azzera il margine di default di Bootstrap su
-     ".navbar-brand" (1rem, pensato per separarlo dal resto della navbar):
-     qui e' ridondante, la separazione dalle icone la fa gia' il "gap: .5rem"
-     di ".navbar-pillola-brand" - lasciarlo sottraeva spazio utile alla
-     pillola senza motivo */
+  /* Permette al link logo di restringersi sotto la larghezza del testo
+     "SaniScope-chimica"; azzera anche il margine destro di default di
+     Bootstrap su ".navbar-brand" */
   .navbar-pillola-brand .navbar-brand {
     min-width: 0;
     margin-right: 0;
   }
 
   /* Testo "SaniScope-chimica" accanto al logo nella pillola: dimensione
-     contenuta (la pillola e' alta 56px) e troncato con puntini di
-     sospensione se lo spazio residuo (conteso con le icone a destra) non
-     basta, invece di andare a capo o spingere la pillola oltre i suoi
-     confini */
+     contenuta, troncato con puntini di sospensione se lo spazio residuo
+     non basta */
   .logo-testo-pillola {
     margin-left: .4rem;
     font-size: 1rem;
@@ -237,12 +161,9 @@
     text-overflow: ellipsis;
   }
 
-  /* Stato "modalita' categoria" della pillola: gruppo indietro/titolo/
-     filtro nascosto di default (vedi ".pillola-categoria-group" qui
-     sotto), mostrato solo quando ".pillola-modalita-categoria" e'
-     presente su ".navbar-pillola-brand" (aggiunta/tolta da
-     "intestazione-categoria-sticky.js" durante lo scroll) - logo/icone
-     di default fanno il percorso opposto */
+  /* Gruppo indietro/titolo/filtro nascosto di default, mostrato quando
+     ".navbar-pillola-brand" ha la classe ".pillola-modalita-categoria"
+     (aggiunta/tolta da intestazione-categoria-sticky.js durante lo scroll) */
   .pillola-categoria-group {
     display: none;
     align-items: center;
@@ -254,21 +175,15 @@
     display: flex;
   }
 
-  /* "!important" necessario su entrambe: ".navbar-brand" ha di suo la
-     classe Bootstrap "d-inline-flex" (display:inline-flex !important),
-     la riga icone ha "d-flex" (display:flex !important) - senza,
-     perderebbero sempre contro l'utility Bootstrap a prescindere da
-     specificita'/ordine (stessa convenzione gia' usata altrove nel
-     progetto per questo stesso motivo, es. "#navbarSupportedContent.show"
-     in questo file) */
+  /* Nasconde logo e riga icone di default, vincendo con "!important" le
+     utility Bootstrap "d-inline-flex"/"d-flex" gia' presenti su di loro */
   .navbar-pillola-brand.pillola-modalita-categoria > .navbar-brand,
   .navbar-pillola-brand.pillola-modalita-categoria > .pillola-icone-default {
     display: none !important;
   }
 
-  /* Slot indietro/filtro: larghezza sul contenuto (i cerchietti "Torna al
-     catalogo"/filtro spostati li' dentro, gia' dimensionati di loro in
-     prodotti.css), mai piu' larghi del necessario */
+  /* Slot indietro/filtro: larghezza sul contenuto (i cerchietti gia'
+     dimensionati in prodotti.css), mai piu' larghi del necessario */
   .pillola-slot-indietro,
   .pillola-slot-filtro {
     flex: none;
@@ -276,11 +191,8 @@
     align-items: center;
   }
 
-  /* Slot titolo: prende tutto lo spazio restante tra i due cerchietti,
-     testo centrato e troncato con puntini se il nome della categoria non
-     ci sta (spazio della pillola limitato). "min-width: 0" necessario
-     perche' un flex item non si restringe mai sotto la sua larghezza
-     intrinseca di default, che vincerebbe altrimenti su "overflow: hidden" */
+  /* Slot titolo: prende lo spazio restante tra i due cerchietti, testo
+     centrato e troncato con puntini se il nome della categoria non ci sta */
   .pillola-slot-titolo {
     flex: 1 1 auto;
     min-width: 0;
@@ -290,30 +202,18 @@
     text-overflow: ellipsis;
   }
 
-  /* Titolo categoria spostato nella pillola: stessa dimensione (32px) dei
-     due cerchietti "Torna al catalogo"/filtro accanto (misura gia' usata
-     per loro in prodotti.css), stesso blu di sempre (gia' impostato da
-     ".titolo-categoria-link" in prodotti.css, invariato) */
+  /* Titolo categoria nella pillola: stessa dimensione (32px) dei due
+     cerchietti indietro/filtro accanto, stesso blu di sempre */
   .pillola-slot-titolo #titoloCategoriaLink {
     font-size: 32px;
     font-weight: 700;
   }
 
-  /* Titolo "Richiedi Preventivo" (carrello.html) spostato nella pillola:
-     stesso principio e stessa dimensione (32px) del titolo categoria qui
-     sopra, vedi static/js/carrello-intestazione-sticky.js. "margin: 0"
-     perche' qui e' l'intero <h1> ad essere spostato (non solo un link al
-     suo interno come per il titolo categoria): il margine di un <h1>
-     normale sposterebbe il contenuto della pillola dal centro verticale.
-     "display: inline-block" essenziale, non solo estetico: "#titoloCategoriaLink"
-     qui sopra e' un <a>, gia' di suo "shrink-to-fit" sul proprio contenuto -
-     un <h1> e' invece block-level, si allargherebbe sempre a riempire
-     l'intero slot indipendentemente dal testo. La riduzione progressiva del
-     font in carrello-intestazione-sticky.js confronta la larghezza
-     dell'elemento con quella disponibile: su un <h1> block quel confronto
-     sarebbe sempre "combacia" (e' gia' largo quanto lo slot), quindi non
-     ridurrebbe mai il font - bug reale gia' capitato qui ("Richiedi
-     Preventivo" tagliato dall'ellissi invece di rimpicciolirsi) */
+  /* Titolo "Richiedi Preventivo" (carrello.html) nella pillola: stessa
+     dimensione (32px) del titolo categoria qui sopra, vedi
+     static/js/carrello-intestazione-sticky.js. "display: inline-block"
+     lo fa restringere come un elemento inline invece di riempire sempre
+     l'intero slot come farebbe un <h1> block-level */
   .pillola-slot-titolo .titolo-richiedi-preventivo {
     display: inline-block;
     font-size: 32px;
@@ -321,15 +221,10 @@
     margin: 0;
   }
 
-  /* Stesso identico bug/fix di ".titolo-richiedi-preventivo" qui sopra
-     (l'intero <h1> spostato, non solo un link al suo interno), per i tre
-     titoli fissi delle pagine di gestione (gestione_documenti.html,
+  /* Stesso trattamento di ".titolo-richiedi-preventivo" qui sopra, per i
+     tre titoli fissi delle pagine di gestione (gestione_documenti.html,
      gestione_avvisi.html, dashboard_prodotti_senza_immagine.html - vedi
-     ".btn-pillola-intestazione-gestione" in componenti-condivisi.css):
-     senza "display: inline-block" il titolo non si rimpiccioliva mai
-     (restava sempre largo quanto lo slot) e andava a capo su due righe
-     invece di restringersi - bug reale gia' capitato qui, mai risolto per
-     queste tre pagine finora */
+     ".btn-pillola-intestazione-gestione" in componenti-condivisi.css) */
   .pillola-slot-titolo #titoloGestioneDocumenti,
   .pillola-slot-titolo #titoloGestioneAvvisi,
   .pillola-slot-titolo #titoloProdottiSenzaImmagine {
@@ -339,11 +234,8 @@
     margin: 0;
   }
 
-  /* "Torna al catalogo"/filtro spostati nella pillola: gia' cerchietti
-     blu su sfondo bianco di loro (vedi ".btn-torna-catalogo"/
-     "#prodottiCardFiltro"/"#filtroSottocategoria" in prodotti.css, stessa
-     palette della pillola), qui solo un margine di sicurezza cosi' non
-     si schiacciano contro il bordo della pillola o contro il titolo */
+  /* Margine di sicurezza tra i cerchietti "Torna al catalogo"/filtro
+     spostati nella pillola e il bordo della pillola o il titolo */
   .pillola-slot-indietro {
     margin-right: .25rem;
   }
@@ -352,40 +244,21 @@
     margin-left: .25rem;
   }
 
-  /* "Torna al catalogo" (".btn-torna-catalogo" in prodotti.css) porta le
-     utility Bootstrap "position-absolute start-0" (posizionamento
-     "!important" di Bootstrap, pensato per la riga originale - vedi
-     partials/intestazione_categoria.html - dove il suo antenato posizionato
-     piu' vicino e' proprio la riga, "position: relative"/"sticky").
-     Spostato qui dentro (".pillola-slot-indietro", via
-     intestazione-categoria-sticky.js), il suo antenato posizionato piu'
-     vicino diventa invece ".container-fluid.position-relative" della
-     navbar intera: "position: absolute; left: 0" lo incollerebbe quindi al
-     bordo sinistro di TUTTA la navbar, sopra il bottone hamburger, invece
-     che dentro questo slot - che oltretutto, con un unico figlio "fuori
-     flusso", collasserebbe a larghezza zero.
-     Si riportano quindi "position"/"left" ai valori di default (nessun
-     "top"/"right"/"bottom" e' presente sull'elemento, non serve
-     resettarli): "static" lo fa rientrare nel flusso normale di questo
-     slot, gia' "display: flex; align-items: center" qui sopra, che lo
-     centra verticalmente come gli altri contenuti della pillola.
-     "!important" necessario per vincere le utility Bootstrap, anch'esse
-     "!important" di loro */
+  /* Riporta ".btn-torna-catalogo" (position-absolute/start-0 di Bootstrap,
+     pensato per la riga originale in partials/intestazione_categoria.html)
+     al flusso normale di questo slot, centrato verticalmente come gli
+     altri contenuti della pillola; "!important" vince l'utility Bootstrap,
+     anch'essa "!important" */
   .pillola-slot-indietro .btn-torna-catalogo {
     position: static !important;
     left: auto !important;
   }
 
-  /* Stesso identico problema di ".btn-torna-catalogo" qui sopra, per le
+  /* Stesso trattamento di ".btn-torna-catalogo" qui sopra, per
+     "#btnTornaDashboard" e ".slot-controlli-intestazione-fine" delle
      pagine di gestione che condividono l'intestazione a pillola sticky
      (gestione_documenti.html, gestione_avvisi.html,
-     dashboard_prodotti_senza_immagine.html - vedi ".btn-pillola-intestazione-gestione"
-     in componenti-condivisi.css): "#btnTornaDashboard" e' lo stesso id su
-     tutte e tre, il bottone di destra cambia per pagina ma porta sempre
-     ".slot-controlli-intestazione-fine". Mai risolto per queste pagine
-     finora - bug reale gia' capitato (i due cerchietti finiscono ai bordi
-     dello schermo invece che dentro la pillola, sovrapposti/sfalsati
-     rispetto a lei) */
+     dashboard_prodotti_senza_immagine.html) */
   .pillola-slot-indietro #btnTornaDashboard {
     position: static !important;
     left: auto !important;
@@ -399,55 +272,38 @@
 
   #navbarSupportedContent {
     position: fixed;
-    /* "--altezza-navbar" (altezza-navbar.js), non piu' "top: 100%": il
-       pannello e' ora "position: fixed" (relativo alla finestra, non al
-       proprio contenitore), le percentuali legate alla riga della navbar
-       non funzionerebbero piu' */
+    /* Posizionato sotto la navbar usando la custom property
+       "--altezza-navbar" (altezza-navbar.js) */
     top: calc(var(--altezza-navbar, 0px) + .75rem);
     left: 1rem;
     right: 1rem;
     background-color: var(--color-bg);
-    /* Ombra invece di un bordo blu pieno come le pillole-voce qui sotto:
-       un bordo identico sul contenitore esterno E su ogni singola voce
-       creava troppi contorni blu uguali uno dentro l'altro, senza
-       gerarchia visiva tra "contenitore" e "contenuto" */
+    /* Ombra invece di un bordo blu pieno, per dare gerarchia visiva
+       rispetto alle voci pillola sotto */
     box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
     /* Stessa estetica del pannello del filtro sottocategoria (vedi
        "#filtroProdottiWrapper .filtro-dropdown-menu" in prodotti.css):
-       raggio 24px, padding .75rem uniforme su tutti i lati (qui diviso in
-       due dichiarazioni per il motivo spiegato sotto, ma il valore
-       orizzontale/verticale risultante e' lo stesso) */
+       raggio 24px, padding .75rem uniforme su tutti i lati */
     border-radius: 24px;
     z-index: 1030;
-    padding: 0 .75rem; /* verticale spostato su ".navbar-nav" qui sotto: un padding verticale qui lascerebbe un pezzetto di sfondo residuo quando l'altezza (animata da Bootstrap) arriva a 0 */
+    padding: 0 .75rem; /* padding verticale spostato su ".navbar-nav" qui sotto */
   }
 
-  /* Testo/icone delle voci: da bianco (colore di base per il resto della
-     navbar, vedi ".site-navbar .nav-link" piu' in basso) a scuro, dato che
-     il pannello ora ha sfondo bianco invece che blu. Selettore con l'ID
-     del pannello apposta: senza, a parita' di specificita' con
-     ".site-navbar .nav-link" vincerebbe quest'ultima in quanto dichiarata
-     dopo nel file (stesso discorso gia' fatto per ".navbar-brand" qui sopra) */
+  /* Testo/icone delle voci scuri invece che bianchi, dato che il pannello
+     ha ora sfondo bianco invece che blu */
   .site-navbar #navbarSupportedContent .nav-link {
     color: var(--color-text);
   }
 
-  /* Spazio tra una voce e l'altra + spazio verticale sopra/sotto la lista
-     (padding qui invece che su #navbarSupportedContent, vedi commento li') */
+  /* Spazio tra una voce e l'altra, e spazio verticale sopra/sotto la lista */
   #navbarSupportedContent .navbar-nav {
     gap: .5rem;
     padding: .75rem 0;
   }
 
-  /* Ogni voce si stacca dal pannello bianco con un riempimento grigio
-     chiaro (stessa variabile gia' usata per gli hover altrove nel sito),
-     non piu' un bordo blu pieno: il blu resta un accento puntuale
-     sull'icona (cerchio pieno, vedi ".bi" qui sotto) a riposo, e torna sul
-     contorno al passaggio del mouse/tocco (vedi ":hover" qui sotto). Bordo
-     trasparente (non "border: 0"), stesso spessore di quello colorato
-     sotto: a parita' di "box-sizing: border-box" (impostato da Bootstrap su
-     tutto il sito) il passaggio a colorato non sposta/ridimensiona la
-     pillola, cambia solo il colore */
+  /* Ogni voce come pillola con riempimento grigio chiaro; bordo
+     trasparente dello stesso spessore di quello colorato all'hover, cosi'
+     il passaggio a colorato non sposta/ridimensiona la pillola */
   #navbarSupportedContent .navbar-nav > .nav-item > .nav-link {
     padding: .85rem .75rem;
     background-color: var(--color-bg-alt);
@@ -456,22 +312,16 @@
     transition: border-color .15s ease;
   }
 
-  /* Contorno blu navbar al passaggio del mouse/tocco, non piu' uno sfondo
-     bianco (chiesto esplicitamente: lo sfondo bianco su pillola gia' grigio
-     chiaro dava un feedback debole, "chiaro su chiaro" - il contorno
-     colorato e' piu' visibile e coerente con l'accento blu gia' usato
-     sull'icona di ogni voce) */
+  /* Contorno blu navbar al passaggio del mouse/tocco */
   #navbarSupportedContent .navbar-nav > .nav-item > .nav-link:hover,
   #navbarSupportedContent .navbar-nav > .nav-item > .nav-link:focus,
   #navbarSupportedContent .navbar-nav > .nav-item > .nav-link:active {
     border-color: var(--color-primary);
   }
 
-  /* Icona di ogni voce come cerchio blu pieno con glifo bianco (badge),
-     stessa dimensione per tutte cosi' il testo parte allineato da una
-     voce all'altra. "display: flex" sull'elemento stesso (non su un
-     wrapper): il glifo di Bootstrap Icons e' un pseudo-elemento
-     "::before" dell'icona, quindi si centra da solo nel box flex */
+  /* Icona di ogni voce come cerchio blu pieno con glifo bianco, stessa
+     dimensione per tutte cosi' il testo parte allineato da una voce
+     all'altra */
   #navbarSupportedContent .navbar-nav > .nav-item > .nav-link > .bi {
     display: flex;
     align-items: center;
@@ -484,10 +334,8 @@
     color: var(--color-bg);
   }
 
-  /* Pallino a destra della voce = pagina corrente (renderizzato solo per
-     la voce giusta, vedi i confronti su "request.resolver_match.url_name"
-     in base.html): "margin-left: auto" lo spinge in fondo alla riga,
-     sfruttando il flex della voce (icona + testo + questo pallino) */
+  /* Pallino a destra della voce = pagina corrente, spinto in fondo alla
+     riga con "margin-left: auto" */
   .pallino-pagina-corrente {
     width: 8px;
     height: 8px;
@@ -497,11 +345,9 @@
     background-color: var(--color-primary);
   }
 
-  /* L'icona profilo e' sempre visibile in alto a destra (fuori dal menu
-     hamburger, vedi base.html), quindi puo' essere aperta anche a menu
-     hamburger gia' aperto: senza questa regola il suo dropdown (z-index
-     1000 di default in Bootstrap) resterebbe parzialmente coperto dal
-     pannello #navbarSupportedContent qui sopra (z-index 1030) */
+  /* z-index sopra al pannello #navbarSupportedContent (1030), cosi' il
+     dropdown dell'icona profilo (sempre visibile, fuori dal menu
+     hamburger) non resta parzialmente coperto quando aperto insieme */
   .site-navbar .dropdown-menu[aria-labelledby="dropdownUser1"] {
     z-index: 1031;
   }
@@ -513,59 +359,49 @@
   /* Rallenta leggermente la discesa del pannello del menu hamburger,
      cosi' da lasciare respiro prima che compaiano le voci sotto */
   #navbarSupportedContent.collapsing {
-    transition: height .3s ease; /* uguale alla durata del fade dei contenuti, cosi' al pannello (che si riduce sia in apertura che in chiusura) non resta un pezzetto visibile dopo che voci/bottoni sono gia' scomparsi */
+    transition: height .3s ease; /* stessa durata del fade dei contenuti sotto */
   }
 
   /* Stato di partenza delle voci del menu, prima che il pannello abbia
      finito di scendere */
   #navbarSupportedContent .navbar-nav > .nav-item {
-    opacity: 0; /* invisibile all'inizio (0 = trasparente, 1 = visibile) */
+    opacity: 0; /* invisibile all'inizio */
     transform: translateY(-1px); /* punto di partenza: 1px piu' in alto della posizione finale */
-    transition: opacity .08s ease, transform .08s ease; /* durata (.08s) e velocita' (ease) con cui opacity e transform passano dal valore di partenza a quello finale: piu' e' bassa, piu' la comparsa di ogni singola voce e' immediata */
+    transition: opacity .08s ease, transform .08s ease; /* durata e velocita' della comparsa di ogni voce */
   }
 
-  /* Stato finale (visibile): agganciato ad aria-expanded="true" sul bottone
-     hamburger (sibling del pannello) invece che a .show, perche' Bootstrap
-     imposta aria-expanded="true" subito all'avvio dell'apertura, non a fine
-     animazione come .show - cosi' le voci iniziano a comparire mentre il
-     pannello sta ancora scendendo, non dopo */
+  /* Stato finale (visibile), agganciato ad aria-expanded="true" sul
+     bottone hamburger invece che a ".show", cosi' le voci iniziano a
+     comparire mentre il pannello sta ancora scendendo */
   .navbar-toggler[aria-expanded="true"] ~ #navbarSupportedContent .navbar-nav > .nav-item {
     opacity: 1; /* completamente visibile */
-    transform: translateY(0); /* posizione verticale definitiva, nessuno spostamento */
+    transform: translateY(0); /* posizione verticale definitiva */
   }
 
-  /* Alla chiusura (aria-expanded torna a "false" subito) scompaiono
-     tutti insieme, senza sfasamento */
+  /* Alla chiusura scompaiono tutti insieme, senza sfasamento */
   .navbar-toggler[aria-expanded="false"] ~ #navbarSupportedContent .navbar-nav > .nav-item {
-    transition-delay: 0s; /* nessuna attesa: si nascondono tutti insieme appena parte la chiusura */
+    transition-delay: 0s;
   }
 
   /* Sfasamento crescente tra una voce e l'altra del menu, cosi' compaiono
      una dopo l'altra invece che tutte insieme */
-  #navbarSupportedContent .navbar-nav > .nav-item:nth-child(1) { transition-delay: .03s; } /* Azienda: nessuna attesa, parte subito */
+  #navbarSupportedContent .navbar-nav > .nav-item:nth-child(1) { transition-delay: .03s; } /* Azienda */
   #navbarSupportedContent .navbar-nav > .nav-item:nth-child(2) { transition-delay: .06s; } /* Catalogo */
   #navbarSupportedContent .navbar-nav > .nav-item:nth-child(3) { transition-delay: .09s; } /* Documenti */
   #navbarSupportedContent .navbar-nav > .nav-item:nth-child(4) { transition-delay: .12s; } /* Contatti */
 }
 
-/* Angoli del popup di login arrotondati con lo stesso raggio del pannello
-   hamburger qui sopra (#navbarSupportedContent, 24px), per la stessa
-   estetica "pop-up" in entrambi i casi */
+/* Angoli del popup di login arrotondati, stesso raggio del pannello
+   hamburger qui sopra (#navbarSupportedContent, 24px) */
 #modalLogin .modal-content {
   border-radius: 24px;
   border: 2px solid var(--color-primary);
-  /* Serve perche' il titolo qui sotto tocca i bordi del modal (niente
-     margine/padding attorno): senza "overflow: hidden" i suoi angoli alti,
-     dritti di suo, spunterebbero fuori dall'angolo arrotondato del
-     modal-content invece di seguirne la curva - stesso principio gia'
-     usato per "#listaElementiCarrelloFlottante" (overflow-y: auto) in
-     carrello-flottante.css */
+  /* Taglia gli angoli del titolo qui sotto, che tocca i bordi del modal,
+     seguendo l'arrotondamento */
   overflow: hidden;
 }
 
-/* Titolo "Accedi": stessa fascia blu navbar a tutta larghezza gia' usata
-   per "Preventivo" nel carrello flottante (vedi
-   ".titolo-carrello-flottante" in carrello-flottante.css), qui a contatto
+/* Titolo "Accedi": fascia blu navbar a tutta larghezza, a contatto
    diretto con l'angolo alto del modal invece che un modal-header
    standard di Bootstrap */
 .titolo-modal-login {
@@ -574,16 +410,8 @@
 
 /* Popup stretto quanto il suo contenuto (campi larghi al massimo 280px,
    vedi "#form-login .campo-login-stretto" in form.css), invece della
-   larghezza di default di un modal Bootstrap (500px) che lascerebbe
-   spazio vuoto ai lati. 360px lasciava ~40px di spazio vuoto per lato
-   (360-280, diviso 2) tra il bordo del popup e le pillole: 320px lascia
-   solo lo spazio per il bordo blu da 2px (".modal-content" qui sopra) piu'
-   un po' di respiro. "margin-left/right: auto" espliciti: Bootstrap
-   applica di suo la centratura orizzontale solo da "sm" in su
-   (min-width: 576px) - sotto quella soglia usa un margine fisso uguale
-   sui due lati ma non "auto", quindi con un "max-width" piu' stretto
-   della larghezza dello schermo (il nostro caso, da telefono) lo spazio
-   in eccesso finirebbe tutto a destra invece di dividersi equamente */
+   larghezza di default di un modal Bootstrap; "margin-left/right: auto"
+   centra il popup anche sotto i 576px, dove Bootstrap non lo fa da solo */
 #modalLogin .modal-dialog {
   max-width: 320px;
   margin-left: auto;
@@ -600,18 +428,15 @@
   }
 }
 
-/* Icona hamburger: colore delle 3 linee = bianco (sta su sfondo blu navbar).
-   Nota: un SVG data-URI non puo' leggere le custom property CSS,
-   quindi il colore va aggiornato qui a mano se cambia lo sfondo della navbar. */
+/* Icona hamburger: 3 linee bianche su sfondo blu navbar, colore fisso nel
+   SVG data-URI (non legge le custom property CSS) */
 .navbar-toggler-icon {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23FFFFFF' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
   transition: transform .2s ease;
 }
 
-/* A menu aperto (aria-expanded="true", stesso attributo gia' usato per le
-   altre animazioni del pannello) le 3 linee diventano una X, stessa
-   tecnica del background-image qui sopra - il leggero "rotate" accompagna
-   lo scambio (istantaneo, un background-image non si anima da solo) */
+/* A menu aperto (aria-expanded="true") le 3 linee diventano una X, stessa
+   tecnica del background-image qui sopra, con un leggero "rotate" */
 .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23FFFFFF' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M7 7l16 16M23 7L7 23'/%3e%3c/svg%3e");
   transform: rotate(90deg);
@@ -635,56 +460,46 @@
 }
 
 /* Menu "Catalogo": si apre al passaggio del mouse (oltre che al click)
-   solo quando la navbar e' espansa orizzontalmente, per non interferire
-   col comportamento a tocco della versione mobile con hamburger */
+   solo quando la navbar e' espansa orizzontalmente (desktop) */
 @media (min-width: 1400px) {
   .site-navbar .navbar-nav > .nav-item.dropdown:hover > .dropdown-menu {
-    display: flex; /* "block" prima dell'estetica a pillole: "flex" serve a far funzionare il "gap" tra le voci impostato su "#dropdownCategorie" */
+    display: flex; /* fa funzionare il "gap" tra le voci impostato su "#dropdownCategorie" */
     margin-top: 0;
   }
 
-  /* Stesso sfondo scurito usato dietro al pannello del menu hamburger da
-     telefono (".hamburger-backdrop", vedi piu' in alto in questo file):
-     riusato qui, attivato con ":has()" sul passaggio del mouse su
-     "Catalogo" invece che su "aria-expanded" del bottone hamburger (che da
-     desktop non esiste, il toggler resta nascosto) */
+  /* Stesso sfondo scurito ".hamburger-backdrop" (vedi piu' in alto in
+     questo file), attivato qui con ":has()" sul passaggio del mouse su
+     "Catalogo" */
   .site-navbar:has(.navbar-nav > .nav-item.dropdown:hover) ~ .hamburger-backdrop {
     opacity: 1;
     pointer-events: auto;
-    /* Sopra (1041) anche al carrello flottante (carrello-flottante.css,
-       z-index 1040), stesso motivo/stessa soglia della versione mobile
-       qui sopra in questo file (menu hamburger) */
+    /* z-index sopra anche al carrello flottante (carrello-flottante.css,
+       1040) */
     z-index: 1041;
   }
 
-  /* La navbar (barra + menu Catalogo, tutti dentro di lei) deve restare
-     sopra al backdrop appena scurito (1041 qui sopra, altrimenti sopra
-     1030 di lei) mentre il menu e' aperto - solo in questo stato, stesso
-     motivo della versione mobile qui sopra in questo file */
+  /* La navbar resta sopra al backdrop scurito (1041 qui sopra) mentre il
+     menu e' aperto */
   .site-navbar:has(.navbar-nav > .nav-item.dropdown:hover) {
     z-index: 1042;
   }
 }
 
 /* Stessa estetica "pillola" del pannello del menu hamburger da telefono
-   (vedi "#navbarSupportedContent" e le sue voci piu' in alto in questo
-   file): contenitore con angoli molto arrotondati e ombra invece di un
-   bordo blu pieno, voci come pillole staccate tra loro con contorno blu
-   al passaggio del mouse invece di un riempimento colorato */
+   (#navbarSupportedContent piu' in alto in questo file): contenitore con
+   angoli molto arrotondati e ombra, voci come pillole con contorno blu
+   al passaggio del mouse */
 #dropdownCategorie {
-  background-color: var(--color-bg); /* sfondo bianco, coerente col resto del sito (non il blu della navbar, per non appesantire) */
+  background-color: var(--color-bg); /* sfondo bianco */
   border: none;
   border-radius: 24px; /* stesso raggio di "#navbarSupportedContent" */
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .25); /* stessa ombra del pannello hamburger, al posto del bordo blu pieno */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .25); /* stessa ombra del pannello hamburger */
   overflow: hidden; /* taglia gli angoli delle voci interne seguendo l'arrotondamento del contenitore */
-  padding: .5rem; /* spazio tra le pillole e il bordo del contenitore, non piu' voci a contatto diretto coi bordi */
-  /* "flex-direction"/"gap" dichiarati qui ma innocui finche' il menu resta
-     "display: none" (default Bootstrap): prendono effetto solo quando la
-     regola ":hover" piu' in basso in questo file imposta "display: flex" -
-     "display" non va impostato qui: essendo un selettore per ID vincerebbe
-     sempre su ".dropdown-menu { display: none }" di Bootstrap (piu'
-     specifico di ".nav-item.dropdown:hover > .dropdown-menu"), tenendo il
-     menu visibile anche senza passarci sopra col mouse */
+  padding: .5rem; /* spazio tra le pillole e il bordo del contenitore */
+  /* "display" non va impostato qui: essendo un selettore per ID
+     vincerebbe sempre su ".dropdown-menu { display: none }" di Bootstrap,
+     tenendo il menu visibile anche senza passarci sopra col mouse - lo
+     imposta invece la regola ":hover" piu' in basso in questo file */
   flex-direction: column;
   gap: .35rem; /* stacca le pillole tra loro, come le voci del menu hamburger */
 }
@@ -692,24 +507,21 @@
 #dropdownCategorie .dropdown-item {
   color: var(--color-text); /* testo nello stesso grigio scuro usato nel resto del sito */
   background-color: var(--color-bg-alt); /* sfondo grigio chiaro a riposo, come le voci del menu hamburger */
-  border: 2px solid transparent; /* bordo invisibile di riserva, stesso spessore di quello dell'hover: evita che la voce "salti" quando il bordo compare */
+  border: 2px solid transparent; /* bordo invisibile di riserva, stesso spessore di quello dell'hover */
   border-radius: 999px; /* pillola, come le voci del menu hamburger */
 }
 
 #dropdownCategorie .dropdown-item:hover,
 #dropdownCategorie .dropdown-item:focus,
 #dropdownCategorie .dropdown-item:active {
-  color: var(--color-text); /* nessun cambio colore testo, il contorno blu basta come segnale (stesso comportamento del menu hamburger) */
-  background-color: var(--color-bg-alt); /* invariato: ":active" (click) ha di suo uno sfondo blu pieno in Bootstrap, lo neutralizziamo */
-  border-color: var(--color-primary); /* contorno blu (stesso blu della navbar) attorno alla voce sotto il mouse, senza riempire lo sfondo */
+  color: var(--color-text); /* nessun cambio colore testo, il contorno blu basta come segnale */
+  background-color: var(--color-bg-alt); /* invariato: neutralizza lo sfondo blu pieno di ":active" in Bootstrap */
+  border-color: var(--color-primary); /* contorno blu (stesso blu della navbar) attorno alla voce sotto il mouse */
 }
 
-/* Pallino di pagina corrente (stesso ".pallino-pagina-corrente" usato sulle
-   voci del menu hamburger da telefono - vedi piu' in alto in questo file):
-   ridichiarato qui perche' quella regola vale solo sotto i 1400px, mentre
-   questo menu e' visibile solo da desktop (>=1400px, vedi ":hover" piu' in
-   basso) - "margin-left: auto" lo spinge in fondo alla pillola, sfruttando
-   il flex della voce (testo + questo pallino, vedi "d-flex" in base.html) */
+/* Pallino di pagina corrente, ridichiarato qui perche'
+   ".pallino-pagina-corrente" vale solo sotto i 1400px, mentre questo
+   menu e' visibile solo da desktop */
 #dropdownCategorie .pallino-pagina-corrente {
   width: 8px;
   height: 8px;
@@ -720,11 +532,8 @@
 }
 
 /* Stessa estetica "pillola" del menu Categorie qui sopra
-   (#dropdownCategorie) applicata al menu del profilo utente (Profilo,
-   Cambia password, Lista preventivi, Elimina, Log Out): contenitore con
-   angoli molto arrotondati e ombra invece di un bordo blu pieno, voci
-   come pillole staccate tra loro con contorno colorato al passaggio del
-   mouse invece di un riempimento pieno o di linee di separazione */
+   (#dropdownCategorie), applicata al menu del profilo utente (Profilo,
+   Cambia password, Lista preventivi, Elimina, Log Out) */
 #dropdownUser1 ~ .dropdown-menu {
   background-color: var(--color-bg);
   border: none;
@@ -734,40 +543,36 @@
   padding: .5rem;
   flex-direction: column;
   gap: .35rem; /* stacca le pillole tra loro, come in "#dropdownCategorie" */
-  /* "display" non va impostato qui: essendo un selettore con ID vincerebbe
-     sempre su ".dropdown-menu { display: none }" di Bootstrap, tenendo il
-     menu visibile anche senza cliccare sull'icona profilo - vedi la stessa
-     regola gia' impostata su "#dropdownCategorie" qui sopra in questo file.
-     Va impostato invece qui sotto, solo insieme a ".show" */
+  /* "display" non va impostato qui: vincerebbe sempre su
+     ".dropdown-menu { display: none }" di Bootstrap; va impostato invece
+     qui sotto, solo insieme a ".show" */
 }
 
 /* "display: flex" applicato solo quando Bootstrap aggiunge ".show" al
-   click sull'icona profilo (stessa tecnica di "#dropdownCategorie", che
-   pero' usa ":hover" invece di ".show" per aprirsi) */
+   click sull'icona profilo */
 #dropdownUser1 ~ .dropdown-menu.show {
   display: flex;
 }
 
-/* Riga con l'email dell'utente (non e' un ".dropdown-item", quindi resta
-   un'intestazione distinta invece di diventare una pillola): stessa
-   pillola grigia di sfondo delle voci sotto, ma senza bordo/hover dato
-   che non e' cliccabile */
+/* Riga con l'email dell'utente (non e' un ".dropdown-item", resta
+   un'intestazione distinta invece di diventare una pillola cliccabile):
+   stessa pillola grigia di sfondo delle voci sotto, ma senza bordo/hover */
 #dropdownUser1 ~ .dropdown-menu > li:first-child {
   background-color: var(--color-bg-alt);
   border-radius: 999px;
-  margin-bottom: .15rem; /* un filo di respiro in piu' verso le pillole sotto, oltre al gap del contenitore */
+  margin-bottom: .15rem; /* respiro in piu' verso le pillole sotto, oltre al gap del contenitore */
 }
 
 #dropdownUser1 ~ .dropdown-menu .dropdown-item {
   color: var(--color-text);
   background-color: var(--color-bg-alt); /* sfondo grigio chiaro a riposo, come le voci di "#dropdownCategorie" */
-  border: 2px solid transparent; /* bordo invisibile di riserva, stesso spessore di quello dell'hover: evita che la voce "salti" quando il bordo compare */
+  border: 2px solid transparent; /* bordo invisibile di riserva, stesso spessore di quello dell'hover */
   border-radius: 999px; /* pillola */
 }
 
 #dropdownUser1 ~ .dropdown-menu .dropdown-item:hover,
 #dropdownUser1 ~ .dropdown-menu .dropdown-item:focus {
-  background-color: var(--color-bg-alt); /* invariato: ":active" (click) ha di suo uno sfondo blu pieno in Bootstrap, lo neutralizziamo */
+  background-color: var(--color-bg-alt); /* invariato: neutralizza lo sfondo blu pieno di ":active" in Bootstrap */
   border-color: var(--color-primary); /* contorno blu (stesso blu della navbar), come in "#dropdownCategorie" */
 }
 
@@ -779,10 +584,9 @@
   border-color: var(--bs-danger);
 }
 
-/* Pallino di pagina corrente (stesso ".pallino-pagina-corrente" usato in
-   "#dropdownCategorie" qui sopra in questo file): segnala su quale voce
-   del menu profilo ci si trova gia' (Profilo, Cambia password, Lista
-   preventivi), aggiunto condizionalmente nel template in base a
+/* Pallino di pagina corrente, stesso trattamento di "#dropdownCategorie"
+   qui sopra: segnala su quale voce del menu profilo ci si trova gia',
+   aggiunto condizionalmente nel template in base a
    "request.resolver_match.url_name" */
 #dropdownUser1 ~ .dropdown-menu .pallino-pagina-corrente {
   width: 8px;

@@ -17,12 +17,7 @@ p {
   overflow-y: auto;
   background: hsla(0, 0%, 0%, .5);
   font-family: Roboto, sans-serif;
-  /* Senza uno z-index esplicito il banner (auto = 0 agli effetti dello
-     stacking) finisce dietro ai pannelli interni di Leaflet (contatti.html,
-     mappa), che hanno z-index fino a 400/1000 e nessun antenato che ne
-     contenga lo stacking in un contesto separato: sfondano nel contesto
-     radice della pagina anche se il banner e' "fixed" e viene dopo nel
-     DOM. 2000 sta comodamente sopra il valore piu' alto usato da Leaflet */
+  /* z-index sopra i pannelli di Leaflet della mappa in contatti.html */
   z-index: 2000;
 }
 

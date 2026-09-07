@@ -1,10 +1,4 @@
-/* Bottone e pannello del carrello fluttuante (widget globale, incluso in
-   base.html su tutte le pagine tranne carrello.html): fisso in basso a
-   destra, sopra la navbar (z-index 1030/1031, vedi navbar.css) ma sotto
-   il pop-up dei cookie (z-index 2000, vedi cookiebanner/vanilla.html) -
-   quando il banner cookie e' aperto copre comunque tutto lo schermo (vedi
-   #cookiebannerModal), nascondendo anche questo widget senza bisogno di
-   altri accorgimenti */
+/* Bottone e pannello del carrello fluttuante: fisso in basso a destra, sopra la navbar ma sotto il pop-up dei cookie */
 #carrelloFlottante {
   position: fixed;
   right: 1rem;
@@ -20,44 +14,25 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Quando il footer (stesso blu scuro della navbar, var(--color-primary-dark)
-   - vedi main.css ".site-footer") scorre dietro al bottone fisso, il blu del
-   bottone (var(--color-primary), molto simile) si confonderebbe con lo
-   sfondo: il bordo bianco lo separa visivamente. Classe attivata via JS
-   (carrello-flottante.js) confrontando le posizioni di bottone e footer */
+/* Bordo bianco quando il footer scorre dietro al bottone fisso, per separarlo visivamente dallo sfondo */
 #bottoneCarrelloFlottante.su-footer {
   border: 2px solid var(--color-bg);
 }
 
-/* Colore scuro mentre il pannello e' aperto: classe aggiunta/rimossa
-   esplicitamente da carrello-flottante.js in base allo stato reale del
-   pannello, non lasciata a hover/focus del browser (che non riflette
-   in modo affidabile se il pannello e' aperto o chiuso - un secondo
-   click per chiudere e' comunque un click, quindi mette a fuoco il
-   bottone anche in quel caso). Stesso blu scuro gia' usato per l'hover
-   di ".btn-navbar" in componenti-condivisi.css */
+/* Colore scuro mentre il pannello e' aperto */
 #bottoneCarrelloFlottante.carrello-flottante-attivo {
   background-color: var(--color-primary-dark);
   border-color: var(--color-primary-dark);
 }
 
-/* Forza il colore di default anche in hover/focus quando il pannello e'
-   chiuso (niente ".carrello-flottante-attivo"): senza questa regola, il
-   mouse ancora sopra al bottone subito dopo il click di chiusura
-   manterrebbe comunque lo scuro tramite ".btn.btn-navbar:hover/:focus"
-   qui sopra (in componenti-condivisi.css) - il colore risulterebbe legato
-   al mouse invece che allo stato reale del pannello */
+/* Forza il colore di default anche in hover/focus quando il pannello e' chiuso */
 #bottoneCarrelloFlottante:hover:not(.carrello-flottante-attivo),
 #bottoneCarrelloFlottante:focus:not(.carrello-flottante-attivo) {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
 }
 
-/* Il bordo bianco di ".su-footer" (sopra) deve restare anche in hover/
-   focus o col pannello aperto (".carrello-flottante-attivo"): le regole
-   di stato qui sopra hanno una specificita' piu' alta della sola
-   ".su-footer" e altrimenti la sovrascriverebbero, facendo sparire il
-   bordo bianco proprio quando ci si passa sopra col mouse o si clicca */
+/* Il bordo bianco di ".su-footer" resta anche in hover/focus o col pannello aperto */
 #bottoneCarrelloFlottante.su-footer:hover:not(.carrello-flottante-attivo),
 #bottoneCarrelloFlottante.su-footer:focus:not(.carrello-flottante-attivo),
 #bottoneCarrelloFlottante.su-footer.carrello-flottante-attivo {
@@ -74,41 +49,23 @@
   overflow-y: auto;
   background: #fff;
   border: 2px solid var(--color-primary);
-  /* Stesso raggio usato per il popup di login (#modalLogin .modal-content
-     in navbar.css) e per il pannello hamburger (#navbarSupportedContent),
-     per un'estetica "pop-up" coerente in tutto il sito */
+  /* Raggio "pop-up" coerente col resto del sito */
   border-radius: 24px;
-  /* Niente piu' padding qui (spostato su ".corpo-carrello-flottante" qui
-     sotto): la fascia del titolo deve toccare i bordi alto/laterali del
-     pannello, non stare rientrata dentro il suo padding */
+  /* Padding assente qui: la fascia del titolo tocca i bordi alto/laterali del pannello */
   box-shadow: 0 0 20px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Titolo "Preventivo": non una pillola a se' stante, ma il prolungamento
-   dell'angolo alto del pannello stesso - "overflow-y: auto" qui sopra
-   ritaglia gia' i due angoli alti seguendo il border-radius del pannello
-   (24px), essendo questa fascia a contatto diretto col suo bordo
-   superiore (Bootstrap non ha un'utility "bg-navbar": solo i bottoni
-   ".btn-navbar"/".btn-outline-navbar" in componenti-condivisi.css usano
-   gia' questo stesso colore) */
+/* Titolo "Preventivo": fascia a contatto con l'angolo alto del pannello, sfondo blu navbar */
 .titolo-carrello-flottante {
   background-color: var(--color-primary);
 }
 
-/* Padding del contenuto (lista prodotti + bottoni), separato dal
-   pannello (vedi commento sopra) cosi' la fascia del titolo puo' restare
-   a contatto con i bordi del pannello */
+/* Padding del contenuto (lista prodotti + bottoni), separato dal pannello */
 .corpo-carrello-flottante {
   padding: 1rem;
 }
 
-/* Nome prodotto nella riga del pannello: se troppo lungo per una riga
-   sola va su una seconda (troncato con "..." solo se supera anche
-   quella), invece di uscire dai bordi del pannello - Bootstrap 5.3 non
-   ha un'utility per il line-clamp, da qui il CSS custom. "min-width: 0"
-   e' necessario perche' e' un elemento flex con "flex-grow-1": di
-   default un elemento flex non si restringe sotto la larghezza del suo
-   contenuto (qui una singola parola lunga), anche con "overflow-wrap" */
+/* Nome prodotto: va su una seconda riga se troppo lungo (troncato con "..." solo oltre la seconda), invece di uscire dai bordi del pannello */
 .carrello-flottante-item-nome {
   min-width: 0;
   overflow-wrap: break-word;
@@ -118,17 +75,9 @@
   overflow: hidden;
 }
 
-/* Bottoni +/- quantita' (partials/carrello_flottante.html): dimensione e
-   stile presi da ".carrello-stepper-btn"/".carrello-stepper" (carrello.css,
-   caricato in tutte le pagine tramite base.html), stessa estetica a
-   pillola dello stepper della pagina carrello - ".btn-aumenta-elemento"/
-   ".btn-diminuisci-elemento" restano solo come selettori per il JS
-   (carrello-flottante.js), senza stili propri qui */
+/* Bottoni +/- quantita': stessa estetica a pillola dello stepper della pagina carrello, nessuno stile proprio qui */
 
-/* Bordo piu' spesso (2px invece dell'1px di default di Bootstrap) per
-   "Svuota Preventivo": scoped alla classe usata solo qui
-   (".btn-svuota-preventivo"), non a ".btn-outline-danger" (condivisa,
-   usata anche in tabella_avvisi.html/albero_documenti.html) */
+/* Bordo piu' spesso (2px invece dell'1px di default di Bootstrap) per "Svuota Preventivo" */
 .btn-svuota-preventivo {
   border-width: 2px;
 }

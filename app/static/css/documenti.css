@@ -79,7 +79,7 @@
   color: #fff !important;
 }
 
-/* Freccia dell'accordion rimossa: il badge col conteggio basta a indicare che e' cliccabile */
+/* Freccia dell'accordion rimossa */
 #albero-documenti .accordion-button::after {
   display: none;
 }
@@ -206,7 +206,7 @@
   flex-shrink: 0;
   padding: 1.1rem 0.6rem;
   background-color: var(--color-bg-alt);
-  border: 2px solid transparent; /* bordo invisibile di riserva, per evitare "salti" all'hover */
+  border: 2px solid transparent; /* bordo trasparente, sostituito da colore all'hover/focus */
   border-radius: 0.75rem;
   text-decoration: none;
   transition: border-color .15s ease, transform .15s ease;
@@ -261,7 +261,7 @@
   margin-bottom: 0;
 }
 
-/* Pop-up "Nuovo/Modifica documento": angoli arrotondati e bordo blu, senza "overflow: hidden" per non tagliare il menu "Seleziona categoria" */
+/* Pop-up "Nuovo/Modifica documento": angoli arrotondati e bordo blu */
 #modalDocumento .modal-content {
   border-radius: 24px;
   border: 2px solid var(--color-primary);
@@ -290,7 +290,7 @@
   margin-top: 1rem;
 }
 
-/* Azzera il margine sotto dei campi crispy, gia' dato dal padding del riquadro */
+/* Azzera il margine sotto dei campi crispy */
 .gruppo-campo-documento #div_id_categoria,
 .gruppo-campo-documento #div_id_nome_file {
   margin-bottom: 0 !important;
@@ -341,7 +341,7 @@
   background-color: var(--color-primary);
 }
 
-/* Apertura/chiusura animata di "Nome categoria", con padding per non tagliare l'alone di focus del campo */
+/* Apertura/chiusura animata di "Nome categoria", con padding per l'alone di focus del campo */
 #rigaNomeCategoria {
   max-height: 6rem;
   opacity: 1;
@@ -373,7 +373,7 @@
   border-radius: 999px;
 }
 
-/* "Nome file" accanto al cerchio "Carica File": si restringe per lasciargli spazio invece di spingerlo fuori riga */
+/* "Nome file" accanto al cerchio "Carica File": si restringe per lasciargli spazio */
 .riga-nome-file .form-control {
   flex: 1 1 auto;
   min-width: 0;

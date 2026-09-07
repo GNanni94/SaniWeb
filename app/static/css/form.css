@@ -1,19 +1,9 @@
-/* Campo email di password_reset_form.html: testo scritto e placeholder
-   centrati invece che allineati a sinistra di default (l'input non eredita
-   il "text-center" del form circostante). ":placeholder-shown" non serve:
-   il placeholder segue da solo il text-align impostato sull'input */
+/* Campo email di password_reset_form.html: testo e placeholder centrati */
 #form-password-reset #id_email {
   text-align: center;
 }
 
-/* Form di registrazione (signup.html): contorno di ogni campo dello stesso
-   blu della navbar invece del grigio di default di Bootstrap/MDB, anche a
-   fuoco (":focus" di suo sarebbe un blu piu' chiaro, diverso da quello del
-   sito). Stesso spessore (2px) di "#prodottiCardSearch" (vedi prodotti.css),
-   per coerenza. ":not(.is-invalid)" e' necessario (non solo un'aggiunta di
-   sicurezza): un selettore con #id vince sempre su ".form-control.is-invalid"
-   di Bootstrap (0 id) a prescindere dal numero di classi di quest'ultimo,
-   quindi senza l'esclusione il bordo rosso degli errori sparirebbe */
+/* Form di registrazione: contorno di ogni campo blu navbar, anche a fuoco, escluso lo stato di errore */
 #form-registrazione .form-control:not(.is-invalid) {
   border-color: var(--color-primary);
   border-width: 2px;
@@ -24,8 +14,7 @@
   box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
 }
 
-/* Stesso trattamento del form di registrazione qui sopra, applicato al
-   campo email di password_reset_form.html */
+/* Campo email di password_reset_form.html: contorno blu navbar, escluso lo stato di errore */
 #form-password-reset .form-control:not(.is-invalid) {
   border-color: var(--color-primary);
   border-width: 2px;
@@ -36,8 +25,7 @@
   box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
 }
 
-/* Stesso trattamento dei due form qui sopra, applicato ai campi del form
-   di contatti.html (nome, email, telefono, messaggio, ecc.) */
+/* Campi del form di contatti.html: contorno blu navbar, escluso lo stato di errore */
 #form-contatti .form-control:not(.is-invalid) {
   border-color: var(--color-primary);
   border-width: 2px;
@@ -53,10 +41,7 @@
   border-radius: 999px;
 }
 
-/* Campo "Messaggio" (textarea multi-riga): raggio fisso invece della
-   pillola, che seguendo l'altezza del campo diventerebbe sempre piu'
-   ovale man mano che il testo va a capo, deformando il bordo attorno al
-   testo */
+/* Campo "Messaggio" (textarea multi-riga): raggio fisso invece della pillola */
 #form-contatti textarea.form-control {
   border-radius: .75rem;
 }
@@ -66,8 +51,7 @@
   border-radius: 999px;
 }
 
-/* Stesso trattamento dei form qui sopra, applicato ai campi del form di
-   login.html (email e password) */
+/* Campi email e password del form di login.html: contorno blu navbar, escluso lo stato di errore */
 #form-login .form-control:not(.is-invalid) {
   border-color: var(--color-primary);
   border-width: 2px;
@@ -78,31 +62,19 @@
   box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
 }
 
-/* Toglie il margine sotto ai campi email/password che crispy-forms
-   aggiunge di suo (".mb-3", "!important" in Bootstrap 5): senza,
-   "password dimenticata" (partials/form_login.html) resterebbe staccato
-   dalla pillola password anche togliendo i margini messi a mano attorno
-   al campo */
+/* Toglie il margine sotto ai campi email/password aggiunto di suo da crispy-forms */
 #form-login #div_id_username,
 #form-login #div_id_password {
   margin-bottom: 0 !important;
 }
 
-/* Bottone "Non sei registrato?": sfondo grigio invece che trasparente,
-   stesso var(--color-bg-alt) gia' usato per le voci del menu hamburger
-   (#navbarSupportedContent .navbar-nav > .nav-item > .nav-link in
-   navbar.css). Scoped a "#form-login" (non alla classe condivisa
-   ".btn-outline-navbar", usata anche altrove: tabella_avvisi.html,
-   albero_documenti.html, carrello_flottante.html) */
+/* Bottone "Non sei registrato?": sfondo grigio invece che trasparente */
 #form-login .btn-outline-navbar {
   background-color: var(--color-bg-alt);
   border-width: 2px;
 }
 
-/* Nessun cambiamento al passaggio del mouse/tocco: stessi valori dello
-   stato base qui sopra, per neutralizzare il riempimento blu che
-   ".btn.btn-outline-navbar:hover" (componenti-condivisi.css) applica di
-   default */
+/* Nessun cambiamento al passaggio del mouse/tocco: stessi valori dello stato base qui sopra */
 #form-login .btn-outline-navbar:hover,
 #form-login .btn-outline-navbar:focus {
   background-color: var(--color-bg-alt);
@@ -110,37 +82,24 @@
   color: var(--color-primary);
 }
 
-/* Larghezza ridotta e centrata per i campi email/password e per il link
-   "password dimenticata" appena sotto (form_login.html): un indirizzo
-   email o una password non hanno bisogno della larghezza piena del
-   popup, e il link deve restare allineato allo stesso bordo destro della
-   pillola password (non del popup intero) - stessa larghezza su tutti e
-   tre i contenitori per questo */
+/* Larghezza ridotta e centrata per i campi email/password e per il link "password dimenticata" */
 #form-login .campo-login-stretto {
   max-width: 280px;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* Toglie l'asterisco che crispy-forms aggiunge di suo alle etichette dei
-   campi obbligatori ("Email*", "Password*") - solo estetico, il campo
-   resta comunque obbligatorio (l'attributo HTML "required" non cambia) */
+/* Toglie l'asterisco che crispy-forms aggiunge di suo alle etichette dei campi obbligatori */
 #form-login .asteriskField {
   display: none;
 }
 
-/* Stesso ragionamento sopra, applicato ai campi del form di
-   creazione/modifica avviso di chiusura (gestione_avvisi.html) */
+/* Toglie l'asterisco alle etichette dei campi obbligatori del form avviso */
 #form-avviso .asteriskField {
   display: none;
 }
 
-/* Checkbox "Attivo" del form avviso: blu navbar invece del blu "primary"
-   di default di Bootstrap, per coerenza col resto del sito. Le variabili
-   CSS di Bootstrap (non le proprieta' dirette) vanno sovrascritte, sono
-   loro stesse a determinare colore di sfondo/bordo da spuntata e l'anello
-   del focus - stesso blu (27, 90, 160 = var(--color-primary)) gia' usato
-   per il glow di "#form-login .form-control:focus" qui sopra */
+/* Checkbox "Attivo" del form avviso: blu navbar invece del blu "primary" di default di Bootstrap */
 #form-avviso .form-check-input:checked {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
@@ -151,9 +110,7 @@
   box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
 }
 
-/* Stesso ragionamento sopra, applicato all'interruttore "Attivo" nella
-   lista degli avvisi (tabella_avvisi.html): stesso tipo di controllo, ma
-   fuori da "#form-avviso" (vive nella tabella, non nel form del pop-up) */
+/* Interruttore "Attivo" nella lista degli avvisi: blu navbar invece del blu "primary" di default di Bootstrap */
 .toggle-attivo-avviso:checked {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
@@ -164,16 +121,12 @@
   box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
 }
 
-/* Stesso ragionamento sopra, applicato ai campi del form di
-   creazione/modifica documento (gestione_documenti.html) - "Nome file" e
-   "File" restano obbligatori, solo l'asterisco viene nascosto */
+/* Toglie l'asterisco alle etichette dei campi obbligatori del form documento */
 #form-documento .asteriskField {
   display: none;
 }
 
-/* Campi "Messaggio" e "Luogo" del form preventivo nel carrello
-   (carrello.html, form id="informazioni"): bordo dello stesso blu e
-   spessore del contorno della card che li racchiude */
+/* Campi "Messaggio" e "Luogo" del form preventivo: bordo dello stesso blu e spessore del contorno della card che li racchiude */
 #informazioni .form-control {
   border: 2px solid var(--color-primary);
 }

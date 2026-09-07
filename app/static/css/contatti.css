@@ -1,15 +1,10 @@
-/* Simboli "+" e "-" dei controlli di zoom della mappa Leaflet nella
-   pagina contatti: forzati al nero, invece del colore link di default */
+/* Simboli "+" e "-" dei controlli di zoom della mappa Leaflet forzati al nero */
 .leaflet-control-zoom-in,
 .leaflet-control-zoom-out {
   color: #000;
 }
 
-/* Layout a 3 sezioni della pagina Contatti (orari, form, mappa): sezioni
-   fratelle in un unico contenitore CSS grid, cosi' la disposizione si
-   cambia riscrivendo solo "grid-template-areas" senza toccare l'HTML.
-   Da mobile (nessuna area definita) restano impilate nell'ordine del DOM:
-   orari, form, mappa. */
+/* Layout a 3 sezioni (orari, form, mappa) in un unico contenitore CSS grid; da mobile restano impilate nell'ordine del DOM */
 .contatti-layout {
   display: grid;
   gap: 2rem;
@@ -40,48 +35,27 @@
     flex-direction: column;
   }
 
-  /* La riga "mappa" e' 1fr: si allunga fino a pareggiare il fondo del
-     form (che occupa entrambe le righe della colonna di sinistra) */
+  /* La riga "mappa" e' 1fr: si allunga fino a pareggiare il fondo del form */
   .sezione-mappa #map {
     flex: 1 1 auto;
   }
 }
 
 #map {
-  position: relative; /* per contenere il banner ".map-hint" qui sotto */
-  min-height: 244px; /* altezza di partenza da mobile, dove non e' in un flex che la fa crescere */
+  position: relative; /* contiene il banner ".map-hint" qui sotto */
+  min-height: 244px; /* altezza di partenza da mobile */
   border-radius: .75rem;
   overflow: hidden; /* ritaglia la mappa secondo l'angolo arrotondato */
 }
 
-/* Da telefono (sotto i 576px, stesso breakpoint della tabella orari
-   compatta), un dito solo scorre la pagina invece di spostare la mappa -
-   serve "touch-action: pan-y" perche' il browser gestisca da solo lo
-   scroll verticale a un dito prima ancora che Leaflet intercetti il
-   gesto, lasciando invece funzionare normalmente i gesti a due dita
-   (pan/pizzico). Solo da telefono: da tablet/desktop (anche con schermo
-   touch) il trascinamento con un dito solo deve restare quello normale di
-   Leaflet (vedi anche il JS in contatti.html, che applica lo stesso
-   vincolo solo sotto questo breakpoint). Riguarda comunque solo il touch:
-   su desktop col mouse non cambia nulla, il trascinamento con un click
-   resta invariato.
-   "!important" necessario: leaflet.css mette di suo
-   ".leaflet-container.leaflet-touch-drag.leaflet-touch-zoom { touch-action:
-   none; }" sull'elemento stesso quando rileva un dispositivo touch (proprio
-   il caso da telefono) - un id come "#map" vince gia' per specificita' su
-   tre classi, ma "!important" toglie ogni dubbio */
+/* Da telefono: un dito solo scorre la pagina invece di spostare la mappa, i gesti a due dita (pan/pizzico) restano normali */
 @media (max-width: 575.98px) {
   #map {
     touch-action: pan-y !important;
   }
 }
 
-/* Banner "usa due dita" (contatti.html): mostrato sopra la mappa quando si
-   tocca con un dito solo (che oggi scorre la pagina invece di muovere la
-   mappa - vedi JS). "pointer-events: none" apposta: il banner non deve
-   intercettare il tocco, altrimenti bloccherebbe proprio lo scroll che deve
-   lasciar passare. z-index alto per stare sopra i pannelli di Leaflet
-   (arrivano fino a circa 700, i controlli a 1000) */
+/* Banner "usa due dita" mostrato sopra la mappa al tocco con un dito solo, senza intercettare il tocco, sopra i pannelli di Leaflet */
 .map-hint {
   position: absolute;
   top: 50%;
@@ -103,8 +77,7 @@
   opacity: 1;
 }
 
-/* Tabella orari (contatti.html): riquadro dello stesso blu della navbar,
-   per farla risaltare rispetto al resto della pagina */
+/* Tabella orari: riquadro blu navbar */
 #orari {
   border: 2px solid var(--color-primary);
   border-radius: .75rem;
@@ -114,17 +87,13 @@
   margin-bottom: 0;
 }
 
-/* Sfondo grigio del form Contatti: solo l'area dei campi (non il titolo
-   "RICHIEDI INFORMAZIONI" sopra ne' il bottone Invia sotto), stesso grigio
-   chiaro gia' usato altrove nel sito (--color-bg-alt) */
+/* Sfondo grigio del form Contatti: solo l'area dei campi, non il titolo "RICHIEDI INFORMAZIONI" ne' il bottone Invia */
 .campi-form {
   background-color: var(--color-bg-alt);
   border-radius: .75rem; /* stesso raggio di #orari e #map in questa pagina */
 }
 
-/* Toglie il bordo inferiore che Bootstrap mette su ogni cella
-   (".table > :not(caption) > * > *"): sull'ultima riga risulterebbe una
-   seconda linea visibile appena dentro il bordo blu della tabella */
+/* Toglie il bordo inferiore che Bootstrap mette su ogni cella, sull'ultima riga della tabella */
 #orari tbody tr:last-child > * {
   border-bottom-width: 0;
 }

@@ -1,15 +1,9 @@
-/* Card prodotto (prodotti_card.html): refresh visivo da design handoff
-   (vedi claude_design/) - bordo blu navbar sottile, angoli piu' arrotondati,
-   ombra a doppio strato che si accentua al hover con un leggero sollevamento.
-   Selettore con due classi (stessa specificita' di ".card" da sola, ma vince
-   sempre a prescindere dall'ordine di caricamento dei fogli di stile) -
-   stesso pattern gia' usato in documenti.css per ".card.card-documento" */
+/* Card prodotto: bordo blu navbar sottile, angoli arrotondati, ombra a doppio
+   strato che si accentua al hover con un leggero sollevamento */
 .card.card-prodotto {
   border: 1.5px solid var(--color-primary);
   border-radius: 16px;
-  /* "overflow: hidden" fa si' che il footer (che non ha un proprio
-     border-radius) venga comunque tagliato secondo l'angolo arrotondato
-     della card, senza bisogno di calcolarlo a mano su di lui */
+  /* Taglia il footer secondo l'angolo arrotondato della card */
   overflow: hidden;
   box-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 8px 24px rgba(0, 0, 0, .08);
   transition: box-shadow .2s ease, transform .2s ease;
@@ -20,11 +14,8 @@
   transform: translateY(-2px);
 }
 
-/* Zona immagine: padding asimmetrico (meno in basso, per avvicinare il
-   contenuto del corpo sotto), altezza fissa - "object-fit: contain" (non
-   "cover") perche' le foto prodotto reali hanno proporzioni molto diverse
-   tra loro (da 0.36 a 2.0 larghezza/altezza, vedi verifica fatta a parte) e
-   non vanno tagliate */
+/* Zona immagine: padding asimmetrico, altezza fissa, immagine mai tagliata
+   (object-fit: contain) */
 .card.card-prodotto .card-prodotto-img-wrap {
   padding: 28px 28px 8px 28px;
 }
@@ -56,10 +47,8 @@
   color: var(--color-text);
 }
 
-/* Badge unita' di misura: solo testo nero, senza pillola colorata visibile
-   (scelta esplicita dell'utente in fase di revisione del design - vedi nota
-   nel README dello handoff). Padding/border-radius a pillola mantenuti
-   comunque per lo spazio/allineamento, anche se lo sfondo e' trasparente */
+/* Badge unita' di misura: solo testo nero, pillola trasparente (padding/
+   border-radius mantenuti per l'allineamento) */
 .card.card-prodotto .card-prodotto-badge-unita {
   font-size: 11px;
   font-weight: 700;
@@ -84,10 +73,8 @@
   line-height: 1.5;
 }
 
-/* Bottoni documento (Scheda Tecnica / Normativa): stesso verde di Bootstrap
-   gia' in uso altrove nel progetto (".btn-success"), solo con padding/raggio/
-   dimensione testo specifici del design invece delle taglie standard di
-   Bootstrap */
+/* Bottoni documento (Scheda Tecnica / Normativa): verde ".btn-success" di
+   Bootstrap, con padding/raggio/dimensione testo custom */
 .card.card-prodotto .card-prodotto-btn-doc {
   display: inline-flex;
   align-items: center;
@@ -98,12 +85,8 @@
   border-radius: 8px;
 }
 
-/* Il footer della card e' interamente il bottone "Aggiungi al preventivo"
-   (niente piu' bordo/sfondo grigio di default, ne' padding proprio - vedi
-   "p-0" in prodotti_card.html): ".card-footer-btn" ne riempie tutta l'area,
-   bordo a bordo, quindi l'intero footer risulta cliccabile. Gli angoli in
-   basso non vanno arrotondati qui (li assorbe l'"overflow: hidden" della
-   card, vedi sopra) */
+/* Il footer della card e' interamente il bottone "Aggiungi al preventivo":
+   nessun bordo, sfondo grigio di default rimosso */
 .card.card-prodotto .card-footer {
   border-top: 0;
 }
@@ -128,15 +111,15 @@
   color: var(--color-text-light);
 }
 
-/* Paginazione della griglia a card (prodotti_card.html/griglia_prodotti.html):
-   stessi identici valori gia' usati per ".paginate_button" di DataTables in
-   prodotti_tabella.html piu' sotto (colori, raggio, ombra all'hover, ecc.),
-   scelta esplicita dell'utente per farle sembrare visivamente la stessa
-   componente pur essendo generate da HTML/markup diversi (qui Bootstrap
-   ".pagination" server-side con page reload reale, li' DataTables lato
-   client) - selettore per id ("#paginazioneGrigliaProdotti", solo su questo
-   "<nav>") apposta, altrimenti la stessa ".pagination"/".page-link" di
-   Bootstrap usata in preventivo.html cambierebbe aspetto anche li' */
+/* Paginazione a pillole tonde: usata dalla griglia a card
+   (prodotti_card.html/griglia_prodotti.html) e da preventivo.html, tramite
+   lo stesso partial "partials/paginazione.html" con l'id
+   "#paginazioneGrigliaProdotti" passato esplicitamente da entrambi i
+   template. Stessi identici valori gia' usati per ".paginate_button" di
+   DataTables in prodotti_tabella.html piu' sotto (colori, raggio, ombra
+   all'hover, ecc.), per farle sembrare visivamente la stessa componente pur
+   essendo generate da HTML/markup diversi (qui Bootstrap ".pagination"
+   server-side con page reload reale, li' DataTables lato client) */
 #paginazioneGrigliaProdotti .page-link {
   width: 36px;
   height: 36px;
@@ -146,7 +129,7 @@
   align-items: center;
   justify-content: center;
   border: 0;
-  border-radius: 50% !important; /* !important: Bootstrap squadra di suo gli angoli esterni di primo/ultimo elemento */
+  border-radius: 50% !important; /* Vince sullo squadramento di Bootstrap sugli angoli esterni di primo/ultimo elemento */
   background-color: transparent;
   color: rgb(79, 79, 79);
   font-family: Roboto, sans-serif;
@@ -171,93 +154,53 @@
   cursor: default;
 }
 
-/* L'unico elemento disabilitato che deve restare visibile e' l'ellissi
-   "..." in mezzo alla lista (stile ripreso da ".dataTables_paginate
-   .ellipsis" li' sotto): Precedente/Successivo disabilitati (sempre primo e
-   ultimo elemento della lista, vedi griglia_prodotti.html) vanno invece
-   nascosti del tutto, stesso comportamento di ".paginate_button.previous/
-   .next.disabled" in prodotti_tabella.html invece di restare visibili in
-   grigio come farebbe Bootstrap di suo */
+/* Nasconde del tutto Precedente/Successivo disabilitati (primo e ultimo
+   elemento della lista), invece di lasciarli visibili in grigio */
 #paginazioneGrigliaProdotti .page-item:first-child.disabled,
 #paginazioneGrigliaProdotti .page-item:last-child.disabled {
   display: none;
 }
 
-/* Tabella prodotti (DataTables): nasconde la tabella (senza toglierla dal
-   flusso, "visibility" non "display", altrimenti DataTables non riuscirebbe
-   a misurarne le colonne durante l'inizializzazione) finche' DataTables non
-   l'ha trasformata in versione responsive - la mostra poi il JS in
-   "initComplete" (prodotti_tabella.html). Evita di vedere per un istante la
-   tabella "grezza" (tutte le colonne, senza compressione mobile) prima che
-   JS la ricomprima, soprattutto notabile su telefono */
+/* Nasconde la tabella (visibility, non display) finche' DataTables non l'ha
+   resa responsive; la mostra poi il JS in "initComplete" */
 .tabella-in-caricamento {
   visibility: hidden;
 }
 
-/* Tabella prodotti (DataTables): intestazioni colonna centrate. DataTables
-   mette di suo "table.dataTable thead th { text-align: left; }" - punta
-   direttamente al "th" (non e' solo un default ereditato), quindi vince
-   sempre sul "text-align: center" messo sulla <table> in prodotti_tabella.html,
-   che i "th" (senza altre regole piu' specifiche) erediterebbero solo se
-   DataTables non lo sovrascrivesse esplicitamente. L'id della tabella vince
-   sulla classe ".dataTable" di DataTables a prescindere dall'ordine di
-   caricamento dei fogli di stile */
+/* Intestazioni colonna centrate, vince sulla regola di DataTables che le
+   allinea a sinistra */
 #listProdottiTable thead th {
   text-align: center;
 }
 
-/* Bordi tondi della tabella prodotti (prodotti_tabella.html): "border-radius"
-   + "overflow: hidden" direttamente sulla "<table>" (non su un contenitore
-   attorno a lei, es. "#listProdottiTable_wrapper" generato da DataTables:
-   quello contiene anche la paginazione sotto, che deve restare fuori
-   dall'arrotondamento - un "<div>" avvolto solo attorno alla "<table>" e'
-   stato provato ma DataTables inserisce comunque il proprio wrapper, con
-   dentro anche la paginazione, esattamente nella posizione occupata dalla
-   "<table>" nel DOM, quindi finirebbe comunque dentro). Affidabile qui
-   perche' la tabella e' gia' "border-collapse: separate; border-spacing: 0"
-   (default del browser, Bootstrap non lo forza a "collapse" - verificato
-   con devtools): con "collapse" i bordi delle celle "vincono" sempre sul
-   bordo/arrotondamento della tabella stessa, indipendente dal browser */
+/* Bordi tondi applicati direttamente sulla <table> (border-radius +
+   overflow: hidden), lasciando la paginazione sotto fuori dall'arrotondamento */
 #listProdottiTable {
   border-radius: .75rem;
   overflow: hidden;
-  /* "0", non l'"1rem" di margine sotto che Bootstrap mette di default su
-     ".table": con "overflow: hidden" qui sopra (nuovo "block formatting
-     context") quel margine non collasserebbe verso l'esterno ma diventerebbe
-     spazio vuoto visibile dentro la tabella, prima dell'angolo arrotondato
-     in basso */
+  /* Azzera il margine sotto di ".table" per non lasciare spazio vuoto prima
+     dell'angolo arrotondato */
   margin-bottom: 0;
-  /* "!important" per vincere il "width" in px che DataTables scrive inline
-     sulla tabella (calcolato sul contenuto delle colonne, "autoWidth" di
-     default): senza, la tabella puo' risultare piu' stretta del contenitore
-     che la circonda, lasciando a destra dell'ultima colonna uno spazio
-     vuoto senza bordo (il bordo destro della tabella finisce li' dove lei
-     termina, non al bordo del contenitore) */
+  /* !important per vincere il width in px che DataTables scrive inline
+     sulla tabella */
   width: 100% !important;
 }
 
 /* Bordi tondi della tabella di dashboard_prodotti_senza_immagine.html, stessa
-   tecnica di "#listProdottiTable" qui sopra ("border-radius" + "overflow:
-   hidden" direttamente sulla "<table>", niente "!important" sul "width" qui:
-   non e' DataTables, nessun width inline da vincere) */
+   tecnica di "#listProdottiTable" sopra */
 #tabella-prodotti-senza-immagine {
   border-radius: .75rem;
   overflow: hidden;
   margin-bottom: 0;
 }
 
-/* Angoli arrotondati sul pop-up "Carica immagine" (si apre cliccando una
-   riga della tabella qui sopra), stesso raggio/bordo blu gia' usati per
-   "#modalDocumento .modal-content" in documenti.css e "#modalLogin
-   .modal-content" in navbar.css */
+/* Angoli arrotondati sul pop-up "Carica immagine" */
 #modalCaricaImmagineProdotto .modal-content {
   border-radius: 24px;
   overflow: hidden;
 }
 
-/* Tabella prodotti (DataTables): sotto i 576px il testo "Showing x to y..."
-   (con "float" di default) non ci sta piu' affiancato alla paginazione e
-   va a capo in modo disordinato: lo mettiamo su una riga propria a piena
+/* Sotto i 576px, testo "Showing x to y..." su una riga propria a piena
    larghezza */
 @media (max-width: 575.98px) {
   #listProdottiTable_wrapper .dataTables_info {
@@ -267,44 +210,26 @@
   }
 }
 
-/* Sotto i 576px resta visibile solo la colonna NOME (le altre sono
-   nascoste da DataTables Responsive), quindi l'intestazione "NOME" e'
-   ridondante - si nasconde tutta la riga di intestazione */
+/* Sotto i 576px nasconde la riga di intestazione (resta visibile solo la
+   colonna NOME) */
 @media (max-width: 575.98px) {
   #listProdottiTable thead {
     display: none;
   }
 }
 
-/* Filtro sottocategoria: bordo e freccina dello stesso blu della navbar,
-   invece del grigio di default di Bootstrap. Selettore per id (non
-   ".form-select") apposta: Bootstrap imposta gia' bordo e freccia su
-   ".form-select" con la stessa specificita' di una classe, quindi una
-   regola equivalente potrebbe essere sovrascritta cambiando l'ordine di
-   caricamento dei fogli di stile - l'id vince sempre, a prescindere.
-   Nota: il colore della freccia e' dentro un SVG incorporato nel CSS, che
-   non puo' leggere "var(--color-primary)" - va aggiornato qui a mano se
-   cambia il blu del sito (stessa nota gia' presente in navbar.css per
-   l'icona dell'hamburger) */
+/* Filtro sottocategoria: bordo e freccina blu navbar. Il colore della
+   freccia e' in un SVG incorporato nel CSS, va aggiornato a mano se cambia
+   il blu del sito */
 #filtroSottocategoria {
   border-color: var(--color-primary);
   border-width: 2px;
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%231B5AA0' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
 }
 
-/* Campo di ricerca della tabella (generato da DataTables): stesso bordo blu
-   e stesso spessore del filtro sottocategoria qui sopra, per coerenza.
-   margin-left:0 toglie il margine di 3px che DataTables mette di default
-   per staccare l'input dalla scritta "Cerca:" - scritta che abbiamo rimosso
-   (vedi JS in prodotti_tabella.html), quindi quello spazio non serve più e
-   disallineava il campo rispetto alla colonna "CODICE PRODOTTO" sotto.
-   height: stesso motivo di "#prodottiCardSearch" piu' sotto (Chrome calcola
-   l'altezza di un <input> dalle metriche del font invece che dal
-   line-height dichiarato, a differenza di <select>) - senza, questo campo
-   risulta piu' basso di "#filtroSottocategoria" qui sopra. Formula con
-   padding 0.5rem (0.25rem per lato) invece di 0.75rem perche' qui, a
-   differenza di "#prodottiCardSearch", sia l'input (".form-control-sm")
-   sia il select (".form-select-sm") sono in taglia small */
+/* Campo di ricerca della tabella: bordo blu e spessore come il filtro
+   sottocategoria sopra, margin-left azzerato, altezza forzata per allinearsi
+   al filtro */
 #listProdottiTable_filter input {
   border-color: var(--color-primary);
   border-width: 2px;
@@ -318,29 +243,9 @@
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%231B5AA0' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
 }
 
-/* Filtro e ricerca come cerchio/pillola anche da desktop, non piu' select/
-   casella di testo classiche: stesso aspetto e comportamento (cerchio
-   chiuso con icona, si apre in pillola al click) che hanno gia' da telefono
-   ".ricerca-a-comparsa"/".filtro-a-comparsa" sotto i 576px (vedi piu' in
-   basso), tranne l'ombra e l'ingrandimento a 2.75rem/3.5rem che li' servono
-   solo perche' sono bottoni fluttuanti sopra la pagina: qui restano invece
-   nella riga del titolo (vedi "partials/intestazione_categoria.html").
-   "42px"/"38px" (non "40px"/"36px" come il componente base da telefono):
-   42px e' l'altezza risultante di ".btn-torna-catalogo" qui sopra (font-size
-   1rem * line-height 1.5 = 24px, + padding 0.5rem sopra/sotto = 16px, +
-   bordo 1px+1px), cosi' i due cerchi restano della stessa identica altezza
-   della pillola "Torna al catalogo" accanto nella stessa riga. 38px = 42px
-   meno i 2px di bordo per lato della pillola/cerchio esterno, stessa
-   proporzione bottone-interno/bordo-esterno del componente base (36px su
-   40px totali).
-   Selettori per id, in coppia via ":is()" - prodotti_card.html
-   (#ricercaProdottiWrapper/#prodottiCardSearch/#filtroProdottiWrapper/
-   #prodottiCardFiltro) e prodotti_tabella.html (#ricercaTabellaWrapper/
-   #ricercaTabellaProdotti/#filtroTabellaWrapper/#filtroSottocategoria,
-   quest'ultimo id gia' presente nel markup, gli altri tre assegnati via JS
-   in "initComplete" - vedi prodotti_tabella.html). La RICERCA include anche
-   la classe ".ricerca-a-comparsa"/".ricerca-a-comparsa-input", usata anche
-   da dashboard_prodotti_senza_immagine.html */
+/* Filtro e ricerca come cerchio/pillola anche da desktop (icona chiusa, si
+   apre in pillola al click), 42px/38px per allinearsi in altezza a
+   ".btn-torna-catalogo" nella stessa riga */
 @media (min-width: 576px) {
   :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, .ricerca-a-comparsa) {
     flex-grow: 0 !important;
@@ -358,10 +263,7 @@
     align-items: center;
     height: 42px;
     border: 2px solid var(--color-primary);
-    /* "999px", non "var(--bs-border-radius)": cerchio pieno da chiuso
-       (larghezza = altezza), pillola con lati completamente arrotondati da
-       aperto - stesso raggio gia' usato per l'equivalente ingrandito/
-       fluttuante da telefono qui sotto */
+    /* 999px: cerchio pieno da chiuso, pillola con lati arrotondati da aperto */
     border-radius: 999px;
     overflow: hidden;
     background-color: var(--color-primary);
@@ -433,32 +335,13 @@
     padding: 0;
     text-align: center;
     border: 2px solid var(--color-primary);
-    /* "50%", non l'arrotondamento di default della "<select>" Bootstrap:
-       larghezza = altezza (42px, vedi il wrapper sopra), quindi da' un
-       cerchio pieno invece di un quadrato con angoli smussati - stesso
-       raggio gia' usato per l'equivalente ingrandito/fluttuante da telefono
-       qui sotto */
+    /* 50%: con larghezza = altezza (42px) da' un cerchio pieno invece di un
+       quadrato con angoli smussati */
     border-radius: 50%;
   }
 
-  /* "#prodottiCardFiltro"/"#filtroSottocategoria" sono ora due <button>
-     vuoti (icona sovrapposta via ".filtro-icon-overlay", niente testo
-     dentro - vedi partials/controlli_ricerca_filtro_card.html e
-     partials/controlli_ricerca_filtro_tabella.html), non piu' due
-     <select>: a differenza della <select> di prima (dimensione intrinseca
-     basata sul testo delle opzioni), un bottone senza contenuto ha
-     dimensione intrinseca ~0. Il loro antenato ".controlli-categoria-wrapper"
-     (vedi partials/intestazione_categoria.html, condiviso da
-     prodotti_card.html e prodotti_tabella.html) e' "position: absolute"
-     senza una larghezza propria: il browser calcola la sua larghezza
-     automatica dalla dimensione intrinseca dei figli, non dal loro
-     "width: 100%" (una percentuale non ha base finche' quella larghezza
-     automatica non e' gia' stata calcolata) - risultato, un bottone vuoto
-     la faceva collassare troppo stretta, schiacciando a ovale sia questo
-     cerchio sia quello della ricerca accanto (stesso contenitore). Pixel
-     fisso invece di "100%" qui, specifico per loro (vince per ordine,
-     stessa specificita' del "width: 100%" sopra - due id): niente piu'
-     dipendenza dal contenuto per la loro dimensione */
+  /* Larghezza fissa in px per "#prodottiCardFiltro"/"#filtroSottocategoria"
+     (bottoni vuoti, senza dimensione intrinseca basata sul contenuto) */
   #filtroProdottiWrapper #prodottiCardFiltro,
   #filtroTabellaWrapper #filtroSottocategoria,
   #filtroCategoriaProdottiWrapper #filtroCategoriaProdotti,
@@ -466,9 +349,8 @@
     width: 42px;
   }
 
-  /* Hover/focus piu' scuro (".btn-navbar:hover/:focus" qui sotto, stesso
-     "var(--color-primary-dark)"), per coerenza visiva col bottone "Torna al
-     catalogo" nella stessa riga */
+  /* Hover/focus piu' scuro, coerente col bottone "Torna al catalogo" nella
+     stessa riga */
   :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti, #filtroSezioneDocumenti):hover,
   :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti, #filtroSezioneDocumenti):focus {
     background-color: var(--color-primary-dark);
@@ -476,17 +358,11 @@
     box-shadow: none;
   }
 
-  /* Posizione/colore dell'icona in ":is(#filtroProdottiWrapper,
-     #filtroTabellaWrapper) .filtro-icon-overlay" qui sotto, fuori da questa
-     media query: valgono sia da telefono che da desktop, non serve
-     ripeterli qui */
+  /* Posizione/colore dell'icona definiti fuori da questa media query:
+     valgono sia da telefono che da desktop */
 
-  /* Stesso hover/focus piu' scuro di sopra, per la ricerca: solo sul
-     bottone lente (sempre blu, aperta o chiusa che sia - "!important"
-     necessario per vincere il "background-color...!important" di base
-     poco sopra) e sulla pillola quando e' chiusa ("mostra solo l'icona":
-     da aperta e' bianca con dentro il campo di testo, niente da scurire
-     al passaggio del mouse li' sopra) */
+  /* Hover/focus piu' scuro per la ricerca: sul bottone lente e sulla pillola
+     quando e' chiusa */
   :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, .ricerca-a-comparsa) .ricerca-toggle-btn:hover,
   :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, .ricerca-a-comparsa) .ricerca-toggle-btn:focus {
     background-color: var(--color-primary-dark) !important;
@@ -498,10 +374,8 @@
   }
 }
 
-/* Titolo pagina prodotti a card (prodotti_card.html): blu navbar invece del
-   nero di default, e cliccabile per tornare alla lista completa della
-   categoria (utile soprattutto quando si e' filtrati su una sottocategoria o
-   si sta guardando un risultato di ricerca) */
+/* Titolo pagina prodotti a card: blu navbar, cliccabile per tornare alla
+   lista completa della categoria */
 .titolo-categoria-link,
 .titolo-categoria-link:hover,
 .titolo-categoria-link:focus {
@@ -514,14 +388,8 @@
   text-decoration: none;
 }
 
-/* Bottone "Torna al catalogo" (prodotti_card.html): "btn-sm" va bene da
-   telefono (solo icona), ma da desktop, dove compare anche il testo, risulta
-   un po' piccolo - lo si ingrandisce leggermente sopra il breakpoint "md"
-   (768px). Niente a che vedere con la dimensione del titolo h1 accanto: un
-   font-size pari a quello del titolo (provato in precedenza) rende il
-   bottone piu' vistoso del titolo stesso su un testo lungo come "Torna al
-   catalogo" - resta un elemento secondario, quindi una taglia fissa e
-   moderata, non legata al titolo */
+/* Bottone "Torna al catalogo": ingrandito leggermente sopra il breakpoint
+   "md" (768px), taglia fissa non legata al titolo h1 accanto */
 @media (min-width: 768px) {
   .btn-torna-catalogo {
     padding: 0.5rem 1.25rem;
@@ -529,115 +397,51 @@
   }
 }
 
-/* Riga titolo/filtro/ricerca fissata in cima allo scroll (da telefono e da
-   desktop), attaccata subito sotto la navbar (anche lei fissata, vedi
-   ".site-navbar" in navbar.css - prodotti_card.html e prodotti_tabella.html,
-   ".intestazione-categoria-sticky" passata via "intestazione_sticky" a
-   "partials/intestazione_categoria.html"): sfondo bianco, contorno con angoli arrotondati
-   (bordo blu navbar) una volta agganciata (vedi ".intestazione-fissata"
-   piu' sotto), per restare ben distinta dal contenuto che le scorre sotto.
-   "position: sticky" (non Bootstrap ".sticky-top", che non permette di
-   scegliere lo "z-index"/altri dettagli qui sotto) mantiene la riga sempre
-   raggiungibile invece di scomparire scrollando, cosi' restano sempre
-   utilizzabili "Torna al catalogo"/titolo/filtro/ricerca.
-   "!important" necessario: la riga ha gia' ".position-relative" di Bootstrap
-   (serve per "Torna al catalogo"/i controlli, posizionati "position-absolute"
-   rispetto a lei) che e' a sua volta "!important" di suo (utility di
-   posizionamento), senza vincerebbe sempre lei a prescindere dall'ordine/
-   specificita' di questa regola.
-   "top: var(--altezza-navbar)" (impostata via JS in altezza-navbar.js): si
-   aggancia esattamente sotto al bordo inferiore della navbar invece di
-   sovrapporlesi, qualunque sia la sua altezza reale (diversa da telefono e
-   da desktop) */
+/* Riga titolo/filtro/ricerca fissata in cima allo scroll, attaccata subito
+   sotto la navbar: sfondo bianco, contorno arrotondato una volta agganciata.
+   "top: var(--altezza-navbar)" la aggancia esattamente sotto al bordo della
+   navbar */
   .intestazione-categoria-sticky {
     position: sticky !important;
     top: var(--altezza-navbar, 0px);
-    /* Sopra il contenuto normale della pagina (card prodotti, alert) che le
-       scorre sotto una volta agganciata, sotto invece alla navbar sopra di
-       lei (1030) e a toast/modali di Bootstrap (rispettivamente 1080/1055) */
+    /* Sopra il contenuto della pagina, sotto la navbar (1030) e toast/modali
+       Bootstrap (1080/1055) */
     z-index: 1020;
     background-color: var(--color-bg);
-    /* "0", non "pt-5" (3rem) di Bootstrap: quello spazio sopra il titolo lo
-       da' ora ".sentinella-intestazione" qui sotto, un elemento vero PRIMA
-       della riga nel flusso normale della pagina, non il padding interno
-       della riga stessa (che e' gia' "position: sticky" fin da subito) -
-       altrimenti la riga si troverebbe fin da subito a ridosso della navbar
-       (il "pt-5" e' dentro il suo bordo, non prima di lui) e si
-       aggancerebbe dopo pochissimi pixel di scroll invece di scorrere
-       normalmente insieme alla pagina per un tratto, come una riga
-       qualunque, finche' la navbar (fissata di suo) non la raggiunge
-       davvero. "!important" necessario per vincere "pt-5", anche lei
-       "!important" di suo (utility di spaziatura Bootstrap) */
+    /* Azzera il "pt-5" di Bootstrap: lo spazio sopra il titolo lo da'
+       ".sentinella-intestazione" come elemento a se', prima della riga nel
+       flusso */
     padding-top: 0 !important;
-    /* Bordo trasparente (stesso spessore di ".intestazione-fissata" qui
-       sotto, che cambia solo il colore) invece di "nessun bordo": transita
-       dolcemente sul colore, senza uno spessore che salta di scatto da 0 a
-       2px. Stessa logica per "border-radius"/"padding": valori di partenza
-       gia' a 0 (niente piu' "pb-3" di Bootstrap per il basso, tolto dalla
-       riga - vedi partials/intestazione_categoria.html), qui basta la
-       "transition" perche' il passaggio a quelli di ".intestazione-fissata"
-       sia animato invece che istantaneo */
+    /* Bordo trasparente (stesso spessore di ".intestazione-fissata" sotto)
+       per una transizione fluida sul colore invece che a scatto */
     border: 2px solid transparent;
-    /* "border-width"/"background-color" incluse (non solo "border-color"):
-       quando la riga entra nella navbar (".contenuto-in-pillola-navbar"
-       piu' in basso) azzera anche spessore del bordo e sfondo, non solo
-       il colore, per evitare la lineetta bianca residua - senza
-       includerle qui, quei due cambi scatterebbero di colpo mentre
-       padding/border-radius continuano ad animarsi */
+    /* Include anche border-width e background-color nella transition, per
+       animare tutti i cambi insieme */
     transition: border-color .3s ease, border-width .3s ease, border-radius .3s ease, padding .3s ease, background-color .3s ease;
   }
 
-  /* Altezza vera (non "padding") davanti alla riga, per farla scorrere
-     normalmente insieme alla pagina per un tratto prima di agganciarsi -
-     vedi commento su "padding-top: 0" qui sopra. Ridotta rispetto al "pt-5"
-     che la riga aveva prima: spazio minore tra la navbar e la riga quando
-     la pagina e' in cima, richiesta esplicita (solo questo valore, non il
-     resto della riga - vedi h1/padding invariati qui sotto) */
+  /* Altezza vera davanti alla riga, per farla scorrere normalmente insieme
+     alla pagina prima di agganciarsi */
   .sentinella-intestazione {
     height: 1.5rem;
   }
 
-  /* Aggiunta via IntersectionObserver (static/js/intestazione-categoria-sticky.js,
-     condiviso tra prodotti_card.html e prodotti_tabella.html) solo quando la
-     riga e' davvero agganciata subito sotto la navbar (non mentre sta
-     ancora scorrendo normalmente insieme alla pagina, dove niente
-     bordo/contorno resta piu' adatto): contorno con angoli
-     arrotondati (bordo blu navbar) per restare ben distinta dal contenuto
-     che le scorre sotto, padding verticale ridotto per restare una barra
-     compatta. "border-radius: .5rem" (rettangolo arrotondato), non "999px"
-     (pillola vera, raggio = meta' dell'altezza della riga): con un raggio
-     cosi' grande anche un margine laterale uguale a quello verticale non
-     basterebbe a evitare che "Torna al catalogo"/i controlli (gia' loro
-     stessi arrotondati) si sovrappongano alla curva esterna - un raggio
-     piccolo invece resta tutto entro il margine (".5rem" qui sotto, uguale
-     su ogni lato), quindi loro iniziano gia' oltre la curva, nella parte
-     dritta del contorno.
-     Niente "padding-left/right" qui: il padding di un contenitore non
-     sposta i suoi figli "position-absolute" (vedi commento su "start-0"/
-     "end-0" in partials/intestazione_categoria.html) - "Torna al
-     catalogo"/i controlli restano quindi appoggiati al bordo ("left"/
-     "right" dedicati subito sotto, stesso valore ".5rem" del padding
-     verticale qui, per uno spazio uguale su tutti i lati) invece che al
-     padding */
+  /* Classe aggiunta via IntersectionObserver quando la riga e' agganciata
+     subito sotto la navbar: contorno arrotondato blu navbar, padding
+     verticale ridotto per una barra compatta */
   .intestazione-categoria-sticky.intestazione-fissata {
-    /* Solo il colore, non tutto "border": lo spessore (2px) e' gia' quello
-       di partenza (bordo trasparente qui sopra), cosi' la "transition"
-       anima solo il colore invece di far scattare anche lo spessore */
+    /* Solo il colore del bordo: lo spessore parte gia' a 2px (bordo
+       trasparente sopra) */
     border-color: var(--color-primary);
-    /* Solo gli angoli in basso: la riga e' attaccata subito sotto la
-       navbar (nessuno spazio tra le due, vedi "top: var(--altezza-navbar)"
-       sopra), angoli arrotondati anche in alto lascerebbero vedere un
-       piccolo spicchio di blu navbar dietro alla curva invece di un
-       attacco netto */
+    /* Angoli arrotondati solo in basso: la riga e' attaccata subito sotto
+       la navbar */
     border-radius: 0 0 1.5rem 1.5rem;
     padding-top: .5rem !important;
     padding-bottom: .5rem !important;
   }
 
-  /* "left"/"right" (non "start-0"/"end-0" ereditati dall'HTML, sovrascritti
-     qui), stesso ".5rem" del padding verticale qui sopra, per uno spazio
-     uguale su tutti i lati. "!important" necessario per vincere ".start-0"/
-     ".end-0" di Bootstrap, anche loro "!important" di suo */
+  /* left/right a .5rem, sovrascrivono "start-0"/"end-0" di Bootstrap, per
+     uno spazio uguale su tutti i lati */
   .intestazione-categoria-sticky.intestazione-fissata .btn-torna-catalogo {
     left: .5rem !important;
   }
@@ -646,112 +450,44 @@
     right: .5rem !important;
   }
 
-  /* Mentre "Torna al catalogo"/titolo/filtro sono spostati nella pillola
-     navbar (".contenuto-in-pillola-navbar", aggiunta/tolta da
-     intestazione-categoria-sticky.js insieme a
-     ".pillola-modalita-categoria"), la riga originale NON puo' essere
-     nascosta con "display: none": dentro ".controlli-categoria-wrapper"
-     (non spostato - solo il filtro al suo interno lo e', vedi
-     partials/intestazione_categoria.html) resta il bottone di ricerca
-     fluttuante "position: fixed" (#controlliRicercaFiltroWrapper su
-     prodotti_card.html, #controlliRicercaFiltroTabellaWrapper su
-     prodotti_tabella.html - bottone indipendente da questo cambiamento,
-     vedi Docs/superpowers/specs/2026-08-30-pillola-titolo-categoria-scroll-design.md,
-     sezione "Fuori scope"): "position: fixed" su un discendente NON lo
-     fa "scappare" da un "display: none" impostato su un suo antenato
-     (qui la riga stessa), quindi nasconderebbe anche lui, facendo
-     sparire il bottone di ricerca per tutta la durata di questo stato -
-     bug reale gia' capitato qui.
-     Si annulla quindi solo l'aspetto "a pillola" della riga (bordo/
-     padding di ".intestazione-fissata" qui sopra, sempre presente insieme
-     a questa classe - vedi il "classList.toggle"/"add" in
-     intestazione-categoria-sticky.js) e si nasconde solo l'<h1> ormai
-     vuoto (il titolo e' stato spostato fuori, ma l'<h1> in se' resta nel
-     DOM e occuperebbe comunque la sua riga di altezza anche senza testo
-     dentro, per via del suo line-height/"strut" - vedi commento sotto).
-     ".controlli-categoria-wrapper" non viene toccato in nessun modo: resta
-     nel flusso, il suo bottone di ricerca "fixed" continua quindi a
-     funzionare/renderizzare normalmente. Il risultato e' una riga che
-     collassa quasi a zero (solo il bordo trasparente da 2px per lato,
-     nessun contenuto in-flow rimasto: l'<h1> e' "display: none", gli
-     altri figli sono gia' "position-absolute"/spostati altrove), senza
-     pero' smettere di renderizzare la propria sotto-arborea */
+  /* Quando titolo/filtro sono spostati nella pillola navbar, la riga non
+     viene nascosta con "display: none" (nasconderebbe anche il bottone di
+     ricerca "position: fixed" al suo interno): si annulla solo l'aspetto a
+     pillola e si nasconde il solo <h1> ormai vuoto */
   .intestazione-categoria-sticky.contenuto-in-pillola-navbar {
-    /* Annulla il contorno "a pillola" di ".intestazione-fissata" qui
-       sopra (bordo blu + angoli arrotondati in basso). "border-width: 0"
-       (non l'intero shorthand "border", e non solo "border-color:
-       transparent" come si potrebbe pensare): un bordo trasparente ha
-       comunque il suo spessore (2px sopra + 2px sotto, ereditato dalla
-       regola base piu' in alto), e lo sfondo bianco della riga (sempre
-       presente, vedi ".intestazione-categoria-sticky" piu' in alto)
-       dipinge comunque sotto un bordo trasparente (di default il
-       background arriva fino al bordo esterno della riga) - risultato una
-       lineetta bianca alta 4px, visibile subito sotto la pillola anche a
-       riga "collassata". Solo "border-width" (lasciando lo shorthand
-       "border" della regola base, quindi "border-style"/"border-color"
-       invariati) perche' e' l'unica proprieta' inclusa nella lista
-       "transition" qui sopra: lo shorthand "border" azzererebbe anche
-       stile/colore in un colpo solo, scattando di colpo invece di animarsi
-       insieme al resto. Nessun "!important" qui: a parita' di specificita'
-       (due classi in entrambe le regole) vince l'ordine nel foglio di
-       stile, e questa regola e' dichiarata dopo */
+    /* Annulla il contorno a pillola: azzera solo border-width (non l'intero
+       bordo) per restare coerente con la transition definita sopra */
     border-width: 0;
     border-radius: 0;
-    /* Stesso discorso del bordo: lo sfondo bianco della riga stessa
-       (non quello degli elementi che ci scorrono sotto) va tolto,
-       altrimenti painterebbe comunque l'area residua della riga anche a
-       bordo/padding azzerati */
+    /* Toglie lo sfondo bianco della riga stessa */
     background-color: transparent;
-    /* "!important" invece necessario qui: le "padding-top/bottom: .5rem
-       !important" di ".intestazione-fissata" qui sopra sono gia'
-       "!important" di loro (stessa convenzione spiegata li' sopra),
-       quindi un azzeramento senza "!important" perderebbe sempre a
-       prescindere da specificita'/ordine */
+    /* !important per vincere il padding "!important" di
+       ".intestazione-fissata" sopra */
     padding-top: 0 !important;
     padding-bottom: 0 !important;
   }
 
-  /* Solo l'<h1> (il titolo e' stato spostato fuori, lasciandolo vuoto):
-     nessun rischio di nascondere anche lui un discendente "position:
-     fixed" che deve continuare a renderizzare (a differenza della riga
-     intera qui sopra, l'<h1> non contiene mai il bottone di ricerca) */
+  /* Nasconde solo l'<h1> ormai vuoto (il titolo e' stato spostato fuori) */
   .intestazione-categoria-sticky.contenuto-in-pillola-navbar h1 {
     display: none;
   }
 
-/* Ricerca/filtro prodotti (prodotti_card.html): "flex-shrink-1" di Bootstrap
-   da solo non basta a far restringere questi campi sotto la loro larghezza
-   intrinseca (un flex item di default non si restringe mai sotto quella),
-   che e' invece necessario qui perche' i due controlli restino affiancati
-   e delle stesse dimensioni anche su schermi stretti, senza andare a capo.
-   Nessuna utility Bootstrap equivalente a "min-width: 0" */
+/* min-width: 0 per far restringere ricerca/filtro sotto la loro larghezza
+   intrinseca, cosi' restano affiancati senza andare a capo */
 .card-control-ricerca,
 .card-control-filtro {
   min-width: 0;
 }
 
-/* Icona a imbuto del filtro: esiste solo per il comportamento "solo icona"
-   (da telefono per ".filtro-a-comparsa", sia da telefono che da desktop per
-   "#filtroProdottiWrapper" di prodotti_card.html qui sotto) - altrove la
-   select resta quella di sempre (testo/freccina visibili, nessuna icona
-   sopra) */
+/* Icona a imbuto del filtro, nascosta di default: visibile solo nel
+   comportamento "solo icona" */
 .filtro-icon-overlay {
   display: none;
 }
 
-/* Icona filtro di prodotti_card.html/prodotti_tabella.html, sia da telefono
-   che da desktop (non dentro nessuna media query, a differenza delle regole
-   equivalenti per ".filtro-a-comparsa" - quella riguarda anche altre pagine,
-   es. dashboard_prodotti_senza_immagine.html, che non devono cambiare):
-   sempre bianca. In prodotti_card.html "vuota"/a contorno ("bi-funnel") su
-   "Tutte le sottocategorie", piena ("bi-funnel-fill", stesso colore) quando
-   e' selezionata una sottocategoria specifica - le due classi Bootstrap
-   Icons si scambiano sull'elemento via JS ad ogni cambio filtro
-   (filtro-prodotti-ajax.js, "aggiornaClasseFiltroAttivo"), dato che il
-   filtro si aggiorna solo via AJAX, senza ricaricare la pagina. In
-   prodotti_tabella.html quello script non e' caricato (il filtro naviga via
-   DataTables, non AJAX): l'icona resta quindi sempre "bi-funnel" a
-   contorno, indipendentemente dalla sottocategoria selezionata */
+/* Icona filtro sempre bianca. In prodotti_card.html si alterna tra
+   "bi-funnel" (nessun filtro) e "bi-funnel-fill" (sottocategoria
+   selezionata) via JS; in prodotti_tabella.html resta sempre "bi-funnel" */
 :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) .filtro-icon-overlay {
   display: block;
   position: absolute;
@@ -762,64 +498,31 @@
   pointer-events: none;
 }
 
-/* Menu del filtro di prodotti_card.html (bottone Bootstrap "dropdown", non
-   piu' una <select> nativa - vedi partials/controlli_ricerca_filtro_card.html/
-   partials/controlli_ricerca_filtro_tabella.html e il perche' nel loro
-   commento): stessa estetica del pannello del menu hamburger da telefono
-   (vedi "#navbarSupportedContent" in navbar.css) - pannello bianco con
-   angoli molto arrotondati e ombra invece di un bordo, voci a pillola
-   invece della lista piatta di default di Bootstrap. Solo l'aspetto e'
-   condiviso, non il comportamento (qui resta un piccolo popup ancorato al
-   bottone, non un pannello a tutto schermo con backdrop). Selettore in
-   comune tra prodotti_card.html (#filtroProdottiWrapper) e
-   prodotti_tabella.html (#filtroTabellaWrapper), stessa tecnica gia' usata
-   sopra per il cerchio/icona del bottone che lo apre.
-   "min-width" leggibile indipendente da "max-width: 12rem" del
-   bottone-icona che lo apre (quel valore riguarda solo lui, vedi
-   ".card-control-filtro" sopra). "z-index" esplicito: sopra sia la navbar
-   (1030, vedi navbar.css) sia la riga sticky (1020, vedi
-   ".intestazione-categoria-sticky" sopra), altrimenti aprendo il menu
-   durante lo scroll finirebbe sotto a una delle due */
+/* Menu del filtro (bottone Bootstrap "dropdown"): pannello bianco con angoli
+   molto arrotondati e ombra, voci a pillola. z-index esplicito, sopra
+   navbar e riga sticky */
 :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) .filtro-dropdown-menu {
   min-width: 12rem;
   z-index: 1035;
   padding: .75rem;
   border: 0;
-  /* Raggio contenuto apposta: arrotonda solo il punto d'incontro tra i
-     lati, lasciando un tratto dritto ben visibile su ognuno dei 4 lati -
-     un raggio troppo grande (provato prima, 7rem) "mangia" quasi tutto il
-     lato, facendo sembrare il pannello una pillola/blob invece di un
-     rettangolo con angoli arrotondati */
+  /* Raggio contenuto: arrotonda solo gli angoli, lasciando un tratto dritto
+     su ogni lato */
   border-radius: 24px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
 }
 
-/* "display: flex" solo con ".show" (classe che Bootstrap aggiunge/toglie
-   per aprire/chiudere il menu, vedi anche "#navbarSupportedContent.show"
-   in navbar.css per lo stesso principio): messo senza questa condizione
-   sovrascriveva sempre il "display: none" di base di Bootstrap per
-   ".dropdown-menu" (stessa specificita' di un selettore per id, che vince
-   sempre a prescindere dalla classe ".show"), tenendo il menu visibile in
-   permanenza invece che solo dopo il click sul bottone - bug reale gia'
-   capitato qui */
+/* display: flex solo insieme a ".show" (classe che Bootstrap aggiunge/
+   toglie all'apertura/chiusura del menu) */
 :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) .filtro-dropdown-menu.show {
   display: flex;
   flex-direction: column;
   gap: .5rem;
 }
 
-/* Ogni voce come pillola a se stante (stessa tecnica di
-   "#navbarSupportedContent .navbar-nav > .nav-item > .nav-link" in
-   navbar.css): grigio chiaro a riposo, contorno blu navbar al passaggio
-   del mouse (non piu' uno sfondo bianco - stesso cambio fatto li', per
-   coerenza) - niente piu' l'evidenziazione blu piena di Bootstrap per
-   ".dropdown-item" attivo/hover, quel ruolo lo ha ora solo il puntino a
-   destra (vedi ".filtro-item-dot" sotto). "display:flex" qui (non una
-   classe utility nel template): il puntino usa "margin-left:auto" per
-   andare a fine riga, serve quindi che l'"<a>" stesso sia un contenitore
-   flex. Bordo trasparente a riposo, stesso spessore di quello colorato
-   sotto: col "box-sizing: border-box" di Bootstrap il passaggio a colorato
-   non sposta/ridimensiona la pillola */
+/* Ogni voce come pillola a se stante: grigio chiaro a riposo, contorno blu
+   navbar all'hover. display: flex per permettere al puntino di andare a
+   fine riga con margin-left: auto */
 :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) .filtro-dropdown-item {
   display: flex;
   align-items: center;
@@ -838,20 +541,8 @@
   color: var(--color-text);
 }
 
-/* Puntino blu a destra della voce selezionata = "pagina/scelta corrente",
-   stesso ruolo e stesso aspetto di ".pallino-pagina-corrente" nel menu
-   hamburger - qui pero' con le SUE proprieta' di forma/colore, non affidate
-   alla classe condivisa: quella (navbar.css) le definisce solo dentro
-   "@media (max-width: 1399.98px)", dato che esiste solo nel pannello
-   hamburger (visibile solo sotto quella soglia). Il filtro invece compare
-   a ogni larghezza desktop: sopra i 1400px il puntino restava senza
-   dimensione/colore/margin-left, quindi invisibile - bug reale gia'
-   capitato qui. "visibility" propria perche' a differenza del menu
-   hamburger (dove lo "span" esiste nel DOM solo per la voce corrente,
-   deciso dal server) qui e' sempre presente su ogni voce e va nascosto/
-   mostrato via JS al volo (filtro-prodotti-ajax.js in prodotti_card.html,
-   script inline in prodotti_tabella.html - sposta la classe "active" senza
-   ricaricare la pagina) */
+/* Puntino blu a destra della voce selezionata (pagina/scelta corrente),
+   sempre presente nel DOM e mostrato/nascosto via JS con "visibility" */
 :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) .filtro-item-dot {
   width: 8px;
   height: 8px;
@@ -866,78 +557,36 @@
   visibility: visible;
 }
 
-/* Raggruppa filtro e ricerca di prodotti_card.html (vedi sotto i 576px piu'
-   in basso, dove diventano bottoni fluttuanti impilati): da qui in su
-   "display: contents" lo rende invisibile al layout, i due bottoni restano
-   quindi figli diretti della riga che li contiene, esattamente come se
-   questo wrapper non esistesse - nessuna modifica alle classi/larghezze
-   desktop gia' esistenti su di loro */
+/* Raggruppa filtro e ricerca: display: contents rende il wrapper invisibile
+   al layout, i due bottoni restano figli diretti della riga */
 #controlliRicercaFiltroWrapper {
   display: contents;
 }
 
-/* Stesso raggruppamento, per la ricerca/filtro di prodotti_tabella.html
-   (costruiti via JS in "initComplete", non nel markup statico come sopra -
-   vedi prodotti_tabella.html) - id diverso apposta, cosi' le due pagine
-   restano indipendenti l'una dall'altra */
+/* Stesso raggruppamento per la ricerca/filtro di prodotti_tabella.html, con
+   id proprio */
 #controlliRicercaFiltroTabellaWrapper {
   display: contents;
 }
 
-/* Sotto i 576px ("telefono", stessa soglia usata altrove nel sito - vedi
-   prodotti_tabella.html) il campo di ricerca parte chiuso (larghezza 0,
-   solo la lente e' visibile) e si apre al click sulla lente stessa.
-   Le varie soluzioni provate in precedenza (bordo/sfondo animati
-   separatamente su campo e lente, poi un "tappo" dedicato per l'angolo
-   sinistro) creavano tutte lo stesso tipo di difetto su Safari/WebKit: due
-   o piu' elementi con un proprio bordo che devono combaciare pixel a pixel
-   per sembrare un'unica forma, con una sottile riga bianca nel punto di
-   giunzione se la riga cade su una posizione verticale frazionaria (bug non
-   riproducibile su Chrome/devtools). Qui invece il bordo/sfondo della
-   "pillola" vive su un solo elemento (vedi ".ricerca-form" sotto), che la
-   ritaglia con "overflow: hidden": campo e lente al suo interno non hanno
-   alcun bordo proprio, quindi non c'e' piu' nulla con cui disallinearsi. Da
-   sm in su il campo resta sempre aperto come prima (nessuna di queste
-   regole si applica) */
+/* Sotto i 576px il campo di ricerca parte chiuso (larghezza 0, solo la
+   lente visibile) e si apre al click. Bordo/sfondo della pillola su un solo
+   elemento (".ricerca-form"), che ritaglia campo e lente con
+   overflow: hidden */
 @media (max-width: 575.98px) {
-  /* La classe Bootstrap ".flex-grow-1" (sempre attiva, vedi HTML) farebbe
-     crescere il wrapper anche da chiuso per riempire lo spazio libero nella
-     riga - spazio che ora e' molto piu' ampio da quando il filtro accanto e'
-     diventato una semplice icona fissa (40px) invece di una select larga.
-     Il risultato sarebbe una lente "appesa" a sinistra dentro un
-     contenitore invisibile molto piu' largo di lei, non aderente al bordo
-     destro della riga.
-     Il wrapper ha quindi una larghezza esplicita che passa da chiuso
-     (larghezza della pillola chiusa, solo bottone+bordo) ad aperto (12rem,
-     lo stesso valore gia' usato come "max-width" in linea nell'HTML) -
-     "width", non "flex-grow": animare "flex-grow" direttamente non e'
-     affidabile su Safari/WebKit (verificato con una registrazione da
-     iPhone: l'animazione scattava di colpo, senza fotogrammi intermedi,
-     mentre su Chrome risultava fluida), mentre "width" si anima in modo
-     affidabile ovunque */
+  /* Larghezza esplicita del wrapper (non flex-grow, che non si anima in
+     modo affidabile su Safari/WebKit): da chiuso (solo bottone+bordo) ad
+     aperto (12rem) */
   :is(#ricercaProdottiWrapper, .ricerca-a-comparsa) {
     flex-grow: 0 !important;
-    /* 40px = bottone (36px) + i due bordi della pillola (2px per lato) -
-       deve combaciare esattamente: essendo il campo sempre "flex-grow:1"
-       (vedi sotto), qualunque px di troppo qui verrebbe "riempito" dal
-       campo anche da chiuso, mostrando un residuo al posto dell'icona
-       pulita. 40px totali = stessa altezza di "#filtroProdottiWrapper" qui
-       sotto, per restare allineati nella riga */
+    /* 40px = bottone (36px) + i due bordi della pillola, stessa altezza di
+       "#filtroProdottiWrapper" per restare allineati */
     width: 40px;
     transition: width .3s ease;
   }
 
-  /* Durata piu' breve, non ".3s ease" della regola condivisa qui sopra
-     (che resta invariata per le altre pagine che usano ".ricerca-a-comparsa"
-     senza aggancio alla tastiera, es. dashboard_prodotti_senza_immagine.html -
-     selettore per id apposta, non tocca ".ricerca-a-comparsa" da sola):
-     qui la larghezza e' pilotata via JS ad ogni evento "resize" del
-     viewport visivo mentre la tastiera sale/scende (vedi
-     "applicaLarghezzaDaTastiera" in prodotti_card.html/prodotti_tabella.html),
-     non piu' da un unico scatto al click. Una transizione lunga farebbe
-     rincorrere il valore sempre in ritardo rispetto ad aggiornamenti cosi'
-     frequenti - resta solo per smussare il passaggio tra un aggiornamento
-     e l'altro, non piu' per l'intera apertura */
+  /* Durata piu' breve: qui la larghezza e' pilotata via JS a ogni resize del
+     viewport mentre la tastiera sale/scende */
   :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper) {
     transition: width .15s linear;
   }
@@ -946,19 +595,8 @@
     width: 12rem;
   }
 
-  /* Segue lo schema del design handoff (claude_design/Creazione bottoni e
-     loghi.zip, "Tasto Cerca"): un solo elemento con bordo (la "pillola" qui
-     sotto), non piu' pezzi separati (tappo + campo + lente) che devono
-     combaciare pixel a pixel per sembrare un'unica forma. I tentativi
-     precedenti (tappo dedicato per l'angolo sinistro, bordi indipendenti su
-     campo e lente) creavano tutti lo stesso tipo di difetto: su Safari/
-     WebKit (non riproducibile in Chrome/devtools) la posizione verticale
-     frazionaria della riga arrotonda i bordi di due elementi adiacenti in
-     modo leggermente diverso, lasciando uno spiraglio di sub-pixel in cui
-     traspare lo sfondo bianco della pagina - visibile come una sottile riga
-     verticale nel punto di giunzione. Con un solo bordo (su questo
-     contenitore) e "overflow: hidden" a ritagliare lo spigolo del bottone
-     dentro, non c'e' piu' nessun secondo bordo con cui poter disallinearsi */
+  /* Un solo elemento con bordo (la pillola), campo e lente ritagliati
+     dentro con overflow: hidden */
   :is(#ricercaProdottiWrapper, .ricerca-a-comparsa) .ricerca-form {
     flex-wrap: nowrap;
     align-items: center;
@@ -966,9 +604,8 @@
     border: 2px solid var(--color-primary);
     border-radius: var(--bs-border-radius);
     overflow: hidden;
-    /* Da chiuso lo sfondo blu della pillola coincide col bottone (bordo
-       "invisibile" perche' dello stesso colore): sembra un quadrato blu
-       pieno, non un campo con dentro un bottone */
+    /* Da chiuso lo sfondo blu della pillola coincide col bottone, sembra un
+       quadrato blu pieno */
     background-color: var(--color-primary);
     transition: background-color .3s ease;
   }
@@ -978,34 +615,22 @@
   }
 
   :is(#ricercaProdottiWrapper, .ricerca-a-comparsa) :is(#prodottiCardSearch, .ricerca-a-comparsa-input) {
-    /* Nessun bordo/sfondo proprio: li disegna solo ".ricerca-form" qui
-       sopra, il campo si limita a "galleggiarci" dentro come testo */
+    /* Nessun bordo/sfondo proprio: li disegna solo ".ricerca-form" sopra */
     border: 0 !important;
     border-radius: 0 !important;
     background-color: transparent !important;
     box-shadow: none !important;
     height: auto;
     margin-left: 0 !important;
-    /* "flex-grow:1" e "width:1%" sono costanti, non piu' condizionati da
-       ".ricerca-espansa" (a differenza di prima): e' il wrapper (vedi sopra)
-       ad animare la propria larghezza, e il campo si limita a riempire
-       SEMPRE lo spazio che di volta in volta resta libero dopo il bottone -
-       da chiuso (wrapper 44px = bottone+bordo, zero spazio libero) questo
-       spazio e' automaticamente zero, da aperto cresce con il wrapper.
-       "width:1%" (lo stesso trucco usato da Bootstrap in
-       ".input-group>.form-control"), non "100%" ne' "auto": serve una
-       flex-basis "quasi zero" cosi' e' solo "flex-grow" a decidere la
-       larghezza, altrimenti (100%/auto ignorano lo spazio del fratello
-       flex) andrebbe a capo */
+    /* flex-grow: 1 e width: 1% costanti: il campo riempie sempre lo spazio
+       libero dopo il bottone, seguendo la larghezza animata del wrapper */
     flex-grow: 1;
     width: 1%;
     min-width: 0;
     padding-left: 0;
     padding-right: 0;
-    /* Il testo del campo non deve comparire di scatto insieme all'apertura
-       (resterebbe "incollato" al bordo del bottone finche' non c'e' ancora
-       spazio): sfasato con un ritardo cosi' compare solo quando il campo ha
-       gia' un minimo di spazio in cui stare */
+    /* Opacity sfasata con un ritardo: il testo compare solo quando il campo
+       ha gia' un minimo di spazio */
     opacity: 0;
     transition: padding .3s ease, opacity .2s ease .1s;
   }
@@ -1016,24 +641,10 @@
     opacity: 1;
   }
 
-  /* Sfondo blu navbar (non il bianco/grigio di default) e icona bianca
-     sopra, stesso stile del bottone Login/Carrello nella navbar. Nessun
-     bordo proprio (lo disegna ".ricerca-form" attorno a tutto): la lente si
-     limita a cambiare l'arrotondamento degli angoli sinistri, che
-     ".ricerca-form" ritaglia comunque col proprio "overflow: hidden", quindi
-     nessun rischio di disallineamento.
-     Raggio "calc(var(--bs-border-radius) - 2px)", non lo stesso raggio del
-     contenitore: il bottone e' rientrato di 2px (lo spessore del bordo della
-     pillola) rispetto all'angolo esterno, quindi la sua curva deve essere
-     piu' stretta di quei 2px per combaciare esattamente con quella che
-     ".ricerca-form" ritaglia - stesso calcolo gia' usato altrove nel sito
-     per lo stesso motivo (vedi "#dropdownCategorie .dropdown-item" in
-     navbar.css). Con lo stesso raggio del contenitore, l'angolo del bottone
-     "arrotonda troppo presto" e lascia scoperto un piccolo triangolo nella
-     curva del contenitore, dello stesso colore del contenitore invece che
-     del bottone - invisibile da chiuso (stesso blu), ma visibile da aperto
-     (contenitore bianco, angolo del bottone dovrebbe restare blu fino in
-     fondo alla curva) */
+  /* Sfondo blu navbar e icona bianca, nessun bordo proprio (lo disegna
+     ".ricerca-form" attorno a tutto). Raggio ridotto di 2px rispetto al
+     contenitore, per combaciare esattamente con la curva che
+     ".ricerca-form" ritaglia */
   :is(#ricercaProdottiWrapper, .ricerca-a-comparsa) .ricerca-toggle-btn {
     flex: none;
     width: 36px;
@@ -1047,36 +658,24 @@
     border-radius: calc(var(--bs-border-radius) - 2px) !important;
     transition: border-radius .3s ease;
     padding: 0 !important;
-    /* Toglie il rettangolo grigio/nero che Chrome/Safari mobile mostrano di
-       default al tocco */
+    /* Toglie il rettangolo grigio/nero che Chrome/Safari mobile mostrano al
+       tocco */
     -webkit-tap-highlight-color: transparent;
-    /* Bootstrap mette "margin-left: -1px" sugli elementi "collegati" di un
-       ".input-group" (per sovrapporre i bordi adiacenti): qui non serve (il
-       bordo lo gestisce solo ".ricerca-form"), e sposterebbe il bottone 1px
-       fuori dal form, che con "overflow: hidden" ne taglierebbe via un pezzo */
+    /* Azzera il margin-left: -1px che Bootstrap mette sugli elementi
+       collegati di un ".input-group" */
     margin-left: 0 !important;
   }
 
   :is(#ricercaProdottiWrapper, .ricerca-a-comparsa).ricerca-espansa .ricerca-toggle-btn {
     /* Angoli sinistri squadrati (si fondono col campo aperto accanto),
-       destri arrotondati - stesso principio del design handoff. Raggio
-       ridotto di 2px sui destri per lo stesso motivo spiegato sopra */
+       destri arrotondati */
     border-radius: 0 calc(var(--bs-border-radius) - 2px) calc(var(--bs-border-radius) - 2px) 0 !important;
   }
 
-  /* dashboard_prodotti_senza_immagine.html: da telefono la lente diventa un
-     bottone fluttuante fisso in basso a sinistra, stesso stile/dimensione
-     (cerchio 3.5rem) di prodotti_card.html/prodotti_tabella.html - non piu'
-     un'icona piccola vicino al titolo che spostava il campo dentro
-     l'intestazione della tabella (vecchio comportamento, rimosso insieme
-     alla logica in dashboard-prodotti-immagini.js). "!important" su
-     "position"/"top"/"right"/"transform" necessario: "position-absolute"/
-     "top-50"/"end-0"/"translate-middle-y" (classi Bootstrap nell'HTML,
-     pensate per il posizionamento decorativo da desktop) sono TUTTE
-     "!important" di loro in Bootstrap 5, altrimenti vincerebbero sempre
-     loro a prescindere da specificita'/ordine di questa regola. Selettore
-     per id (non ".ricerca-a-comparsa" da sola) apposta, lascia invariate
-     le altre pagine che condividono quella classe */
+  /* dashboard_prodotti_senza_immagine.html, da telefono: la lente diventa un
+     bottone fluttuante fisso in basso a sinistra, cerchio 3.5rem.
+     !important per vincere le classi Bootstrap di posizionamento
+     nell'HTML */
   #ricercaCodiceWrapper {
     position: fixed !important;
     left: 1rem;
@@ -1099,32 +698,18 @@
     height: 3.5rem;
   }
 
-  /* Bordo bianco sopra il footer di pagina quando il cerchio ci finisce
-     sopra scorrendo (".su-sfondo-blu" impostata via JS in
-     dashboard-prodotti-immagini.js) - stesso principio di
-     prodotti_card.html/prodotti_tabella.html. Qui non ci sono card con un
-     proprio footer blu (questa pagina mostra una tabella), solo il footer
-     di pagina */
+  /* Bordo bianco quando il cerchio scorre sopra il footer di pagina
+     (".su-sfondo-blu" impostata via JS) */
   #ricercaCodiceWrapper.su-sfondo-blu .ricerca-form {
     border-color: var(--color-bg);
   }
 
-  /* Filtro sottocategoria: sotto i 576px resta sempre e solo l'icona a
-     imbuto (niente animazione di apertura come la ricerca). La <select> e'
-     ancora li' e resta completamente funzionante (stesse opzioni, stesso
-     "onchange" che naviga alla sottocategoria scelta) ma diventa invisibile
-     e ridimensionata a icona: il testo e' trasparente, la freccina di
-     default rimossa, e ci si "clicca sopra" nel senso letterale, perche' e'
-     lei stessa a ricevere il tocco (non un bottone finto/separato) - cosi'
-     il menu nativo con l'elenco delle sottocategorie si apre da solo, senza
-     bisogno di JS apposito */
-  /* ".filtro-a-comparsa"/".filtro-a-comparsa-select" negli "is(...)" di
-     questo blocco: stesso aggancio riusabile spiegato sopra per la
-     ricerca, qui per il filtro "solo icona a imbuto" da telefono (es.
-     prodotti_tabella.html, che non ha gli id "#filtroProdottiWrapper"/
-     "#prodottiCardFiltro" di prodotti_card.html) - additivo, non cambia
-     nulla per gli id esistenti. Include anche "#filtroCategoriaProdottiWrapper"/
-     "#filtroCategoriaProdotti" (dashboard_prodotti_senza_immagine.html) */
+  /* Filtro sottocategoria sotto i 576px: resta sempre solo l'icona a
+     imbuto, la <select> resta funzionante ma invisibile e ridimensionata a
+     icona */
+  /* ".filtro-a-comparsa"/".filtro-a-comparsa-select" nell'is(...): aggancio
+     riusabile per il filtro "solo icona a imbuto" da telefono, additivo
+     rispetto agli id esistenti */
   :is(#filtroProdottiWrapper, #filtroCategoriaProdottiWrapper, .filtro-a-comparsa) {
     position: relative;
     flex-grow: 0 !important;
@@ -1140,23 +725,14 @@
     background-image: none !important; /* toglie la freccina SVG di default */
     padding: 0;
     text-align: center;
-    /* "#prodottiCardFiltro" non e' piu' nel selettore ":is(...)" del bordo
-       blu unico qui sopra (quella regola ora riguarda solo
-       ".filtro-a-comparsa-select" - vedi commento li'): per lui va quindi
-       ripetuto qui, serve per ".su-sfondo-blu" piu' sotto (bordo bianco
-       sopra sfondo blu navbar) */
+    /* Bordo ripetuto qui per "#prodottiCardFiltro" (non piu' nel selettore
+       condiviso sopra), serve per ".su-sfondo-blu" sotto */
     border: 2px solid var(--color-primary);
   }
 
-  /* Cerchio (non il quadrato con angoli smussati di ".filtro-a-comparsa" -
-     selettori solo per id apposta, non tocca le altre pagine che
-     condividono quella classe, es. dashboard_prodotti_senza_immagine.html),
-     stessa dimensione della pillola "Torna al catalogo" qui accanto nella
-     riga (misurata da telefono: 32px, solo icona - vedi
-     "partials/intestazione_categoria.html"), non piu' 40px come la lente
-     chiusa: qui il filtro resta sempre nella riga del titolo (non diventa
-     mai un bottone fluttuante, vedi sopra), quindi deve intonarsi con lei
-     invece che con la ricerca */
+  /* Cerchio a 32px, stessa dimensione della pillola "Torna al catalogo"
+     nella riga (il filtro resta sempre nella riga del titolo, non diventa
+     un bottone fluttuante) */
   :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) {
     flex-basis: 32px;
     max-width: 32px !important;
@@ -1167,10 +743,8 @@
     border-radius: 50%;
   }
 
-  /* Stesso motivo del pixel fisso equivalente da desktop qui sopra
-     (".controlli-categoria-wrapper" e' "position: absolute" senza una
-     larghezza propria anche qui sotto i 576px): "#prodottiCardFiltro"/
-     "#filtroSottocategoria" sono due <button> vuoti, non piu' due <select> */
+  /* Larghezza fissa in px, stesso motivo del pixel fisso equivalente da
+     desktop sopra */
   #filtroProdottiWrapper #prodottiCardFiltro,
   #filtroTabellaWrapper #filtroSottocategoria,
   #filtroCategoriaProdottiWrapper #filtroCategoriaProdotti,
@@ -1178,18 +752,13 @@
     width: 32px;
   }
 
-  /* Stesso glow di focus di Bootstrap gia' tolto sopra per ".form-control"
-     (qui l'equivalente per ".form-select"): al tocco, essendo ora un'icona
-     piccola, si vedeva come un'ombra sproporzionata intorno al quadratino */
+  /* Toglie il glow di focus di Bootstrap per ".form-select" */
   :is(#filtroProdottiWrapper, .filtro-a-comparsa) :is(#prodottiCardFiltro, .filtro-a-comparsa-select):focus {
     box-shadow: none;
   }
 
-  /* "#filtroProdottiWrapper" non e' piu' in questo selettore: la sua icona
-     ha un colore diverso a seconda che il filtro sia attivo o no (vedi
-     "#filtroProdottiWrapper .filtro-icon-overlay" fuori da questa media
-     query, vale sia da telefono che da desktop) - qui resta solo
-     ".filtro-a-comparsa" (es. prodotti_tabella.html), sempre bianca */
+  /* Solo ".filtro-a-comparsa" (icona sempre bianca); "#filtroProdottiWrapper"
+     ha colore variabile, definito fuori da questa media query */
   .filtro-a-comparsa .filtro-icon-overlay {
     display: block;
     position: absolute;
@@ -1200,31 +769,19 @@
     pointer-events: none; /* il tocco deve arrivare alla <select> sotto */
   }
 
-  /* Ricerca di prodotti_card.html come bottone fluttuante (solo lei: il
-     filtro resta invece nella riga del titolo, vedi
-     "partials/controlli_ricerca_filtro_card.html") invece che nella riga
-     sopra la tabella: stesso stile del carrello flottante
-     (#bottoneCarrelloFlottante in carrello-flottante.css, cerchio/ombra),
-     ma a sinistra invece che a destra. E' sempre lo stesso elemento/JS di
-     sempre, solo riposizionato: "position: fixed" sul wrapper lo toglie dal
-     flusso della riga (che sopra i 576px lo contiene ancora normalmente,
-     vedi "display: contents" piu' in alto) - serve pero' anche "display:
-     flex" qui, altrimenti "position" non avrebbe alcun effetto: un elemento
-     con "display: contents" non genera un proprio box da posizionare */
+  /* Ricerca come bottone fluttuante (il filtro resta nella riga del
+     titolo): stesso stile del carrello flottante, a sinistra invece che a
+     destra. display: flex necessario perche' "position: fixed" abbia
+     effetto */
   #controlliRicercaFiltroWrapper {
     display: flex;
     position: fixed;
     left: 1rem;
     bottom: 1rem;
     z-index: 1040;
-    /* "transform: translateY()" (non "bottom") viene alzato via JS
-       (prodotti_card.html) quando la tastiera virtuale apre/chiude o si
-       scrolla a tastiera gia' aperta: un "transform" e' gestito dal
-       compositor senza ricalcolare il layout ad ogni frame come farebbe
-       "bottom", importante per il secondo caso (nessun debounce li', un
-       frame alla volta via "requestAnimationFrame"). Questa transizione
-       (apertura/chiusura tastiera, con debounce - vedi JS) e' disattivata
-       durante lo scroll dalla classe ".spostamento-istantaneo" qui sotto */
+    /* transform: translateY() alzato via JS quando la tastiera apre/chiude;
+       transizione disattivata durante lo scroll da
+       ".spostamento-istantaneo" */
     transition: transform .25s ease;
   }
 
@@ -1235,11 +792,8 @@
 
   #ricercaProdottiWrapper .ricerca-form {
     height: 3.5rem;
-    /* "999px" invece del raggio calcolato sopra per ".ricerca-form": a
-       qualunque larghezza (chiusa quadrata o aperta a pillola) risulta
-       sempre completamente arrotondata sui due lati corti, dando il cerchio
-       da chiusa richiesto senza bisogno di una regola separata per lo
-       stato ".ricerca-espansa" */
+    /* 999px: a qualunque larghezza resta completamente arrotondata sui lati
+       corti, cerchio da chiusa senza regola separata */
     border-radius: 999px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
   }
@@ -1249,20 +803,14 @@
     height: 3.5rem;
   }
 
-  /* Bordo bianco quando il cerchio finisce sopra uno sfondo blu navbar (il
-     footer della pagina o quello di una card prodotto, vedi ".su-sfondo-blu"
-     impostata via JS in prodotti_card.html) - altrimenti un cerchio blu su
-     sfondo blu sparirebbe visivamente. Stesso principio gia' usato per il
-     carrello flottante (".su-footer" in carrello-flottante.css) */
+  /* Bordo bianco quando il cerchio finisce sopra uno sfondo blu navbar
+     (".su-sfondo-blu" impostata via JS) */
   #ricercaProdottiWrapper.su-sfondo-blu .ricerca-form {
     border-color: var(--color-bg);
   }
 
-  /* Stesso trattamento "bottone fluttuante" di prodotti_card.html qui
-     sopra, per prodotti_tabella.html - id proprio (costruito via JS in
-     "initComplete", vedi prodotti_tabella.html), stesso cerchio 3.5rem -
-     stesso motivo di "display: flex" spiegato sopra per
-     "#controlliRicercaFiltroWrapper" */
+  /* Stesso trattamento "bottone fluttuante" di prodotti_card.html sopra,
+     per prodotti_tabella.html, con id proprio */
   #controlliRicercaFiltroTabellaWrapper {
     display: flex;
     position: fixed;
@@ -1273,12 +821,9 @@
     transition: transform .25s ease;
   }
 
-  /* Durante lo scroll a tastiera gia' aperta serve l'opposto della
-     transizione qui sopra: un aggancio in tempo reale, un frame alla volta
-     (vedi "requestAnimationFrame" in prodotti_card.html/prodotti_tabella.html)
-     - con la transizione ancora attiva il bottone "insegue" restando
-     visibilmente staccato dalla tastiera durante il gesto. Aggiunta/tolta
-     via JS solo per la durata dello scroll */
+  /* Disattiva la transizione durante lo scroll a tastiera gia' aperta, per
+     un aggancio in tempo reale frame per frame. Aggiunta/tolta via JS solo
+     per la durata dello scroll */
   #controlliRicercaFiltroWrapper.spostamento-istantaneo,
   #controlliRicercaFiltroTabellaWrapper.spostamento-istantaneo {
     transition: none;
@@ -1299,19 +844,15 @@
     height: 3.5rem;
   }
 
-  /* Bordo bianco sopra uno sfondo blu navbar (qui solo il footer di
-     pagina: prodotti_tabella.html non ha card con un proprio footer blu
-     come prodotti_card.html) - ".su-sfondo-blu" impostata via JS in
-     prodotti_tabella.html, stesso principio di sopra */
+  /* Bordo bianco sopra il footer di pagina (".su-sfondo-blu" impostata via
+     JS) */
   #ricercaTabellaWrapper.su-sfondo-blu .ricerca-form {
     border-color: var(--color-bg);
   }
 }
 
-/* Tabella prodotti (DataTables): paginazione sempre centrata orizzontalmente
-   (di default e' allineata a destra), cosi' non si sposta quando il numero
-   di pulsanti visibili cambia (es. con o senza "..."). Tenuta su un'unica
-   riga, scorrevole se non dovesse comunque starci */
+/* Paginazione sempre centrata orizzontalmente, su un'unica riga scorrevole
+   se non dovesse starci */
 #listProdottiTable_wrapper .dataTables_paginate {
   float: none;
   width: 100%;
@@ -1321,23 +862,15 @@
   white-space: nowrap;
 }
 
-/* Tabella prodotti (DataTables): nasconde del tutto (invece di limitarsi a
-   disattivarlo in grigio) il pulsante "Precedente" quando si e' in prima
-   pagina, e "Successivo" quando si e' nell'ultima. DataTables aggiunge gia'
-   la classe "disabled" a questi pulsanti quando non sono utilizzabili */
+/* Nasconde del tutto il pulsante "Precedente" in prima pagina e
+   "Successivo" nell'ultima */
 #listProdottiTable_wrapper .paginate_button.previous.disabled,
 #listProdottiTable_wrapper .paginate_button.next.disabled {
   display: none;
 }
 
-/* Tabella prodotti (DataTables): i pulsanti di paginazione (".paginate_button",
-   classi proprietarie di DataTables) di default hanno uno stile con bordo
-   grigio, diverso da quello della paginazione Bootstrap usata altrove nel
-   sito (es. catalogo/card prodotti). Valori ripresi 1:1 da quelli calcolati
-   su ".page-link"/".page-item.active .page-link" li' (quando nel progetto
-   era ancora presente MDB, che li influenzava), per farli sembrare
-   visivamente identici pur essendo generati da una libreria diversa - da
-   ricontrollare/riallineare visivamente ora che MDB non c'e' piu' */
+/* Pulsanti di paginazione DataTables (".paginate_button"), stile allineato
+   a quello della paginazione Bootstrap usata altrove nel sito */
 #listProdottiTable_wrapper .paginate_button {
   display: inline-flex;
   align-items: center;
@@ -1354,13 +887,11 @@
   line-height: 23.04px;
   text-decoration: none;
   cursor: pointer;
-  transition: 0.3s linear; /* stessa durata/curva di ".page-link" quando nel progetto era ancora presente MDB (Bootstrap di suo non anima questa transizione, cambio istantaneo) */
+  transition: 0.3s linear; /* Anima il cambio di stato dei pulsanti */
 }
 
-/* !important necessario qui: il CSS di DataTables stesso mette gia'
-   "color: ... !important" su questi tre stati (normale in hover, .current,
-   .disabled), quindi una regola senza !important verrebbe ignorata
-   indipendentemente dalla specificita' del selettore */
+/* !important per vincere il "color !important" che DataTables mette gia'
+   su questi stati */
 #listProdottiTable_wrapper .paginate_button:hover:not(.disabled):not(.current) {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, .2), 0 6px 20px 0 rgba(0, 0, 0, .19);
   background: rgba(0, 0, 0, 0.06) !important;
@@ -1385,21 +916,14 @@
   padding: 0 4px;
 }
 
-/* Tabella prodotti (DataTables Responsive), da telefono: nasconde la
-   freccina "\25BA"/"\25BC" che la libreria aggiunge di default davanti alla
-   cella cliccabile per aprire/chiudere i dettagli nascosti (vedi
-   "responsive.details.target" in prodotti_tabella.html, spostato sulla
-   colonna NOME) - il testo del nome resta comunque cliccabile (il cursore a
-   manina e il click restano gestiti dalla libreria, tocca solo l'icona) */
+/* Nasconde la freccina che DataTables Responsive aggiunge davanti alla
+   cella cliccabile per aprire/chiudere i dettagli */
 #listProdottiTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before {
   content: none;
 }
 
-/* Tabella prodotti (DataTables Responsive), pannello dettagli da telefono:
-   ".dtr-title" (l'etichetta, es. "CODICE PRODOTTO") sopra, ".dtr-data" (il
-   valore, es. "C0002") sotto - "flex-direction: column" impila i due span
-   invece di affiancarli, "align-items: center" li centra entrambi
-   orizzontalmente */
+/* Pannello dettagli DataTables Responsive: etichetta sopra, valore sotto,
+   entrambi centrati */
 #listProdottiTable_wrapper .dtr-details > li {
   display: flex;
   flex-direction: column;
@@ -1410,9 +934,7 @@
   text-align: center;
 }
 
-/* Griglia prodotti: leggero dimming durante il caricamento AJAX (vedi
-   filtro-prodotti-ajax.js), per dare un feedback immediato che il click
-   e' stato registrato mentre si aspetta la risposta */
+/* Griglia prodotti: leggero dimming durante il caricamento AJAX */
 #listaProdottiContainer.lista-prodotti-in-caricamento {
   opacity: 0.5;
   transition: opacity .15s ease;

@@ -1,6 +1,4 @@
-/* preventivo.html: card di ogni preventivo come pillola grigia invece di
-   un riquadro squadrato, con la data e una freccia (al posto del vecchio
-   bottone "Vai al dettaglio dell'ordine") che porta al dettaglio */
+/* preventivo.html: card di ogni preventivo come pillola grigia, con data e freccia che porta al dettaglio */
 .preventivo-pillola {
   border: 2px solid var(--bs-border-color);
   border-radius: 999px;
@@ -23,11 +21,7 @@
   }
 }
 
-/* Freccia dentro un cerchio blu navbar, al posto del vecchio bottone
-   "Vai al dettaglio dell'ordine": dimensione fissa per un cerchio
-   perfetto, stesso principio gia' usato per i bottoni +/- del carrello
-   flottante (vedi ".btn-aumenta-elemento"/".btn-diminuisci-elemento"
-   in carrello-flottante.css) */
+/* Freccia dentro un cerchio blu navbar: dimensione fissa per un cerchio perfetto */
 .freccia-preventivo {
   width: 2.5rem;
   height: 2.5rem;
@@ -35,11 +29,7 @@
   flex-shrink: 0;
 }
 
-/* dettaglio_preventivo.html: bottoni "Riusa preventivo"/"Torna ai
-   preventivi" a fianco del titolo "Dettaglio Preventivo" - stessa
-   dimensione tra loro, stesso breakpoint (768px, "md") e stessi valori
-   di ".btn-torna-catalogo" in prodotti.css: da telefono entrambi
-   restano il piccolo cerchio standard di Bootstrap */
+/* Bottoni "Riusa preventivo"/"Torna ai preventivi" da desktop: stessa dimensione tra loro, condivisa con ".btn-torna-catalogo" di prodotti.css */
 @media (min-width: 768px) {
   .pillola-titolo-dettaglio,
   .pillola-torna-preventivi {
@@ -48,10 +38,7 @@
   }
 }
 
-/* Titolo "Dettaglio Preventivo": stesso blu navbar del titolo categoria
-   di prodotti_card.html (vedi ".titolo-categoria-link" in prodotti.css) -
-   var(--color-primary), diverso dal ".text-primary" di Bootstrap (un
-   altro azzurro piu' chiaro) */
+/* Titolo "Dettaglio Preventivo": blu navbar (var(--color-primary)), condiviso con ".titolo-categoria-link" di prodotti.css */
 .titolo-dettaglio-preventivo {
   color: var(--color-primary);
 }
