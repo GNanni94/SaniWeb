@@ -10,9 +10,8 @@
   <meta name="description" content="Sito web della ditta Saniscope-chimica per la vendita di prodotti chimici">
 
   {% comment %}
-  Open Graph: come appare il sito quando un link viene condiviso su
-  WhatsApp/Facebook/LinkedIn ecc. "og:url" punta sempre alla home (non alla
-  pagina corrente) su richiesta esplicita, non con request.build_absolute_uri
+  Open Graph: anteprima di condivisione su WhatsApp/Facebook/LinkedIn.
+  "og:url" punta sempre alla home, non alla pagina corrente.
   {% endcomment %}
   <meta property="og:title" content="SaniScope-chimica">
   <meta property="og:description" content="Sito web della ditta Saniscope-chimica per la vendita di prodotti chimici">
@@ -21,12 +20,8 @@
   <meta property="og:type" content="website">
 
   {% comment %}
-  Dati strutturati LocalBusiness (schema.org, JSON-LD): stessi dati gia'
-  presenti nel footer (indirizzo, telefono, email), qui in un formato che
-  Google puo' leggere senza ambiguita' - puo' mostrarli direttamente nel
-  risultato di ricerca/Google Maps invece di doverli "indovinare" dal testo
-  della pagina. Coordinate GPS riprese dal link Google Maps gia' presente
-  nel footer (vedi "destination=..." piu' sotto)
+  Dati strutturati LocalBusiness (schema.org, JSON-LD) permettono a Google di mostrarli direttamente nel
+  risultato di ricerca/Maps.
   {% endcomment %}
   <script type="application/ld+json">
   {
@@ -55,11 +50,8 @@
   </script>
 
   {% comment %}
-  Due varianti (chiara/scura) selezionate dal browser in base al tema di
-  sistema/browser (prefers-color-scheme): la versione "dark" usa
-  logo_invertito.png (esagono bianco, gia' usato sulla navbar blu), piu'
-  leggibile su una tab del browser molto scura rispetto alla versione
-  normale (esagono blu, pensata per tab chiare)
+  Varianti chiara/scura in base al tema di sistema (prefers-color-scheme):
+  la versione dark usa il logo invertito, piu' leggibile su tab scure.
   {% endcomment %}
   <link rel="icon" href="{% static 'favicon/favicon.ico' %}" sizes="any" media="(prefers-color-scheme: light)">
   <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-16x16.png' %}" media="(prefers-color-scheme: light)">
@@ -93,23 +85,12 @@
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
-  <!-- Fogli di stile del progetto caricati per ultimi apposta: Bootstrap
-       ridefinisce molte classi che usiamo anche noi (.card, .form-control,
-       .form-select, .alert-info, ...) con valori di default propri. A
-       parita' di specificita' vince l'ultima regola nell'ordine dei <link>,
-       non l'ordine delle classi nell'HTML - stando qui in fondo le nostre
-       regole vincono di default.
-       Nota: fino a poco fa qui sopra era caricato anche MDB (Material
-       Design Bootstrap), rimosso perche' usato solo per il CSS (nessun
-       componente/JS suo), e le sue sovrascritture (con valori fissi e
-       "!important", non tramite variabili CSS) costringevano ad alzare
-       artificialmente la specificita' (due classi, id) per qualsiasi
-       personalizzazione - vedi commenti superstiti in main.css che citano
-       ancora "MDB" per il contesto storico -->
+  <!-- Fogli di stile del progetto caricati per ultimi: a parita' di
+       specificita' vince l'ultima regola nell'ordine dei <link>, cosi' le
+       nostre regole vincono di default su quelle di Bootstrap. -->
   <link href="{% static 'css/variables.css' %}" rel="stylesheet" type="text/css" />
   <link href="{% static 'css/main.css' %}" rel="stylesheet" type="text/css" />
-  <!-- CSS divisi per argomento (prima erano tutti dentro main.css): l'ordine
-       tra loro non conta, nessuno dei due ridefinisce le stesse regole -->
+  <!-- CSS divisi per argomento -->
   <link href="{% static 'css/componenti-condivisi.css' %}" rel="stylesheet" type="text/css" />
   <link href="{% static 'css/catalogo.css' %}" rel="stylesheet" type="text/css" />
   <link href="{% static 'css/prodotti.css' %}" rel="stylesheet" type="text/css" />
@@ -122,26 +103,17 @@
   <link href="{% static 'css/varie.css' %}" rel="stylesheet" type="text/css" />
   <link href="{% static 'css/navbar.css' %}" rel="stylesheet" type="text/css" />
 
-
- 
-
   <title>{% block titolo %} SaniScope-chimica {% endblock titolo %}</title>
-
-
 
 </head>
 
 <nav class="navbar navbar-expand-xxl site-navbar">
   <div class="container-fluid position-relative">
     {% comment %}
-    Da telefono (menu collassato) la riga in alto va hamburger (sinistra,
-    pillola circolare a se') / pillola logo+icone (destra, riempie lo
-    spazio restante) - da qui gli "order-*" su questi 2 elementi + sul menu
-    collassabile sotto. Da desktop (xxl+, navbar-toggler nascosto di suo da
-    Bootstrap) l'ordine torna quello originale: logo, poi link, poi
-    profilo, tutti sulla stessa riga (vedi "order-xxl-*") - la pillola
-    ".navbar-pillola-brand" diventa "display:contents" (vedi navbar.css),
-    cosi' i suoi due figli tornano flex-item diretti di ".container-fluid"
+    Da telefono: hamburger a sinistra, pillola logo+icone a destra (vedi
+    "order-*"). Da desktop (xxl+): ordine normale logo/link/profilo (vedi
+    "order-xxl-*"); ".navbar-pillola-brand" diventa "display:contents"
+    (navbar.css) cosi' i suoi figli tornano flex-item diretti del container.
     {% endcomment %}
     <button class="navbar-toggler order-1" type="button" data-bs-toggle="collapse"
       data-bs-target="#navbarSupportedContent" aria-controls="#navbarSupportedContent" aria-expanded="false"
@@ -153,20 +125,10 @@
       <a class="navbar-brand d-inline-flex align-items-center order-xxl-1 ms-xxl-0 me-xxl-3" href="{% url 'home' %}">
         <img src="{% static 'logo/logo_invertito.png' %}" alt="Logo" width="44" height="38" class="d-none d-xxl-inline me-xxl-2">
         {% comment %}
-        Da telefono la pillola mostra logo + testo "SaniScope-chimica"
-        (riempie lo spazio altrimenti vuoto della pillola, ora che "Torna
-        al catalogo"/titolo/filtro non ci passano piu' durante lo scroll -
-        vedi intestazione-categoria-sticky.js). Versione colorata del logo
-        (non quella invertita bianca) perche' qui sta su sfondo bianco (la
-        pillola), non piu' sul blu della navbar. Dimensione logo (35x30)
-        uguale alle icone Login/Registrati a destra nella stessa pillola
-        (30px, vedi ".icona-dimensione-hamburger" in navbar.css). Testo
-        separato da quello desktop qui sotto (dimensione/troncamento
-        diversi, pillola alta 56px invece della navbar intera) - stessa
-        tecnica gia' usata per le due versioni del logo. Sparisce insieme
-        al resto di ".navbar-brand" quando la pillola passa in "modalita'
-        categoria" durante lo scroll: nessuna regola dedicata necessaria,
-        e' gia' dentro l'elemento che quella modalita' nasconde
+        Da telefono la pillola mostra logo (colorato, per lo sfondo
+        bianco) + testo "SaniScope-chimica". Sparisce insieme al resto di
+        ".navbar-brand" quando la pillola passa in "modalita' categoria"
+        durante lo scroll (vedi intestazione-categoria-sticky.js).
         {% endcomment %}
         <img src="{% static 'logo/saniscope_logo.png' %}" alt="Logo" width="35" height="30" class="d-xxl-none">
         <h2 class="mb-0 d-xxl-none logo-testo-pillola">SaniScope-chimica</h2>
@@ -174,12 +136,9 @@
       </a>
 
       {% comment %}
-      Contenuto diverso in base al login:
-      - anonimo: Login/Registrati, visibili solo da telefono (d-xxl-none) -
-        da desktop restano dove erano prima, dentro il menu hamburger
-      - autenticato: solo l'icona profilo (sempre visibile, invariata) -
-        il carrello e' invece il widget flottante a parte (vedi
-        "partials/carrello_flottante.html"), non fa parte di questa pillola
+      Anonimo: Login/Registrati visibili solo da telefono (da desktop
+      restano nel menu hamburger). Autenticato: solo l'icona profilo - il
+      carrello e' il widget flottante a parte (partials/carrello_flottante.html).
       {% endcomment %}
       <div id="pillolaIconeUtente" class="d-flex align-items-center gap-2 order-xxl-3 pillola-icone-default">
       {% if not user.is_authenticated %}
@@ -199,12 +158,10 @@
       </div>
 
       {% comment %}
-      3 slot vuoti, inerti su ogni pagina tranne prodotti_card.html/
-      prodotti_tabella.html: durante lo scroll (sotto la soglia xxl)
-      "static/js/intestazione-categoria-sticky.js" sposta li' dentro
-      "Torna al catalogo"/titolo/filtro (stessi nodi della riga titolo,
-      non copie), al posto di logo/icone. Vedi
-      "Docs/superpowers/specs/2026-08-30-pillola-titolo-categoria-scroll-design.md"
+      3 slot vuoti, usati solo in prodotti_card.html/prodotti_tabella.html:
+      durante lo scroll "intestazione-categoria-sticky.js" ci sposta dentro
+      "Torna al catalogo"/titolo/filtro al posto di logo/icone. Vedi
+      Docs/superpowers/specs/2026-08-30-pillola-titolo-categoria-scroll-design.md
       {% endcomment %}
       <div id="pillolaCategoriaGroup" class="pillola-categoria-group">
         <span id="pillolaSlotIndietro" class="pillola-slot-indietro"></span>
@@ -216,10 +173,8 @@
     <div class="collapse navbar-collapse order-4 order-xxl-2" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-0">
         {% comment %}
-        Pallino blu a destra della voce, solo da telefono (d-xxl-none):
-        segnala la pagina corrente, mai visibile su piu' di una voce alla
-        volta (i confronti su "request.resolver_match.url_name" sono
-        mutualmente esclusivi tra le 4 voci)
+        Pallino blu a destra della voce, solo da telefono: segnala la
+        pagina corrente (mai su piu' di una voce alla volta).
         {% endcomment %}
         <li class="nav-item">
           <a class="nav-link fs-6 d-flex align-items-center gap-2" href="{% url 'storia_azienda' %}">
@@ -297,32 +252,19 @@
 </nav>
 
 {% comment %}
-Sfondo scurito dietro al pannello del menu hamburger da telefono (vedi
-".hamburger-backdrop" in navbar.css): sta fuori da "<nav>" apposta, cosi'
-non eredita lo stacking context di ".site-navbar" (altrimenti, essendo
-"position: fixed", verrebbe dipinto sopra le pillole hamburger/logo che
-sono "position: static" - le regole di stacking mettono sempre gli
-elementi posizionati sopra quelli statici nello stesso contesto,
-indipendentemente dall'ordine nel DOM o dallo z-index). "data-bs-toggle"/
-"data-bs-target" apposta (stessi attributi del bottone hamburger): un
-click sopra chiude il menu, senza bisogno di JS scritto a mano - e' lo
-stesso meccanismo dichiarativo di Bootstrap che gia' apre/chiude il
-pannello dal bottone
+Sfondo scurito dietro al menu hamburger da telefono (".hamburger-backdrop"
+in navbar.css): sta fuori da "<nav>" per non ereditarne lo stacking
+context (altrimenti verrebbe dipinto sopra le pillole "position: static").
+Stessi "data-bs-*" del bottone hamburger: un click sopra chiude il menu
+senza JS scritto a mano.
 {% endcomment %}
 <div class="hamburger-backdrop" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-hidden="true"></div>
 
 {% comment %}
-Modal di login: incluso su ogni pagina tranne "/login/" stessa (che ha
-gia' il form a pagina intera - vedi partials/form_login.html) e tranne
-quando la pagina e' gia' stata renderizzata per un utente autenticato
-(niente form di login da mostrargli). Il secondo caso evita anche un bug
-concreto: se la sessione scade a meta' visita (es. in un'altra scheda) e
-un'azione in background riceve un 401, "login-modal.js" non troverebbe
-comunque "window.mostraModalLogin" definita (l'IIFE ritorna presto se
-"#modalLogin"/"#modalLoginBody" mancano), quindi il fallback classico
-gia' esistente nel JS chiamante (redirect a "/login/?next=...") scatta
-al suo posto - niente due dropdown profilo duplicati nella pillola.
-Aperto/gestito da static/js/login-modal.js.
+Modal di login, incluso su ogni pagina tranne "/login/" (ha gia' il form
+a pagina intera - partials/form_login.html) e per utenti gia' autenticati.
+Se manca, "login-modal.js" scatta il fallback (redirect a
+"/login/?next=..."). Gestito da static/js/login-modal.js.
 {% endcomment %}
 {% if request.resolver_match.url_name != 'login' and not user.is_authenticated %}
 <div class="modal fade" id="modalLogin" tabindex="-1" aria-labelledby="modalLoginLabel" aria-hidden="true">
@@ -348,13 +290,9 @@ Aperto/gestito da static/js/login-modal.js.
 
 
   {% comment %}
-  "site-main" cresce per riempire lo spazio verticale residuo (vedi
-  "flex: 1 0 auto" in main.css, "body" reso "display: flex; flex-direction:
-  column" li' accanto): senza, su pagine con poco contenuto (es. la home)
-  il footer finiva prima del fondo dello schermo da telefono, lasciando
-  sotto di se' lo sfondo di "<html>" (stesso blu del footer, pensato per il
-  rimbalzo elastico iOS/Android - vedi commento in cima a main.css) visibile
-  come uno spazio vuoto in coda alla pagina
+  "site-main" cresce per riempire lo spazio verticale residuo (flex: 1 0
+  auto in main.css): senza, su pagine con poco contenuto il footer non
+  arriva al fondo dello schermo da telefono.
   {% endcomment %}
   <main class="site-main">
   {% block contenuto %}
@@ -393,11 +331,9 @@ Aperto/gestito da static/js/login-modal.js.
               </a>
             </li>
             {% comment %}
-            Dati fiscali uniti su una riga sola (invece di due <li> separate)
-            e in corpo minore (".footer-dati-fiscali" in main.css): sono
-            informazioni legali, non la prima cosa che un visitatore cerca
-            nel footer - meno peso visivo, meno altezza (soprattutto da
-            telefono, dove il footer era troppo lungo)
+            Dati fiscali su una riga sola, in corpo minore
+            (".footer-dati-fiscali"): meno peso visivo, meno altezza da
+            telefono.
             {% endcomment %}
             <li class="nav-item footer-dati-fiscali">COD.FISC/P.IVA: 00156060519 · Codice Univoco Fatturazione Elettronica: M5UXCR1</li>
           </ul>
@@ -419,11 +355,8 @@ Aperto/gestito da static/js/login-modal.js.
       </div>
 
       {% comment %}
-      Fascia unica sotto le due colonne sopra, con copyright e icone social
-      insieme (prima erano rispettivamente una riga a se' e una terza
-      colonna larga 4/12 quasi vuota): meno un blocco intero da scorrere da
-      telefono, e da desktop niente piu' colonna sproporzionata rispetto al
-      suo contenuto
+      Copyright e icone social in un'unica fascia sotto le due colonne:
+      meno spazio occupato rispetto a righe/colonne separate.
       {% endcomment %}
       <div class="footer-bottom d-flex flex-column justify-content-center align-items-center gap-2">
         <div class="footer-copyright">© Saniscope-chimica</div>
@@ -435,10 +368,8 @@ Aperto/gestito da static/js/login-modal.js.
             </a>
           </li>
           {% comment %}
-          Niente icone tel/email qui accanto (rimosse su richiesta):
-          telefono ed email sono gia' presenti per esteso nella colonna
-          "footer-brand" qui sopra, ripeterle anche qui come icona era
-          ridondante
+          Niente icone tel/email qui: gia' presenti per esteso nella
+          colonna "footer-brand" sopra.
           {% endcomment %}
           <li>
             <a href="https://wa.me/+393777093225" target="_blank"
@@ -458,25 +389,16 @@ Aperto/gestito da static/js/login-modal.js.
   </div>
 
   <!-- Idiomorph: usata da carrello-flottante.js per aggiornare la lista
-       prodotti senza distruggere/ricreare i nodi DOM dei prodotti invariati
-       (preserva focus/interazione in corso su altri campi) - vedi
-       Docs/AJAX/carrello_flottante.md. Versione pinnata: cambiarla solo
-       verificando prima che l'API (Idiomorph.morph con morphStyle:
-       'innerHTML') sia rimasta compatibile -->
+       prodotti preservando i nodi DOM invariati (vedi
+       Docs/AJAX/carrello_flottante.md). Versione pinnata. -->
   <script src="https://cdn.jsdelivr.net/npm/idiomorph@0.4.0/dist/idiomorph.min.js"></script>
 
-  <!-- ESPERIMENTO (in corso di valutazione): htmx, per sostituire
-       gradualmente il boilerplate fetch/CSRF/target scritto a mano nei file
-       AJAX del progetto con attributi dichiarativi nell'HTML. Si parte da
-       UN solo caso (il toggle "attivo" in gestione_avvisi.html) prima di
-       estenderlo. L'header CSRF viene letto dal valore che Django scrive
-       nella pagina (mai dal cookie, stessa convenzione del resto del sito -
-       vedi CLAUDE.md), e "X-Requested-With" replica l'header che il fetch()
-       scritto a mano manda gia' oggi: le view esistenti (_is_ajax_request)
-       riconoscono le richieste di htmx senza bisogno di modifiche lato
-       Python. "idiomorph-htmx.min.js" e' la build di Idiomorph (sopra) che
-       si registra come estensione "morph" di htmx, per lo swap
-       "morph:outerHTML" - va caricata DOPO sia htmx sia Idiomorph -->
+  <!-- ESPERIMENTO (in valutazione): htmx per sostituire gradualmente il
+       boilerplate fetch/CSRF/target scritto a mano, usato finora per
+       toggle/modifica/eliminazione avviso (partials/tabella_avvisi.html,
+       partials/form_avviso.html). CSRF letto dalla pagina, mai dal
+       cookie. "idiomorph-htmx.min.js" registra Idiomorph come estensione
+       "morph" di htmx: va caricata dopo htmx e Idiomorph. -->
   <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/idiomorph@0.4.0/dist/idiomorph-htmx.min.js"></script>
 
