@@ -1,0 +1,46 @@
+{% comment %}
+Paginazione riusabile per un qualunque oggetto Page di Django (has_previous,
+number, paginator.num_pages, has_next, ecc.). Parametri:
+- pagina (obbligatorio): l'oggetto Page da paginare
+- extra_querystring (opzionale): querystring aggiuntiva da riportare in ogni
+  link (es. filtro/ricerca attivi), gia' con "&" iniziale se presente
+- id_paginazione (opzionale): id sul "<nav>", per uno stile CSS scoped su
+  quella singola pagina invece che sulla ".pagination" di Bootstrap ovunque
+{% endcomment %}
+{% if pagina %}
+<div class="py-4">
+    <nav aria-label="Page navigation example"{% if id_paginazione %} id="{{ id_paginazione }}"{% endif %}>
+        <ul class="pagination justify-content-center">
+          {% if pagina.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ pagina.previous_page_number }}{{ extra_querystring }}">&laquo;</a></li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+          {% endif %}
+
+          {% if pagina.paginator.num_pages <= 3 %}
+            {% for p in pagina.paginator.page_range %}
+              <li class="page-item {% if p == pagina.number %}active{% endif %}"><a class="page-link" href="?page={{ p }}{{ extra_querystring }}">{{ p }}</a></li>
+            {% endfor %}
+          {% else %}
+            <li class="page-item {% if pagina.number == 1 %}active{% endif %}"><a class="page-link" href="?page=1{{ extra_querystring }}">1</a></li>
+            {% if pagina.number == 1 %}
+              <li class="page-item"><a class="page-link" href="?page=2{{ extra_querystring }}">2</a></li>
+              <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+            {% elif pagina.number == pagina.paginator.num_pages %}
+              <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+            {% else %}
+              <li class="page-item active"><a class="page-link" href="?page={{ pagina.number }}{{ extra_querystring }}">{{ pagina.number }}</a></li>
+              <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+            {% endif %}
+            <li class="page-item {% if pagina.number == pagina.paginator.num_pages %}active{% endif %}"><a class="page-link" href="?page={{ pagina.paginator.num_pages }}{{ extra_querystring }}">{{ pagina.paginator.num_pages }}</a></li>
+          {% endif %}
+
+          {% if pagina.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ pagina.next_page_number }}{{ extra_querystring }}">&raquo;</a></li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+          {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endif %}

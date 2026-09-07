@@ -7,17 +7,13 @@
 {% block contenuto %}
 <div class="container">
     <div class="row">
-
         <div class="col-12">
-
             <section class="h-100">
                 <div class="container h-100 pt-3 pb-3">
                     <div class="row d-flex justify-content-center align-items-center h-100">
                         <div class="col-12 text-center">
-
                             <div class="mb-4">
                                 <h2 class="text-black">I miei preventivi</h2>
-
                             </div>
                             {% for preventivo in object_list %}
                             <div class="row justify-content-center">
@@ -36,34 +32,14 @@
                             </div>
                             {% endfor %}
 
-                               
-        <div class="col-12">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination justify-content-center">
-                {% if object_list.has_previous %}
-                  <li class="page-item"><a class="page-link" href="?page=1">&laquo;</a></li>
-                  <li class="page-item"><a class="page-link" href="?page={{ object_list.previous_page_number }}">{{ object_list.previous_page_number }}</a></li>
-                {% endif %}
-                  <li class="page-item"><a class="page-link" href="#">{{ object_list.number }}</a></li>
-                {% if object_list.has_next %}
-                  <li class="page-item"><a class="page-link" href="?page={{ object_list.next_page_number }}">{{ object_list.next_page_number }}</a></li>
-                  <li class="page-item"><a class="page-link" href="?page={{ object_list.paginator.num_pages }}">&raquo;</a></li>
-                {% endif %}
-                </ul>
-            </nav>
-        </div>
+                            <div class="col-12">
+                                {% include 'partials/paginazione.html' with pagina=object_list id_paginazione='paginazioneGrigliaProdotti' %}
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
-
-            
-
         </div>
-
     </div>
 </div>
-
-
-
 {% endblock contenuto %}
