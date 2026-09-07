@@ -1,8 +1,6 @@
-// Upload manuale dell'immagine di un prodotto dalla dashboard admin:
-// click su una riga apre un pop-up con anteprima (FileReader, lato
-// client, nessuna richiesta di rete) prima di confermare l'upload via
-// fetch - stesso pattern AJAX gia' usato in gestione-avvisi.js (token
-// CSRF letto da un campo nascosto gia' presente nella pagina)
+// Upload manuale dell'immagine di un prodotto dalla dashboard admin: il
+// click su una riga apre un pop-up con anteprima (FileReader) prima di
+// confermare l'upload via fetch
 (function () {
     var tabellaContainer = document.getElementById('corpo-tabella-prodotti-senza-immagine');
     var tabella = document.getElementById('tabella-prodotti-senza-immagine');
@@ -57,12 +55,8 @@
         messaggioVuoto.classList.toggle('d-none', !nessunProdotto);
         messaggioNessunRisultato.classList.toggle('d-none', nessunProdotto || visibili !== 0);
 
-        // Nascondere/mostrare righe cambia l'altezza della pagina (quindi
-        // se il footer finisce sotto il cerchio fluttuante, vedi
-        // "aggiornaBordoSuSfondoBlu" piu' sotto) senza generare da solo
-        // nessun evento "scroll"/"resize" della finestra - va quindi
-        // richiamata esplicitamente anche da qui, altrimenti il bordo
-        // resterebbe quello di prima finche' non si scrolla/ridimensiona
+        // Richiama aggiornaBordoSuSfondoBlu perche' nascondere/mostrare righe
+        // cambia l'altezza della pagina senza generare un evento scroll/resize
         aggiornaBordoSuSfondoBlu();
 
         // Nasconde le pillole di ricerca/filtro quando l'ultimo prodotto viene rimosso
@@ -114,15 +108,9 @@
         aggiornaClasseFiltroAttivo();
     }
 
-    // Da telefono la lente si apre al click e mette il focus nel campo (il
-    // filtro e' gia' live mentre si scrive, quindi un secondo click sulla
-    // lente gia' aperta non deve fare nulla). Si richiude da sola cliccando
-    // fuori se e' rimasto vuoto - stesso comportamento di prodotti_card.html/
-    // prodotti_tabella.html. Da desktop il campo e' invece gia' sempre
-    // aperto vicino al titolo (vedi CSS ">= 576px" in prodotti.css): la
-    // classe ".ricerca-espansa" aggiunta qui non ha li' alcun effetto
-    // visivo (regole solo sotto i 576px), il click si limita a mettere il
-    // focus nel campo gia' visibile
+    // Da telefono la lente si apre al click e mette il focus nel campo, si
+    // richiude da sola cliccando fuori se e' rimasto vuoto. Da desktop il
+    // campo e' gia' sempre aperto, il click si limita a mettere il focus
     ricercaToggleBtn.addEventListener('click', function () {
         if (ricercaWrapper.classList.contains('ricerca-espansa')) {
             return;
@@ -142,19 +130,7 @@
         }
     });
 
-    // Bordo bianco (".su-sfondo-blu" in prodotti.css) quando il cerchio
-    // finisce sopra il footer di pagina - logica condivisa in
-    // sovrapposizione-sfondo-blu.js (caricato prima di questo file), stesso
-    // principio di prodotti_card.html/prodotti_tabella.html (qui non ci
-    // sono card con un proprio footer blu, solo il footer di pagina, quindi
-    // nessun selettore di card passato)
-    //
-    // Dichiarata con "var" (non "function"): a differenza di una function
-    // declaration, non viene "hoistata" con il proprio valore - ma qui va
-    // bene comunque, perche' il richiamo esplicito dentro
-    // "applicaFiltroRicerca" qui sopra scatta solo in risposta all'input
-    // dell'utente, ben dopo che questo script ha finito di essere eseguito
-    // per intero
+    // Bordo bianco quando il cerchio di ricerca finisce sopra il footer di pagina
     var aggiornaBordoSuSfondoBlu = creaAggiornatoreSuSfondoBlu(function () {
         return ricercaWrapper;
     }, 'su-sfondo-blu');

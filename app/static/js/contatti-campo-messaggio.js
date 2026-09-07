@@ -1,6 +1,4 @@
-// Campo "Contenuto": parte basso (2 righe, vedi MessaggioForm) e cresce
-// da solo mentre si scrive, invece di avere un'altezza fissa grande
-// "per sicurezza" indipendentemente da quanto testo viene scritto
+// Il campo "Contenuto" cresce in altezza automaticamente mentre si scrive
 (function () {
   var textarea = document.getElementById('id_contenuto');
   if (!textarea) return;

@@ -1,26 +1,16 @@
-// Icona di validita' sintattica a fine campo (pallino verde con check se
-// valido, pallino rosso con croce se non valido), mostrata solo quando si
-// esce dal campo ("blur") dopo aver scritto qualcosa - appena si
-// ricomincia a modificare il campo l'icona si nasconde di nuovo, finche'
-// non si esce nuovamente. Icone Bootstrap Icons + utility di
-// posizionamento Bootstrap, gia' caricate nel sito - nessun CSS custom
-// necessario.
-// "opzioni.blocca" usa anche "setCustomValidity()" per impedire davvero
-// l'invio del form finche' il campo non e' valido, stesso meccanismo
-// nativo che gia' blocca i campi "required" vuoti - senza, l'icona rossa
-// sarebbe solo decorativa. Senza "opzioni.blocca" e' solo un'indicazione
-// visiva.
+// Icona di validita' sintattica a fine campo (verde se valido, rossa se
+// non valido), mostrata al "blur" dopo aver scritto qualcosa e nascosta
+// di nuovo modificando il campo.
+// "opzioni.blocca" usa anche setCustomValidity() per impedire l'invio del
+// form finche' il campo non e' valido; senza, e' solo indicazione visiva.
 //
-// Condiviso tra signup.html e password_reset_form.html (prima duplicato
-// identico in entrambi i file). Per usarlo in un'altra pagina: aggiungere
-// {% load static %} e
+// Per usarlo in un'altra pagina:
+//   {% load static %}
 //   <script src="{% static 'js/validazione-campi.js' %}"></script>
-// PRIMA dello <script> della pagina che chiama installaIconaValidita()/
-// installaValidazioneEmail()
+// prima dello <script> che chiama installaIconaValidita()/installaValidazioneEmail()
 
-// Contenitore + icona (senza logica di validazione): condiviso sia da
-// installaIconaValidita (un campo, verifica sul proprio valore) sia da
-// installaIconaCorrispondenza in signup.html (due campi, verifica che coincidano)
+// Crea contenitore + icona (senza logica di validazione), usata sia da
+// installaIconaValidita che da installaIconaCorrispondenza in signup.html
 function creaIconaCampo(input) {
   var wrapper = document.createElement('div');
   wrapper.className = 'position-relative';
@@ -34,13 +24,8 @@ function creaIconaCampo(input) {
   icona.setAttribute('aria-hidden', 'true');
   wrapper.appendChild(icona);
 
-  // Il wrapper appena creato mette l'input dentro un nuovo div, "rompendo"
-  // la fratellanza diretta con il div ".invalid-feedback" di crispy-forms
-  // di cui Bootstrap si serve (regola CSS ".is-invalid ~ .invalid-feedback")
-  // per mostrare il messaggio di errore restituito dal server: l'input
-  // resta "is-invalid" (bordo rosso) ma il testo dell'errore non compare
-  // piu'. Lo forziamo visibile a mano, individuandolo tramite
-  // "aria-describedby" (che crispy-forms imposta gia' sull'input).
+  // Mostra a mano il messaggio di errore del server (".invalid-feedback"),
+  // individuato tramite "aria-describedby" impostato da crispy-forms
   var feedbackServer = (input.getAttribute('aria-describedby') || '').split(/\s+/)
     .map(function (id) { return id && document.getElementById(id); })
     .filter(function (el) { return el && el.classList.contains('invalid-feedback'); });
@@ -48,12 +33,9 @@ function creaIconaCampo(input) {
   if (input.classList.contains('is-invalid')) {
     feedbackServer.forEach(function (el) { el.style.display = 'block'; });
 
-    // L'errore si riferisce al valore gia' scritto dal server: appena
-    // l'utente ricomincia a modificare il campo lo nascondiamo (stesso
-    // principio dell'icona sotto, che si nasconde su "input" e riappare
-    // solo al prossimo "blur"/submit). Esposta anche su "input._nascondi..."
-    // perche' a volte l'errore va nascosto anche da un ALTRO campo (vedi
-    // password1/password2 in signup.html)
+    // Nasconde l'errore del server quando l'utente ricomincia a modificare
+    // il campo, esposta anche su "input._nascondiErroreServer" per essere
+    // richiamata da un altro campo
     var nascondiErroreServer = function () {
       input.classList.remove('is-invalid');
       feedbackServer.forEach(function (el) { el.style.display = 'none'; });
@@ -62,9 +44,7 @@ function creaIconaCampo(input) {
     input._nascondiErroreServer = nascondiErroreServer;
   }
 
-  // Riferimento salvato sull'input stesso, cosi' chi aggiunge in seguito
-  // un'altra icona nello stesso wrapper (vedi installaOcchioPassword in
-  // signup.html) puo' spostarla senza doverla ricercare nel DOM
+  // Riferimento salvato sull'input stesso, per poter spostare l'icona da un'altra funzione
   input._iconaValidita = icona;
 
   return icona;
@@ -80,9 +60,7 @@ function installaIconaValidita(idCampo, eValida, opzioni) {
     icona.classList.remove('bi-check-circle-fill', 'bi-x-circle-fill', 'text-success', 'text-danger');
 
     if (opzioni.blocca) {
-      // Azzerato prima di ricontrollare: altrimenti checkValidity() sotto
-      // risulterebbe sempre false (un customValidity non vuoto blocca la
-      // validita' del campo a prescindere da tutto il resto)
+      // Azzera customValidity prima di ricontrollare, altrimenti resterebbe sempre invalido
       input.setCustomValidity('');
     }
     var valore = input.value.trim();
@@ -110,18 +88,10 @@ function installaIconaValidita(idCampo, eValida, opzioni) {
   });
 }
 
-// Email: il controllo "checkValidity()" nativo del browser su type="email"
-// da solo non basta - accetta anche indirizzi senza un vero punto+TLD nel
-// dominio (es. "asdasdas@adsas", "test@localhost", pensato apposta per casi
-// come indirizzi di rete locale). Qui serve una regex piu' severa, che
-// richiede un punto nel dominio seguito da almeno 2 caratteri (stessa
-// regex usata lato server in ClienteCreationForm.clean_email, in
-// Utente/forms.py)
+// Regex per email: richiede un punto nel dominio seguito da almeno 2 caratteri
 var EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-// Wrapper per il caso piu' comune (usato in signup.html e
-// password_reset_form.html): blocca davvero il submit se l'email non ha un
-// formato valido
+// Blocca il submit se l'email non ha un formato valido
 function installaValidazioneEmail(idCampo) {
   installaIconaValidita(idCampo, function (valore, input) {
     return input.checkValidity() && EMAIL_REGEX.test(valore);

@@ -1,21 +1,6 @@
-// Intercetta i click sui link "Aggiungi al preventivo" (prodotti_card.html,
-// prodotti_tabella.html) ed esegue l'aggiunta al carrello in background
-// (fetch), senza ricaricare la pagina: la vecchia navigazione con redirect
-// riportava sempre la pagina a ricaricarsi e "saltare" (anche con l'ancora
-// sul prodotto), risultando scomoda - con fetch la posizione di scroll non
-// si muove affatto.
-// Fase di "capture" (ultimo parametro "true"), non quella di default
-// ("bubbling"): in prodotti_tabella.html questo link vive dentro la
-// colonna NOME (indice 1), che DataTables Responsive usa come colonna
-// "target" per espandere/collassare la riga su telefono (vedi
-// "details.target" in prodotti_tabella.html). Il listener di DataTables
-// e' agganciato piu' vicino al bersaglio del click (sulla singola cella
-// <td>) e quindi scatta PRIMA di un listener in bubbling su "document":
-// a quel punto "stopPropagation()" arriverebbe troppo tardi, la riga si
-// sarebbe gia' espansa. In fase di capture, invece, "document" e'
-// il primo passaggio (dall'esterno verso il bersaglio): fermare qui la
-// propagazione impedisce anche la successiva fase di bubbling, prima
-// che il listener di DataTables sulla cella possa scattare
+// Intercetta in fase di capture i click sui link "Aggiungi al preventivo"
+// ed esegue l'aggiunta al carrello in background via fetch, senza
+// ricaricare la pagina
 document.addEventListener('click', function (event) {
     var link = event.target.closest('a[href*="/carrello/aggiungiProdotto/"]');
     if (!link) {
@@ -34,34 +19,24 @@ function eseguiAggiuntaAlCarrello(link) {
     }
     link.dataset.aggiungiInCorso = 'true';
 
-    // L'header "X-Requested-With" segnala alla view (vedi
-    // "aggiungi_prodotti_al_carrello" in Carrello/views.py) che questa e' una
-    // richiesta in background: se l'utente non e' loggato, la view risponde
-    // con 401 invece di un redirect al login - un redirect verrebbe seguito
-    // automaticamente da "fetch" fino alla pagina di login, risultando
-    // comunque in una risposta 200 (indistinguibile da un'aggiunta riuscita)
+    // L'header "X-Requested-With" segnala alla view che la richiesta e' in
+    // background: se l'utente non e' loggato, risponde con 401 invece di un
+    // redirect al login
     fetch(link.href, {
         credentials: 'same-origin',
         headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
         .then(function (response) {
             if (response.status === 401) {
-                // Utente non loggato: il flag va resettato PRIMA di aprire
-                // il popup, altrimenti un secondo click sullo stesso link
-                // (es. dopo aver chiuso il popup senza loggarsi) resterebbe
-                // bloccato per sempre
+                // Resetta il flag prima di aprire il popup di login
                 link.dataset.aggiungiInCorso = 'false';
                 if (window.mostraModalLogin) {
-                    // Il popup ripete questa stessa aggiunta dopo un login
-                    // riuscito, cosi' il prodotto finisce davvero nel
-                    // carrello senza che l'utente debba ricliccare
+                    // Ripete l'aggiunta al carrello dopo un login riuscito
                     window.mostraModalLogin(function () {
                         eseguiAggiuntaAlCarrello(link);
                     });
                 } else {
-                    // login-modal.js non caricato (pagina "/login/" stessa,
-                    // dove il modal non esiste - vedi base.html): fallback
-                    // al comportamento classico
+                    // Fallback al reindirizzamento classico se il modal di login non e' disponibile
                     var next = window.location.pathname + window.location.search;
                     window.location.href = document.body.dataset.loginUrl + '?next=' + encodeURIComponent(next);
                 }
@@ -71,12 +46,7 @@ function eseguiAggiuntaAlCarrello(link) {
                 throw new Error('Errore aggiunta al carrello');
             }
             return response.text().then(function (html) {
-                // Il corpo della risposta e' ora il widget del carrello
-                // fluttuante gia' aggiornato (vedi
-                // "aggiungi_prodotti_al_carrello" in Carrello/views.py):
-                // lo si passa a carrello-flottante.js, che sostituisce il
-                // contenitore - stesso identico meccanismo usato quando
-                // l'azione parte dal pannello stesso
+                // Il corpo della risposta e' il widget del carrello flottante gia' aggiornato
                 if (window.aggiornaCarrelloFlottante) {
                     window.aggiornaCarrelloFlottante(html);
                 }
@@ -88,16 +58,7 @@ function eseguiAggiuntaAlCarrello(link) {
             });
         })
         .catch(function () {
-            // Non si puo' distinguere in modo affidabile, da una fetch
-            // fallita, se la richiesta non e' mai arrivata al server oppure
-            // se e' arrivata e ha gia' aggiunto il prodotto ma solo la
-            // risposta si e' persa (connessione caduta, timeout): ri-
-            // navigare sullo stesso link (che aggiunge di nuovo il
-            // prodotto, essendo una GET senza @require_POST) rischierebbe
-            // di raddoppiare la quantita' in quest'ultimo caso. Un reload
-            // mostra invece lo stato reale del carrello qualunque esso sia
-            // - stesso principio gia' usato per gli errori imprevisti in
-            // gestione-avvisi.js/gestione-documenti.js
+            // Ricarica la pagina per mostrare lo stato reale del carrello
             window.location.reload();
         });
 }

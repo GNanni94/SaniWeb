@@ -1,10 +1,6 @@
-// Campo "Azienda": non fa parte del ModelForm (nel model Utente esiste
-// solo "cognome_ragione_sociale", non un campo azienda dedicato). Quando
-// viene compilato, i campi "Nome"/"Cognome" si nascondono e il loro
-// contenuto viene sostituito dal testo di "Azienda", cosi' e'
-// "cognome_ragione_sociale" a finire salvato nel DB anche per le aziende.
-// Svuotando di nuovo "Azienda" i valori di Nome/Cognome scritti in
-// precedenza (se presenti) vengono ripristinati.
+// Compilando "Azienda" si nascondono i campi Nome/Cognome e il loro
+// contenuto viene sostituito dal testo di "Azienda". Svuotando "Azienda"
+// i valori di Nome/Cognome precedenti vengono ripristinati.
 (function () {
   var campoAzienda = document.getElementById('id_azienda');
   var rigaAzienda = document.getElementById('riga-azienda');
@@ -14,33 +10,22 @@
   var avvisoNomeCognome = document.getElementById('avviso-nome-cognome');
   if (!campoAzienda || !rigaAzienda || !rigaNomeCognome || !campoNome || !campoCognome) return;
 
-  // toggle:false: le istanze vengono create senza far scattare subito
-  // un'animazione, le righe partono gia' visibili grazie alla classe "show"
-  // messa direttamente nell'HTML
+  // toggle:false: crea le istanze senza avviare subito un'animazione
   var collapseNomeCognome = new bootstrap.Collapse(rigaNomeCognome, { toggle: false });
   var collapseAzienda = new bootstrap.Collapse(rigaAzienda, { toggle: false });
 
   var nomeSalvato = null;
   var cognomeSalvato = null;
   var aziendaSalvato = null;
-  // true solo quando l'animazione di chiusura e' completamente finita:
-  // finche' la riga e' ancora visibile o in movimento, non scriviamo il
-  // valore di Azienda dentro "Cognome" per evitare che si veda lampeggiare
-  // il carattere appena digitato nel campo che sta per sparire
+  // true solo quando l'animazione di chiusura e' completamente finita
   var rigaNascosta = false;
 
   function nascondiAvviso() {
     if (avvisoNomeCognome) avvisoNomeCognome.classList.add('d-none');
   }
 
-  // Nome/Cognome sono "required" via widget.attrs lato server (vedi
-  // ClienteCreationForm), pensati per l'utente privato. Quando si passa ad
-  // "azienda" vanno tolti esplicitamente qui: affidarsi solo al fatto che
-  // la riga e' nascosta da Bootstrap Collapse NON basta - durante/appena
-  // dopo l'animazione il campo puo' risultare ancora "invalid" per il
-  // browser ma non piu' focalizzabile, bloccando l'invio con un errore
-  // silenzioso in console invece di un avviso visibile (bug riscontrato in
-  // test)
+  // Imposta "required" su Nome/Cognome solo quando non e' stata scelta
+  // l'opzione azienda
   function aggiornaRequired(azienda) {
     campoNome.required = !azienda;
     campoCognome.required = !azienda;
@@ -79,11 +64,8 @@
     }
   });
 
-  // Simmetrico al blocco sopra: scrivendo in Nome o Cognome si nasconde
-  // "Azienda" (svuotandola, salvando il suo valore per ripristinarlo se poi
-  // si tornasse a svuotare sia Nome che Cognome). Le variazioni di valore
-  // fatte qui via JS (es. ".value = ''") non scatenano l'evento "input",
-  // quindi non c'e' rischio di loop con il blocco sopra
+  // Scrivendo in Nome o Cognome nasconde "Azienda", svuotandola e salvando
+  // il suo valore per ripristinarlo se si torna a svuotare Nome e Cognome
   function alCambioNomeCognome() {
     var pieno = campoNome.value.trim() !== '' || campoCognome.value.trim() !== '';
 
@@ -103,11 +85,8 @@
   campoNome.addEventListener('input', alCambioNomeCognome);
   campoCognome.addEventListener('input', alCambioNomeCognome);
 
-  // Mostra un avviso Bootstrap esplicito invece di affidarsi solo al
-  // tooltip nativo del browser (che su alcuni browser/situazioni non
-  // compare affatto, vedi commento sopra su aggiornaRequired):
-  // preventDefault() sopprime solo il popup nativo, il campo resta
-  // comunque invalido e l'invio bloccato
+  // Mostra un avviso Bootstrap quando il campo risulta invalido,
+  // sopprimendo solo il tooltip nativo del browser
   [campoNome, campoCognome].forEach(function (campo) {
     campo.addEventListener('invalid', function (e) {
       e.preventDefault();
@@ -117,38 +96,26 @@
   });
 })();
 
-// Icona di validita' + blocco submit se l'email non e' in un formato
-// valido: funzione condivisa con password_reset_form.html, vedi
-// static/js/validazione-campi.js (che espone anche creaIconaCampo() e
-// installaIconaValidita(), usate qui sotto per gli altri campi)
+// Icona di validita' + blocco submit se l'email non e' in un formato valido
 installaValidazioneEmail('id_email');
 
-// Telefono: solo indicazione visiva, NON blocca il submit - la
-// validazione vera e propria (con django-phonenumber-field) e' ancora in
-// pausa, qui si riusa la stessa regex gia' in uso lato server
-// (valida_numero_telefono in Utente/models.py) solo come indicazione
+// Telefono: solo indicazione visiva, non blocca il submit
 var TELEFONO_REGEX = /^\+?\d{8,15}$/;
 installaIconaValidita('id_telefono', function (valore) {
   return TELEFONO_REGEX.test(valore);
 });
 
-// Codice fiscale / partita IVA: solo indicazione visiva, NON blocca il
-// submit - controlla solo il FORMATO (lunghezza e struttura plausibili:
-// 11 cifre per la partita IVA, oppure 16 caratteri nella struttura tipica
-// del codice fiscale), non il carattere di controllo/checksum reale (la
-// validazione con python-stdnum discussa in precedenza resta in pausa)
+// Codice fiscale / partita IVA: solo indicazione visiva, non blocca il
+// submit - controlla solo il formato (11 cifre per la partita IVA, 16
+// caratteri per il codice fiscale), non il carattere di controllo
 var CF_PIVA_REGEX = /^(\d{11}|[A-Za-z]{6}\d{2}[A-Za-z]\d{2}[A-Za-z]\d{3}[A-Za-z])$/;
 installaIconaValidita('id_codiceFiscale_PartitaIVA', function (valore) {
   return CF_PIVA_REGEX.test(valore);
 });
 
-// Password: 4 regole controllate lato client (lunghezza minima, non solo
-// lettere/non solo numeri, almeno una maiuscola, almeno un carattere
-// speciale), le stesse ora richieste anche lato server tramite
-// AUTH_PASSWORD_VALIDATORS in settings.py (UppercaseValidator e
-// SpecialCharacterValidator in Utente/validators.py). Definite una sola
-// volta e riusate sia per l'icona di validita' complessiva sia per la
-// checklist dettagliata sotto il campo
+// Regole password (lunghezza minima, non solo lettere/numeri, maiuscola,
+// carattere speciale), riusate sia per l'icona di validita' che per la
+// checklist sotto il campo
 var REGOLE_PASSWORD = {
   lunghezza: function (v) { return v.length >= 8; },
   alfanumerico: function (v) { return !/^[A-Za-z]+$/.test(v) && !/^\d+$/.test(v); },
@@ -167,10 +134,7 @@ installaIconaValidita('id_password1', function (valore) {
   messaggio: MESSAGGIO_PASSWORD,
 });
 
-// Checklist dettagliata: a differenza dell'icona sopra (che aggiorna
-// "customValidity" solo al "blur"), qui il blocco si aggiorna ad ogni
-// carattere digitato - cosi' appena tutti i requisiti sono soddisfatti il
-// submit si sblocca subito, senza dover uscire dal campo
+// Checklist dettagliata: si aggiorna ad ogni carattere digitato, non solo al "blur"
 function installaChecklistPassword(idCampo, idLista) {
   var input = document.getElementById(idCampo);
   var lista = document.getElementById(idLista);
@@ -200,12 +164,9 @@ function installaChecklistPassword(idCampo, idLista) {
 
 installaChecklistPassword('id_password1', 'requisiti-password1');
 
-// Conferma password: l'icona qui non valuta il proprio contenuto (quello
-// lo fa gia' l'icona su "Password" sopra), ma se coincide con il campo
-// "Password" - nascosta finche' non sono stati scritti entrambi i valori,
-// aggiornata uscendo da uno qualsiasi dei due campi. Solo indicazione
-// visiva, NON blocca il submit - la mancata corrispondenza la intercetta
-// comunque UserCreationForm lato server
+// Conferma password: verifica solo che coincida con il campo "Password",
+// nascosta finche' non sono stati scritti entrambi i valori. Solo
+// indicazione visiva, non blocca il submit
 function installaIconaCorrispondenza(idCampoOrigine, idCampoConferma) {
   var origine = document.getElementById(idCampoOrigine);
   var conferma = document.getElementById(idCampoConferma);
@@ -238,10 +199,8 @@ function installaIconaCorrispondenza(idCampoOrigine, idCampoConferma) {
 
 installaIconaCorrispondenza('id_password1', 'id_password2');
 
-// Tasto "occhio" per mostrare/nascondere la password in chiaro: riusa lo
-// stesso wrapper "position-relative" gia' creato da creaIconaCampo (sopra)
-// per l'icona di validita', spostando quest'ultima piu' a sinistra per
-// fare posto al nuovo pulsante
+// Tasto "occhio" per mostrare/nascondere la password in chiaro, spostando
+// l'icona di validita' per fare posto al pulsante
 function installaOcchioPassword(idCampo) {
   var input = document.getElementById(idCampo);
   if (!input) return;
@@ -250,19 +209,14 @@ function installaOcchioPassword(idCampo) {
 
   input.style.paddingRight = '4.5rem';
   if (iconaValidita) {
-    // "me-3" di Bootstrap imposta margin-right con !important: un normale
-    // style.marginRight verrebbe ignorato, serve setProperty(...,
-    // "important") per spostare davvero l'icona e non farla sovrapporre
-    // al nuovo pulsante "occhio"
+    // setProperty con "important" per sovrascrivere il margin-right impostato da Bootstrap
     iconaValidita.style.setProperty('margin-right', '2.5rem', 'important');
   }
 
   var bottone = document.createElement('button');
   bottone.type = 'button';
   bottone.className = 'btn btn-link position-absolute top-50 end-0 translate-middle-y p-0 me-3';
-  // colore uguale a quello della navbar (var(--color-primary), vedi
-  // variables.css): non e' il blu "primary" di Bootstrap, quindi va
-  // impostato a mano invece che con la classe "text-primary"
+  // Colore uguale a quello della navbar (var(--color-primary))
   bottone.style.color = 'var(--color-primary)';
   bottone.setAttribute('aria-label', 'Mostra/nascondi password');
   bottone.innerHTML = '<i class="bi bi-eye"></i>';
@@ -279,11 +233,7 @@ function installaOcchioPassword(idCampo) {
 installaOcchioPassword('id_password1');
 installaOcchioPassword('id_password2');
 
-// L'errore che Django restituisce su "clean_password2()" (es. "troppo
-// simile all'email", password comune, ecc.) viene sempre allegato al
-// campo "Conferma password", anche se il valore che l'utente deve
-// correggere e' quello scritto in "Password" qui sopra - va quindi
-// nascosto anche scrivendo in id_password1, non solo in id_password2
+// Nasconde l'errore del server su "Conferma password" anche scrivendo in "Password"
 (function () {
   var pw1 = document.getElementById('id_password1');
   var pw2 = document.getElementById('id_password2');

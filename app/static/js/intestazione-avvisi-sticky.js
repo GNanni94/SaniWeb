@@ -1,5 +1,5 @@
 // Fissa la riga titolo "Avvisi di chiusura" sotto la navbar da desktop,
-// la sposta nella pillola della navbar da telefono.
+// la sposta nella pillola della navbar da telefono
 (function () {
     var riga = document.querySelector('.intestazione-categoria-sticky');
     if (!riga) {

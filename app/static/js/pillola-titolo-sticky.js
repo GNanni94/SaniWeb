@@ -1,17 +1,9 @@
-// Logica condivisa tra intestazione-categoria-sticky.js (prodotti_card.html/
-// prodotti_tabella.html) e carrello-intestazione-sticky.js (carrello.html):
-// entrambi spostano gli elementi interattivi di una riga titolo agganciata
-// nella pillola destra della navbar durante lo scroll da telefono (sotto la
-// soglia xxl), riusando gli stessi tre slot vuoti (base.html,
-// "#pillolaSlotIndietro/Titolo/Filtro") e la stessa classe di stato
-// ".navbar-pillola-brand.pillola-modalita-categoria" (navbar.css) -
-// pensati apposta per essere generici nonostante il nome storico
-// "categoria". Caricare questo file PRIMA dei due sopra.
+// Logica condivisa tra intestazione-categoria-sticky.js e
+// carrello-intestazione-sticky.js: sposta gli elementi interattivi di una
+// riga titolo agganciata nella pillola della navbar durante lo scroll da
+// telefono, riusando gli stessi tre slot vuoti e la stessa classe di stato
 //
-// "restringiFontSizeFinoA" e' esposta a parte (non solo dentro la factory
-// sotto) perche' intestazione-categoria-sticky.js la riusa anche per il
-// titolo nella sua posizione NORMALE (non ancora in pillola) - caso che non
-// esiste per la pagina carrello, quindi non generalizzato dentro la factory.
+// Esposta a parte perche' riusata anche per il titolo nella sua posizione normale, fuori pillola
 function restringiFontSizeFinoA(elemento, dimensioneMassima, calcolaLarghezzaDisponibile) {
     var DIMENSIONE_MINIMA = 16;
     var dimensione = dimensioneMassima;
@@ -24,16 +16,11 @@ function restringiFontSizeFinoA(elemento, dimensioneMassima, calcolaLarghezzaDis
 }
 
 // "opzioni":
-// - idSentinella: id dell'elemento la cui uscita dalla vista (scrollando
-//   verso il basso) segna il punto di aggancio della riga
+// - idSentinella: id dell'elemento la cui uscita dalla vista segna il punto di aggancio della riga
 // - selettoreRiga: selettore CSS della riga stessa (riceve ".intestazione-fissata")
 // - idTitolo: id dell'elemento titolo da restringere quando entra in pillola
-// - elementiDaSpostare(riga, slotIndietro, slotTitolo, slotTerzo): ritorna le
-//   coppie [elemento, slotDestinazione] da spostare - unica parte davvero
-//   specifica di ciascuna pagina, il markup dentro "riga" e' diverso
-// - adattaDimensioneTitoloRiga (opzionale): richiamata negli stessi punti in
-//   cui la riga normale (non in pillola) potrebbe aver bisogno di restringere
-//   il proprio titolo - solo intestazione-categoria-sticky.js ne ha bisogno
+// - elementiDaSpostare(riga, slotIndietro, slotTitolo, slotTerzo): ritorna le coppie [elemento, slotDestinazione] da spostare
+// - adattaDimensioneTitoloRiga (opzionale): restringe il titolo nella riga normale, fuori pillola
 function inizializzaPillolaSticky(opzioni) {
     var sentinella = document.getElementById(opzioni.idSentinella);
     var riga = document.querySelector(opzioni.selettoreRiga);
@@ -49,24 +36,13 @@ function inizializzaPillolaSticky(opzioni) {
     var sogliaMobile = window.matchMedia('(max-width: 1399.98px)');
     var adattaDimensioneTitoloRiga = opzioni.adattaDimensioneTitoloRiga || function () {};
 
-    // Ricorda dove rimettere ciascun elemento spostato (genitore + fratello
-    // successivo originali): popolato al momento dello spostamento, letto
-    // solo per il ripristino. Vuoto = niente attualmente spostato.
+    // Genitore + fratello successivo originali di ogni elemento spostato, per il ripristino. Vuoto = niente spostato
     var posizioniOriginali = [];
 
-    // Dimensione di partenza del titolo nella pillola (uguale al 32px gia'
-    // impostato in navbar.css per entrambe le pagine): un nome/testo troppo
-    // lungo anche al minimo comune (16px, dentro restringiFontSizeFinoA)
-    // resta gestito dal fallback nativo del contesto (ellissi in pillola),
-    // invece di rimpicciolire fino all'illeggibile
+    // Dimensione di partenza del titolo nella pillola
     var DIMENSIONE_TITOLO_MASSIMA = 32;
 
-    // Parte sempre dal massimo, non dall'ultima dimensione usata, perche' lo
-    // spazio disponibile puo' essere cambiato (resize, rotazione) da quando
-    // e' stato ridotto l'ultima volta. "parentNode" controllato apposta: se
-    // nel frattempo il titolo e' gia' tornato al suo posto originale (es. si
-    // e' risaliti sopra la soglia xxl proprio mentre questa funzione era in
-    // coda a un resize) non c'e' niente da adattare
+    // Riparte sempre dalla dimensione massima; non fa nulla se il titolo non e' (piu') nella pillola
     function adattaDimensioneTitolo() {
         var titolo = document.getElementById(opzioni.idTitolo);
         if (!titolo || !slotTitolo || titolo.parentNode !== slotTitolo) {
@@ -107,10 +83,7 @@ function inizializzaPillolaSticky(opzioni) {
         posizioniOriginali = [];
         pillola.classList.remove('pillola-modalita-categoria');
         riga.classList.remove('contenuto-in-pillola-navbar');
-        // Il font-size ridotto da "adattaDimensioneTitolo" e' inline (vince
-        // sempre sulla regola CSS, che si applica solo dentro la pillola):
-        // va tolto esplicitamente, altrimenti il titolo resterebbe piccolo
-        // anche fuori dalla pillola, dove torna alla sua dimensione normale
+        // Rimuove il font-size inline impostato da adattaDimensioneTitolo
         var titolo = document.getElementById(opzioni.idTitolo);
         if (titolo) {
             titolo.style.fontSize = '';
@@ -123,7 +96,7 @@ function inizializzaPillolaSticky(opzioni) {
         riga.classList.toggle('intestazione-fissata', agganciata);
 
         if (!pillola || !slotIndietro || !slotTitolo || !slotTerzo) {
-            adattaDimensioneTitoloRiga(); // pagina senza la pillola (non dovrebbe succedere, base.html la include sempre)
+            adattaDimensioneTitoloRiga(); // pagina senza la pillola
             return;
         }
         if (agganciata && sogliaMobile.matches) {
@@ -134,27 +107,17 @@ function inizializzaPillolaSticky(opzioni) {
         adattaDimensioneTitoloRiga();
     }, { rootMargin: '-' + altezzaNavbar + 'px 0px 0px 0px' }).observe(sentinella);
 
-    // Dimensione iniziale, prima di qualunque scroll: l'observer qui sopra
-    // scatta solo quando la sentinella entra/esce dalla vista, non al
-    // caricamento della pagina se in quel momento e' gia' visibile
+    // Dimensione iniziale, prima di qualunque scroll
     adattaDimensioneTitoloRiga();
 
-    // Se si ridimensiona la finestra oltre la soglia xxl mentre gli elementi
-    // sono ancora spostati nella pillola, li rimette a posto: da desktop la
-    // pillola torna "display: contents" (navbar.css), quindi elementi ancora
-    // spostati li' dentro risulterebbero irraggiungibili
+    // Rimette a posto gli elementi se si torna sopra la soglia xxl mentre sono ancora nella pillola
     sogliaMobile.addEventListener('change', function (evento) {
         if (!evento.matches) {
             ripristinaPosizioneOriginale();
         }
     });
 
-    // Ricalcola la dimensione del titolo se cambia lo spazio disponibile
-    // (resize della finestra, rotazione del telefono) - nella pillola se ci
-    // si trova gia' dentro, nella riga normale altrimenti (una delle due
-    // funzioni non fa nulla, in base a dove si trova il titolo in quel
-    // momento). "requestAnimationFrame" raggruppa gli eventi "resize"
-    // ravvicinati in una sola misurazione per frame
+    // Ricalcola la dimensione del titolo su resize, raggruppando gli eventi con requestAnimationFrame
     var adattamentoPianificato = false;
     window.addEventListener('resize', function () {
         if (adattamentoPianificato) {
