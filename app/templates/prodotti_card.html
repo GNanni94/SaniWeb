@@ -9,27 +9,7 @@
 
     {% include 'partials/toast_ricerca_senza_risultati.html' %}
 
-    {% comment %}
-    Sentinella con un'altezza vera (".sentinella-intestazione" in
-    prodotti.css, solo da desktop) davanti alla riga: senza, il bordo
-    superiore della riga (".intestazione-categoria-sticky" qui sotto, gia'
-    "position: sticky" di suo) si troverebbe fin da subito a ridosso della
-    navbar (il contenitore inizia praticamente subito sotto di lei), quindi
-    si aggancerebbe dopo pochissimi pixel di scroll invece di scorrere
-    normalmente insieme al resto della pagina per un tratto, come una riga
-    qualunque, finche' la navbar (fissata di suo) non la raggiunge davvero.
-    Questa altezza sostituisce il "pt-5" che la riga aveva prima (rimosso da
-    lei sopra i 576px, vedi prodotti.css): stesso spazio visivo identico a
-    riga non ancora scrollata, ma reale e FUORI dalla riga invece che
-    "dentro" il suo stesso padding.
-
-    Serve anche da riferimento per l'IntersectionObserver piu' sotto: quando
-    esce dalla vista (l'utente ha scrollato abbastanza da farla sparire
-    sotto la navbar) vuol dire che la riga si sta agganciando al suo posto,
-    e viene aggiunta ".intestazione-fissata" alla riga (bordo/pillola in
-    prodotti.css). Deve stare subito PRIMA della riga nel DOM, cosi' esce
-    dalla vista esattamente nel momento giusto
-    {% endcomment %}
+    {# Sentinella usata dall'IntersectionObserver per rilevare quando la riga sotto si aggancia alla navbar #}
     <div id="sentinellaIntestazione" class="sentinella-intestazione"></div>
 
     {% include 'partials/intestazione_categoria.html' with controlli_template='partials/controlli_ricerca_filtro_card.html' intestazione_sticky=True %}
