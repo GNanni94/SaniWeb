@@ -176,21 +176,21 @@
         Pallino blu a destra della voce, solo da telefono: segnala la
         pagina corrente (mai su piu' di una voce alla volta).
         {% endcomment %}
+        {% if request.resolver_match.url_name != 'storia_azienda' %}
         <li class="nav-item">
           <a class="nav-link fs-6 d-flex align-items-center gap-2" href="{% url 'storia_azienda' %}">
             <i class="bi bi-building d-xxl-none"></i>
             Azienda
-            {% if request.resolver_match.url_name == 'storia_azienda' %}
-            <span class="pallino-pagina-corrente d-xxl-none" aria-hidden="true"></span>
-            {% endif %}
           </a>
         </li>
+        {% endif %}
 
+        {% if request.resolver_match.url_name != 'catalogo' %}
         <li class="nav-item dropdown">
           <a class="nav-link fs-6 d-flex align-items-center gap-2" href="{% url 'catalogo' %}">
             <i class="bi bi-grid d-xxl-none"></i>
             Catalogo
-            {% if request.resolver_match.url_name == 'catalogo' or request.resolver_match.url_name == 'dettaglio_categoria' or request.resolver_match.url_name == 'dettaglio_sottocategoria' %}
+            {% if request.resolver_match.url_name == 'dettaglio_categoria' or request.resolver_match.url_name == 'dettaglio_sottocategoria' %}
             <span class="pallino-pagina-corrente d-xxl-none" aria-hidden="true"></span>
             {% endif %}
           </a>
@@ -207,25 +207,24 @@
             {% endfor %}
           </ul>
         </li>
+        {% endif %}
 
+        {% if request.resolver_match.url_name != 'documenti' %}
         <li class="nav-item">
           <a class="nav-link fs-6 d-flex align-items-center gap-2" href="{% url 'documenti' %}">
             <i class="bi bi-file-earmark-text d-xxl-none"></i>
             Documenti
-            {% if request.resolver_match.url_name == 'documenti' %}
-            <span class="pallino-pagina-corrente d-xxl-none" aria-hidden="true"></span>
-            {% endif %}
           </a>
         </li>
+        {% endif %}
+        {% if request.resolver_match.url_name != 'contatti' %}
         <li class="nav-item">
           <a class="nav-link fs-6 d-flex align-items-center gap-2" href="{% url 'contatti' %}">
             <i class="bi bi-send d-xxl-none"></i>
             Contattaci
-            {% if request.resolver_match.url_name == 'contatti' %}
-            <span class="pallino-pagina-corrente d-xxl-none" aria-hidden="true"></span>
-            {% endif %}
           </a>
         </li>
+        {% endif %}
       </ul>
 
 
