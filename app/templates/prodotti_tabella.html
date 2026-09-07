@@ -6,36 +6,8 @@
 {% block contenuto %}
 
 <div class="container">
-    {% comment %}
-    Stessa riga titolo di prodotti_card.html (partial condiviso
-    "partials/intestazione_categoria.html"): freccia "Torna al catalogo" +
-    titolo (h1, non piu' h2) cliccabile verso la categoria corrente. In
-    prodotti_card.html quel link serve a uscire da un filtro
-    sottocategoria/risultato di ricerca; qui non esiste un equivalente lato
-    server (il filtro e' solo client-side), quindi il link ricarica
-    semplicemente la stessa pagina - innocuo, ma tenuto per coerenza visiva
-    con l'altra pagina.
-    "controlli_template" e "intestazione_sticky", stessa coppia di
-    prodotti_card.html: filtro e ricerca finiscono nella stessa riga del
-    titolo, a destra, e la riga resta agganciata subito sotto la navbar
-    durante lo scroll da desktop (vedi "#sentinellaIntestazione" qui sotto e
-    lo script in fondo alla pagina)
-    {% endcomment %}
-    {% comment %}
-    Sentinella con un'altezza vera (".sentinella-intestazione" in
-    prodotti.css, solo da desktop) davanti alla riga: senza, il bordo
-    superiore della riga (".intestazione-categoria-sticky" qui sotto, gia'
-    "position: sticky" di suo) si troverebbe fin da subito a ridosso della
-    navbar, quindi si aggancerebbe dopo pochissimi pixel di scroll invece di
-    scorrere normalmente insieme al resto della pagina per un tratto, come
-    una riga qualunque, finche' la navbar (fissata di suo) non la raggiunge
-    davvero. Serve anche da riferimento per l'IntersectionObserver in fondo
-    alla pagina: quando esce dalla vista la riga si sta agganciando al suo
-    posto, e viene aggiunta ".intestazione-fissata" alla riga (bordo/pillola
-    in prodotti.css). Deve stare subito PRIMA della riga nel DOM, cosi'
-    esce dalla vista esattamente nel momento giusto - stesso principio di
-    prodotti_card.html
-    {% endcomment %}
+    {# Riga titolo con freccia "Torna al catalogo", controlli di ricerca/filtro e aggancio sotto la navbar durante lo scroll da desktop #}
+    {# Sentinella usata dall'IntersectionObserver per rilevare quando la riga sotto si aggancia alla navbar #}
     <div id="sentinellaIntestazione" class="sentinella-intestazione"></div>
 
     {% include 'partials/intestazione_categoria.html' with controlli_template='partials/controlli_ricerca_filtro_tabella.html' intestazione_sticky=True %}
@@ -80,7 +52,7 @@
                     <td>{{x.unita_di_misura}}</td>
                     <td>{{x.sottocategoria.nome_sottocategoria}}</td>
                     <td>
-                        <a class="btn btn-navbar" href="{% url 'aggiungi_prodotti' x.pk%}" title="Aggiungi al preventivo">
+                        <a class="btn btn-navbar rounded-pill" href="{% url 'aggiungi_prodotti' x.pk%}" title="Aggiungi al preventivo">
                              Aggiungi al preventivo
                         </a>
                     </td>
