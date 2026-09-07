@@ -26,6 +26,7 @@ class ClienteForm(ModelForm):
         )
         labels = {
             "cognome_ragione_sociale": "Cognome/Rag. sociale",
+            "citta": "Città",
         }
 
 class MessaggioForm(ModelForm):

@@ -114,6 +114,14 @@
   margin-bottom: 0;
 }
 
+/* Sfondo grigio del form Contatti: solo l'area dei campi (non il titolo
+   "RICHIEDI INFORMAZIONI" sopra ne' il bottone Invia sotto), stesso grigio
+   chiaro gia' usato altrove nel sito (--color-bg-alt) */
+.campi-form {
+  background-color: var(--color-bg-alt);
+  border-radius: .75rem; /* stesso raggio di #orari e #map in questa pagina */
+}
+
 /* Toglie il bordo inferiore che Bootstrap mette su ogni cella
    (".table > :not(caption) > * > *"): sull'ultima riga risulterebbe una
    seconda linea visibile appena dentro il bordo blu della tabella */
