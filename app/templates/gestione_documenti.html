@@ -5,16 +5,7 @@
 {% block contenuto %}
 
 <div class="container">
-    {% comment %}
-    Riga titolo agganciata allo scroll, stesso comportamento (e stesso CSS,
-    riusato cosi' com'e', vedi prodotti.css) di
-    partials/intestazione_categoria.html su prodotti_card.html/
-    prodotti_tabella.html: "#sentinellaIntestazione" da' lo spazio vero prima
-    della riga (vedi commento su "padding-top: 0" in prodotti.css),
-    ".intestazione-categoria-sticky" la aggancia sotto la navbar da desktop
-    con un contorno a pillola quando scrolla, e la sposta dentro la pillola
-    della navbar da telefono (static/js/intestazione-documenti-sticky.js).
-    {% endcomment %}
+    {% comment %} Riga titolo agganciata sotto la navbar da desktop durante lo scroll, spostata nella pillola della navbar da telefono. {% endcomment %}
     <div id="sentinellaIntestazione" class="sentinella-intestazione"></div>
 
     <div class="d-flex align-items-center position-relative pt-5 mb-4 intestazione-categoria-sticky">
@@ -24,12 +15,7 @@
         </a>
         <h1 id="titoloGestioneDocumenti" class="mb-0 mx-auto">Gestione Documenti</h1>
         <div class="d-flex align-items-center gap-2 slot-controlli-intestazione-fine position-absolute end-0">
-            {% comment %}
-            Filtro per sezione, solo da desktop: filtra le righe di
-            "#tabella-documenti" (partials/albero_documenti.html). Stessa
-            estetica/comportamento del filtro categoria di
-            dashboard_prodotti_senza_immagine.html.
-            {% endcomment %}
+            {% comment %} Filtro per sezione, solo da desktop: filtra le righe di #tabella-documenti. {% endcomment %}
             <div class="dropdown d-none d-md-block" id="filtroSezioneDocumentiWrapper">
                 <button type="button" id="filtroSezioneDocumenti" class="form-select" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Filtra per sezione"></button>
                 <ul class="dropdown-menu dropdown-menu-end filtro-dropdown-menu" aria-labelledby="filtroSezioneDocumenti">
@@ -46,13 +32,7 @@
         </div>
     </div>
 
-    {% comment %}
-    Niente piu' colonna destra con l'anteprima PDF incorporata (tolta su
-    richiesta esplicita, sia da desktop che da telefono): l'albero cartelle
-    occupa da solo tutta la larghezza del container. Cliccare il nome di un
-    documento apre direttamente il file in una nuova scheda (link nativo,
-    vedi partials/albero_documenti.html), nessun pannello da aggiornare qui.
-    {% endcomment %}
+    {% comment %} L'albero cartelle occupa tutta la larghezza del container; il nome di un documento apre il file in una nuova scheda. {% endcomment %}
     {% include 'partials/albero_documenti.html' %}
 </div>
 

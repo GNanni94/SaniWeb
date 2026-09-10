@@ -9,16 +9,7 @@
 
 <div class="container">
 
-    {% comment %}
-    Sentinella con un'altezza vera (".sentinella-intestazione" in
-    prodotti.css, riusata cosi' com'e' - e' un semplice spaziatore generico,
-    non legato ai contenuti di prodotti_card.html) davanti alla riga: stesso
-    principio spiegato in prodotti_card.html, sostituisce il vecchio "mt-4"
-    della riga (stesso 1.5rem) con uno spazio reale FUORI da lei, cosi' la
-    riga scorre normalmente insieme alla pagina per un tratto invece di
-    agganciarsi subito. Riferimento per l'IntersectionObserver in
-    static/js/carrello-intestazione-sticky.js.
-    {% endcomment %}
+    {% comment %} Sentinella con un'altezza vera prima della riga, riferimento per l'IntersectionObserver in carrello-intestazione-sticky.js. {% endcomment %}
     <div id="sentinellaIntestazioneCarrello" class="sentinella-intestazione"></div>
 
     <div class="d-flex align-items-center position-relative mb-2 mb-md-4 intestazione-carrello-sticky">

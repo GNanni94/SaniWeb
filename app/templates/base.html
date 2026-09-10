@@ -9,20 +9,14 @@
   <meta name="author" content="Giulio Nannicini">
   <meta name="description" content="Sito web della ditta Saniscope-chimica per la vendita di prodotti chimici">
 
-  {% comment %}
-  Open Graph: anteprima di condivisione su WhatsApp/Facebook/LinkedIn.
-  "og:url" punta sempre alla home, non alla pagina corrente.
-  {% endcomment %}
+  {% comment %} Open Graph: anteprima di condivisione su WhatsApp/Facebook/LinkedIn. {% endcomment %}
   <meta property="og:title" content="SaniScope-chimica">
   <meta property="og:description" content="Sito web della ditta Saniscope-chimica per la vendita di prodotti chimici">
   <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'logo/saniscope_logo.jpg' %}">
   <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{% url 'home' %}">
   <meta property="og:type" content="website">
 
-  {% comment %}
-  Dati strutturati LocalBusiness (schema.org, JSON-LD) permettono a Google di mostrarli direttamente nel
-  risultato di ricerca/Maps.
-  {% endcomment %}
+  {% comment %} Dati strutturati LocalBusiness (schema.org, JSON-LD) per i risultati di ricerca/Maps di Google. {% endcomment %}
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -49,10 +43,7 @@
   }
   </script>
 
-  {% comment %}
-  Varianti chiara/scura in base al tema di sistema (prefers-color-scheme):
-  la versione dark usa il logo invertito, piu' leggibile su tab scure.
-  {% endcomment %}
+  {% comment %} Favicon chiara/scura in base al tema di sistema (prefers-color-scheme). {% endcomment %}
   <link rel="icon" href="{% static 'favicon/favicon.ico' %}" sizes="any" media="(prefers-color-scheme: light)">
   <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-16x16.png' %}" media="(prefers-color-scheme: light)">
   <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}" media="(prefers-color-scheme: light)">
@@ -85,9 +76,7 @@
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
-  <!-- Fogli di stile del progetto caricati per ultimi: a parita' di
-       specificita' vince l'ultima regola nell'ordine dei <link>, cosi' le
-       nostre regole vincono di default su quelle di Bootstrap. -->
+  <!-- Fogli di stile del progetto, caricati per ultimi: vincono su quelle di Bootstrap a parita' di specificita'. -->
   <link href="{% static 'css/variables.css' %}" rel="stylesheet" type="text/css" />
   <link href="{% static 'css/main.css' %}" rel="stylesheet" type="text/css" />
   <!-- CSS divisi per argomento -->
@@ -109,12 +98,7 @@
 
 <nav class="navbar navbar-expand-xxl site-navbar">
   <div class="container-fluid position-relative">
-    {% comment %}
-    Da telefono: hamburger a sinistra, pillola logo+icone a destra (vedi
-    "order-*"). Da desktop (xxl+): ordine normale logo/link/profilo (vedi
-    "order-xxl-*"); ".navbar-pillola-brand" diventa "display:contents"
-    (navbar.css) cosi' i suoi figli tornano flex-item diretti del container.
-    {% endcomment %}
+    {% comment %} Da telefono: hamburger a sinistra, pillola logo+icone a destra. Da desktop (xxl+): ordine normale logo/link/profilo. {% endcomment %}
     <button class="navbar-toggler order-1" type="button" data-bs-toggle="collapse"
       data-bs-target="#navbarSupportedContent" aria-controls="#navbarSupportedContent" aria-expanded="false"
       aria-label="Toggle navigation">
@@ -124,22 +108,13 @@
     <div class="navbar-pillola-brand order-2">
       <a class="navbar-brand d-inline-flex align-items-center order-xxl-1 ms-xxl-0 me-xxl-3" href="{% url 'home' %}">
         <img src="{% static 'logo/logo_invertito.png' %}" alt="Logo" width="44" height="38" class="d-none d-xxl-inline me-xxl-2">
-        {% comment %}
-        Da telefono la pillola mostra logo (colorato, per lo sfondo
-        bianco) + testo "SaniScope-chimica". Sparisce insieme al resto di
-        ".navbar-brand" quando la pillola passa in "modalita' categoria"
-        durante lo scroll (vedi intestazione-categoria-sticky.js).
-        {% endcomment %}
+        {% comment %} Da telefono la pillola mostra logo colorato + testo "SaniScope-chimica". {% endcomment %}
         <img src="{% static 'logo/saniscope_logo.png' %}" alt="Logo" width="35" height="30" class="d-xxl-none">
         <h2 class="mb-0 d-xxl-none logo-testo-pillola">SaniScope-chimica</h2>
         <h2 class="mb-0 d-none d-xxl-inline">SaniScope-chimica</h2>
       </a>
 
-      {% comment %}
-      Anonimo: Login/Registrati visibili solo da telefono (da desktop
-      restano nel menu hamburger). Autenticato: solo l'icona profilo - il
-      carrello e' il widget flottante a parte (partials/carrello_flottante.html).
-      {% endcomment %}
+      {% comment %} Anonimo: Login/Registrati visibili solo da telefono. Autenticato: solo l'icona profilo. {% endcomment %}
       <div id="pillolaIconeUtente" class="d-flex align-items-center gap-2 order-xxl-3 pillola-icone-default">
       {% if not user.is_authenticated %}
       <div id="navbarLoginRegistratiMobile" class="d-flex d-xxl-none gap-3">
@@ -157,12 +132,7 @@
       {% endif %}
       </div>
 
-      {% comment %}
-      3 slot vuoti, usati solo in prodotti_card.html/prodotti_tabella.html:
-      durante lo scroll "intestazione-categoria-sticky.js" ci sposta dentro
-      "Torna al catalogo"/titolo/filtro al posto di logo/icone. Vedi
-      Docs/superpowers/specs/2026-08-30-pillola-titolo-categoria-scroll-design.md
-      {% endcomment %}
+      {% comment %} Slot vuoti usati da prodotti_card.html/prodotti_tabella.html per spostarci "Torna al catalogo"/titolo/filtro durante lo scroll. {% endcomment %}
       <div id="pillolaCategoriaGroup" class="pillola-categoria-group">
         <span id="pillolaSlotIndietro" class="pillola-slot-indietro"></span>
         <span id="pillolaSlotTitolo" class="pillola-slot-titolo"></span>
@@ -172,10 +142,7 @@
 
     <div class="collapse navbar-collapse order-4 order-xxl-2" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-0">
-        {% comment %}
-        Pallino blu a destra della voce, solo da telefono: segnala la
-        pagina corrente (mai su piu' di una voce alla volta).
-        {% endcomment %}
+        {% comment %} Pallino blu a destra della voce, solo da telefono: segnala la pagina corrente. {% endcomment %}
         {% if request.resolver_match.url_name != 'storia_azienda' %}
         <li class="nav-item">
           <a class="nav-link fs-6 d-flex align-items-center gap-2" href="{% url 'storia_azienda' %}">
@@ -250,21 +217,10 @@
   </div>
 </nav>
 
-{% comment %}
-Sfondo scurito dietro al menu hamburger da telefono (".hamburger-backdrop"
-in navbar.css): sta fuori da "<nav>" per non ereditarne lo stacking
-context (altrimenti verrebbe dipinto sopra le pillole "position: static").
-Stessi "data-bs-*" del bottone hamburger: un click sopra chiude il menu
-senza JS scritto a mano.
-{% endcomment %}
+{% comment %} Sfondo scurito dietro al menu hamburger da telefono: un click sopra lo chiude, stessi "data-bs-*" del bottone hamburger. {% endcomment %}
 <div class="hamburger-backdrop" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-hidden="true"></div>
 
-{% comment %}
-Modal di login, incluso su ogni pagina tranne "/login/" (ha gia' il form
-a pagina intera - partials/form_login.html) e per utenti gia' autenticati.
-Se manca, "login-modal.js" scatta il fallback (redirect a
-"/login/?next=..."). Gestito da static/js/login-modal.js.
-{% endcomment %}
+{% comment %} Modal di login, incluso su ogni pagina tranne "/login/" e per utenti gia' autenticati. Gestito da static/js/login-modal.js. {% endcomment %}
 {% if request.resolver_match.url_name != 'login' and not user.is_authenticated %}
 <div class="modal fade" id="modalLogin" tabindex="-1" aria-labelledby="modalLoginLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -283,13 +239,7 @@ Se manca, "login-modal.js" scatta il fallback (redirect a
       hx-headers='{"X-CSRFToken": "{{ csrf_token }}", "X-Requested-With": "XMLHttpRequest"}'
       hx-ext="morph">
 
-{% comment %}
-Contenitore con id stabile: quando un avviso viene attivato/disattivato/
-salvato/eliminato da gestione_avvisi.html, la view rimanda insieme al resto
-un frammento con lo stesso id e "hx-swap-oob" (vedi Avvisi/views.py), cosi'
-htmx aggiorna qui il banner senza refresh anche se l'id non era ancora
-presente prima (nessun avviso attivo al caricamento della pagina).
-{% endcomment %}
+{% comment %} Contenitore con id stabile: htmx ci aggiorna il banner avviso via hx-swap-oob (vedi Avvisi/views.py) senza refresh. {% endcomment %}
 <div id="avviso-chiusura-container">
 {% include 'partials/avviso_chiusura.html' %}
 </div>
@@ -297,11 +247,7 @@ presente prima (nessun avviso attivo al caricamento della pagina).
 
 
 
-  {% comment %}
-  "site-main" cresce per riempire lo spazio verticale residuo (flex: 1 0
-  auto in main.css): senza, su pagine con poco contenuto il footer non
-  arriva al fondo dello schermo da telefono.
-  {% endcomment %}
+  {% comment %} "site-main" cresce per riempire lo spazio verticale residuo, cosi' il footer arriva in fondo. {% endcomment %}
   <main class="site-main">
   {% block contenuto %}
 
@@ -338,11 +284,7 @@ presente prima (nessun avviso attivo al caricamento della pagina).
                 <i class="bi bi-envelope me-2"></i>Email: info@saniscope-chimica.it
               </a>
             </li>
-            {% comment %}
-            Dati fiscali su una riga sola, in corpo minore
-            (".footer-dati-fiscali"): meno peso visivo, meno altezza da
-            telefono.
-            {% endcomment %}
+            {% comment %} Dati fiscali su una riga sola, in corpo minore. {% endcomment %}
             <li class="nav-item footer-dati-fiscali">COD.FISC/P.IVA: 00156060519 · Codice Univoco Fatturazione Elettronica: M5UXCR1</li>
           </ul>
         </div>
@@ -362,10 +304,7 @@ presente prima (nessun avviso attivo al caricamento della pagina).
         </div>
       </div>
 
-      {% comment %}
-      Copyright e icone social in un'unica fascia sotto le due colonne:
-      meno spazio occupato rispetto a righe/colonne separate.
-      {% endcomment %}
+      {% comment %} Copyright e icone social in un'unica fascia sotto le due colonne. {% endcomment %}
       <div class="footer-bottom d-flex flex-column justify-content-center align-items-center gap-2">
         <div class="footer-copyright">© Saniscope-chimica</div>
         <ul class="nav list-unstyled d-flex gap-3 mb-0 footer-social">
@@ -375,10 +314,7 @@ presente prima (nessun avviso attivo al caricamento della pagina).
               <i class="bi bi-facebook"></i>
             </a>
           </li>
-          {% comment %}
-          Niente icone tel/email qui: gia' presenti per esteso nella
-          colonna "footer-brand" sopra.
-          {% endcomment %}
+          {% comment %} Niente icone tel/email qui: gia' presenti nella colonna "footer-brand" sopra. {% endcomment %}
           <li>
             <a href="https://wa.me/+393777093225" target="_blank"
               title="nuemro di Whatsapp: +393777093225">
@@ -396,17 +332,10 @@ presente prima (nessun avviso attivo al caricamento della pagina).
     {% endif %}
   </div>
 
-  <!-- Idiomorph: usata da carrello-flottante.js per aggiornare la lista
-       prodotti preservando i nodi DOM invariati (vedi
-       Docs/AJAX/carrello_flottante.md). Versione pinnata. -->
+  <!-- Idiomorph: usata da carrello-flottante.js per aggiornare la lista prodotti. Versione pinnata. -->
   <script src="https://cdn.jsdelivr.net/npm/idiomorph@0.4.0/dist/idiomorph.min.js"></script>
 
-  <!-- ESPERIMENTO (in valutazione): htmx per sostituire gradualmente il
-       boilerplate fetch/CSRF/target scritto a mano, usato finora per
-       toggle/modifica/eliminazione avviso (partials/tabella_avvisi.html,
-       partials/form_avviso.html). CSRF letto dalla pagina, mai dal
-       cookie. "idiomorph-htmx.min.js" registra Idiomorph come estensione
-       "morph" di htmx: va caricata dopo htmx e Idiomorph. -->
+  <!-- ESPERIMENTO (in valutazione): htmx per toggle/modifica/eliminazione avviso. CSRF letto dalla pagina, mai dal cookie. -->
   <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/idiomorph@0.4.0/dist/idiomorph-htmx.min.js"></script>
 

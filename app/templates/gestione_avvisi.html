@@ -4,20 +4,12 @@
 
 {% block contenuto %}
 
-{% comment %}
-base.html non ha un blocco dedicato al <head> per CSS aggiuntivo: questi due
-<link> restano qui (fuori da <head>, ma dentro <body>) invece che spostare
-"contenuto" - il browser li applica comunque correttamente, e non serve
-toccare base.html (usato da tutte le pagine del sito) solo per una pagina.
-{% endcomment %}
+{% comment %} <link> aggiuntivi fuori da <head> (base.html non ha un blocco dedicato): applicati comunque correttamente dal browser. {% endcomment %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
 <link rel="stylesheet" href="{% static 'css/calendario-avvisi.css' %}">
 
 <div class="container">
-    {% comment %}
-    Riga titolo agganciata sotto la navbar da desktop durante lo scroll,
-    spostata nella pillola della navbar da telefono (static/js/intestazione-avvisi-sticky.js).
-    {% endcomment %}
+    {% comment %} Riga titolo agganciata sotto la navbar da desktop durante lo scroll, spostata nella pillola della navbar da telefono. {% endcomment %}
     <div id="sentinellaIntestazione" class="sentinella-intestazione"></div>
 
     <div class="d-flex align-items-center position-relative pt-5 mb-4 intestazione-categoria-sticky">
