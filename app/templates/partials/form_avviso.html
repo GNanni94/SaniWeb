@@ -64,11 +64,23 @@
   restando annidato dentro "modal-body" invece che un fratello diretto
   dentro "modal-content" (qui non c'e' un modal-header, ne' un modal-footer
   usato altrove nel progetto come fratello, vedi form_documento.html): resta
-  dentro il <form> perche' contiene la checkbox "Attiva ora", che deve
-  restare tra i campi inviati al submit
+  dentro il <form> perche' contiene il campo "attivo", che deve restare tra
+  i campi inviati al submit
   {% endcomment %}
   <div class="modal-footer justify-content-between">
-    {{ form.attivo|as_crispy_field }}
+    {% comment %}
+    Campo nascosto (widget HiddenInput in forms.py, niente checkbox): il
+    suo valore "True"/"False" e' scritto direttamente dalla pillola sotto
+    via JS (gestione-avvisi.js) ed e' lui a partire nel submit del form
+    {% endcomment %}
+    {{ form.attivo }}
+    {% comment %}
+    Testo iniziale gia' corretto lato server (stesso valore che
+    gestione-avvisi.js legge poi da "id_attivo" per gli aggiornamenti dopo
+    un click): se il JS non parte la pillola non e' cliccabile, ma mostra
+    comunque lo stato giusto invece di restare vuota
+    {% endcomment %}
+    <button type="button" class="btn btn-navbar rounded-pill" id="pillola-attivo-avviso">{% if form.attivo.value %}Disattiva{% else %}Attiva{% endif %}</button>
     <button type="submit" class="btn btn-navbar">Salva</button>
   </div>
 </form>

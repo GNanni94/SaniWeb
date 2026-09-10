@@ -283,7 +283,16 @@ Se manca, "login-modal.js" scatta il fallback (redirect a
       hx-headers='{"X-CSRFToken": "{{ csrf_token }}", "X-Requested-With": "XMLHttpRequest"}'
       hx-ext="morph">
 
+{% comment %}
+Contenitore con id stabile: quando un avviso viene attivato/disattivato/
+salvato/eliminato da gestione_avvisi.html, la view rimanda insieme al resto
+un frammento con lo stesso id e "hx-swap-oob" (vedi Avvisi/views.py), cosi'
+htmx aggiorna qui il banner senza refresh anche se l'id non era ancora
+presente prima (nessun avviso attivo al caricamento della pagina).
+{% endcomment %}
+<div id="avviso-chiusura-container">
 {% include 'partials/avviso_chiusura.html' %}
+</div>
 {% include 'partials/avviso_precursore.html' %}
 
 

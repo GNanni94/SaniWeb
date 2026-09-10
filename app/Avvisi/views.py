@@ -1,8 +1,11 @@
 from django.contrib.auth.decorators import user_passes_test
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods, require_POST
 
+from .context_processors import contesto_avviso_corrente
 from .forms import AvvisoChiusuraForm
 from .models import AvvisoChiusura
 
@@ -23,7 +26,14 @@ def _risposta_tabella(request):
         # pagina rotta, si torna alla pagina completa (POST-redirect-GET)
         return redirect('gestione_avvisi')
     avvisi = AvvisoChiusura.objects.all()
-    return render(request, 'partials/tabella_avvisi.html', {'avvisi': avvisi})
+    html_tabella = render_to_string(request=request, template_name='partials/tabella_avvisi.html', context={'avvisi': avvisi})
+    # Frammento "out-of-band" aggiunto in coda: aggiorna il banner
+    # dell'avviso corrente (partials/avviso_chiusura.html, incluso in
+    # base.html) ovunque si trovi nella pagina, cosi' attivare/disattivare/
+    # salvare/eliminare un avviso da qui lo mostra o lo nasconde subito,
+    # senza refresh
+    html_banner = render_to_string(request=request, template_name='partials/avviso_chiusura_oob.html', context=contesto_avviso_corrente())
+    return HttpResponse(html_tabella + html_banner)
 
 
 def _risposta_form_errori(request, form, azione_url):

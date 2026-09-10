@@ -1,0 +1,11 @@
+{% comment %}
+Stesso contenuto di avviso_chiusura.html, avvolto per un aggiornamento
+"out-of-band" via htmx: "hx-swap-oob" fa sostituire a htmx questo elemento
+(individuato per id, ovunque si trovi nella pagina, non solo dentro il
+bersaglio principale della richiesta) con il contenitore già presente in
+base.html, indipendentemente dal target/swap dichiarato sul form o sul
+bottone che ha generato la risposta.
+{% endcomment %}
+<div id="avviso-chiusura-container" hx-swap-oob="true">
+{% include 'partials/avviso_chiusura.html' %}
+</div>

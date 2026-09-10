@@ -1,9 +1,10 @@
 // Gestione avvisi di chiusura: apre il pop-up "+Nuovo avviso", smista la
 // risposta del salvataggio in base all'esito (successo -> tabella, errori
 // di validazione -> modal), apre il modal di "Modifica" solo a form
-// caricato, inizializza Flatpickr sui campi data. Il resto (apertura di
-// "Modifica" con i dati precompilati, salvataggio, eliminazione, toggle)
-// e' gestito via htmx.
+// caricato, inizializza Flatpickr sui campi data e la pillola "Attiva"/
+// "Disattiva" del form. Il resto (apertura di "Modifica" con i dati
+// precompilati, salvataggio, eliminazione, toggle nella tabella) e'
+// gestito via htmx.
 (function () {
     var tabellaContainer = document.getElementById('tabella-avvisi');
     var modalEl = document.getElementById('modalAvviso');
@@ -279,6 +280,31 @@
     }
     inizializzaCalendarioDate(modalBody);
 
+    // Pillola "Attiva"/"Disattiva" nel footer del pop-up: pilota il campo
+    // nascosto "id_attivo" (HiddenInput, vedi forms.py), che resta lui a
+    // mandare il valore "True"/"False" al server nel submit del form. La
+    // pillola mostra l'azione che il click compirebbe (l'opposto dello
+    // stato corrente), non lo stato stesso
+    function inizializzaToggleAttivo(container) {
+        var campoAttivo = container.querySelector('#id_attivo');
+        var pillola = container.querySelector('#pillola-attivo-avviso');
+        if (!campoAttivo || !pillola) {
+            return;
+        }
+        function eAttivo() {
+            return campoAttivo.value === 'True';
+        }
+        function aggiornaTesto() {
+            pillola.textContent = eAttivo() ? 'Disattiva' : 'Attiva';
+        }
+        pillola.addEventListener('click', function () {
+            campoAttivo.value = eAttivo() ? 'False' : 'True';
+            aggiornaTesto();
+        });
+        aggiornaTesto();
+    }
+    inizializzaToggleAttivo(modalBody);
+
     if (btnNuovo) {
         // L'apertura del modal per "+Nuovo avviso" e' dichiarativa
         // (data-bs-toggle/data-bs-target su questo bottone), gestita da
@@ -289,6 +315,7 @@
             // appena inserito con "innerHTML ="
             htmx.process(modalBody);
             inizializzaCalendarioDate(modalBody);
+            inizializzaToggleAttivo(modalBody);
         });
     }
 
@@ -302,6 +329,7 @@
             return;
         }
         inizializzaCalendarioDate(modalBody);
+        inizializzaToggleAttivo(modalBody);
         if (event.detail.requestConfig && event.detail.requestConfig.verb === 'get') {
             modalBootstrap.show();
         }

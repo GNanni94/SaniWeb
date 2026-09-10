@@ -221,8 +221,7 @@ class AvvisoChiusuraFormTest(TestCase):
             "data_inizio": "2026-08-07",
             "data_fine": "2026-08-23",
             "motivo_chiusura": "ferie estive",
-            # "attivo" omesso: una checkbox non spuntata non manda alcun
-            # valore nel POST reale, il form deve comunque validare
+            # "attivo" omesso dal POST: il form deve comunque validare
             # (BooleanField del model genera un form field required=False)
         })
         self.assertTrue(form.is_valid(), form.errors)

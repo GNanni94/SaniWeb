@@ -75,24 +75,6 @@
   border-radius: 999px;
 }
 
-/* Checkbox e label "Attiva ora" centrate sullo stesso asse verticale tramite flex, al posto del float di default */
-#modalAvvisoBody .modal-footer .form-check {
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-  padding-left: 0;
-  min-height: 0;
-}
-
-#modalAvvisoBody .modal-footer .form-check-input {
-  float: none;
-  margin: 0;
-}
-
-#modalAvvisoBody .modal-footer .form-check-label {
-  margin: 0;
-}
-
 .flatpickr-calendar {
   font-family: var(--font-base);
   border-radius: 1rem;
