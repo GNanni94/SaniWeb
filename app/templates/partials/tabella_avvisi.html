@@ -1,59 +1,52 @@
 <div id="tabella-avvisi">
   {% if avvisi %}
   <div class="table-responsive">
-    {% comment %}
-    Niente "table-bordered" qui: applicarlo all'intera tabella e poi
-    togliere il bordo solo alla cella Azioni con "border-0" non basta,
-    perche' la riga orizzontale della <tr> e il bordo della cella Stato
-    accanto restano visibili comunque. Il bordo viene invece aggiunto a
-    mano (utility "border" di Bootstrap) solo alle celle delle 4 colonne
-    vere. La colonna Azioni ha comunque bisogno di "border-0": la classe
-    base ".table" di Bootstrap (indipendente da "table-bordered") imposta
-    di suo un bordo inferiore su ogni cella della tabella, quindi va
-    azzerato esplicitamente anche qui.
-    {% endcomment %}
     <table class="table table-sm table-hover text-center align-middle">
       <thead class="table-navbar align-middle">
         <tr>
           <th scope="col" class="border">Inizio</th>
           <th scope="col" class="border">Fine</th>
           <th scope="col" class="border">Motivo</th>
-          <th scope="col" class="border-0 bg-transparent text-nowrap" style="width: 1%;"></th>
-          <th scope="col" class="border-0 bg-transparent text-nowrap" style="width: 1%;"></th>
+          <th scope="col" class="border">Azioni</th>
         </tr>
       </thead>
       <tbody>
         {% for avviso in avvisi %}
-        <tr id="avviso-riga-{{ avviso.pk }}" data-pk="{{ avviso.pk }}">
+        {% comment %}
+        Click sulla riga (Inizio/Fine/Motivo) = "Modifica". "hx-trigger" con
+        filtro esclude i click che partono dalla cella "Azioni" (classe
+        "colonna-azioni-riga-avviso"): altrimenti, propagando fino alla
+        riga, aprirebbero anche il pop-up di modifica.
+        {% endcomment %}
+        <tr id="avviso-riga-{{ avviso.pk }}" data-pk="{{ avviso.pk }}"
+            class="riga-avviso-cliccabile"
+            hx-get="{% url 'modifica_avviso' avviso.pk %}"
+            hx-target="#modalAvvisoBody"
+            hx-swap="innerHTML"
+            hx-trigger="click[!event.target.closest('.colonna-azioni-riga-avviso')]">
           <td class="border">{{ avviso.data_inizio|date:"d F" }}</td>
           <td class="border">{{ avviso.data_fine|date:"d F" }}</td>
           <td class="border">{{ avviso.motivo_chiusura }}</td>
-          <td class="border-0 bg-transparent">
-            <div class="form-check form-switch d-flex justify-content-center">
-              <input class="form-check-input toggle-attivo-avviso" type="checkbox" role="switch"
-                     hx-post="{% url 'toggle_avviso' avviso.pk %}"
-                     hx-target="#tabella-avvisi"
-                     hx-swap="morph:outerHTML"
-                     {% if avviso.attivo %}checked{% endif %}
-                     aria-label="Attivo">
+          <td class="border colonna-azioni-riga-avviso">
+            <div class="d-flex align-items-center justify-content-center gap-2">
+              <button type="button" class="btn btn-sm p-0 border-0 bg-transparent toggle-attivo-avviso"
+                      hx-post="{% url 'toggle_avviso' avviso.pk %}"
+                      hx-target="#tabella-avvisi"
+                      hx-swap="morph:outerHTML"
+                      title="{% if avviso.attivo %}Disattiva{% else %}Attiva{% endif %}"
+                      aria-label="{% if avviso.attivo %}Disattiva{% else %}Attiva{% endif %}">
+                <i class="bi {% if avviso.attivo %}bi-check-circle-fill{% else %}bi-dash-circle{% endif %}"
+                   style="color: var(--color-primary);"></i>
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-danger rounded-circle p-0"
+                      hx-post="{% url 'elimina_avviso' avviso.pk %}"
+                      hx-target="#tabella-avvisi"
+                      hx-swap="morph:outerHTML"
+                      hx-confirm="Eliminare questo avviso?"
+                      title="Elimina" aria-label="Elimina">
+                <i class="bi bi-trash"></i>
+              </button>
             </div>
-          </td>
-          <td class="border-0 bg-transparent text-nowrap" style="width: 1%;">
-            <button type="button" class="btn btn-sm btn-outline-navbar"
-                    hx-get="{% url 'modifica_avviso' avviso.pk %}"
-                    hx-target="#modalAvvisoBody"
-                    hx-swap="innerHTML"
-                    title="Modifica" aria-label="Modifica">
-              <i class="bi bi-pencil-square"></i>
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-danger"
-                    hx-post="{% url 'elimina_avviso' avviso.pk %}"
-                    hx-target="#tabella-avvisi"
-                    hx-swap="morph:outerHTML"
-                    hx-confirm="Eliminare questo avviso?"
-                    title="Elimina" aria-label="Elimina">
-              <i class="bi bi-trash"></i>
-            </button>
           </td>
         </tr>
         {% endfor %}

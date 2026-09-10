@@ -2,6 +2,54 @@
    Avviso di chiusura: sovrascrive colori, forme e tipografia del tema base
    di flatpickr con quelli del sito. */
 
+/* Cursore a mano sulla riga della tabella avvisi (click = Modifica) */
+.riga-avviso-cliccabile {
+  cursor: pointer;
+}
+
+/* Angoli tondi sulla tabella, stessa tecnica di "#listProdottiTable" in
+   prodotti.css (border-radius + overflow:hidden direttamente sull'elemento) */
+#tabella-avvisi table {
+  border-radius: .75rem;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+
+/* Bottone "Attivo": solo icona, senza bordo/cerchio. Font-size dell'icona
+   uguale alla larghezza del box (e non un valore piu' piccolo come
+   "fs-*"): l'icona stessa disegna un cerchio, deve arrivare al bordo del
+   box per sembrare della stessa dimensione del cerchio bordato "Elimina"
+   accanto */
+#tabella-avvisi .toggle-attivo-avviso {
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.25rem;
+}
+
+/* Cerchio del bottone "Elimina": stesso stile del bottone cestino del
+   carrello flottante (".carrello-delete-btn" in carrello.css) - bordo
+   rosso, nessun riempimento, stessa dimensione del cerchio "Attivo"
+   accanto. L'inversione dei colori al passaggio del mouse (sfondo rosso
+   pieno, icona bianca) e' gia' il comportamento nativo di
+   "btn-outline-danger" di Bootstrap, nessun CSS aggiuntivo necessario */
+#tabella-avvisi .btn-outline-danger {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-width: 2px;
+}
+
+/* Cerchio del bottone "Elimina": stesso stile del bottone cestino del
+   carrello flottante (".carrello-delete-btn" in carrello.css) - bordo
+   rosso, nessun riempimento, dimensione fissa per farlo tondo */
+.cella-cerchio-griglia-avvisi .btn-outline-danger {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-width: 2px;
+}
+
 /* Angoli del pop-up "Avviso di chiusura" arrotondati, contenuto ritagliato ai bordi */
 #modalAvviso .modal-content {
   border-radius: 24px;

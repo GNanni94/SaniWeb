@@ -110,17 +110,6 @@
   box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
 }
 
-/* Interruttore "Attivo" nella lista degli avvisi: blu navbar invece del blu "primary" di default di Bootstrap */
-.toggle-attivo-avviso:checked {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-.toggle-attivo-avviso:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
-}
-
 /* Toglie l'asterisco alle etichette dei campi obbligatori del form documento */
 #form-documento .asteriskField {
   display: none;
