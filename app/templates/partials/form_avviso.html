@@ -5,45 +5,14 @@
       hx-swap="morph:outerHTML"
       data-azione-nuovo="{% url 'nuovo_avviso' %}">
   {% csrf_token %}
-  {% comment %}
-  "campi-date-avviso" resta visibile (due campi <input type="date"> nativi,
-  precompilati/validati lato server come sempre) finche' il JS non carica:
-  e' il fallback se flatpickr non si inizializza (rete assente, CDN giu').
-  Quando invece flatpickr parte, gestione-avvisi.js nasconde questo blocco e
-  mostra al suo posto "calendario-periodo-avviso" - un calendario unico,
-  incorporato nella pagina (non un popup), su cui scegliere inizio e fine
-  con due click. I due <input> restano nel DOM (solo nascosti): sono loro a
-  mandare i valori al server, flatpickr li aggiorna ad ogni click sul
-  calendario indipendentemente dal fatto che siano visibili o meno.
-  {% endcomment %}
+  {% comment %} Fallback senza flatpickr: due <input type="date"> nativi, nascosti da gestione-avvisi.js quando il calendario si inizializza. {% endcomment %}
   <div id="campi-date-avviso">
     {{ form.data_inizio|as_crispy_field }}
     {{ form.data_fine|as_crispy_field }}
   </div>
   <div class="mb-3" id="blocco-calendario-avviso" hidden>
     <label class="form-label">Periodo di chiusura</label>
-    {% comment %}
-    Il calendario incorporato (vedi calendario-avvisi.css) resta alla sua
-    larghezza naturale (7 colonne fisse, non estendibile); "justify-content-
-    start" allinea la coppia calendario+date a sinistra nella sezione
-    (sfondo grigio, vedi calendario-avvisi.css) invece di centrarla come
-    gruppo - cosi' lo spazio a sinistra del calendario resta esattamente il
-    padding della sezione (uguale a quello sotto), invece di dipendere da
-    quanto e' largo il blocco delle date accanto. Il blocco date ha il suo
-    spazio naturale a destra, senza dover stringere ne' il calendario (che
-    non puo' restringersi sotto la sua larghezza fissa, vedi sotto) ne'
-    farlo traboccare - la larghezza del pop-up (#modalAvviso .modal-dialog,
-    vedi calendario-avvisi.css) e' calibrata apposta per contenere entrambi
-    senza sovrapposizioni. "Data inizio"/"Data fine" sono in due contenitori
-    separati (non piu' quattro <div> di seguito nello stesso blocco)
-    apposta: sotto una certa larghezza (vedi media query in
-    calendario-avvisi.css) il calendario passa sopra alle date, e le due
-    date passano da "una sotto l'altra" a "una a fianco all'altra" - un
-    cambio di direzione che una CSS media query puo' applicare in un colpo
-    solo (".flex-column" -> ".flex-row") solo se le due date sono gia' due
-    elementi distinti da riordinare, non testo libero nello stesso
-    contenitore
-    {% endcomment %}
+    {% comment %} Calendario a larghezza fissa allineato a sinistra; le due date sono in due contenitori separati per poter cambiare direzione in una media query sotto una certa larghezza. {% endcomment %}
     <div class="d-flex align-items-center justify-content-start gap-4" id="riga-periodo-avviso">
       <div id="calendario-periodo-avviso"></div>
       <div class="d-flex gap-3" id="valori-periodo-avviso">
@@ -59,27 +28,11 @@
     </div>
   </div>
   {{ form.motivo_chiusura|as_crispy_field }}
-  {% comment %}
-  "modal-footer" di Bootstrap (bordo superiore + spaziatura standard), pur
-  restando annidato dentro "modal-body" invece che un fratello diretto
-  dentro "modal-content" (qui non c'e' un modal-header, ne' un modal-footer
-  usato altrove nel progetto come fratello, vedi form_documento.html): resta
-  dentro il <form> perche' contiene il campo "attivo", che deve restare tra
-  i campi inviati al submit
-  {% endcomment %}
+  {% comment %} modal-footer annidato dentro il <form>, non un fratello diretto: contiene il campo "attivo", inviato col submit. {% endcomment %}
   <div class="modal-footer justify-content-between">
-    {% comment %}
-    Campo nascosto (widget HiddenInput in forms.py, niente checkbox): il
-    suo valore "True"/"False" e' scritto direttamente dalla pillola sotto
-    via JS (gestione-avvisi.js) ed e' lui a partire nel submit del form
-    {% endcomment %}
+    {% comment %} Campo nascosto (HiddenInput): il valore lo scrive la pillola sotto via JS (gestione-avvisi.js). {% endcomment %}
     {{ form.attivo }}
-    {% comment %}
-    Testo iniziale gia' corretto lato server (stesso valore che
-    gestione-avvisi.js legge poi da "id_attivo" per gli aggiornamenti dopo
-    un click): se il JS non parte la pillola non e' cliccabile, ma mostra
-    comunque lo stato giusto invece di restare vuota
-    {% endcomment %}
+    {% comment %} Testo iniziale gia' corretto lato server, coerente con lo stato aggiornato da gestione-avvisi.js dopo un click. {% endcomment %}
     <button type="button" class="btn btn-navbar rounded-pill" id="pillola-attivo-avviso">{% if form.attivo.value %}Disattiva{% else %}Attiva{% endif %}</button>
     <button type="submit" class="btn btn-navbar">Salva</button>
   </div>

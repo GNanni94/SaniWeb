@@ -1,44 +1,7 @@
 {% comment %}
-Filtro sottocategoria di prodotti_tabella.html, passato come "controlli_template"
-a "partials/intestazione_categoria.html": finisce cosi' nella stessa riga del
-titolo, a destra - stessa tecnica di prodotti_card.html/
-"partials/controlli_ricerca_filtro_card.html" (l'h1 li' ha "mx-auto": senza
-altri margini "auto" sui controlli, lo spazio libero della riga va tutto ai
-margini dell'h1, che quindi resta centrato nello spazio a sinistra dei
-controlli mentre loro restano appiccicati al bordo destro) - sia da desktop
-sia da telefono. Da telefono passa solo alla versione "sola icona" (imbuto,
-vedi prodotti.css), ma senza mai uscire dalla riga del titolo.
-
-Dropdown Bootstrap (bottone + "dropdown-menu"), non piu' una <select>
-nativa - stesso motivo e stessa tecnica di prodotti_card.html/
-"partials/controlli_ricerca_filtro_card.html": il popup delle opzioni di
-una <select> e' disegnato dal browser/OS, non da Bootstrap/CSS del sito.
-Stesso id "filtroSottocategoria" e stessa struttura wrapper/icona di
-prima (letti dallo script inline di prodotti_tabella.html e da
-prodotti.css). A differenza del filtro di prodotti_card.html (dove ogni
-voce porta l'URL della sottocategoria come "data-url", il filtro qui
-naviga via AJAX), qui il filtro resta client-side puro (DataTables): ogni
-voce porta il nome della sottocategoria come "data-valore" (stringa vuota
-per "Tutte le sottocategorie"), letto dallo script inline che lo passa a
-"api.column(3).search(...)" - nessuna voce e' mai gia' "active" al primo
-caricamento (il filtro non ha uno stato server-side, riparte sempre da
-"Tutte le sottocategorie").
-
-La select esisteva gia' nel template (prima in una riga separata sopra la
-tabella, spostata qui solo via JS in "initComplete" con un "d-none" nel
-mezzo per non farla comparire un istante nel posto sbagliato): renderizzata
-gia' qui, nella posizione finale, non serve piu' nessuno spostamento via JS.
-
-La ricerca non c'e' in questo partial: e' generata da DataTables stesso, non
-esiste finche' la tabella non si e' inizializzata - viene aggiunta qui
-accanto, dentro "#controlliRicercaFiltroTabellaWrapper" qui sotto, via JS in
-"initComplete" (vedi prodotti_tabella.html). Quel wrapper (vuoto finche' il
-JS non ci mette la ricerca dentro) e' quello che sotto i 576px diventa
-"position: fixed" e la trasforma in un bottone fluttuante in basso a
-sinistra (stesso principio di "#controlliRicercaFiltroWrapper" in
-prodotti_card.html, id diverso per restare indipendente da quella pagina) -
-il filtro qui sopra non ne fa parte apposta, cosi' resta sempre nella riga
-del titolo.
+Filtro sottocategoria di prodotti_tabella.html, nella riga del titolo a destra (stessa tecnica di controlli_ricerca_filtro_card.html).
+Dropdown Bootstrap al posto di una <select> nativa; il filtro qui e' client-side (DataTables), via "data-valore" letto dallo script inline che lo passa a "api.column(3).search(...)".
+La ricerca non e' in questo partial: viene aggiunta in #controlliRicercaFiltroTabellaWrapper da JS in "initComplete", che sotto i 576px la trasforma in un bottone fluttuante in basso a sinistra.
 {% endcomment %}
 <div class="filtro-a-comparsa dropdown flex-grow-1 flex-shrink-1" style="max-width: 12rem; min-width: 0;" id="filtroTabellaWrapper">
     <button type="button" id="filtroSottocategoria" class="form-select filtro-a-comparsa-select" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Filtra per sottocategoria"></button>

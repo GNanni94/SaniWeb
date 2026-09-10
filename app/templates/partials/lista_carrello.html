@@ -1,17 +1,4 @@
-{% comment %}
-Lista prodotti nel carrello (carrello.html), separata in un partial cosi'
-puo' essere restituita anche come frammento dalle azioni aumenta/diminuisci/
-elimina quando la richiesta arriva in AJAX dalla pagina carrello (vedi
-static/js/carrello-ajax.js e Carrello/views.py:_render_lista_carrello) -
-stesso pattern AJAX (fetch + frammento HTML) gia' usato per
-prodotti_card.html.
-
-L'id "listaCarrelloItems" e "data-totale-articoli" sono letti dal JS per
-sostituire il contenuto e aggiornare il contatore "N articoli" in testata
-senza ricaricare la pagina intera. Richiede in context "object_list" e
-"totale_elementi_carrello" (gia' presenti sia nel context di
-CarrelloListView sia in quello del frammento AJAX).
-{% endcomment %}
+{% comment %} Lista prodotti nel carrello, restituita anche come frammento AJAX dalle azioni aumenta/diminuisci/elimina. #listaCarrelloItems e data-totale-articoli sono letti dal JS. {% endcomment %}
 <ul class="list-unstyled d-flex flex-column gap-4 mb-0" id="listaCarrelloItems" data-totale-articoli="{{ totale_elementi_carrello }}">
 {% for elementi_carrello in object_list %}
 <li class="card rounded-4 carrello-item-card">

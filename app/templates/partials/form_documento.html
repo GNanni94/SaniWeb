@@ -4,26 +4,9 @@
 {% endcomment %}
 <form id="form-documento" method="post" action="{{ azione_url }}" enctype="multipart/form-data" data-azione-nuovo="{% url 'nuovo_documento' %}" novalidate>
   {% csrf_token %}
-  {% comment %}
-  Stesso raggruppamento di "Categoria" sotto, per "Nome file" insieme al
-  campo file: unico bottone a cerchio accanto al campo (non piu' una
-  pillola "Carica File" a parte), invece di due righe separate - il campo
-  di testo si restringe per lasciargli spazio.
-  {% endcomment %}
+  {% comment %} Stesso raggruppamento di "Categoria" sotto, per "Nome file" + campo file con un unico bottone a cerchio accanto. {% endcomment %}
   <div class="gruppo-campo-documento">
-    {% comment %}
-    Il vero campo file di Django (etichetta + <input>, vedi "#campoFile
-    #div_id_file" in documenti.css) resta nel DOM ma non si vede mai:
-    l'unico modo per aprire il selettore nativo del sistema operativo e'
-    il cerchio "#btnCaricaFile" qui sotto (gestione-documenti.js,
-    mostraSelettoreFile - un <input type=file> nascosto puo' comunque
-    essere aperto via ".click()" da un vero gesto dell'utente). L'icona
-    del cerchio cambia da upload a reload una volta scelto un file (o, in
-    modifica, per il file gia' presente - vedi gestione-documenti.js,
-    impostaCampoFileEsistente), stessa azione "mostraSelettoreFile" in
-    entrambi gli stati - solo l'icona segnala se si sta scegliendo un
-    file per la prima volta o sostituendo quello gia' scelto.
-    {% endcomment %}
+    {% comment %} Campo file di Django nascosto: si apre tramite il cerchio #btnCaricaFile (gestione-documenti.js). L'icona cambia da upload a reload dopo la scelta di un file. {% endcomment %}
     <div id="campoFile">
       {{ form.file|as_crispy_field }}
     </div>
@@ -34,27 +17,13 @@
         <i class="bi bi-upload" id="iconaCaricaFile"></i>
       </button>
     </div>
-    {% comment %}
-    Nome del file vero e proprio (con estensione, a differenza di "Nome
-    file" sopra), cliccabile per aprirlo - una verifica immediata che sia
-    il file giusto, senza dover prima salvare. Nascosto finche' non c'e'
-    ne' un file appena scelto ne' un file gia' presente in modifica (vedi
-    gestione-documenti.js, impostaCampoFileEsistente): un file appena
-    scelto (non ancora caricato sul server) apre un URL locale temporaneo
-    ("blob:", creato con URL.createObjectURL - revocato appena se ne
-    sceglie un altro, per non accumularli in memoria), un file gia'
-    presente apre il suo URL reale.
-    {% endcomment %}
+    {% comment %} Nome file con estensione, cliccabile per aprirlo: URL "blob:" per un file appena scelto, URL reale per uno gia' presente. {% endcomment %}
     <a id="linkFileSelezionato" href="#" target="_blank" class="d-none d-block small mt-2 text-reset text-truncate"></a>
     {% if form.nome_file.errors %}
     <div class="text-danger small mt-1">{{ form.nome_file.errors|striptags }}</div>
     {% endif %}
   </div>
-  {% comment %}
-  Il <select> di categoria resta nascosto: "Seleziona categoria" apre il
-  menu a tendina, "Crea categoria" mostra "Nome categoria" vuoto e
-  modificabile.
-  {% endcomment %}
+  {% comment %} Il <select> di categoria resta nascosto: "Seleziona categoria" apre il menu, "Crea categoria" mostra "Nome categoria" vuoto. {% endcomment %}
   <div class="gruppo-campo-documento">
     <div id="campoCategoria">
       {{ form.categoria|as_crispy_field }}

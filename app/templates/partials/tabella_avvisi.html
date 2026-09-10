@@ -12,12 +12,7 @@
       </thead>
       <tbody>
         {% for avviso in avvisi %}
-        {% comment %}
-        Click sulla riga (Inizio/Fine/Motivo) = "Modifica". "hx-trigger" con
-        filtro esclude i click che partono dalla cella "Azioni" (classe
-        "colonna-azioni-riga-avviso"): altrimenti, propagando fino alla
-        riga, aprirebbero anche il pop-up di modifica.
-        {% endcomment %}
+        {% comment %} Click sulla riga apre "Modifica"; hx-trigger esclude i click nella cella "Azioni". {% endcomment %}
         <tr id="avviso-riga-{{ avviso.pk }}" data-pk="{{ avviso.pk }}"
             class="riga-avviso-cliccabile"
             hx-get="{% url 'modifica_avviso' avviso.pk %}"

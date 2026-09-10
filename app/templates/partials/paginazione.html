@@ -1,12 +1,4 @@
-{% comment %}
-Paginazione riusabile per un qualunque oggetto Page di Django (has_previous,
-number, paginator.num_pages, has_next, ecc.). Parametri:
-- pagina (obbligatorio): l'oggetto Page da paginare
-- extra_querystring (opzionale): querystring aggiuntiva da riportare in ogni
-  link (es. filtro/ricerca attivi), gia' con "&" iniziale se presente
-- id_paginazione (opzionale): id sul "<nav>", per uno stile CSS scoped su
-  quella singola pagina invece che sulla ".pagination" di Bootstrap ovunque
-{% endcomment %}
+{% comment %} Paginazione riusabile per un oggetto Page di Django. Parametri: pagina (obbligatorio); extra_querystring, id_paginazione (opzionali). {% endcomment %}
 {% if pagina %}
 <div class="py-4">
     <nav aria-label="Page navigation example"{% if id_paginazione %} id="{{ id_paginazione }}"{% endif %}>

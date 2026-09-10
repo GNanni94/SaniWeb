@@ -1,39 +1,6 @@
-{% comment %}
-Filtro sottocategoria + ricerca prodotti di prodotti_card.html, passati come
-"controlli_template" a "partials/intestazione_categoria.html": finiscono
-cosi' nella stessa riga del titolo, a destra (l'h1 li' ha "mx-auto": senza
-altri margini "auto" sui controlli, lo spazio libero della riga va tutto ai
-margini dell'h1, che quindi resta centrato nello spazio a sinistra dei
-controlli mentre loro restano appiccicati al bordo destro) - sia da desktop
-sia da telefono.
-
-Il filtro resta sempre un figlio diretto della riga (niente wrapper attorno
-a lui): da telefono passa solo alla versione "sola icona" (imbuto, vedi
-prodotti.css), ma senza mai uscire dalla riga del titolo.
-
-La ricerca invece e' dentro "#controlliRicercaFiltroWrapper": da qui in su
-"display: contents" lo rende invisibile al layout (resta un figlio diretto
-della riga del titolo esattamente come se questo wrapper non esistesse), ma
-sotto i 576px (vedi prodotti.css) diventa "position: fixed" e la trasforma
-in un bottone fluttuante in basso a sinistra - unico elemento tra i due a
-farlo, il wrapper serve solo a lei.
-{% endcomment %}
+{% comment %} Filtro sottocategoria + ricerca prodotti, nella riga del titolo a destra. La ricerca e' dentro #controlliRicercaFiltroWrapper, che sotto i 576px diventa un bottone fluttuante in basso a sinistra. {% endcomment %}
 {% if sottocategorie|length > 0 %}
-{% comment %}
-"max-width: 12rem", non piu' "14rem": stessa larghezza della ricerca qui
-accanto (".ricerca-a-comparsa" in prodotti.css), cosi' i due controlli sono
-della stessa grandezza - anche in prodotti_tabella.html, che replica la
-stessa tecnica via JS
-
-Dropdown Bootstrap (bottone + "dropdown-menu"), non piu' una <select>
-nativa: il popup delle opzioni di una <select> e' disegnato dal browser/OS
-(non da Bootstrap/CSS del sito), quindi con tema di sistema scuro poteva
-uscire scuro invece che nel bianco coerente col resto del sito. Stesso id
-"prodottiCardFiltro" e stessa struttura wrapper/icona di prima (letti da
-filtro-prodotti-ajax.js e da prodotti.css): il bottone resta sempre "solo
-icona" (testo vuoto, l'imbuto sopra lo copre) esattamente come la <select>
-di prima aveva "color: transparent" - vedi prodotti.css.
-{% endcomment %}
+{% comment %} Dropdown Bootstrap (bottone + dropdown-menu) al posto di una <select> nativa, per un popup coerente col tema del sito invece di quello disegnato dal browser/OS. Bottone sempre "solo icona" (imbuto sopra). {% endcomment %}
 <div class="card-control-filtro flex-grow-1 flex-shrink-1 dropdown" style="max-width: 12rem;" id="filtroProdottiWrapper">
     <button type="button" id="prodottiCardFiltro" class="form-select" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Filtra per sottocategoria"></button>
     <ul class="dropdown-menu dropdown-menu-end filtro-dropdown-menu" aria-labelledby="prodottiCardFiltro">
