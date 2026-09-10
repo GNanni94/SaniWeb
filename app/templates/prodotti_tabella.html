@@ -45,8 +45,9 @@
                                     </a>
                                 {% endif %}
                             </span>
-                            {% url 'aggiungi_prodotti' x.pk as url_aggiungi_preventivo %}
-                            {% include 'partials/bottone_aggiungi_preventivo.html' with url=url_aggiungi_preventivo css_class="btn-sm d-sm-none ms-2 flex-shrink-0" %}
+                            <a class="btn btn-navbar rounded-circle btn-cerchio-preventivo-tabella d-sm-none" href="{% url 'aggiungi_prodotti' x.pk %}" title="Aggiungi al preventivo">
+                                <i class="bi bi-bag-plus" aria-hidden="true"></i>
+                            </a>
                         </div>
                     </td>
                     <td>{{x.unita_di_misura}}</td>

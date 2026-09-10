@@ -939,3 +939,14 @@
   opacity: 0.5;
   transition: opacity .15s ease;
 }
+
+/* Bottone icona "Aggiungi al preventivo" nella tabella (mobile): cerchio 2rem, larghezza e altezza uguali */
+.btn-cerchio-preventivo-tabella {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
