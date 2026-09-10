@@ -9,10 +9,14 @@
 <div class="container">
   <div class="row my-4">
     <div class="col-12">
-      <div class="card">
-        <div class="card-header text-center display-6">
-          Registrati
-        </div>
+      <div class="d-flex align-items-center position-relative mb-3">
+        <button type="button" id="btnTornaIndietroRegistrazione" class="btn btn-navbar btn-sm rounded-pill btn-torna-catalogo position-absolute start-0" title="Torna indietro">
+          <i class="bi bi-arrow-left"></i>
+          <span class="d-none d-md-inline">Torna indietro</span>
+        </button>
+        <div class="display-6 mx-auto">Registrati</div>
+      </div>
+      <div id="card-registrazione" class="card">
         <div class="card-body">
           <form id="form-registrazione" class="row"  method="post" >
           {% csrf_token %}

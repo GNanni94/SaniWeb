@@ -115,6 +115,30 @@
   display: none;
 }
 
+/* Card di registrazione: sfondo grigio, bordi tondi, contorno blu navbar */
+#card-registrazione {
+  background-color: var(--color-bg-alt);
+  border-color: var(--color-primary);
+  border-width: 2px;
+  border-radius: 1rem;
+}
+
+/* Campi del form di registrazione a forma di pillola */
+#form-registrazione .form-control {
+  border-radius: 999px;
+}
+
+/* Bottone "Registrati" a forma di pillola */
+#form-registrazione button[type="submit"] {
+  border-radius: 999px;
+}
+
+/* Toglie l'asterisco alle etichette dei campi password1/password2 del form di registrazione */
+#form-registrazione #div_id_password1 .asteriskField,
+#form-registrazione #div_id_password2 .asteriskField {
+  display: none;
+}
+
 /* Campi "Messaggio" e "Luogo" del form preventivo: bordo dello stesso blu e spessore del contorno della card che li racchiude */
 #informazioni .form-control {
   border: 2px solid var(--color-primary);

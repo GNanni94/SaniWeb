@@ -96,6 +96,11 @@
   });
 })();
 
+// Freccia "torna indietro" nell'intestazione: riporta all'ultima pagina visitata
+document.getElementById('btnTornaIndietroRegistrazione').addEventListener('click', function () {
+  window.history.back();
+});
+
 // Icona di validita' + blocco submit se l'email non e' in un formato valido
 installaValidazioneEmail('id_email');
 
