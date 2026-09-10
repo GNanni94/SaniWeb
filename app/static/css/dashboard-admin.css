@@ -1,0 +1,29 @@
+/* dashboard_admin.html: card di ogni sezione come pillola, stesso stile di ".preventivo-pillola" in preventivo.css */
+.dashboard-admin-pillola {
+  border: 2px solid var(--bs-border-color);
+  border-radius: 999px;
+  transition: border-color .15s ease;
+}
+
+/* Da desktop (dispositivi con hover reale, non touch): bordo blu navbar
+   solo al passaggio del mouse */
+@media (hover: hover) {
+  .dashboard-admin-pillola:hover {
+    border-color: var(--color-primary);
+  }
+}
+
+/* Da telefono/touch (nessun hover reale disponibile): bordo blu navbar
+   sempre, non solo al passaggio del dito */
+@media (hover: none) {
+  .dashboard-admin-pillola {
+    border-color: var(--color-primary);
+  }
+}
+
+/* Freccia dentro un cerchio blu navbar: dimensione fissa per un cerchio perfetto */
+.freccia-dashboard-admin {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+}
