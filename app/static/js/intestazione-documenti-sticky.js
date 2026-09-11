@@ -14,11 +14,11 @@
         elementiDaSpostare: function (riga, slotIndietro, slotTitolo, slotFiltro) {
             var indietro = document.getElementById('btnTornaDashboard');
             var titolo = document.getElementById('titoloGestioneDocumenti');
-            var nuovoDocumento = document.getElementById('btnNuovoDocumento');
+            var filtro = document.getElementById('filtroSezioneDocumentiWrapper');
             var risultato = [];
             if (indietro && slotIndietro) { risultato.push([indietro, slotIndietro]); }
             if (titolo && slotTitolo) { risultato.push([titolo, slotTitolo]); }
-            if (nuovoDocumento && slotFiltro) { risultato.push([nuovoDocumento, slotFiltro]); }
+            if (filtro && slotFiltro) { risultato.push([filtro, slotFiltro]); }
             return risultato;
         }
     });

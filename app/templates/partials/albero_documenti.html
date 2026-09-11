@@ -1,84 +1,5 @@
 <div class="pannello-documenti p-2">
-  <div class="d-md-none">
-    {% comment %} Modifica/Elimina: visibili solo a cartella aperta. Il terzo bottone (X) annulla. {% endcomment %}
-    <div id="pannelloAzioni" class="pannello-documenti-azioni-categoria azioni-categoria-nascosta">
-      <button type="button" id="btnModifica" class="btn btn-outline-navbar rounded-circle btn-cerchio-cartella" title="Modifica" aria-label="Modifica">
-        <i class="bi bi-pencil-square"></i>
-      </button>
-      <button type="button" id="btnElimina" class="btn btn-outline-danger rounded-circle btn-cerchio-cartella" title="Elimina" aria-label="Elimina">
-        <i class="bi bi-trash"></i>
-      </button>
-      <button type="button" id="btnAnnullaModalita" class="btn rounded-circle btn-cerchio-cartella d-none" title="Annulla" aria-label="Annulla">
-        <i class="bi bi-x-lg"></i>
-      </button>
-    </div>
-    <p id="messaggioModalita" class="text-center text-muted small d-none"></p>
-    {% comment %} Id stabile su ogni cartella/documento per l'associazione dei nodi DOM con Idiomorph. {% endcomment %}
-    <div id="albero-documenti" class="accordion">
-      {% for categoria in categorie %}
-      <div class="accordion-item" id="cartella-{{ categoria.pk }}"
-           data-categoria-pk="{{ categoria.pk }}"
-           data-nome-categoria="{{ categoria.nome_categoria }}"
-           data-url-rinomina-categoria="{% url 'rinomina_categoria' categoria.pk %}"
-           data-url-elimina-categoria="{% url 'elimina_categoria' categoria.pk %}">
-        <h2 class="accordion-header d-flex align-items-center">
-          {% comment %} Div con role=button e data-bs-toggle=collapse: apre/chiude l'accordion come un bottone vero. {% endcomment %}
-          <div class="accordion-button collapsed flex-grow-1" role="button" tabindex="0"
-               data-bs-toggle="collapse" data-bs-target="#corpoCartella{{ categoria.pk }}"
-               aria-expanded="false" aria-controls="corpoCartella{{ categoria.pk }}">
-            <span class="testo-categoria flex-grow-1 text-truncate">{{ categoria.nome_categoria }}</span>
-            <span class="position-relative d-inline-flex badge-conteggio-documenti{% if categoria.num_documenti > 99 %} badge-conteggio-documenti-lg{% elif categoria.num_documenti > 9 %} badge-conteggio-documenti-md{% endif %} ms-2">
-              <i class="bi bi-file-earmark" style="color: var(--color-primary);"></i>
-              <span class="position-absolute top-50 start-50 translate-middle fw-bold numero-documenti-categoria" style="color: var(--color-primary);">{{ categoria.num_documenti }}</span>
-            </span>
-          </div>
-          {% comment %} Campo di rinomina, fratello del div sopra, nascosto di default e mostrato da gestione-documenti.js. {% endcomment %}
-          <input type="text" id="input-rinomina-categoria-{{ categoria.pk }}" class="form-control form-control-sm d-none input-rinomina-categoria mx-auto" value="{{ categoria.nome_categoria }}">
-        </h2>
-        <div id="corpoCartella{{ categoria.pk }}" class="accordion-collapse collapse" data-bs-parent="#albero-documenti">
-          <div class="accordion-body p-2">
-            {% with documenti=categoria.file_cat.all %}
-            {% if documenti %}
-            <div class="list-group">
-              {% for documento in documenti %}
-              {% comment %} data-url-*: URL per modifica/eliminazione del documento. data-file-nome: percorso file per l'anteprima nel modal. {% endcomment %}
-              <div class="list-group-item d-flex justify-content-between align-items-center"
-                   id="documento-riga-{{ documento.pk }}"
-                   data-pk="{{ documento.pk }}"
-                   data-nome-file="{{ documento.nome_file }}"
-                   data-categoria-pk="{{ categoria.pk }}"
-                   data-url-modifica-documento="{% url 'modifica_documento' documento.pk %}"
-                   data-url-elimina-documento="{% url 'elimina_documento' documento.pk %}"
-                   {% if documento.file %}data-file-nome="{{ documento.file.name }}"{% endif %}>
-                {% if documento.file %}
-                <a href="{{ documento.file.url }}" target="_blank" class="text-center text-decoration-none documento-nome-btn flex-grow-1">
-                  <span class="d-block">{{ documento.nome_file }}</span>
-                  <small class="d-block text-muted">Aggiunto il {{ documento.creato_il|date:"d F Y" }}</small>
-                  <small class="d-block text-muted">Modificato il {{ documento.modificato_il|date:"d F Y" }}</small>
-                </a>
-                {% else %}
-                <span class="text-center text-muted flex-grow-1">
-                  <span class="d-block">{{ documento.nome_file }}</span>
-                  <small class="d-block">Nessun file disponibile</small>
-                </span>
-                {% endif %}
-              </div>
-              {% endfor %}
-            </div>
-            {% else %}
-            <p class="text-center text-muted mb-0">Nessun documento in questa cartella.</p>
-            {% endif %}
-            {% endwith %}
-          </div>
-        </div>
-      </div>
-      {% empty %}
-      <p class="text-center text-muted mb-0">Nessuna cartella configurata.</p>
-      {% endfor %}
-    </div>
-  </div>
-  {% comment %} Tabella per schermi da 768px in su, alternativa all'albero a cartelle (solo da telefono). {% endcomment %}
-  <div id="tabella-documenti" class="d-none d-md-block">
+  <div id="tabella-documenti">
     {% if documenti_totali %}
     <div class="table-responsive">
       <table class="table table-bordered table-sm table-hover text-center align-middle">
@@ -86,7 +7,7 @@
           <tr>
             <th scope="col">Nome documento</th>
             <th scope="col">Sezione</th>
-            <th scope="col">File</th>
+            <th scope="col" class="d-none d-md-table-cell">File</th>
             <th scope="col">Azioni</th>
           </tr>
         </thead>
@@ -103,13 +24,10 @@
             <td class="sezione-cella-riga"
                 data-categoria-pk="{{ categoria.pk }}"
                 data-nome-categoria="{{ categoria.nome_categoria }}"
-                data-url-rinomina-categoria="{% url 'rinomina_categoria' categoria.pk %}"
-                data-url-elimina-categoria="{% url 'elimina_categoria' categoria.pk %}"
-                data-num-documenti="{{ categoria.num_documenti }}">
-              <span class="testo-sezione-riga">{{ categoria.nome_categoria }}</span>
-              <input type="text" id="input-rinomina-categoria-riga-{{ documento.pk }}" class="form-control form-control-sm d-none input-rinomina-categoria" value="{{ categoria.nome_categoria }}">
+                data-url-elimina-categoria="{% url 'elimina_categoria' categoria.pk %}">
+              {{ categoria.nome_categoria }}
             </td>
-            <td>
+            <td class="d-none d-md-table-cell">
               {% if documento.file %}
               <a href="{{ documento.file.url }}" target="_blank" class="documento-nome-btn">{{ documento.file.name|cut:"documenti/" }}</a>
               {% else %}

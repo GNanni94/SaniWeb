@@ -1,29 +1,33 @@
 // Gestione del pop-up e delle richieste AJAX di documenti/categorie:
 // apertura/precompilazione del form, salvataggio ed eliminazione senza
-// ricaricare la pagina. L'albero mostra le cartelle aperte/chiuse una
-// alla volta via accordion Bootstrap. Cliccare il nome di un documento
-// apre il file in una nuova scheda, tranne mentre "Modifica"/"Elimina"
-// e' armato (impostaModalita piu' sotto).
+// ricaricare la pagina. Cliccare una riga della tabella apre il modal di
+// modifica documento; i bottoni della colonna Azioni eliminano documento
+// o categoria.
 
 (function () {
-    var albero = document.getElementById('albero-documenti');
     var modalEl = document.getElementById('modalDocumento');
     var modalBody = document.getElementById('modalDocumentoBody');
     var btnNuovo = document.getElementById('btnNuovoDocumento');
     var tabellaDocumenti = document.getElementById('tabella-documenti');
     var filtroSezioneWrapper = document.getElementById('filtroSezioneDocumentiWrapper');
     var listaFiltroSezione = filtroSezioneWrapper ? filtroSezioneWrapper.querySelector('.filtro-dropdown-menu') : null;
-    var wrapperAzioni = document.getElementById('pannelloAzioni');
-    var btnModifica = document.getElementById('btnModifica');
-    var btnElimina = document.getElementById('btnElimina');
-    var btnAnnullaModalita = document.getElementById('btnAnnullaModalita');
-    var messaggioModalita = document.getElementById('messaggioModalita');
-    if (!albero || !modalEl || !modalBody) {
+    var modalConfermaEliminaEl = document.getElementById('modalConfermaEliminaDocumento');
+    var testoConfermaElimina = document.getElementById('testoConfermaEliminaDocumento');
+    var btnConfermaElimina = document.getElementById('btnConfermaEliminaDocumento');
+    if (!tabellaDocumenti || !modalEl || !modalBody || !modalConfermaEliminaEl || !testoConfermaElimina || !btnConfermaElimina) {
         return;
     }
     var modalBootstrap = new bootstrap.Modal(modalEl);
+    var modalConfermaEliminaBootstrap = new bootstrap.Modal(modalConfermaEliminaEl);
     // Snapshot del form vuoto usato da "+ Nuovo documento" per ripartire da uno stato pulito
     var formInizialeHTML = modalBody.innerHTML;
+
+    // Bordo bianco sul "+" flottante quando scorre sopra il footer di pagina (creaAggiornatoreSuSfondoBlu in sovrapposizione-sfondo-blu.js)
+    if (btnNuovo) {
+        creaAggiornatoreSuSfondoBlu(function () {
+            return btnNuovo;
+        }, 'su-sfondo-blu');
+    }
 
     function formCorrente() {
         return document.getElementById('form-documento');
@@ -208,20 +212,11 @@
         fileNuovoScelto = null;
     }
 
-    // null = nessuna categoria in rinomina; altrimenti l'"accordion-item" la cui rinomina inline e' in corso
-    var rigaCategoriaInRinomina = null;
-
-    // null = nessuna modalita' armata; altrimenti 'modifica' o 'elimina'
-    var modalita = null;
-
     // null = nessuna sezione selezionata nel filtro, altrimenti pk della sezione scelta come stringa
     var categoriaFiltrataPk = null;
 
     // Mostra solo le righe di "#tabella-documenti" della sezione filtrata
     function applicaFiltroSezione() {
-        if (!tabellaDocumenti) {
-            return;
-        }
         var righe = tabellaDocumenti.querySelectorAll('tr[data-pk]');
         Array.prototype.forEach.call(righe, function (riga) {
             var corrisponde = categoriaFiltrataPk === null || riga.dataset.categoriaPk === categoriaFiltrataPk;
@@ -269,166 +264,33 @@
         aggiornaClasseFiltroSezioneAttivo();
     }
 
-    // Legge dal DOM il pk della cartella attualmente aperta (al piu' una), o null se nessuna e' aperta
-    function cartellaApertaPk() {
-        var bottoneAperto = albero.querySelector('.accordion-button:not(.collapsed)');
-        if (!bottoneAperto) {
-            return null;
-        }
-        var item = bottoneAperto.closest('[data-categoria-pk]');
-        return item ? item.dataset.categoriaPk : null;
+    // null = nessuna eliminazione in sospeso; altrimenti la funzione da eseguire alla conferma nel modal
+    var azioneEliminaConfermata = null;
+
+    // Mostra il modal di conferma con "messaggio"; esegue "azione" solo se l'utente conferma
+    function chiediConfermaElimina(messaggio, azione) {
+        testoConfermaElimina.textContent = messaggio;
+        azioneEliminaConfermata = azione;
+        modalConfermaEliminaBootstrap.show();
     }
 
-    // Mostra/nasconde il pannello "Modifica"/"Elimina" in base alla cartella aperta, e richiama aggiornaVistaModalita()
-    function aggiornaBottoniAzione() {
-        if (wrapperAzioni) {
-            wrapperAzioni.classList.toggle('azioni-categoria-nascosta', cartellaApertaPk() === null);
+    btnConfermaElimina.addEventListener('click', function () {
+        modalConfermaEliminaBootstrap.hide();
+        if (azioneEliminaConfermata) {
+            azioneEliminaConfermata();
         }
-        aggiornaVistaModalita();
-    }
+    });
 
-    // Toglie (attivo=false) o ripristina (attivo=true) "data-bs-toggle" sul bottone della cartella aperta, salvando il valore originale
-    function impostaToggleCartelle(attivo) {
-        var disabilitati = albero.querySelectorAll('.accordion-button[data-bs-toggle-salvato]');
-        Array.prototype.forEach.call(disabilitati, function (bottone) {
-            bottone.setAttribute('data-bs-toggle', bottone.dataset.bsToggleSalvato);
-            delete bottone.dataset.bsToggleSalvato;
-        });
-        if (attivo) {
-            return;
-        }
-        var pk = cartellaApertaPk();
-        var bottone = pk !== null ? document.querySelector('#cartella-' + pk + ' .accordion-button') : null;
-        if (bottone && bottone.hasAttribute('data-bs-toggle')) {
-            bottone.dataset.bsToggleSalvato = bottone.getAttribute('data-bs-toggle');
-            bottone.removeAttribute('data-bs-toggle');
-        }
-    }
+    modalConfermaEliminaEl.addEventListener('hidden.bs.modal', function () {
+        azioneEliminaConfermata = null;
+    });
 
-    // Mostra/nasconde il bottone Annulla e il messaggio guida, evidenzia le righe selezionabili, attiva/disattiva il toggle delle cartelle
-    function aggiornaVistaModalita() {
-        if (btnAnnullaModalita) {
-            btnAnnullaModalita.classList.toggle('d-none', !modalita);
-        }
-        if (messaggioModalita) {
-            messaggioModalita.classList.toggle('d-none', !modalita);
-            if (modalita) {
-                messaggioModalita.textContent = 'Scegli la categoria o un file al suo interno';
-            }
-        }
-        impostaToggleCartelle(!modalita);
-        var righe = albero.querySelectorAll('.list-group-item[data-pk]');
-        Array.prototype.forEach.call(righe, function (riga) {
-            riga.classList.toggle('documento-riga-selezionabile', !!modalita);
-        });
-    }
-
-    // Arma "azione", o la disarma se era gia' quella attiva
-    function impostaModalita(azione) {
-        modalita = modalita === azione ? null : azione;
-        aggiornaVistaModalita();
-    }
-
-    function annullaModalita() {
-        modalita = null;
-        aggiornaVistaModalita();
-    }
-
-    // Applica alla cartella di pk dato le classi Bootstrap dello stato "aperta"
-    function riapriCartella(pk) {
-        var corpo = document.getElementById('corpoCartella' + pk);
-        var item = document.getElementById('cartella-' + pk);
-        if (!corpo || !item) {
-            return;
-        }
-        var bottone = item.querySelector('.accordion-button, .testo-sezione-riga');
-        corpo.classList.add('show');
-        if (bottone) {
-            bottone.classList.remove('collapsed');
-            bottone.setAttribute('aria-expanded', 'true');
-        }
-    }
-
-    function annullaRinominaCategoria() {
-        if (!rigaCategoriaInRinomina) {
-            return;
-        }
-        var item = rigaCategoriaInRinomina;
-        rigaCategoriaInRinomina = null;
-        var bottone = item.querySelector('.accordion-button, .testo-sezione-riga');
-        var input = item.querySelector('.input-rinomina-categoria');
-        if (bottone && input) {
-            input.classList.add('d-none');
-            bottone.classList.remove('d-none');
-        }
-    }
-
-    // "item" e' l'"accordion-item" della cartella nell'albero, o la cella "Sezione" di una riga della tabella
-    function iniziaRinominaCategoria(item) {
-        if (!item) {
-            return;
-        }
-        var bottone = item.querySelector('.accordion-button, .testo-sezione-riga');
-        var input = item.querySelector('.input-rinomina-categoria');
-        if (!bottone || !input) {
-            return;
-        }
-        rigaCategoriaInRinomina = item;
-        input.value = item.dataset.nomeCategoria;
-        bottone.classList.add('d-none');
-        input.classList.remove('d-none');
-        input.focus();
-        input.select();
-    }
-
-    function salvaRinominaCategoria(input) {
-        var item = input.closest('[data-categoria-pk]');
-        var nuovoNome = input.value.trim();
-        if (!item || !nuovoNome) {
-            return;
-        }
-        var corpo = new FormData();
-        corpo.append('nome_categoria', nuovoNome);
-        var token = tokenCsrf();
-        if (token) {
-            corpo.append('csrfmiddlewaretoken', token);
-        }
-        fetch(item.dataset.urlRinominaCategoria, {
-            method: 'POST',
-            body: corpo,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        }).then(function (response) {
-            if (response.status === 400) {
-                // Nome vuoto o duplicato: mostra l'errore e lascia il campo in modifica
-                return response.json().then(function (data) {
-                    window.alert(data.errore);
-                });
-            }
-            return response.text().then(function (html) {
-                rigaCategoriaInRinomina = null;
-                if (response.ok) {
-                    sostituisciAlbero(html);
-                } else {
-                    window.location.reload();
-                }
-            });
-        }).catch(function () {
-            window.location.reload();
-        });
-    }
-
-    // Chiede conferma ed elimina la categoria; ritorna true/false a seconda della conferma
+    // Chiede conferma con un pop-up ed elimina la categoria
     function eliminaCategoria(item) {
-        var numeroSpan = item.querySelector('.numero-documenti-categoria');
-        var numDocumenti = parseInt((numeroSpan ? numeroSpan.textContent : item.dataset.numDocumenti) || '0', 10) || 0;
-        var messaggio = numDocumenti > 0
-            ? 'Eliminare la categoria "' + item.dataset.nomeCategoria + '"? Verranno eliminati anche i ' + numDocumenti + ' documenti al suo interno.'
-            : 'Eliminare la categoria "' + item.dataset.nomeCategoria + '"?';
-        if (!window.confirm(messaggio)) {
-            return false;
-        }
-        postConCsrfESostituisciAlbero(item.dataset.urlEliminaCategoria);
-        return true;
+        var messaggio = 'Vuoi cancellare la cartella "' + item.dataset.nomeCategoria + '" e i suoi file?';
+        chiediConfermaElimina(messaggio, function () {
+            postConCsrfEAggiornaTabella(item.dataset.urlEliminaCategoria);
+        });
     }
 
     // Aggiorna le opzioni del <select> "categoria" nello snapshot del form vuoto e ricostruisce le voci del menu "Seleziona categoria"
@@ -467,24 +329,21 @@
         formInizialeHTML = tmp.innerHTML;
     }
 
-    function sostituisciAlbero(html) {
+    function aggiornaTabella(html) {
         var tmp = document.createElement('div');
         tmp.innerHTML = html.trim();
-        var nuovoContenuto = tmp.querySelector('#albero-documenti');
-        if (!nuovoContenuto) {
+        var nuovaTabella = tmp.querySelector('#tabella-documenti');
+        if (!nuovaTabella) {
             // Risposta inattesa (es. pagina di login intera): reload completo
             window.location.reload();
             return;
         }
 
-        // Legge dal DOM la cartella aperta prima dello swap
-        var pkCartellaAperta = cartellaApertaPk();
-
         // Applica il nuovo HTML preservando i nodi invariati, con fallback a innerHTML diretto
         if (window.Idiomorph) {
-            Idiomorph.morph(albero, nuovoContenuto.innerHTML, { morphStyle: 'innerHTML' });
+            Idiomorph.morph(tabellaDocumenti, nuovaTabella.innerHTML, { morphStyle: 'innerHTML' });
         } else {
-            albero.innerHTML = nuovoContenuto.innerHTML;
+            tabellaDocumenti.innerHTML = nuovaTabella.innerHTML;
         }
 
         var opzioniCategoria = tmp.querySelector('#opzioniCategoriaAggiornate');
@@ -492,21 +351,7 @@
             aggiornaOpzioniCategoriaNelFormVuoto(opzioniCategoria.innerHTML);
         }
 
-        var nuovaTabella = tmp.querySelector('#tabella-documenti');
-        if (tabellaDocumenti && nuovaTabella) {
-            if (window.Idiomorph) {
-                Idiomorph.morph(tabellaDocumenti, nuovaTabella.innerHTML, { morphStyle: 'innerHTML' });
-            } else {
-                tabellaDocumenti.innerHTML = nuovaTabella.innerHTML;
-            }
-            applicaFiltroSezione();
-        }
-
-        // Ripristina la stessa cartella aperta prima del refresh, se esiste ancora
-        if (pkCartellaAperta !== null) {
-            riapriCartella(pkCartellaAperta);
-        }
-        aggiornaBottoniAzione();
+        applicaFiltroSezione();
     }
 
     function salvaDocumento(f) {
@@ -517,7 +362,7 @@
         }).then(function (response) {
             return response.text().then(function (html) {
                 if (response.ok) {
-                    sostituisciAlbero(html);
+                    aggiornaTabella(html);
                     modalBootstrap.hide();
                 } else if (response.status === 400) {
                     // Sostituisce il contenuto del modal con il form con errori, che resta aperto
@@ -547,7 +392,7 @@
         });
     }
 
-    function postConCsrfESostituisciAlbero(url) {
+    function postConCsrfEAggiornaTabella(url) {
         var corpo = new FormData();
         var token = tokenCsrf();
         if (token) {
@@ -560,7 +405,7 @@
         }).then(function (response) {
             return response.text().then(function (html) {
                 if (response.ok) {
-                    sostituisciAlbero(html);
+                    aggiornaTabella(html);
                 } else {
                     // Richiesta fallita: reload completo
                     window.location.reload();
@@ -596,194 +441,59 @@
             fileAttualeInModifica = { url: linkFile.href, nome: riga.dataset.fileNome.split('/').pop() };
             impostaCampoFileEsistente(fileAttualeInModifica.url, fileAttualeInModifica.nome);
         }
-        annullaModalita();
         valutaBottoneSalva();
         modalBootstrap.show();
     }
 
-    // Chiede conferma ed elimina il documento scelto; ritorna true/false a seconda della conferma
+    // Chiede conferma con un pop-up ed elimina il documento scelto
     function eliminaDocumentoScelto(riga) {
         var nome = riga.dataset.nomeFile || 'questo documento';
-        if (!window.confirm('Eliminare "' + nome + '"?')) {
-            return false;
-        }
-        postConCsrfESostituisciAlbero(riga.dataset.urlEliminaDocumento);
-        annullaModalita();
-        return true;
+        chiediConfermaElimina('Vuoi cancellare il file "' + nome + '"?', function () {
+            postConCsrfEAggiornaTabella(riga.dataset.urlEliminaDocumento);
+        });
     }
 
     sincronizzaStatoCategoria();
 
-    // Aggiorna il pannello azioni a fine transizione di apertura/chiusura di una cartella
-    albero.addEventListener('shown.bs.collapse', aggiornaBottoniAzione);
-    albero.addEventListener('hidden.bs.collapse', aggiornaBottoniAzione);
-
-    // Aggiorna il pannello azioni al fotogramma successivo al click su una cartella, per una reattivita' piu' immediata
-    albero.addEventListener('click', function (event) {
-        if (event.target.closest('.accordion-button')) {
-            requestAnimationFrame(aggiornaBottoniAzione);
-        }
-    });
-
-    if (btnModifica) {
-        btnModifica.addEventListener('click', function () {
-            impostaModalita('modifica');
-        });
-    }
-
-    if (btnElimina) {
-        btnElimina.addEventListener('click', function () {
-            impostaModalita('elimina');
-        });
-    }
-
-    if (btnAnnullaModalita) {
-        btnAnnullaModalita.addEventListener('click', annullaModalita);
-    }
-
     if (btnNuovo) {
         btnNuovo.addEventListener('click', function () {
-            annullaModalita();
             fileAttualeInModifica = null;
             revocaBlobFileScelto();
             modalBody.innerHTML = formInizialeHTML;
             nomeFileOriginale = '';
-            // Precompila la categoria con quella della cartella aperta, se c'e'
-            var pkCartellaAperta = cartellaApertaPk();
-            categoriaOriginalePk = pkCartellaAperta || '';
-            if (pkCartellaAperta !== null) {
-                var f = formCorrente();
-                if (f && f.elements['categoria']) {
-                    f.elements['categoria'].value = pkCartellaAperta;
-                }
-            }
+            categoriaOriginalePk = '';
             sincronizzaStatoCategoria();
             valutaBottoneSalva();
         });
     }
 
-    if (tabellaDocumenti) {
-        // Click su una riga: apre il pop-up di modifica, tranne sul link del file e sui due bottoni di eliminazione rapida
-        tabellaDocumenti.addEventListener('click', function (event) {
-            if (event.target.closest('a')) {
-                return;
-            }
-            var btnEliminaCategoria = event.target.closest('.btn-elimina-categoria-riga');
-            if (btnEliminaCategoria) {
-                var cellaSezione = btnEliminaCategoria.closest('tr').querySelector('.sezione-cella-riga');
-                if (cellaSezione) {
-                    eliminaCategoria(cellaSezione);
-                }
-                return;
-            }
-            var btnEliminaDocumento = event.target.closest('.btn-elimina-documento-riga');
-            if (btnEliminaDocumento) {
-                var rigaDocumento = btnEliminaDocumento.closest('tr[data-pk]');
-                if (rigaDocumento) {
-                    eliminaDocumentoScelto(rigaDocumento);
-                }
-                return;
-            }
-            var riga = event.target.closest('tr[data-pk]');
-            if (!riga) {
-                return;
-            }
-            apriModaleModificaDocumento(riga);
-        });
-
-        // Invio/Esc dentro il campo di rinomina inline della cella "Sezione"
-        tabellaDocumenti.addEventListener('keydown', function (event) {
-            var inputCategoria = event.target.closest('.input-rinomina-categoria');
-            if (!inputCategoria) {
-                return;
-            }
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                salvaRinominaCategoria(inputCategoria);
-            } else if (event.key === 'Escape') {
-                event.preventDefault();
-                annullaRinominaCategoria();
-            }
-        });
-
-        // Cattura (terzo argomento "true") per intercettare l'uscita dal campo di rinomina anche se "blur" non fa bubbling
-        tabellaDocumenti.addEventListener('blur', function (event) {
-            if (event.target.closest && event.target.closest('.input-rinomina-categoria')) {
-                annullaRinominaCategoria();
-            }
-        }, true);
-    }
-
-    // Delegazione sul container dell'albero: funziona anche sulle cartelle/righe rigenerate dopo ogni swap di innerHTML
-    albero.addEventListener('click', function (event) {
-        if (event.target.closest('.input-rinomina-categoria')) {
-            // Impedisce che un click nel campo di rinomina apra/chiuda la cartella
-            event.stopPropagation();
-        }
-    });
-
-    // Click mentre "Modifica"/"Elimina" e' armato: agisce sulla categoria aperta o su un documento al suo interno
-    albero.addEventListener('click', function (event) {
-        if (!modalita) {
+    // Click su una riga: apre il pop-up di modifica, tranne su link e bottoni azione
+    tabellaDocumenti.addEventListener('click', function (event) {
+        if (event.target.closest('a')) {
             return;
         }
-        var pk = cartellaApertaPk();
-        if (pk === null) {
-            return;
-        }
-        var bottoneCategoria = event.target.closest('.accordion-button');
-        if (bottoneCategoria) {
-            var item = bottoneCategoria.closest('.accordion-item[data-categoria-pk]');
-            if (!item || item.dataset.categoriaPk !== pk) {
-                return;
-            }
-            event.preventDefault();
-            if (modalita === 'modifica') {
-                iniziaRinominaCategoria(item);
-                annullaModalita();
-            } else if (modalita === 'elimina' && eliminaCategoria(item)) {
-                annullaModalita();
+        var btnEliminaCategoria = event.target.closest('.btn-elimina-categoria-riga');
+        if (btnEliminaCategoria) {
+            var cellaSezione = btnEliminaCategoria.closest('tr').querySelector('.sezione-cella-riga');
+            if (cellaSezione) {
+                eliminaCategoria(cellaSezione);
             }
             return;
         }
-        var riga = event.target.closest('.list-group-item[data-pk]');
+        var btnEliminaDocumento = event.target.closest('.btn-elimina-documento-riga');
+        if (btnEliminaDocumento) {
+            var rigaDocumento = btnEliminaDocumento.closest('tr[data-pk]');
+            if (rigaDocumento) {
+                eliminaDocumentoScelto(rigaDocumento);
+            }
+            return;
+        }
+        var riga = event.target.closest('tr[data-pk]');
         if (!riga) {
             return;
         }
-        event.preventDefault();
-        if (modalita === 'modifica') {
-            apriModaleModificaDocumento(riga);
-        } else if (modalita === 'elimina') {
-            eliminaDocumentoScelto(riga);
-        }
+        apriModaleModificaDocumento(riga);
     });
-
-    // Invio/Spazio su "div[role=button]" apre/chiude la cartella; Invio/Esc nel campo di rinomina inline salva/annulla
-    albero.addEventListener('keydown', function (event) {
-        var input = event.target.closest('.input-rinomina-categoria');
-        if (input) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                salvaRinominaCategoria(input);
-            } else if (event.key === 'Escape') {
-                event.preventDefault();
-                annullaRinominaCategoria();
-            }
-            return;
-        }
-        var bottoneCartella = event.target.closest('.accordion-button');
-        if (bottoneCartella && (event.key === 'Enter' || event.key === ' ')) {
-            event.preventDefault();
-            bottoneCartella.click();
-        }
-    });
-
-    // Cattura (terzo argomento "true") per intercettare l'uscita dal campo di rinomina anche se "blur" non fa bubbling
-    albero.addEventListener('blur', function (event) {
-        if (event.target.closest && event.target.closest('.input-rinomina-categoria')) {
-            annullaRinominaCategoria();
-        }
-    }, true);
 
     // Delegazione sul body del modal: il form viene sostituito per intero ad ogni errore di validazione
     modalBody.addEventListener('submit', function (event) {

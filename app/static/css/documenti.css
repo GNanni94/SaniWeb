@@ -1,108 +1,6 @@
-/* Cartelle come pillole (albero_documenti.html): niente bordo tra le voci dell'accordion, spazio tra una pillola e l'altra */
-#albero-documenti.accordion {
-  --bs-accordion-border-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: .5rem;
-}
-
-/* Pillola dell'intestazione cartella (riga intera cliccabile) */
-#albero-documenti .accordion-header {
-  background-color: var(--color-bg-alt);
-  border: 2px solid transparent;
-  border-radius: 999px;
-  padding: .25rem;
-  /* Anima solo il bordo, non lo sfondo */
-  transition: border-color .15s ease;
-}
-
-#albero-documenti .accordion-header:has(.accordion-button:hover),
-#albero-documenti .accordion-header:has(.accordion-button:focus) {
-  border-color: var(--color-primary);
-}
-
-/* Pillole piu' compatte del bottone-accordion di default di Bootstrap */
-#albero-documenti .accordion-button {
-  --bs-accordion-btn-padding-x: .85rem;
-  --bs-accordion-btn-padding-y: .5rem;
-  background-color: transparent;
-  border: 0;
-  box-shadow: none;
-}
-
-/* Cartella aperta: sfondo blu pieno, angoli arrotondati solo in alto per agganciarsi all'elenco sotto */
-#albero-documenti .accordion-header:has(.accordion-button:not(.collapsed)) {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
-  border-radius: 999px 999px 0 0;
-}
-
-#albero-documenti .accordion-button:not(.collapsed) {
-  color: #fff;
-  justify-content: center;
-}
-
-/* Da aperta il titolo si centra invece di restare a sinistra */
-#albero-documenti .accordion-button:not(.collapsed) .testo-categoria {
-  flex-grow: 0 !important;
-}
-
-/* Contorno blu sulla riga documento selezionabile per Modifica/Elimina */
-.documento-riga-selezionabile {
-  cursor: pointer;
-  border-color: var(--color-primary);
-}
-
-/* Stesso contorno applicato alle celle (il bordo su <tr> non ha effetto visivo) */
-#tabella-documenti tr.documento-riga-selezionabile > td {
-  border-color: var(--color-primary);
-}
-
 /* Righe cliccabili di "#tabella-documenti": cursore a mano */
 #tabella-documenti tbody tr[data-pk] {
   cursor: pointer;
-}
-
-/* Campo di rinomina inline: casella compatta al centro della pillola invece di "width: 100%" */
-#albero-documenti .input-rinomina-categoria {
-  width: auto;
-  max-width: 12rem;
-  flex: 0 1 auto;
-  /* Testo centrato nel box */
-  text-align: center;
-}
-
-/* Testo/icona/numero della cartella aperta in bianco */
-#albero-documenti .accordion-button:not(.collapsed) .testo-categoria,
-#albero-documenti .accordion-button:not(.collapsed) .badge-conteggio-documenti i,
-#albero-documenti .accordion-button:not(.collapsed) .numero-documenti-categoria {
-  color: #fff !important;
-}
-
-/* Freccia dell'accordion rimossa */
-#albero-documenti .accordion-button::after {
-  display: none;
-}
-
-/* Rinomina/Elimina categoria (partials/albero_documenti.html): nel flusso normale, spinge giu' la lista quando compare */
-.pannello-documenti-azioni-categoria {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: .5rem;
-  max-height: 2rem;
-  margin-bottom: .75rem;
-  opacity: 1;
-  overflow: hidden;
-  transition: max-height .25s ease, opacity .2s ease, margin-bottom .25s ease, visibility .25s;
-}
-
-/* Stato nascosto: altezza/margine collassati, dissolvenza in opacita', tolto anche dalla navigazione da tastiera */
-.pannello-documenti-azioni-categoria.azioni-categoria-nascosta {
-  max-height: 0;
-  margin-bottom: 0;
-  opacity: 0;
-  visibility: hidden;
 }
 
 /* Cerchio icona (32px) con sfondo pieno, leggibile sia su bianco che su blu */
@@ -116,60 +14,6 @@
   flex-shrink: 0;
   border-width: 2px;
   background-color: var(--color-bg);
-}
-
-/* Cerchio grigio scuro pieno, senza contorno, per il bottone Annulla */
-#btnAnnullaModalita {
-  background-color: var(--color-text);
-  border-color: transparent;
-  color: var(--color-text-light);
-}
-
-#btnAnnullaModalita:hover,
-#btnAnnullaModalita:focus {
-  background-color: var(--color-text);
-  border-color: transparent;
-  color: var(--color-text-light);
-  filter: brightness(1.2);
-}
-
-/* Cerchio a contorno grigio per Annulla nella tabella desktop */
-#btnAnnullaModalitaTabella {
-  background-color: transparent;
-  border-color: var(--bs-border-color);
-  color: var(--color-text);
-}
-
-#btnAnnullaModalitaTabella:hover,
-#btnAnnullaModalitaTabella:focus {
-  background-color: var(--color-bg-alt);
-  border-color: var(--bs-border-color);
-  color: var(--color-text);
-}
-
-/* Icona con conteggio documenti al centro (intestazione cartella): varianti -md/-lg sotto per 2/3 cifre */
-.badge-conteggio-documenti i {
-  font-size: 1.25rem;
-}
-
-.badge-conteggio-documenti .numero-documenti-categoria {
-  font-size: .6rem;
-}
-
-.badge-conteggio-documenti-md i {
-  font-size: 1.55rem;
-}
-
-.badge-conteggio-documenti-md .numero-documenti-categoria {
-  font-size: .68rem;
-}
-
-.badge-conteggio-documenti-lg i {
-  font-size: 1.9rem;
-}
-
-.badge-conteggio-documenti-lg .numero-documenti-categoria {
-  font-size: .78rem;
 }
 
 /* Riquadro categoria (documenti.html): bordo leggero e angoli arrotondati, si adatta al contenuto */
@@ -251,6 +95,63 @@
 @media (max-width: 767.98px) {
   .pannello-documenti {
     margin-top: .75rem;
+  }
+}
+
+/* Filtro sezione come cerchio a icona anche sotto i 576px (prodotti.css lo fa gia' da 576px in su): stesse proprieta', per averlo visibile fin dal telefono piu' piccolo in questa pagina */
+@media (max-width: 575.98px) {
+  #filtroSezioneDocumentiWrapper {
+    position: relative;
+    flex-grow: 0 !important;
+  }
+
+  #filtroSezioneDocumentiWrapper #filtroSezioneDocumenti {
+    color: transparent;
+    background-color: var(--color-primary);
+    background-image: none !important;
+    padding: 0;
+    text-align: center;
+    border: 2px solid var(--color-primary);
+    border-radius: 50%;
+  }
+
+  #filtroSezioneDocumentiWrapper #filtroSezioneDocumenti:hover,
+  #filtroSezioneDocumentiWrapper #filtroSezioneDocumenti:focus {
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+    box-shadow: none;
+  }
+}
+
+/* Filtro grande come il bottone freccia "Torna alla dashboard" da telefono (32px, la stessa dimensione base di ".btn-cerchio-intestazione-gestione"): sovrascrive i 42px fissi di prodotti.css, validi li' da 576px in su */
+@media (max-width: 767.98px) {
+  #filtroSezioneDocumentiWrapper {
+    flex-basis: 32px;
+    max-width: 32px !important;
+  }
+
+  #filtroSezioneDocumentiWrapper #filtroSezioneDocumenti {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Bottone "+ Nuovo documento" flottante e fisso in basso a sinistra da telefono, sganciato dalla riga di intestazione */
+@media (max-width: 767.98px) {
+  #btnNuovoDocumento {
+    position: fixed;
+    left: 1rem;
+    bottom: 1rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    border: 2px solid var(--color-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
+    z-index: 1040;
+  }
+
+  /* Bordo bianco quando il bottone scorre sopra il footer di pagina (".su-sfondo-blu" impostata via JS) */
+  #btnNuovoDocumento.su-sfondo-blu {
+    border-color: var(--color-bg);
   }
 }
 
