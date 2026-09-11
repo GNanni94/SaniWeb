@@ -18,7 +18,8 @@
             hx-get="{% url 'modifica_avviso' avviso.pk %}"
             hx-target="#modalAvvisoBody"
             hx-swap="innerHTML"
-            hx-trigger="click[!event.target.closest('.colonna-azioni-riga-avviso')]">
+            hx-trigger="click[!event.target.closest('.colonna-azioni-riga-avviso')]"
+            hx-sync="this:drop">
           <td class="border">{{ avviso.data_inizio|date:"d F" }}</td>
           <td class="border">{{ avviso.data_fine|date:"d F" }}</td>
           <td class="border">{{ avviso.motivo_chiusura }}</td>
@@ -28,6 +29,7 @@
                       hx-post="{% url 'toggle_avviso' avviso.pk %}"
                       hx-target="#tabella-avvisi"
                       hx-swap="morph:outerHTML"
+                      hx-disabled-elt="this"
                       title="{% if avviso.attivo %}Disattiva{% else %}Attiva{% endif %}"
                       aria-label="{% if avviso.attivo %}Disattiva{% else %}Attiva{% endif %}">
                 <i class="bi {% if avviso.attivo %}bi-check-circle-fill{% else %}bi-dash-circle{% endif %}"
@@ -38,6 +40,7 @@
                       hx-target="#tabella-avvisi"
                       hx-swap="morph:outerHTML"
                       hx-confirm="Eliminare questo avviso?"
+                      hx-disabled-elt="this"
                       title="Elimina" aria-label="Elimina">
                 <i class="bi bi-trash"></i>
               </button>
