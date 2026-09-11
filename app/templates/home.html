@@ -5,25 +5,19 @@
 
 {% block contenuto %}
 
+{% if avviso_fase != "chiusura" %}
 <div class="container">
     <div class="row pt-3 justify-content-center">
         <div class="col-md-6 mb-4 text-center">
-          <h4>ORARI DI APERTURA</h4>
-          <table id="orari" class="table table-sm align-middle">
-            <tbody>
-              <tr>
-                <td>Lunedi-Venerdi </td>
-                <td> 8.00-12.00 / 13.45-17.45</td>
-              </tr>
-              <tr>
-                <td>Sabato-Domenica </td>
-                <td>Chiuso</td>
-              </tr>
-            </tbody>
-          </table>
+          <span id="pillola-orari" class="badge rounded-pill px-3 py-2 fs-6 pillola-orari"
+                data-apertura="{{ orario_apertura_minuti }}"
+                data-chiusura="{{ orario_chiusura_minuti }}"
+                data-pranzo-inizio="{{ pranzo_inizio_minuti }}"
+                data-pranzo-fine="{{ pranzo_fine_minuti }}"></span>
         </div>
     </div>
 </div>
+{% endif %}
 
 <div class="container-fluid">
     <div class="row pb-5 justify-content-center">
@@ -41,5 +35,7 @@
         </div>
     </div>
 </div>
+
+<script src="{% static 'js/pillola-orari.js' %}"></script>
 
 {% endblock contenuto %}

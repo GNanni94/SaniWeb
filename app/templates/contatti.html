@@ -19,7 +19,7 @@
             <tbody>
               <tr>
                 <td>Lunedi-Venerdi </td>
-                <td> 8.00-12.00 / 13.45-17.45</td>
+                <td> {{ orario_apertura|time:"G.i" }}-{{ pranzo_inizio|time:"G.i" }} / {{ pranzo_fine|time:"G.i" }}-{{ orario_chiusura|time:"G.i" }}</td>
               </tr>
               <tr>
                 <td>Sabato-Domenica </td>

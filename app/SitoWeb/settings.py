@@ -111,6 +111,7 @@ TEMPLATES = [
                 'Carrello.context_processors.carrello_ha_prodotti',
                 'Utente.context_processors.form_login_popup',
                 'Avvisi.context_processors.avviso_chiusura',
+                'Pagine.context_processors.orari_apertura',
             ],
         },
     },

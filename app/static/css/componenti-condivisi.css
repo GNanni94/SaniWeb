@@ -139,3 +139,15 @@
 .alert.catalogo-alert-preventivo.catalogo-alert-inline {
   position: static;
 }
+
+/* Pillola orari in home, stato "vicino alla chiusura": arancione, colore non tra i semantici di Bootstrap */
+.badge-orario-arancione {
+  background-color: #fd7e14;
+  color: #212529;
+}
+
+/* Pillola orari in home: i testi rosso/giallo sono lunghi e Bootstrap forza white-space:nowrap sui badge, causando overflow orizzontale su mobile */
+.pillola-orari {
+  white-space: normal;
+  max-width: 100%;
+}
