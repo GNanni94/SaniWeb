@@ -1,7 +1,7 @@
 var mymap = L.map('map', { scrollWheelZoom: true }).setView([43.528066, 11.562978], 17);
-L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-  subdomains: ['a', 'b', 'c']
+  maxZoom: 19
 }).addTo(mymap);
 // Cliccando sul marker si apre Google Maps in un'altra scheda
 L.marker([43.528066, 11.562978]).addTo(mymap)

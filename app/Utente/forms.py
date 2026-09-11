@@ -28,6 +28,14 @@ class ClienteForm(ModelForm):
             "cognome_ragione_sociale": "Cognome/Rag. sociale",
             "citta": "Città",
         }
+        widgets = {
+            "nome": forms.TextInput(attrs={"autocomplete": "off"}),
+            "cognome_ragione_sociale": forms.TextInput(attrs={"autocomplete": "off"}),
+            "email": forms.EmailInput(attrs={"autocomplete": "off"}),
+            "indirizzo": forms.TextInput(attrs={"autocomplete": "off"}),
+            "citta": forms.TextInput(attrs={"autocomplete": "off"}),
+            "telefono": forms.TextInput(attrs={"autocomplete": "off"}),
+        }
 
 class MessaggioForm(ModelForm):
     class Meta:
