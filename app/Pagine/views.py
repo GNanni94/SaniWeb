@@ -276,24 +276,6 @@ def elimina_documento(request, pk):
 
 @dashboard_richiesto
 @require_POST
-def rinomina_categoria(request, pk):
-    categoria = get_object_or_404(CategoriaFile, pk=pk)
-    nuovo_nome = request.POST.get('nome_categoria', '').strip()
-    if not nuovo_nome:
-        if not _is_ajax_request_documenti(request):
-            return redirect('gestione_documenti')
-        return JsonResponse({'errore': "Il nome della categoria non puo' essere vuoto."}, status=400)
-    if CategoriaFile.objects.filter(nome_categoria__iexact=nuovo_nome).exclude(pk=categoria.pk).exists():
-        if not _is_ajax_request_documenti(request):
-            return redirect('gestione_documenti')
-        return JsonResponse({'errore': "Esiste gia' una categoria con questo nome."}, status=400)
-    categoria.nome_categoria = nuovo_nome
-    categoria.save()
-    return _risposta_tabella_documenti(request)
-
-
-@dashboard_richiesto
-@require_POST
 def elimina_categoria(request, pk):
     categoria = get_object_or_404(CategoriaFile, pk=pk)
     # Elimina anche i documenti della categoria (non solo la riga: come in
