@@ -2,7 +2,7 @@ from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from Carrello.models import Carrello
-from Prodotti.models import mostra_precursori
+from Prodotti.models import puo_vedere_precursori
 from .models import Preventivo, Elementi_Preventivo
 from .forms import DettaglioPreventivoForm
 from django.views.generic import ListView
@@ -56,7 +56,7 @@ def crea_ordine_da_carrello(request):
         # dell'ordine - vedi design del 2026-08-18
         elementi_inclusi = []
         for elemento_carrello in carrello:
-            if elemento_carrello.prodotto.precursore and not mostra_precursori(request.user):
+            if elemento_carrello.prodotto.precursore and not puo_vedere_precursori(request.user):
                 continue
             elemento_ordine = Elementi_Preventivo.objects.create(preventivo = preventivo, prodotto = elemento_carrello.prodotto, quantita = elemento_carrello.quantita)
             elemento_ordine.save()
@@ -85,7 +85,7 @@ def aggiungi_preventivo_al_carrello(request, pk):
             # va saltato qui, non solo bloccato in
             # Carrello/views.py:aggiungi_prodotti_al_carrello, altrimenti
             # "Riusa preventivo" aggirerebbe comunque quel blocco
-            if elemento_preventivo.prodotto.precursore and not mostra_precursori(request.user):
+            if elemento_preventivo.prodotto.precursore and not puo_vedere_precursori(request.user):
                 almeno_un_elemento_saltato = True
                 continue
             elemento_carrello, created = Carrello.objects.get_or_create(cliente=request.user, prodotto=elemento_preventivo.prodotto)
@@ -95,7 +95,7 @@ def aggiungi_preventivo_al_carrello(request, pk):
             messages.warning(request, 'Uno o piu\' prodotti riservati ai clienti azienda non sono stati aggiunti al carrello.', extra_tags='precursore-riservato')
         # Il carrello non ha campi messaggio/luogo (appartengono al
         # Dettaglio_Preventivo, creato solo quando si conferma "Richiedi
-        # preventivo"): li passiamo in sessione cosi' CarrelloListView puo'
+        # preventivo"): li passiamo in sessione cosi' PaginaCarrelloView puo'
         # precompilare il form con i valori del vecchio preventivo
         dettaglio_preventivo = preventivo.dettaglio_preventivo
         request.session['messaggio_precompilato'] = dettaglio_preventivo.messaggio

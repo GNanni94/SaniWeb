@@ -37,7 +37,6 @@ class CarrelloHaProdottiContextProcessorTest(TestCase):
         contesto = carrello_ha_prodotti(request)
 
         self.assertEqual(contesto, {
-            "carrello_ha_prodotti": False,
             "elementi_carrello_utente": [],
             "totale_elementi_carrello": 0,
             "pagina_esclude_carrello_flottante": False,
@@ -50,7 +49,6 @@ class CarrelloHaProdottiContextProcessorTest(TestCase):
 
         contesto = carrello_ha_prodotti(request)
 
-        self.assertTrue(contesto["carrello_ha_prodotti"])
         self.assertEqual(contesto["totale_elementi_carrello"], 3)
         self.assertEqual(len(contesto["elementi_carrello_utente"]), 1)
         self.assertEqual(contesto["elementi_carrello_utente"][0].prodotto, self.prodotto)
@@ -79,7 +77,6 @@ class CarrelloHaProdottiContextProcessorTest(TestCase):
 
         contesto = carrello_ha_prodotti(request)
 
-        self.assertFalse(contesto["carrello_ha_prodotti"])
         self.assertEqual(contesto["totale_elementi_carrello"], 0)
         self.assertEqual(list(contesto["elementi_carrello_utente"]), [])
 
@@ -366,4 +363,4 @@ class AggiungiProdottoConPrecursoreTest(TestCase):
         self.client.force_login(self.privato)
         response = self.client.get(reverse("aggiungi_prodotti", args=[self.prodotto.pk]), follow=True)
         self.assertContains(response, 'id="modalAvvisoPrecursore"')
-        self.assertContains(response, 'Prodotto riservato ai clienti azienda.')
+        self.assertContains(response, 'Prodotto riservato alle aziende.')

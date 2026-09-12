@@ -103,7 +103,7 @@ class CreaOrdineDaCarrelloConPrecursoreTest(TestCase):
     # dell'introduzione del controllo (o comunque presente per qualunque
     # motivo) poteva comunque diventare un preventivo/ordine vero per un
     # cliente non azienda, perche' crea_ordine_da_carrello convertiva
-    # l'intero carrello senza controllare mostra_precursori. Questo e' il
+    # l'intero carrello senza controllare puo_vedere_precursori. Questo e' il
     # punto di enforcement scelto (la transazione, non la visualizzazione
     # o il singolo aggiungi-al-carrello) - vedi design del 2026-08-18.
     def setUp(self):

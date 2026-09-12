@@ -1,7 +1,7 @@
 from typing import Any
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView
-from .models import Categoria, Prodotto, Sottocategoria, ImmaginiArticolo, SchedeTecniche, DEFAULT_IMMAGINE_ARTICOLO, mostra_precursori
+from .models import Categoria, Prodotto, Sottocategoria, ImmaginiArticolo, SchedeTecniche, DEFAULT_IMMAGINE_ARTICOLO, puo_vedere_precursori
 from django.template import loader
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
@@ -19,7 +19,7 @@ def catalogo_home(request):
     }
 
 def _filtra_precursori(queryset, user):
-    if mostra_precursori(user):
+    if puo_vedere_precursori(user):
         return queryset
     return queryset.filter(Q(precursore__isnull=True) | Q(precursore=''))
 

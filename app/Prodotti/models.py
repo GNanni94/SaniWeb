@@ -9,7 +9,7 @@ from django.urls import reverse
 DEFAULT_IMMAGINE_ARTICOLO = "/media/default_immagine_articolo/saniscope_logo 2.png"
 
 
-def mostra_precursori(user):
+def puo_vedere_precursori(user):
     # Gli utenti anonimi vedono i prodotti soggetti alla normativa
     # precursori nel catalogo pubblico; se pero' effettuano il login con
     # un account che non e' un'azienda (vedi Registrati.is_azienda), quei
