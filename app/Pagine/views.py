@@ -6,11 +6,12 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ValidationError
-from django.db.models import Count, Prefetch, Q
-from django.http import JsonResponse
+from django.db.models import Prefetch, Q
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_http_methods, require_POST
 from django.views.generic import ListView
 
 from Prodotti.models import DEFAULT_IMMAGINE_ARTICOLO, ImmaginiArticolo, Prodotto
@@ -160,38 +161,51 @@ def _is_ajax_request_documenti(request):
     return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
 
-def _categorie_con_conteggio():
-    # "num_documenti": mostrato nel badge di ogni cartella nell'albero.
-    # "Prefetch" coi documenti gia' ordinati per nome: partials/albero_documenti.html
-    # itera "categoria.file_cat.all" per popolare ogni cartella, senza una
-    # query aggiuntiva per categoria (altrimenti N+1, una query per ogni
-    # cartella nel ciclo del template)
-    return CategoriaFile.objects.annotate(
-        num_documenti=Count('file_cat')
-    ).prefetch_related(
+def _categorie_documenti():
+    # "Prefetch" coi documenti gia' ordinati per nome: partials/tabella_documenti.html
+    # itera "categoria.file_cat.all" per popolare ogni riga, senza una query
+    # aggiuntiva per categoria (altrimenti N+1, una query per ogni categoria
+    # nel ciclo del template)
+    return CategoriaFile.objects.prefetch_related(
         Prefetch('file_cat', queryset=File.objects.order_by('nome_file'))
     ).order_by('nome_categoria')
 
 
-def _risposta_albero_documenti(request):
+def _risposta_tabella_documenti(request):
     if not _is_ajax_request_documenti(request):
         # Nessun JS e form comunque sottomesso come navigazione vera: un
         # frammento nudo sarebbe una pagina rotta, si torna alla pagina
         # completa (POST-redirect-GET)
         return redirect('gestione_documenti')
-    return render(request, 'partials/albero_documenti.html', {
-        'categorie': _categorie_con_conteggio(),
+    contesto = {
+        'categorie': _categorie_documenti(),
         'documenti_totali': File.objects.exists(),
-    })
+    }
+    # "partials/tabella_documenti.html" ha "#tabella-documenti" come unica
+    # radice: e' l'unico frammento compatibile con "hx-swap=morph:outerHTML"
+    # sul bersaglio omonimo. Il menu "Filtra per sezione" nell'intestazione
+    # e' un elemento fratello fuori da quel bersaglio, quindi va aggiornato
+    # "out-of-band" (stesso pattern del banner in Avvisi/views.py)
+    html_tabella = render_to_string(request=request, template_name='partials/tabella_documenti.html', context=contesto)
+    html_menu_filtro = render_to_string(request=request, template_name='partials/menu_filtro_sezione_documenti.html', context={**contesto, 'oob': True})
+    return HttpResponse(html_tabella + html_menu_filtro)
 
 
 def _risposta_form_documento_errori(request, form, azione_url):
     if not _is_ajax_request_documenti(request):
         return redirect('gestione_documenti')
-    return render(request, 'partials/form_documento.html', {
+    response = render(request, 'partials/form_documento.html', {
         'form': form,
         'azione_url': azione_url,
     }, status=400)
+    # Il form (partials/form_documento.html) ha "hx-target=#tabella-documenti"
+    # perche' e' l'unico bersaglio corretto per una risposta di SUCCESSO
+    # (200): questi due header dicono a htmx di ignorarlo SOLO per questa
+    # risposta e mandare invece il frammento (il form stesso, con gli
+    # errori) dentro il modal - stesso meccanismo di Avvisi/views.py
+    response['HX-Retarget'] = '#modalDocumentoBody'
+    response['HX-Reswap'] = 'innerHTML'
+    return response
 
 
 @dashboard_richiesto
@@ -200,30 +214,51 @@ def gestione_documenti(request):
     return render(request, 'gestione_documenti.html', {
         'form': form,
         'azione_url': reverse('nuovo_documento'),
-        'categorie': _categorie_con_conteggio(),
+        'categorie': _categorie_documenti(),
         'documenti_totali': File.objects.exists(),
     })
 
 
 @dashboard_richiesto
-@require_POST
+@require_http_methods(["GET", "POST"])
 def nuovo_documento(request):
-    form = DocumentoForm(request.POST, request.FILES)
-    if form.is_valid():
-        form.save()
-        return _risposta_albero_documenti(request)
-    return _risposta_form_documento_errori(request, form, reverse('nuovo_documento'))
+    if request.method == "POST":
+        form = DocumentoForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return _risposta_tabella_documenti(request)
+        return _risposta_form_documento_errori(request, form, reverse('nuovo_documento'))
+    # GET: apre il pop-up "+ Nuovo documento" con un form vuoto, stesso
+    # frammento usato dal salvataggio (partials/form_documento.html)
+    if not _is_ajax_request_documenti(request):
+        return redirect('gestione_documenti')
+    form = DocumentoForm()
+    return render(request, 'partials/form_documento.html', {
+        'form': form,
+        'azione_url': reverse('nuovo_documento'),
+    })
 
 
 @dashboard_richiesto
-@require_POST
+@require_http_methods(["GET", "POST"])
 def modifica_documento(request, pk):
     documento = get_object_or_404(File, pk=pk)
-    form = DocumentoForm(request.POST, request.FILES, instance=documento)
-    if form.is_valid():
-        form.save()
-        return _risposta_albero_documenti(request)
-    return _risposta_form_documento_errori(request, form, reverse('modifica_documento', args=[pk]))
+    if request.method == "POST":
+        form = DocumentoForm(request.POST, request.FILES, instance=documento)
+        if form.is_valid():
+            form.save()
+            return _risposta_tabella_documenti(request)
+        return _risposta_form_documento_errori(request, form, reverse('modifica_documento', args=[pk]))
+    # GET: apre il pop-up "Modifica" gia' precompilato coi dati esistenti,
+    # stesso frammento usato per il salvataggio (partials/form_documento.html)
+    if not _is_ajax_request_documenti(request):
+        return redirect('gestione_documenti')
+    form = DocumentoForm(instance=documento)
+    return render(request, 'partials/form_documento.html', {
+        'form': form,
+        'azione_url': reverse('modifica_documento', args=[pk]),
+        'documento': documento,
+    })
 
 
 @dashboard_richiesto
@@ -236,7 +271,7 @@ def elimina_documento(request, pk):
         # orfano su disco
         documento.file.delete(save=False)
     documento.delete()
-    return _risposta_albero_documenti(request)
+    return _risposta_tabella_documenti(request)
 
 
 @dashboard_richiesto
@@ -254,7 +289,7 @@ def rinomina_categoria(request, pk):
         return JsonResponse({'errore': "Esiste gia' una categoria con questo nome."}, status=400)
     categoria.nome_categoria = nuovo_nome
     categoria.save()
-    return _risposta_albero_documenti(request)
+    return _risposta_tabella_documenti(request)
 
 
 @dashboard_richiesto
@@ -270,4 +305,4 @@ def elimina_categoria(request, pk):
             documento.file.delete(save=False)
         documento.delete()
     categoria.delete()
-    return _risposta_albero_documenti(request)
+    return _risposta_tabella_documenti(request)

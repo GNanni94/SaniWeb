@@ -10,17 +10,10 @@
     var btnNuovo = document.getElementById('btnNuovoDocumento');
     var tabellaDocumenti = document.getElementById('tabella-documenti');
     var filtroSezioneWrapper = document.getElementById('filtroSezioneDocumentiWrapper');
-    var listaFiltroSezione = filtroSezioneWrapper ? filtroSezioneWrapper.querySelector('.filtro-dropdown-menu') : null;
-    var modalConfermaEliminaEl = document.getElementById('modalConfermaEliminaDocumento');
-    var testoConfermaElimina = document.getElementById('testoConfermaEliminaDocumento');
-    var btnConfermaElimina = document.getElementById('btnConfermaEliminaDocumento');
-    if (!tabellaDocumenti || !modalEl || !modalBody || !modalConfermaEliminaEl || !testoConfermaElimina || !btnConfermaElimina) {
+    if (!tabellaDocumenti || !modalEl || !modalBody) {
         return;
     }
     var modalBootstrap = new bootstrap.Modal(modalEl);
-    var modalConfermaEliminaBootstrap = new bootstrap.Modal(modalConfermaEliminaEl);
-    // Snapshot del form vuoto usato da "+ Nuovo documento" per ripartire da uno stato pulito
-    var formInizialeHTML = modalBody.innerHTML;
 
     // Bordo bianco sul "+" flottante quando scorre sopra il footer di pagina (creaAggiornatoreSuSfondoBlu in sovrapposizione-sfondo-blu.js)
     if (btnNuovo) {
@@ -31,13 +24,6 @@
 
     function formCorrente() {
         return document.getElementById('form-documento');
-    }
-
-    // Legge il token CSRF dal form del modal, presente nel DOM anche a modal chiuso
-    function tokenCsrf() {
-        var f = formCorrente();
-        var tokenInput = f ? f.querySelector('[name=csrfmiddlewaretoken]') : null;
-        return tokenInput ? tokenInput.value : null;
     }
 
     // Ritorna il testo dell'opzione correntemente selezionata nel <select> "categoria"
@@ -224,23 +210,32 @@
         });
     }
 
+    // Rilegge il <ul> del filtro ogni volta: con "hx-swap-oob=true" il nodo
+    // viene sostituito per intero ad ogni aggiornamento (outerHTML), quindi
+    // un riferimento salvato una volta sola diventerebbe stale
+    function menuFiltroSezione() {
+        return filtroSezioneWrapper ? filtroSezioneWrapper.querySelector('.filtro-dropdown-menu') : null;
+    }
+
     // Marca come attiva la voce del filtro scelta
     function impostaVoceFiltroSezioneAttiva(voceScelta) {
-        if (!listaFiltroSezione) {
+        var menu = menuFiltroSezione();
+        if (!menu) {
             return;
         }
-        var voci = listaFiltroSezione.querySelectorAll('.filtro-dropdown-item');
+        var voci = menu.querySelectorAll('.filtro-dropdown-item');
         for (var i = 0; i < voci.length; i++) {
             voci[i].classList.toggle('active', voci[i] === voceScelta);
         }
     }
 
     function aggiornaClasseFiltroSezioneAttivo() {
-        if (!filtroSezioneWrapper || !listaFiltroSezione) {
+        var menu = menuFiltroSezione();
+        if (!filtroSezioneWrapper || !menu) {
             return;
         }
         var iconaFiltro = filtroSezioneWrapper.querySelector('.filtro-icon-overlay');
-        var primaVoce = listaFiltroSezione.querySelector('.filtro-dropdown-item');
+        var primaVoce = menu.querySelector('.filtro-dropdown-item');
         if (!iconaFiltro || !primaVoce) {
             return;
         }
@@ -249,8 +244,10 @@
         iconaFiltro.classList.toggle('bi-funnel', !attivo);
     }
 
-    if (listaFiltroSezione) {
-        listaFiltroSezione.addEventListener('click', function (event) {
+    // Delegazione sul wrapper (stabile, mai sostituito), non sul <ul> del
+    // menu: quello viene ricreato ad ogni aggiornamento del filtro (vedi menuFiltroSezione())
+    if (filtroSezioneWrapper) {
+        filtroSezioneWrapper.addEventListener('click', function (event) {
             var voce = event.target.closest('.filtro-dropdown-item');
             if (!voce) {
                 return;
@@ -264,245 +261,167 @@
         aggiornaClasseFiltroSezioneAttivo();
     }
 
-    // null = nessuna eliminazione in sospeso; altrimenti la funzione da eseguire alla conferma nel modal
-    var azioneEliminaConfermata = null;
-
-    // Mostra il modal di conferma con "messaggio"; esegue "azione" solo se l'utente conferma
-    function chiediConfermaElimina(messaggio, azione) {
-        testoConfermaElimina.textContent = messaggio;
-        azioneEliminaConfermata = azione;
-        modalConfermaEliminaBootstrap.show();
-    }
-
-    btnConfermaElimina.addEventListener('click', function () {
-        modalConfermaEliminaBootstrap.hide();
-        if (azioneEliminaConfermata) {
-            azioneEliminaConfermata();
-        }
-    });
-
-    modalConfermaEliminaEl.addEventListener('hidden.bs.modal', function () {
-        azioneEliminaConfermata = null;
-    });
-
-    // Chiede conferma con un pop-up ed elimina la categoria
-    function eliminaCategoria(item) {
-        var messaggio = 'Vuoi cancellare la cartella "' + item.dataset.nomeCategoria + '" e i suoi file?';
-        chiediConfermaElimina(messaggio, function () {
-            postConCsrfEAggiornaTabella(item.dataset.urlEliminaCategoria);
-        });
-    }
-
-    // Aggiorna le opzioni del <select> "categoria" nello snapshot del form vuoto e ricostruisce le voci del menu "Seleziona categoria"
-    function aggiornaOpzioniCategoriaNelFormVuoto(opzioniHTML) {
-        var tmp = document.createElement('div');
-        tmp.innerHTML = formInizialeHTML;
-        var select = tmp.querySelector('#id_categoria');
-        var menu = tmp.querySelector('.dropdown-menu-categoria');
-        if (!select || !menu) {
+    // Ricostruisce la voce "attiva" del filtro dopo che il menu e' stato
+    // rigenerato dal server (arriva sempre con "MOSTRA TUTTO" attivo di
+    // default, il server non sa nulla del filtro scelto lato client). Se
+    // la categoria filtrata e' stata eliminata nel frattempo, torna a
+    // "MOSTRA TUTTO"
+    function riapplicaVoceFiltroSezioneAttiva() {
+        var menu = menuFiltroSezione();
+        if (!menu) {
             return;
         }
-        select.innerHTML = opzioniHTML;
-        menu.innerHTML = '';
-        Array.prototype.forEach.call(select.options, function (opzione) {
-            if (!opzione.value) {
-                return;
+        var selettore = '.filtro-dropdown-item[data-categoria-pk="' + (categoriaFiltrataPk || '') + '"]';
+        var voce = menu.querySelector(selettore);
+        if (!voce) {
+            categoriaFiltrataPk = null;
+            voce = menu.querySelector('.filtro-dropdown-item[data-categoria-pk=""]');
+            applicaFiltroSezione();
+        }
+        if (voce) {
+            impostaVoceFiltroSezioneAttiva(voce);
+        }
+        aggiornaClasseFiltroSezioneAttivo();
+    }
+
+    // Il menu "Filtra per sezione" arriva sempre come frammento
+    // "out-of-band" dopo un salvataggio riuscito o un'eliminazione:
+    // "htmx:oobAfterSwap" scatta per ogni swap fuori dal bersaglio
+    // principale della richiesta. L'outerHTML swap sostituisce il <ul> con
+    // un nodo nuovo: se il dropdown Bootstrap sul bottone era gia' stato
+    // aperto una volta, la sua istanza resta agganciata al <ul> vecchio
+    // (rimosso dal DOM) e smette di rispondere ai click, quindi va
+    // disposta qui per farla ricreare al prossimo click sul <ul> nuovo
+    document.addEventListener('htmx:oobAfterSwap', function (event) {
+        if (event.detail.target && event.detail.target.id === 'menuFiltroSezioneDocumenti') {
+            var btnFiltro = document.getElementById('filtroSezioneDocumenti');
+            var dropdownEsistente = btnFiltro ? bootstrap.Dropdown.getInstance(btnFiltro) : null;
+            if (dropdownEsistente) {
+                dropdownEsistente.dispose();
             }
-            var li = document.createElement('li');
-            var a = document.createElement('a');
-            a.className = 'dropdown-item dropdown-item-categoria d-flex align-items-center gap-2';
-            a.href = '#';
-            a.dataset.pk = opzione.value;
-            a.dataset.nome = opzione.textContent;
-            a.textContent = opzione.textContent;
-            li.appendChild(a);
-            menu.appendChild(li);
-        });
-        if (!menu.children.length) {
-            var liVuoto = document.createElement('li');
-            var span = document.createElement('span');
-            span.className = 'dropdown-item-text text-muted';
-            span.textContent = 'Nessuna categoria esistente';
-            liVuoto.appendChild(span);
-            menu.appendChild(liVuoto);
+            riapplicaVoceFiltroSezioneAttiva();
         }
-        formInizialeHTML = tmp.innerHTML;
-    }
+    });
 
-    function aggiornaTabella(html) {
-        var tmp = document.createElement('div');
-        tmp.innerHTML = html.trim();
-        var nuovaTabella = tmp.querySelector('#tabella-documenti');
-        if (!nuovaTabella) {
-            // Risposta inattesa (es. pagina di login intera): reload completo
-            window.location.reload();
+    sincronizzaStatoCategoria();
+
+    // "+ Nuovo documento" e "Modifica" caricano nel modal il form dal
+    // server via "hx-get" (rispettivamente form vuoto e precompilato): il
+    // modal viene aperto solo dopo che il contenuto e' arrivato. Lo stesso
+    // evento copre anche il form ri-mostrato nel modal dopo un errore di
+    // validazione del salvataggio (hx-post + HX-Retarget su un 400): in
+    // quel caso pero' "nomeFileOriginale"/"categoriaOriginalePk" restano
+    // quelli letti alla apertura originale, altrimenti il confronto di
+    // valutaBottoneSalva() ripartirebbe dai valori (con errori) appena
+    // tentati.
+    // La cattura dei valori resta su "afterSwap", ma il ripristino visivo
+    // (icona/link del file, che tocca "class") va fatto su "afterSettle":
+    // passato il settle delay di default (20ms) htmx reimposta da solo gli
+    // attributi in htmx.config.attributesToSettle (class/style/width/
+    // height) al valore ricevuto dal server, cancellando nel frattempo
+    // qualunque classe cambiata "a mano" durante afterSwap.
+    var eGetFormCorrente = false;
+    document.addEventListener('htmx:afterSwap', function (event) {
+        if (event.detail.target !== modalBody) {
             return;
         }
-
-        // Applica il nuovo HTML preservando i nodi invariati, con fallback a innerHTML diretto
-        if (window.Idiomorph) {
-            Idiomorph.morph(tabellaDocumenti, nuovaTabella.innerHTML, { morphStyle: 'innerHTML' });
-        } else {
-            tabellaDocumenti.innerHTML = nuovaTabella.innerHTML;
-        }
-
-        var opzioniCategoria = tmp.querySelector('#opzioniCategoriaAggiornate');
-        if (opzioniCategoria) {
-            aggiornaOpzioniCategoriaNelFormVuoto(opzioniCategoria.innerHTML);
-        }
-
-        applicaFiltroSezione();
-    }
-
-    function salvaDocumento(f) {
-        fetch(f.action, {
-            method: 'POST',
-            body: new FormData(f),
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        }).then(function (response) {
-            return response.text().then(function (html) {
-                if (response.ok) {
-                    aggiornaTabella(html);
-                    modalBootstrap.hide();
-                } else if (response.status === 400) {
-                    // Sostituisce il contenuto del modal con il form con errori, che resta aperto
-                    modalBody.innerHTML = html;
-                    sincronizzaStatoCategoria();
-                    if (fileAttualeInModifica) {
-                        impostaCampoFileEsistente(fileAttualeInModifica.url, fileAttualeInModifica.nome);
-                    } else if (fileNuovoScelto) {
-                        // Reimbusta il file scelto nel nuovo <input type=file> tramite DataTransfer
-                        var fFresco = formCorrente();
-                        var inputFile = fFresco ? fFresco.elements['file'] : null;
-                        if (inputFile) {
-                            var trasferimento = new DataTransfer();
-                            trasferimento.items.add(fileNuovoScelto);
-                            inputFile.files = trasferimento.files;
-                        }
-                        impostaCampoFileEsistente(blobFileScelto, fileNuovoScelto.name);
-                    }
-                    valutaBottoneSalva();
-                } else {
-                    // Altro errore (CSRF scaduto, 404, 500, ...): reload completo
-                    window.location.reload();
-                }
-            });
-        }).catch(function () {
-            window.location.reload();
-        });
-    }
-
-    function postConCsrfEAggiornaTabella(url) {
-        var corpo = new FormData();
-        var token = tokenCsrf();
-        if (token) {
-            corpo.append('csrfmiddlewaretoken', token);
-        }
-        fetch(url, {
-            method: 'POST',
-            body: corpo,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        }).then(function (response) {
-            return response.text().then(function (html) {
-                if (response.ok) {
-                    aggiornaTabella(html);
-                } else {
-                    // Richiesta fallita: reload completo
-                    window.location.reload();
-                }
-            });
-        }).catch(function () {
-            window.location.reload();
-        });
-    }
-
-    // Apre il modal precompilato con i dati del documento scelto, per la sua modifica
-    function apriModaleModificaDocumento(riga) {
-        revocaBlobFileScelto();
-        fileAttualeInModifica = null;
-        modalBody.innerHTML = formInizialeHTML;
         var f = formCorrente();
         if (!f) {
             return;
         }
-        f.action = riga.dataset.urlModificaDocumento;
-        nomeFileOriginale = riga.dataset.nomeFile || '';
-        if (f.elements['nome_file']) {
-            f.elements['nome_file'].value = nomeFileOriginale;
-        }
-        var categoriaPk = riga.dataset.categoriaPk;
-        categoriaOriginalePk = categoriaPk || '';
-        var vocePillola = f.querySelector('.dropdown-item-categoria[data-pk="' + categoriaPk + '"]');
-        if (vocePillola) {
-            impostaCategoriaEsistente(categoriaPk, vocePillola.dataset.nome);
-        }
-        var linkFile = riga.querySelector('.documento-nome-btn');
-        if (linkFile && riga.dataset.fileNome) {
-            fileAttualeInModifica = { url: linkFile.href, nome: riga.dataset.fileNome.split('/').pop() };
-            impostaCampoFileEsistente(fileAttualeInModifica.url, fileAttualeInModifica.nome);
-        }
-        valutaBottoneSalva();
-        modalBootstrap.show();
-    }
-
-    // Chiede conferma con un pop-up ed elimina il documento scelto
-    function eliminaDocumentoScelto(riga) {
-        var nome = riga.dataset.nomeFile || 'questo documento';
-        chiediConfermaElimina('Vuoi cancellare il file "' + nome + '"?', function () {
-            postConCsrfEAggiornaTabella(riga.dataset.urlEliminaDocumento);
-        });
-    }
-
-    sincronizzaStatoCategoria();
-
-    if (btnNuovo) {
-        btnNuovo.addEventListener('click', function () {
-            fileAttualeInModifica = null;
+        eGetFormCorrente = event.detail.requestConfig && event.detail.requestConfig.verb === 'get';
+        if (eGetFormCorrente) {
             revocaBlobFileScelto();
-            modalBody.innerHTML = formInizialeHTML;
-            nomeFileOriginale = '';
-            categoriaOriginalePk = '';
-            sincronizzaStatoCategoria();
-            valutaBottoneSalva();
-        });
-    }
-
-    // Click su una riga: apre il pop-up di modifica, tranne su link e bottoni azione
-    tabellaDocumenti.addEventListener('click', function (event) {
-        if (event.target.closest('a')) {
-            return;
+            fileAttualeInModifica = null;
+            nomeFileOriginale = f.elements['nome_file'] ? f.elements['nome_file'].value : '';
+            categoriaOriginalePk = f.elements['categoria'] ? f.elements['categoria'].value : '';
         }
-        var btnEliminaCategoria = event.target.closest('.btn-elimina-categoria-riga');
-        if (btnEliminaCategoria) {
-            var cellaSezione = btnEliminaCategoria.closest('tr').querySelector('.sezione-cella-riga');
-            if (cellaSezione) {
-                eliminaCategoria(cellaSezione);
-            }
-            return;
-        }
-        var btnEliminaDocumento = event.target.closest('.btn-elimina-documento-riga');
-        if (btnEliminaDocumento) {
-            var rigaDocumento = btnEliminaDocumento.closest('tr[data-pk]');
-            if (rigaDocumento) {
-                eliminaDocumentoScelto(rigaDocumento);
-            }
-            return;
-        }
-        var riga = event.target.closest('tr[data-pk]');
-        if (!riga) {
-            return;
-        }
-        apriModaleModificaDocumento(riga);
     });
 
-    // Delegazione sul body del modal: il form viene sostituito per intero ad ogni errore di validazione
-    modalBody.addEventListener('submit', function (event) {
-        var f = event.target.closest('#form-documento');
+    document.addEventListener('htmx:afterSettle', function (event) {
+        if (event.detail.target !== modalBody) {
+            return;
+        }
+        var f = formCorrente();
         if (!f) {
             return;
         }
-        event.preventDefault();
-        salvaDocumento(f);
+        sincronizzaStatoCategoria();
+        if (eGetFormCorrente) {
+            if (f.dataset.fileUrl) {
+                fileAttualeInModifica = { url: f.dataset.fileUrl, nome: f.dataset.fileNome };
+                impostaCampoFileEsistente(fileAttualeInModifica.url, fileAttualeInModifica.nome);
+            }
+        } else if (fileAttualeInModifica) {
+            impostaCampoFileEsistente(fileAttualeInModifica.url, fileAttualeInModifica.nome);
+        } else if (fileNuovoScelto) {
+            // Reimbusta il file scelto nel nuovo <input type=file> tramite DataTransfer
+            var inputFile = f.elements['file'];
+            if (inputFile) {
+                var trasferimento = new DataTransfer();
+                trasferimento.items.add(fileNuovoScelto);
+                inputFile.files = trasferimento.files;
+            }
+            impostaCampoFileEsistente(blobFileScelto, fileNuovoScelto.name);
+        }
+        valutaBottoneSalva();
+        if (eGetFormCorrente) {
+            modalBootstrap.show();
+        }
+    });
+
+    // Il morph di "#tabella-documenti" (dopo un salvataggio o
+    // un'eliminazione, tutti via hx-post) e' gestito nativamente
+    // dall'estensione idiomorph di htmx: il filtro sezione, che nasconde
+    // le righe via classe "d-none" lato client, va quindi riapplicato a
+    // mano sulle righe appena arrivate
+    document.addEventListener('htmx:afterSwap', function (event) {
+        if (event.detail.target === tabellaDocumenti) {
+            applicaFiltroSezione();
+        }
+    });
+
+    // Ricarica la pagina se il caricamento di "Modifica" (richiesta GET)
+    // fallisce; gli errori di eliminazione (richieste POST, gestite via
+    // hx-post/hx-confirm sui bottoni in tabella_documenti.html) restano sul
+    // comportamento di default di htmx
+    tabellaDocumenti.addEventListener('htmx:responseError', function (event) {
+        if (event.detail.requestConfig && event.detail.requestConfig.verb === 'get') {
+            window.location.reload();
+        }
+    });
+
+    // Forza lo swap sul modal per gli errori di validazione (400): htmx
+    // non applica lo swap di default fuori dal range 2xx, e
+    // "htmx:beforeSwap" scatta sul bersaglio originale del form
+    // ("#tabella-documenti") anche quando l'header "HX-Retarget" lo cambia,
+    // quindi il listener resta su "document" (antenato di entrambi)
+    document.addEventListener('htmx:beforeSwap', function (event) {
+        if (event.detail.target === modalBody) {
+            event.detail.shouldSwap = true;
+        }
+    });
+
+    // Chiude il modal solo dopo un salvataggio riuscito (2xx)
+    modalBody.addEventListener('htmx:afterRequest', function (event) {
+        var status = event.detail.xhr.status;
+        if (status >= 200 && status < 300) {
+            modalBootstrap.hide();
+        }
+    });
+
+    // Ricarica la pagina per un errore di salvataggio diverso da 400
+    // (errori di validazione, gestiti sopra)
+    modalBody.addEventListener('htmx:responseError', function (event) {
+        if (event.detail.xhr.status !== 400) {
+            window.location.reload();
+        }
+    });
+
+    // Ricarica la pagina se la richiesta di salvataggio non arriva a
+    // destinazione (rete assente, server giu')
+    modalBody.addEventListener('htmx:sendError', function () {
+        window.location.reload();
     });
 
     // Delegazione su "modalBody" (stabile): il suo innerHTML viene sostituito ad ogni documento o errore di validazione
@@ -547,7 +466,7 @@
             valutaBottoneSalva();
             var f = formCorrente();
             if (f && f.elements['nome_file']) {
-                f.elements['nome_file'].value = file.name.replace(/\.[^.]+$/, '');
+                f.elements['nome_file'].value = file.name.replace(/\.[^.]+$/, '').replace(/_/g, ' ');
             }
         }
     });

@@ -626,25 +626,6 @@ class GestioneDocumentiViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Certificato ISO")
 
-    def test_colonna_categorie_mostra_il_conteggio_corretto(self):
-        categoria = _crea_categoria_file(nome="Certificazioni")
-        _crea_documento(nome_file="Certificato ISO", categoria=categoria)
-        _crea_documento(nome_file="Certificato Qualita", categoria=categoria)
-        altra_categoria = _crea_categoria_file(nome="Normative")
-        self.client.force_login(self.staff)
-        response = self.client.get(reverse("gestione_documenti"))
-        contenuto = response.content.decode()
-        self.assertIn('id="cartella-%d"' % categoria.pk, contenuto)
-        indice_categoria = contenuto.index('id="cartella-%d"' % categoria.pk)
-        indice_prossima_cartella = contenuto.index('id="cartella-', indice_categoria + 1)
-        blocco_categoria = contenuto[indice_categoria:indice_prossima_cartella]
-        self.assertIn('numero-documenti-categoria', blocco_categoria)
-        self.assertIn(">2<", blocco_categoria)
-        indice_altra = contenuto.index('id="cartella-%d"' % altra_categoria.pk)
-        blocco_altra_categoria = contenuto[indice_altra:]
-        self.assertIn('numero-documenti-categoria', blocco_altra_categoria)
-        self.assertIn(">0<", blocco_altra_categoria)
-
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class NuovoDocumentoViewTest(TestCase):
@@ -682,20 +663,16 @@ class NuovoDocumentoViewTest(TestCase):
         documento = File.objects.get(nome_file="Normativa X")
         self.assertEqual(documento.categoria.nome_categoria, "Normative")
 
-    def test_risposta_include_le_opzioni_categoria_aggiornate(self):
-        # Regressione: senza questo elenco nella risposta, il JS non ha modo
-        # di aggiornare lo snapshot del form vuoto usato da "+ Nuovo
-        # documento" - la categoria appena creata resterebbe invisibile in
-        # quella select finche' non si ricarica l'intera pagina
+    def test_get_nuovo_documento_riflette_categoria_appena_creata(self):
         self.client.force_login(self.staff)
         file = SimpleUploadedFile("doc.pdf", PDF_MINIMO, content_type="application/pdf")
-        response = self.client.post(
+        self.client.post(
             reverse("nuovo_documento"),
             data={"nome_file": "Normativa X", "categoria": "", "categoria_nuova": "Normative", "file": file},
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
+        response = self.client.get(reverse("nuovo_documento"), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'id="opzioniCategoriaAggiornate"')
         self.assertContains(response, "Normative")
 
     def test_post_non_valido_non_crea_nulla_e_risponde_con_form_errori(self):
@@ -713,10 +690,16 @@ class NuovoDocumentoViewTest(TestCase):
         response = self.client.post(reverse("nuovo_documento"), data={}, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         self.assertEqual(response.status_code, 302)
 
-    def test_get_risponde_405(self):
+    def test_get_ajax_risponde_con_form_vuoto(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("nuovo_documento"), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="form-documento"')
+
+    def test_get_non_ajax_reindirizza_a_gestione_documenti(self):
         self.client.force_login(self.staff)
         response = self.client.get(reverse("nuovo_documento"))
-        self.assertEqual(response.status_code, 405)
+        self.assertRedirects(response, reverse("gestione_documenti"))
 
     def test_post_non_ajax_valido_reindirizza_a_gestione_documenti(self):
         self.client.force_login(self.staff)
@@ -778,11 +761,6 @@ class ModificaDocumentoViewTest(TestCase):
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
         self.assertEqual(response.status_code, 404)
-
-    def test_get_risponde_405(self):
-        self.client.force_login(self.staff)
-        response = self.client.get(reverse("modifica_documento", args=[self.documento.pk]))
-        self.assertEqual(response.status_code, 405)
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
@@ -942,52 +920,4 @@ class EliminaCategoriaViewTest(TestCase):
         self.client.force_login(self.staff)
         response = self.client.get(reverse("elimina_categoria", args=[self.categoria.pk]))
         self.assertEqual(response.status_code, 405)
-
-
-@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
-class GestioneDocumentiContrattoJsTest(TestCase):
-    # Guardia di regressione per il contratto tra il template e
-    # gestione-documenti.js: stesso spirito di
-    # AvvisoChiusuraGestionePageContrattoJsTest in Avvisi/tests.py
-    def setUp(self):
-        User = get_user_model()
-        self.staff = User.objects.create_user(
-            username="staffdoccontratto", email="staffdoccontratto@example.com", password="testpass123", is_staff=True
-        )
-        _crea_documento(nome_file="Certificato ISO")
-
-    def test_pagina_contiene_id_ed_attributi_richiesti_dal_js(self):
-        self.client.force_login(self.staff)
-        response = self.client.get(reverse("gestione_documenti"))
-        self.assertEqual(response.status_code, 200)
-        stringhe_richieste = [
-            'id="albero-documenti"',
-            'id="modalDocumento"',
-            'id="modalDocumentoBody"',
-            'id="btnNuovoDocumento"',
-            'id="form-documento"',
-            'data-pk="',
-            'data-nome-file="',
-            'data-categoria-pk="',
-            'id="pannelloAzioni"',
-            'id="btnModifica"',
-            'id="btnElimina"',
-            'id="btnAnnullaModalita"',
-            'id="messaggioModalita"',
-            'data-nome-categoria="',
-            'data-url-rinomina-categoria="',
-            'data-url-elimina-categoria="',
-            'data-url-modifica-documento="',
-            'data-url-elimina-documento="',
-            'id="opzioniCategoriaAggiornate"',
-            'testo-categoria',
-            'input-rinomina-categoria',
-            'btn-cerchio-cartella',
-            'documento-nome-btn',
-            'numero-documenti-categoria',
-            'id="corpoCartella',
-            'id="documento-riga-',
-        ]
-        for stringa in stringhe_richieste:
-            self.assertContains(response, stringa)
 

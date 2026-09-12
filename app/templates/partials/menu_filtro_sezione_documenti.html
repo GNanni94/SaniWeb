@@ -1,0 +1,21 @@
+{% comment %}
+Voci del menu "Filtra per sezione", una per categoria. "oob": passato a
+True dalla risposta AJAX (elimina/salva documento o categoria) per
+aggiornare l'elenco categorie ovunque il menu si trovi in pagina, con
+"hx-swap-oob=true" (outerHTML): il nodo <ul> viene quindi sostituito per
+intero, per questo il listener click in gestione-documenti.js e' delegato
+sul contenitore padre stabile (#filtroSezioneDocumentiWrapper), non
+attaccato direttamente a questo <ul>. Per lo stesso motivo l'istanza
+Bootstrap del Dropdown sul bottone "filtroSezioneDocumenti" va disposta
+dopo ogni swap (gestione-documenti.js, su "htmx:oobAfterSwap"), altrimenti
+resterebbe agganciata al vecchio <ul> rimosso dal DOM. La voce "MOSTRA
+TUTTO" arriva sempre attiva di default: dopo lo swap e' gestione-
+documenti.js a riapplicare la voce corrispondente al filtro correntemente
+scelto.
+{% endcomment %}
+<ul class="dropdown-menu dropdown-menu-end filtro-dropdown-menu" id="menuFiltroSezioneDocumenti" aria-labelledby="filtroSezioneDocumenti"{% if oob %} hx-swap-oob="true"{% endif %}>
+  <li><a class="dropdown-item filtro-dropdown-item active" href="#" data-categoria-pk="">MOSTRA TUTTO<span class="pallino-pagina-corrente filtro-item-dot" aria-hidden="true"></span></a></li>
+  {% for categoria in categorie %}
+  <li><a class="dropdown-item filtro-dropdown-item" href="#" data-categoria-pk="{{ categoria.pk }}">{{ categoria.nome_categoria|upper }}<span class="pallino-pagina-corrente filtro-item-dot" aria-hidden="true"></span></a></li>
+  {% endfor %}
+</ul>
