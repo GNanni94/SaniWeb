@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.db import connection
@@ -38,6 +40,7 @@ class CarrelloHaProdottiContextProcessorTest(TestCase):
             "carrello_ha_prodotti": False,
             "elementi_carrello_utente": [],
             "totale_elementi_carrello": 0,
+            "pagina_esclude_carrello_flottante": False,
         })
 
     def test_utente_con_prodotti_nel_carrello(self):
@@ -51,6 +54,24 @@ class CarrelloHaProdottiContextProcessorTest(TestCase):
         self.assertEqual(contesto["totale_elementi_carrello"], 3)
         self.assertEqual(len(contesto["elementi_carrello_utente"]), 1)
         self.assertEqual(contesto["elementi_carrello_utente"][0].prodotto, self.prodotto)
+
+    def test_pagina_profilo_esclude_il_carrello_flottante(self):
+        request = self.factory.get("/")
+        request.user = self.utente
+        request.resolver_match = SimpleNamespace(url_name="profilo")
+
+        contesto = carrello_ha_prodotti(request)
+
+        self.assertTrue(contesto["pagina_esclude_carrello_flottante"])
+
+    def test_pagina_catalogo_non_esclude_il_carrello_flottante(self):
+        request = self.factory.get("/")
+        request.user = self.utente
+        request.resolver_match = SimpleNamespace(url_name="dettaglio_categoria")
+
+        contesto = carrello_ha_prodotti(request)
+
+        self.assertFalse(contesto["pagina_esclude_carrello_flottante"])
 
     def test_utente_senza_prodotti_nel_carrello(self):
         request = self.factory.get("/")

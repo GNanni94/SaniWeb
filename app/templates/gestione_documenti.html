@@ -2,6 +2,15 @@
 {% load static %}
 {% block titolo %} Gestione Documenti {% endblock titolo %}
 
+{% block extra_bottom_js %}
+<script src="https://cdn.jsdelivr.net/npm/idiomorph@0.4.0/dist/idiomorph.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
+{% static 'js/vendor/idiomorph-htmx.min.js' as url_fallback_idiomorph_htmx %}
+<script src="https://cdn.jsdelivr.net/npm/idiomorph@0.4.0/dist/idiomorph-htmx.min.js"
+        onerror="var s=document.createElement('script');s.src='{{ url_fallback_idiomorph_htmx }}';document.head.appendChild(s);"></script>
+<script src="{% static 'js/conferma-generica.js' %}"></script>
+{% endblock extra_bottom_js %}
+
 {% block contenuto %}
 
 <div class="container">

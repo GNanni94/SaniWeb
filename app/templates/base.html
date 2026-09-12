@@ -54,27 +54,19 @@
 
   <link rel="apple-touch-icon" href="{% static 'favicon/apple-touch-icon.png' %}">
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
     crossorigin="anonymous"></script>
-  <script type="text/javascript" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.js"></script>
-  <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.css" />
-  <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Barlow+Semi+Condensed:wght@600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+  {% comment %} Librerie esterne usate solo da alcune pagine (jQuery/DataTables per prodotti_tabella.html, Leaflet per contatti.html): ogni pagina dichiara qui cosa le serve, invece di scaricarle ovunque. {% endcomment %}
+  {% block extra_head %}{% endblock extra_head %}
 
   <!-- Fogli di stile del progetto, caricati per ultimi: vincono su quelle di Bootstrap a parita' di specificita'. -->
   <link href="{% static 'css/variables.css' %}" rel="stylesheet" type="text/css" />
@@ -331,22 +323,23 @@
   </footer>
 
   <div id="carrelloFlottanteContainer">
-    {% if request.resolver_match.url_name != 'carrello' %}
+    {% if not pagina_esclude_carrello_flottante %}
     {% include 'partials/carrello_flottante.html' %}
     {% endif %}
   </div>
 
   {% include 'partials/modal_conferma_generica.html' %}
 
-  <script src="https://cdn.jsdelivr.net/npm/idiomorph@0.4.0/dist/idiomorph.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
-  {% static 'js/vendor/idiomorph-htmx.min.js' as url_fallback_idiomorph_htmx %}
-  <script src="https://cdn.jsdelivr.net/npm/idiomorph@0.4.0/dist/idiomorph-htmx.min.js"
-          onerror="var s=document.createElement('script');s.src='{{ url_fallback_idiomorph_htmx }}';document.head.appendChild(s);"></script>
+  {% comment %} Librerie esterne usate solo da alcune pagine (htmx/idiomorph e conferma-generica.js per Avvisi e Documenti): ogni pagina dichiara qui cosa le serve, invece di scaricarle ovunque. {% endcomment %}
+  {% block extra_bottom_js %}{% endblock extra_bottom_js %}
 
-  <script src="{% static 'js/conferma-generica.js' %}"></script>
+  {% comment %} sovrapposizione-sfondo-blu.js: serve al bordo bianco degli elementi flottanti che scorrono sopra un fondo blu, non usato su dashboard_admin. {% endcomment %}
+  {% if request.resolver_match.url_name != 'dashboard_admin' %}
   <script src="{% static 'js/sovrapposizione-sfondo-blu.js' %}"></script>
+  {% endif %}
+  {% if not pagina_esclude_carrello_flottante %}
   <script src="{% static 'js/carrello-flottante.js' %}"></script>
+  {% endif %}
   <script src="{% static 'js/login-modal.js' %}"></script>
   <script src="{% static 'js/altezza-navbar.js' %}"></script>
 

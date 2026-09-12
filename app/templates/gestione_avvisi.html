@@ -2,11 +2,21 @@
 {% load static %}
 {% block titolo %} Avvisi di chiusura {% endblock titolo %}
 
-{% block contenuto %}
-
-{% comment %} <link> aggiuntivi fuori da <head> (base.html non ha un blocco dedicato): applicati comunque correttamente dal browser. {% endcomment %}
+{% block extra_head %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
 <link rel="stylesheet" href="{% static 'css/calendario-avvisi.css' %}">
+{% endblock extra_head %}
+
+{% block extra_bottom_js %}
+<script src="https://cdn.jsdelivr.net/npm/idiomorph@0.4.0/dist/idiomorph.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
+{% static 'js/vendor/idiomorph-htmx.min.js' as url_fallback_idiomorph_htmx %}
+<script src="https://cdn.jsdelivr.net/npm/idiomorph@0.4.0/dist/idiomorph-htmx.min.js"
+        onerror="var s=document.createElement('script');s.src='{{ url_fallback_idiomorph_htmx }}';document.head.appendChild(s);"></script>
+<script src="{% static 'js/conferma-generica.js' %}"></script>
+{% endblock extra_bottom_js %}
+
+{% block contenuto %}
 
 <div class="container">
     {% comment %} Riga titolo agganciata sotto la navbar da desktop durante lo scroll, spostata nella pillola della navbar da telefono. {% endcomment %}
