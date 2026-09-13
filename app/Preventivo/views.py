@@ -4,6 +4,7 @@ from Carrello.models import Carrello
 from Prodotti.models import puo_vedere_precursori
 from .models import Preventivo, Elementi_Preventivo
 from .forms import DettaglioPreventivoForm
+from django.views.decorators.http import require_POST
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import redirect_to_login
@@ -32,13 +33,27 @@ class PreventivoListView(LoginRequiredMixin, ListView):
         page_obj = paginator.get_page(page)
         return (paginator, page_obj, page_obj.object_list, page_obj.has_other_pages())
 
+@require_POST
 def crea_ordine_da_carrello(request):
-    #logger = logging.getLogger(__name__)
     if request.user.is_authenticated:
-        #logger.info(f"Creato ordene dal carrello dell'utente con id: {request.user.pk} ed email {request.user.email}")
+        carrello = Carrello.objects.filter(cliente = request.user).select_related('prodotto')
+        if not carrello.exists():
+            messages.error(request, 'Il carrello è vuoto.')
+            return redirect('carrello')
+
         dettaglio_form = DettaglioPreventivoForm(request.POST)
         if not dettaglio_form.is_valid():
             messages.error(request, 'Dati non validi, riprova.')
+            return redirect('carrello')
+
+        carrello_items = list(carrello)
+        # Esclude i prodotti con precursore non consentito al cliente
+        elementi_inclusi = [
+            elemento_carrello for elemento_carrello in carrello_items
+            if not (elemento_carrello.prodotto.precursore and not puo_vedere_precursori(request.user))
+        ]
+        if not elementi_inclusi:
+            messages.error(request, 'Tutti i prodotti nel carrello sono riservati ai clienti azienda: richiesta non inviata.', extra_tags='precursore-riservato')
             return redirect('carrello')
 
         preventivo = Preventivo()
@@ -50,29 +65,17 @@ def crea_ordine_da_carrello(request):
         dettaglio_preventivo.save()
         dettaglio_form.save_m2m()
 
-        carrello = Carrello.objects.filter(cliente = request.user)
-        # Punto di enforcement per i precursori: qui, non nei singoli punti
-        # di mutazione del carrello (aumenta_quantita_carrello,
-        # settaggio_quantita), perche' e' qui che il carrello diventa
-        # davvero una richiesta d'ordine. Una riga di carrello con
-        # precursore non consentito (es. rimasta da prima di questo
-        # controllo) viene scartata invece di diventare una riga
-        # dell'ordine - vedi design del 2026-08-18
-        elementi_inclusi = []
-        for elemento_carrello in carrello:
-            if elemento_carrello.prodotto.precursore and not puo_vedere_precursori(request.user):
-                continue
+        for elemento_carrello in elementi_inclusi:
             elemento_ordine = Elementi_Preventivo.objects.create(preventivo = preventivo, prodotto = elemento_carrello.prodotto, quantita = elemento_carrello.quantita)
             elemento_ordine.save()
-            elementi_inclusi.append(elemento_carrello)
-        if len(elementi_inclusi) < len(carrello):
+        if len(elementi_inclusi) < len(carrello_items):
             messages.warning(request, 'Uno o piu\' prodotti riservati ai clienti azienda non sono stati inclusi nella richiesta.', extra_tags='precursore-riservato')
-        # L'email allo staff riporta solo gli elementi effettivamente
-        # inclusi nell'ordine (elementi_inclusi), non l'intero carrello:
-        # altrimenti un prodotto con precursore scartato qui sopra
-        # resterebbe comunque visibile allo staff, che potrebbe evaderlo
-        # manualmente aggirando cosi' il blocco
-        emailPreventivo(request, elementi_inclusi, dettaglio_preventivo, preventivo)
+        try:
+            emailPreventivo(request, elementi_inclusi, dettaglio_preventivo, preventivo)
+        except Exception:
+            logging.getLogger(__name__).exception(f"Invio email preventivo fallito per il preventivo {preventivo.pk}")
+            dettaglio_preventivo.stato = "errore"
+            dettaglio_preventivo.save()
         carrello.delete()
 
         return redirect('lista_ordini')
@@ -80,16 +83,10 @@ def crea_ordine_da_carrello(request):
 
 def aggiungi_preventivo_al_carrello(request, pk):
     if request.user.is_authenticated:
-        # Stesso filtro di proprieta' di PreventivoDetailView: un cliente puo'
-        # riutilizzare solo i propri preventivi passati, non quelli altrui
         preventivo = get_object_or_404(Preventivo, pk=pk, cliente=request.user)
         almeno_un_elemento_saltato = False
-        for elemento_preventivo in preventivo.elementi_preventivo.all():
-            # Un vecchio preventivo puo' contenere un prodotto con
-            # precursore richiesto prima che questo controllo esistesse:
-            # va saltato qui, non solo bloccato in
-            # Carrello/views.py:aggiungi_prodotti_al_carrello, altrimenti
-            # "Riusa preventivo" aggirerebbe comunque quel blocco
+        for elemento_preventivo in preventivo.elementi_preventivo.select_related('prodotto'):
+            # Esclude i prodotti con precursore non consentito al cliente
             if elemento_preventivo.prodotto.precursore and not puo_vedere_precursori(request.user):
                 almeno_un_elemento_saltato = True
                 continue
@@ -98,14 +95,10 @@ def aggiungi_preventivo_al_carrello(request, pk):
             elemento_carrello.save()
         if almeno_un_elemento_saltato:
             messages.warning(request, 'Uno o piu\' prodotti riservati ai clienti azienda non sono stati aggiunti al carrello.', extra_tags='precursore-riservato')
-        # Il carrello non ha campi messaggio/luogo (appartengono al
-        # Dettaglio_Preventivo, creato solo quando si conferma "Richiedi
-        # preventivo"): li passiamo in sessione cosi' PaginaCarrelloView puo'
-        # precompilare il form con i valori del vecchio preventivo
+        # Salva messaggio e luogo in sessione per precompilare il form del carrello
         dettaglio_preventivo = preventivo.dettaglio_preventivo
         request.session['messaggio_precompilato'] = dettaglio_preventivo.messaggio
         request.session['luogo_precompilato'] = dettaglio_preventivo.luogo
-        messages.success(request, 'Articoli aggiunti al carrello! Puoi aggiungerne altri prima di richiedere il nuovo preventivo.')
         return redirect('carrello')
     return redirect_to_login(request.get_full_path())
 
@@ -119,12 +112,12 @@ class PreventivoDetailView(LoginRequiredMixin, ListView):
         # proprietario, bastava cambiare il pk nell'URL per vedere prodotti,
         # quantita' e dati di un preventivo altrui
         self.preventivo = get_object_or_404(Preventivo, pk=self.kwargs['pk'], cliente=self.request.user)
-        object_list = self.preventivo.elementi_preventivo.all()
+        object_list = self.preventivo.elementi_preventivo.select_related('prodotto', 'prodotto__immagine_rel')
         return object_list
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["totale_elementi_ordine"] = sum([elemento.quantita for elemento in self.object_list])
+        context["totale_elementi_ordine"] = sum(elemento.quantita for elemento in self.object_list)
         context["preventivo"] = self.preventivo
         context["dettaglio_preventivo"] = self.preventivo.dettaglio_preventivo
         return context
