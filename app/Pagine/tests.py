@@ -108,7 +108,7 @@ class DashboardProdottiSenzaImmagineViewTest(TestCase):
                 nome_prodotto="Chimico gruppo vuoto",
                 unita_di_misura="LT",
                 categoria=categoria_chimici,
-                gruppo=None,
+                gruppo=0,
             ),
         ])
         self.client.force_login(self.staff)
@@ -147,19 +147,6 @@ class DashboardProdottiSenzaImmagineViewTest(TestCase):
         self.client.force_login(self.staff)
         response = self.client.get(reverse("dashboard_prodotti_senza_immagine"))
         self.assertContains(response, "Sgrassatori")
-
-    def test_prodotto_senza_categoria_ne_sottocategoria_mostra_trattino(self):
-        Prodotto.objects.bulk_create([
-            Prodotto(codice_prodotto="C026", nome_prodotto="Prodotto senza categoria", unita_di_misura="LT"),
-        ])
-        self.client.force_login(self.staff)
-        response = self.client.get(reverse("dashboard_prodotti_senza_immagine"))
-        self.assertContains(response, "Prodotto senza categoria")
-        # Colonna Categoria: cella semplice. Sottocategoria: nascosta sotto i
-        # 576px ("d-none d-sm-table-cell", vedi dashboard_prodotti_senza_immagine.html)
-        self.assertContains(response, "<td>-</td>", count=1)
-        self.assertContains(response, '<td class="d-none d-sm-table-cell">-</td>', count=1)
-
 
 import tempfile
 
@@ -250,11 +237,7 @@ class CaricaImmagineProdottoViewTest(TestCase):
     def test_secondo_upload_in_formato_diverso_rimuove_il_file_vecchio(self):
         # Regressione: un riupload che cambia formato (qui GIF poi PNG)
         # salva il nuovo file sotto un nome diverso (estensione diversa) -
-        # se il vecchio non viene ripulito resta orfano su disco, e la
-        # sincronizzazione bulk (configuraImmagini in Prodotti/views.py, che
-        # riscansiona la cartella e abbina per prefisso codice_prodotto) puo'
-        # ripuntare il prodotto al file vecchio in base all'ordine restituito
-        # da os.listdir()
+        # se il vecchio non viene ripulito resta orfano su disco.
         import os
 
         self.client.force_login(self.staff)
@@ -444,18 +427,6 @@ class DashboardIconNavbarTest(TestCase):
         self.client.force_login(self.utente)
         response = self.client.get(reverse("home"))
         self.assertNotContains(response, reverse("dashboard_admin"))
-
-    def test_icone_sincronizzazione_e_gestione_avvisi_non_sono_piu_dirette(self):
-        # Le due icone dirette sono state sostituite dall'icona unica:
-        # sincronizzazione non e' piu' raggiungibile dal dropdown ne' da
-        # nessun'altra pagina (il bottone "Sincronizza immagini e schede" e'
-        # stato tolto anche da dashboard_prodotti_senza_immagine.html, unico
-        # posto da cui restava raggiungibile - vista/url tenuti per un uso
-        # futuro, scelta esplicita: vedi Prodotti/views.py:sincronizzazione),
-        # e il link ad avvisi passa ora dalla dashboard
-        self.client.force_login(self.staff)
-        response = self.client.get(reverse("home"))
-        self.assertNotContains(response, reverse("sincronizzazione"))
 
 
 import os

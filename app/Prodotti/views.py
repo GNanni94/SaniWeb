@@ -1,5 +1,5 @@
 from typing import Any
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views.generic import ListView, DetailView
 from .models import Categoria, Prodotto, Sottocategoria, ImmaginiArticolo, SchedeTecniche, DEFAULT_IMMAGINE_ARTICOLO, puo_vedere_precursori
 from django.template import loader
@@ -7,11 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.contrib.auth.decorators import user_passes_test
 from urllib.parse import urlencode
-import os
-from SitoWeb import settings
-# Create your views here.
 
 def catalogo_home(request):
     return {
@@ -114,7 +110,6 @@ class ProdottoListView(ListView):
             extra_params['sottocategoria'] = sottocategoria_pk
         context['extra_querystring'] = ('&' + urlencode(extra_params)) if extra_params else ''
         return context
-#configuraImmagini()
 
 class CatalogoView(ListView):
     model = Categoria
@@ -194,111 +189,4 @@ class CatalogoListView(ListView):
         if _is_ajax_request(request) and template_name == 'prodotti_card.html':
             template_name = 'partials/griglia_prodotti.html'
         return render(request, template_name, context=dict)
-
-'''
-    def get_template_names(self, **kwargs):
-        pk = self.kwargs['pk']
-        if pk==1:
-            return ['prodotti_tabella.html']
-        return ['prodotti_card.html']
-
-    def get_context_data(self, **kwargs):
-        context = {}
-        pk = self.kwargs['pk']
-        categoria =  Categoria.objects.get(pk=pk)
-        prodotti = Prodotto.objects.filter(categoria_id=pk)
-        if pk==6:
-            prodotti_gruppo_true = Prodotto.objects.filter(gruppo=1)
-            prodotti = prodotti | prodotti_gruppo_true
-        context['prodotti'] = prodotti
-        context['nome_categoria'] = categoria.nome_categoria
-        context['sottocategorie'] = Sottocategoria.objects.filter(categoria_id=categoria.pk)
-        return context
-'''
-
-'''  
-    def get_queryset(self,  **kwargs):
-        pk = self.kwargs['pk']
-        prodotti = Prodotto.objects.filter(categoria_id=pk)
-        if pk==6:
-            prodotti_gruppo_true = Prodotto.objects.filter(gruppo=1)
-            prodotti = prodotti | prodotti_gruppo_true
-        return prodotti
-'''
-#SETUP DI SOTTOCATEGORIA_ID DI PRODOTTO
-def ConfiguraSottocategoiaIdArticoli():
-    articoli = Prodotto.objects.all()
-    for articolo in articoli:
-        articolo.save()
-
-#ConfiguraSottocategoiaIdArticoli() 
-
-#PRE-POPOLAMENTO
-def ConfiguraImmaginiArticoli():
-    articoli = Prodotto.objects.all()
-    for articolo in articoli:
-        immagine_articolo = ImmaginiArticolo()
-        immagine_articolo.articolo = articolo
-        immagine_articolo.immagine = DEFAULT_IMMAGINE_ARTICOLO
-        immagine_articolo.save()
-        
-#ConfiguraImmaginiArticoli()
-
-#INSERIMENTO IMMAGINI
-def configuraImmagini():
-    immagini = os.listdir(os.path.join(settings.MEDIA_ROOT, "immagini_articoli"))
-    for immagine in immagini:
-        posizione_dot = immagine.find('.')
-        nome_immagine = immagine[:posizione_dot]
-        articolo= Prodotto.objects.filter(codice_prodotto=nome_immagine).first()
-        if articolo is not None:
-            articolo = articolo.immagine_rel
-            articolo.immagine = '/media/immagini_articoli/' + immagine
-            articolo.save()
-
-#configuraImmagini()
-                
-def ConfiguraSchedeArticoli():
-    articoli = Prodotto.objects.all()
-    for articolo in articoli:
-        immagine_articolo = SchedeTecniche()
-        immagine_articolo.articolo = articolo
-        immagine_articolo.save()
-
-#ConfiguraSchedeArticoli()
-        
-def configuraSchede():
-    schede = os.listdir(os.path.join(settings.MEDIA_ROOT, "schede_tecniche"))
-    for scheda in schede:
-        posizione_dot = scheda.find('.')
-        nome_scheda = scheda[:posizione_dot]
-        articolo= Prodotto.objects.filter(codice_prodotto=nome_scheda).first()
-        if articolo is not None:
-            articolo = articolo.scheda_rel
-            articolo.scheda = "/media/schede_tecniche/" + scheda
-            articolo.save()
-
-#configuraSchede()
-
-
-def controllaImmaginiArticolo():
-    numeroElementi = ImmaginiArticolo.objects.count()
-    if numeroElementi > 1:    
-        ImmaginiArticolo.objects.all().delete()
-    ConfiguraImmaginiArticoli()
-    configuraImmagini()
-
-def controllaSchedeTecniche():
-    numeroElementi = SchedeTecniche.objects.count()
-    if numeroElementi > 1:
-        SchedeTecniche.objects.all().delete()
-    ConfiguraSchedeArticoli()
-    configuraSchede()
-
-@user_passes_test(lambda u: u.is_authenticated and u.is_staff, login_url='login')
-def sincronizzazione(request):        #aggiorno tabelle
-   controllaImmaginiArticolo()
-   controllaSchedeTecniche()
-   return redirect('home')
-#sincronizzazione()
 
