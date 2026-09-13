@@ -1,4 +1,3 @@
-import os
 from functools import wraps
 from typing import Any
 
@@ -70,6 +69,15 @@ def dashboard_prodotti_senza_immagine(request):
     })
 
 
+# Estensione del file salvato per ciascun formato immagine rilevato da Pillow.
+ESTENSIONE_PER_FORMATO = {
+    'JPEG': '.jpg',
+    'PNG': '.png',
+    'GIF': '.gif',
+    'WEBP': '.webp',
+}
+
+
 @dashboard_richiesto
 @require_POST
 def carica_immagine_prodotto(request, pk):
@@ -80,17 +88,6 @@ def carica_immagine_prodotto(request, pk):
     except ValidationError as errore:
         return JsonResponse({'ok': False, 'error': errore.messages[0]}, status=400)
 
-    # L'estensione va derivata dal formato immagine effettivamente
-    # validato da Pillow (file.image.format, popolato da
-    # forms.ImageField().clean() sopra), non dal nome file fornito dal
-    # client: altrimenti un file rinominato x.html contenente byte GIF
-    # validi verrebbe salvato e servito come .html dalla stessa origine.
-    ESTENSIONE_PER_FORMATO = {
-        'JPEG': '.jpg',
-        'PNG': '.png',
-        'GIF': '.gif',
-        'WEBP': '.webp',
-    }
     estensione = ESTENSIONE_PER_FORMATO.get(file.image.format)
     if estensione is None:
         return JsonResponse({'ok': False, 'error': 'Formato immagine non supportato.'}, status=400)
@@ -98,58 +95,22 @@ def carica_immagine_prodotto(request, pk):
 
     immagine_articolo, _ = ImmaginiArticolo.objects.get_or_create(articolo=prodotto)
 
-    # Se un file esiste già esattamente al percorso di destinazione (es. un
-    # caricamento precedente per lo stesso prodotto nello stesso formato),
-    # va rimosso prima del salvataggio: altrimenti lo storage aggiungerebbe
-    # un suffisso casuale al nome per evitare la collisione, rompendo
-    # silenziosamente il matching per nome file usato dallo script di
-    # sincronizzazione bulk (configuraImmagini in Prodotti/views.py).
     campo_immagine = immagine_articolo._meta.get_field('immagine')
+    vecchio_nome = immagine_articolo.immagine.name
+    if vecchio_nome and vecchio_nome != DEFAULT_IMMAGINE_ARTICOLO:
+        vecchio_percorso = vecchio_nome.removeprefix(f"/{settings.MEDIA_URL.lstrip('/')}")
+        if campo_immagine.storage.exists(vecchio_percorso):
+            campo_immagine.storage.delete(vecchio_percorso)
+
     percorso_destinazione = campo_immagine.generate_filename(immagine_articolo, file.name)
     if campo_immagine.storage.exists(percorso_destinazione):
         campo_immagine.storage.delete(percorso_destinazione)
 
-    # Un caricamento precedente in un FORMATO diverso (es. prima .jpg, ora
-    # .png) lascerebbe altrimenti quel vecchio file orfano su disco - il
-    # controllo sopra non lo trova perche' cerca solo al nuovo percorso di
-    # destinazione. configuraImmagini() (Prodotti/views.py) fa match per
-    # solo prefisso "codice_prodotto" su tutti i file della cartella: se il
-    # vecchio file resta, la sincronizzazione bulk puo' ripuntare
-    # l'immagine del prodotto su di lui in base all'ordine (non garantito)
-    # restituito da os.listdir().
-    cartella_immagini = os.path.dirname(percorso_destinazione)
-    nome_nuovo_file = os.path.basename(percorso_destinazione)
-    # La cartella potrebbe non esistere ancora (primo upload in assoluto in
-    # questo MEDIA_ROOT, es. nei test): "storage.exists" funziona anche per
-    # le directory, non solo per i file
-    if not campo_immagine.storage.exists(cartella_immagini):
-        nomi_file_esistenti = []
-    else:
-        _, nomi_file_esistenti = campo_immagine.storage.listdir(cartella_immagini)
-    for nome_file in nomi_file_esistenti:
-        if nome_file == nome_nuovo_file:
-            continue
-        if os.path.splitext(nome_file)[0] == prodotto.codice_prodotto:
-            campo_immagine.storage.delete(os.path.join(cartella_immagini, nome_file))
-
     immagine_articolo.immagine = file
     immagine_articolo.save()
-
-    # I template che mostrano l'immagine prodotto (griglia_prodotti.html,
-    # carrello.html, dettaglio_preventivo.html) stampano il valore del
-    # campo direttamente, senza `.url` - funziona solo perche' le righe
-    # create dallo script di sincronizzazione bulk (configuraImmagini in
-    # Prodotti/views.py) vi scrivono un path assoluto letterale invece del
-    # nome relativo standard di Django. Il nome salvato va riscritto nello
-    # stesso formato per restare compatibile.
-    # Nota: settings.MEDIA_URL in settings.py e' 'media/' (senza slash
-    # iniziale), ma Django antepone automaticamente lo script prefix
-    # quando lo si legge tramite l'oggetto settings (vedi
-    # LazySettings._add_script_prefix), quindi a runtime vale gia'
-    # '/media/'. lstrip('/') garantisce un solo slash iniziale in
-    # entrambi i casi, evitando un doppio slash.
     immagine_articolo.immagine.name = f"/{settings.MEDIA_URL.lstrip('/')}{immagine_articolo.immagine.name}"
     immagine_articolo.save(update_fields=['immagine'])
+
     return JsonResponse({'ok': True})
 
 
