@@ -6,6 +6,10 @@ from django.urls import reverse
 
 
 DEFAULT_IMMAGINE_ARTICOLO = "/media/default_immagine_articolo/saniscope_logo 2.png"
+# Stesso file fisico di DEFAULT_IMMAGINE_ARTICOLO, ma come path relativo
+# (upload_to standard): serve a Categoria.immagine_categoria, l'unico
+# punto che chiama .url su questo default (vedi catalogo.html)
+DEFAULT_IMMAGINE_CATEGORIA = "default_immagine_articolo/saniscope_logo 2.png"
 
 
 def puo_vedere_precursori(user):
@@ -17,7 +21,7 @@ def puo_vedere_precursori(user):
 
 class Categoria(models.Model):
     nome_categoria = models.CharField(max_length=30, unique=True)
-    immagine_categoria = models.ImageField(upload_to='immagini_categoria/', default=DEFAULT_IMMAGINE_ARTICOLO)
+    immagine_categoria = models.ImageField(upload_to='immagini_categoria/', default=DEFAULT_IMMAGINE_CATEGORIA)
 
     def clean(self):
         self.nome_categoria = self.nome_categoria.strip()
