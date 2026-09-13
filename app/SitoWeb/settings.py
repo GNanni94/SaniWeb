@@ -220,7 +220,9 @@ LOGIN_URL = "login"
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5" #new
 CRISPY_TEMPLATE_PACK = "bootstrap5" #new
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_BACKEND = os.environ.get(
+    "EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend"
+)
 
 EMAIL_HOST = os.environ.get("EMAIL_HOST", "out.postassl.it")
 EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "465"))
