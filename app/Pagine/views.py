@@ -2,9 +2,9 @@ from functools import wraps
 from typing import Any
 
 from django import forms
-from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ValidationError
+from django.core.files.storage import default_storage
 from django.db.models import Prefetch, Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -65,7 +65,7 @@ def dashboard_prodotti_senza_immagine(request):
     return render(request, 'dashboard_prodotti_senza_immagine.html', {
         'prodotti': prodotti,
         'categorie_presenti': categorie_presenti,
-        'default_immagine_articolo': DEFAULT_IMMAGINE_ARTICOLO,
+        'default_immagine_articolo': default_storage.url(DEFAULT_IMMAGINE_ARTICOLO),
     })
 
 
@@ -98,9 +98,8 @@ def carica_immagine_prodotto(request, pk):
     campo_immagine = immagine_articolo._meta.get_field('immagine')
     vecchio_nome = immagine_articolo.immagine.name
     if vecchio_nome and vecchio_nome != DEFAULT_IMMAGINE_ARTICOLO:
-        vecchio_percorso = vecchio_nome.removeprefix(f"/{settings.MEDIA_URL.lstrip('/')}")
-        if campo_immagine.storage.exists(vecchio_percorso):
-            campo_immagine.storage.delete(vecchio_percorso)
+        if campo_immagine.storage.exists(vecchio_nome):
+            campo_immagine.storage.delete(vecchio_nome)
 
     percorso_destinazione = campo_immagine.generate_filename(immagine_articolo, file.name)
     if campo_immagine.storage.exists(percorso_destinazione):
@@ -108,8 +107,6 @@ def carica_immagine_prodotto(request, pk):
 
     immagine_articolo.immagine = file
     immagine_articolo.save()
-    immagine_articolo.immagine.name = f"/{settings.MEDIA_URL.lstrip('/')}{immagine_articolo.immagine.name}"
-    immagine_articolo.save(update_fields=['immagine'])
 
     return JsonResponse({'ok': True})
 

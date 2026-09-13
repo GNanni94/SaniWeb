@@ -49,7 +49,7 @@ class DashboardProdottiSenzaImmagineViewTest(TestCase):
             Prodotto(codice_prodotto="C022", nome_prodotto="Igienizzante superfici", unita_di_misura="LT", categoria=self.categoria),
         ])
         prodotto = Prodotto.objects.get(codice_prodotto="C022")
-        ImmaginiArticolo.objects.create(articolo=prodotto, immagine="/media/immagini_articoli/C022.jpg")
+        ImmaginiArticolo.objects.create(articolo=prodotto, immagine="immagini_articoli/C022.jpg")
         self.client.force_login(self.staff)
         response = self.client.get(reverse("dashboard_prodotti_senza_immagine"))
         self.assertNotContains(response, "Igienizzante superfici")
@@ -215,7 +215,7 @@ class CaricaImmagineProdottoViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"ok": True})
         immagine_articolo = ImmaginiArticolo.objects.get(articolo=self.prodotto)
-        self.assertEqual(immagine_articolo.immagine.name, "/media/immagini_articoli/C010.gif")
+        self.assertEqual(immagine_articolo.immagine.name, "immagini_articoli/C010.gif")
 
     def test_secondo_upload_sovrascrive_e_mantiene_il_nome_esatto(self):
         self.client.force_login(self.staff)
@@ -232,7 +232,7 @@ class CaricaImmagineProdottoViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"ok": True})
         immagine_articolo = ImmaginiArticolo.objects.get(articolo=self.prodotto)
-        self.assertEqual(immagine_articolo.immagine.name, "/media/immagini_articoli/C010.gif")
+        self.assertEqual(immagine_articolo.immagine.name, "immagini_articoli/C010.gif")
 
     def test_secondo_upload_in_formato_diverso_rimuove_il_file_vecchio(self):
         # Regressione: un riupload che cambia formato (qui GIF poi PNG)
@@ -258,18 +258,13 @@ class CaricaImmagineProdottoViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"ok": True})
         immagine_articolo.refresh_from_db()
-        self.assertEqual(immagine_articolo.immagine.name, "/media/immagini_articoli/C010.png")
+        self.assertEqual(immagine_articolo.immagine.name, "immagini_articoli/C010.png")
         self.assertFalse(os.path.exists(percorso_vecchio), "il vecchio C010.gif doveva essere rimosso")
 
     def test_upload_valido_il_src_nella_griglia_prodotti_e_un_percorso_assoluto_media(self):
-        # Regressione per il bug C1 della review finale: i template che
-        # mostrano l'immagine prodotto (griglia_prodotti.html,
-        # carrello.html, dettaglio_preventivo.html) stampano il valore
-        # del campo direttamente senza `.url` - se il nome salvato resta
-        # il nome relativo standard di Django (es.
-        # "immagini_articoli/C010.gif") l'<img src="..."> risultante non
-        # si risolve in un URL valido e l'immagine non viene mai
-        # visualizzata sul sito.
+        # I template che mostrano l'immagine prodotto (griglia_prodotti.html,
+        # lista_carrello.html, dettaglio_preventivo.html) usano `.url`: il
+        # src risultante deve essere un percorso assoluto sotto /media/.
         self.client.force_login(self.staff)
         file = SimpleUploadedFile("foto_qualsiasi.gif", GIF_1PX, content_type="image/gif")
         self.client.post(

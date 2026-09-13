@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib import admin
 from .models import Prodotto, Categoria, Sottocategoria, ImmaginiArticolo, SchedeTecniche, DEFAULT_IMMAGINE_ARTICOLO
 
@@ -34,9 +33,8 @@ def reimposta_immagine_default(modeladmin, request, queryset):
         campo_immagine = immagine_articolo._meta.get_field('immagine')
         vecchio_nome = immagine_articolo.immagine.name
         if vecchio_nome and vecchio_nome != DEFAULT_IMMAGINE_ARTICOLO:
-            vecchio_percorso = vecchio_nome.removeprefix(f"/{settings.MEDIA_URL.lstrip('/')}")
-            if campo_immagine.storage.exists(vecchio_percorso):
-                campo_immagine.storage.delete(vecchio_percorso)
+            if campo_immagine.storage.exists(vecchio_nome):
+                campo_immagine.storage.delete(vecchio_nome)
         immagine_articolo.immagine = DEFAULT_IMMAGINE_ARTICOLO
         immagine_articolo.save(update_fields=['immagine'])
 
