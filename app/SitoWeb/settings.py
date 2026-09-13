@@ -222,11 +222,11 @@ CRISPY_TEMPLATE_PACK = "bootstrap5" #new
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
-EMAIL_HOST = 'out.postassl.it'
-EMAIL_PORT = 465
-EMAIL_HOST_USER = 'info@saniscope-chimica.it'
-EMAIL_HOST_PASSWORD = 'Term30@1961'
-EMAIL_USE_SSL = True
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "out.postassl.it")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "465"))
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "1") in ("1", "True", "true", "TRUE")
 
 COOKIEBANNER = {
     "title": _("Impostazioni cookie"),
