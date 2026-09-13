@@ -1,7 +1,10 @@
 from django.contrib.auth import get_user_model
 from django.core import mail
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError, transaction
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 
 from Carrello.models import Carrello
 from Prodotti.models import Categoria, Prodotto
@@ -185,3 +188,85 @@ class CreaOrdineDaCarrelloConPrecursoreTest(TestCase):
         preventivo = Preventivo.objects.get(cliente=azienda)
         prodotti_ordinati = set(preventivo.elementi_preventivo.values_list("prodotto__codice_prodotto", flat=True))
         self.assertEqual(prodotti_ordinati, {"P800", "P801"})
+
+
+class PreventivoModelTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.cliente = User.objects.create_user(
+            username="modeltestpreventivo@example.com", email="modeltestpreventivo@example.com", password="testpass123",
+            first_name="Test", cognome_ragione_sociale="Cliente",
+            codiceFiscale_PartitaIVA="TSTCLN80A01H510U",
+        )
+
+    def test_data_ha_default_timezone_aware(self):
+        preventivo = Preventivo.objects.create(cliente=self.cliente)
+        self.assertFalse(timezone.is_naive(preventivo.data))
+
+
+class DettaglioPreventivoModelTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.cliente = User.objects.create_user(
+            username="modeltestdettaglio@example.com", email="modeltestdettaglio@example.com", password="testpass123",
+            first_name="Test", cognome_ragione_sociale="Cliente",
+            codiceFiscale_PartitaIVA="TSTCLN80A01H511U",
+        )
+        self.preventivo = Preventivo.objects.create(cliente=self.cliente)
+
+    def test_preventivo_e_obbligatorio(self):
+        dettaglio = Dettaglio_Preventivo(messaggio="", luogo="")
+        with self.assertRaises(ValidationError):
+            dettaglio.full_clean()
+
+    def test_messaggio_oltre_400_caratteri_non_valido(self):
+        dettaglio = Dettaglio_Preventivo(preventivo=self.preventivo, messaggio="a" * 401, luogo="")
+        with self.assertRaises(ValidationError):
+            dettaglio.full_clean()
+
+    def test_messaggio_di_esattamente_400_caratteri_valido(self):
+        dettaglio = Dettaglio_Preventivo(preventivo=self.preventivo, messaggio="a" * 400, luogo="")
+        dettaglio.full_clean()
+
+
+class ElementiPreventivoModelTest(TestCase):
+    def setUp(self):
+        categoria = Categoria.objects.create(nome_categoria="TestModelli")
+        Prodotto.objects.bulk_create([
+            Prodotto(
+                codice_prodotto="MODELTEST1", nome_prodotto="Prodotto Test Modelli",
+                unita_di_misura="LT", categoria=categoria,
+            ),
+        ])
+        self.prodotto = Prodotto.objects.get(codice_prodotto="MODELTEST1")
+        User = get_user_model()
+        self.cliente = User.objects.create_user(
+            username="modeltestelementi@example.com", email="modeltestelementi@example.com", password="testpass123",
+            first_name="Test", cognome_ragione_sociale="Cliente",
+            codiceFiscale_PartitaIVA="TSTCLN80A01H512U",
+        )
+        self.preventivo = Preventivo.objects.create(cliente=self.cliente)
+
+    def test_quantita_zero_non_valida(self):
+        elemento = Elementi_Preventivo(preventivo=self.preventivo, prodotto=self.prodotto, quantita=0)
+        with self.assertRaises(ValidationError):
+            elemento.full_clean()
+
+    def test_quantita_negativa_non_valida(self):
+        elemento = Elementi_Preventivo(preventivo=self.preventivo, prodotto=self.prodotto, quantita=-3)
+        with self.assertRaises(ValidationError):
+            elemento.full_clean()
+
+    def test_quantita_uno_e_valida(self):
+        elemento = Elementi_Preventivo(preventivo=self.preventivo, prodotto=self.prodotto, quantita=1)
+        elemento.full_clean()
+
+    def test_stesso_prodotto_due_volte_nello_stesso_preventivo_viola_il_vincolo(self):
+        Elementi_Preventivo.objects.create(preventivo=self.preventivo, prodotto=self.prodotto, quantita=1)
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                Elementi_Preventivo.objects.create(preventivo=self.preventivo, prodotto=self.prodotto, quantita=2)
+
+    def test_related_name_da_prodotto_a_elementi_preventivo(self):
+        elemento = Elementi_Preventivo.objects.create(preventivo=self.preventivo, prodotto=self.prodotto, quantita=1)
+        self.assertIn(elemento, self.prodotto.elementi_preventivo.all())

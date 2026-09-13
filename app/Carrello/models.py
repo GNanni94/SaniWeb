@@ -1,11 +1,12 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 from Prodotti.models import Prodotto
 from Utente.models import Registrati
 
 class Carrello (models.Model):
     cliente = models.ForeignKey(Registrati, on_delete=models.CASCADE, related_name='elementi_carrello')
-    prodotto = models.ForeignKey(Prodotto, on_delete=models.CASCADE)
-    quantita = models.IntegerField(default=0)
+    prodotto = models.ForeignKey(Prodotto, on_delete=models.CASCADE, related_name='elementi_carrello')
+    quantita = models.PositiveSmallIntegerField(default=0, validators=[MinValueValidator(1)])
 
     def __str__(self) -> str:
         return str(self.prodotto)

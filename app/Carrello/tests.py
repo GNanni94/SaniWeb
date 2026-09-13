@@ -2,6 +2,7 @@ from types import SimpleNamespace
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
+from django.core.exceptions import ValidationError
 from django.db import connection
 from django.test import RequestFactory, TestCase
 from django.test.utils import CaptureQueriesContext
@@ -364,3 +365,48 @@ class AggiungiProdottoConPrecursoreTest(TestCase):
         response = self.client.get(reverse("aggiungi_prodotti", args=[self.prodotto.pk]), follow=True)
         self.assertContains(response, 'id="modalAvvisoPrecursore"')
         self.assertContains(response, 'Prodotto riservato alle aziende.')
+
+
+class CarrelloModelTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.cliente = User.objects.create_user(
+            username="modeltestcarrello@example.com", email="modeltestcarrello@example.com", password="testpass123",
+            first_name="Test", cognome_ragione_sociale="Cliente",
+            codiceFiscale_PartitaIVA="TSTCLN80A01H513U",
+        )
+        categoria = Categoria.objects.create(nome_categoria="TestModelliCarrello")
+        Prodotto.objects.bulk_create([
+            Prodotto(
+                codice_prodotto="CARTEST001", nome_prodotto="Prodotto Test Modelli Carrello",
+                unita_di_misura="LT", categoria=categoria,
+            ),
+        ])
+        self.prodotto = Prodotto.objects.get(codice_prodotto="CARTEST001")
+
+    def test_quantita_zero_non_valida(self):
+        elemento = Carrello(cliente=self.cliente, prodotto=self.prodotto, quantita=0)
+        with self.assertRaises(ValidationError):
+            elemento.full_clean()
+
+    def test_quantita_negativa_non_valida(self):
+        elemento = Carrello(cliente=self.cliente, prodotto=self.prodotto, quantita=-2)
+        with self.assertRaises(ValidationError):
+            elemento.full_clean()
+
+    def test_quantita_uno_e_valida(self):
+        elemento = Carrello(cliente=self.cliente, prodotto=self.prodotto, quantita=1)
+        elemento.full_clean()
+
+    def test_get_or_create_con_default_zero_non_e_bloccato_dal_validator(self):
+        # Il flusso reale (aggiungi_prodotti_al_carrello) crea la riga con
+        # quantita di default (0) via get_or_create e solo dopo la
+        # incrementa: full_clean() non viene mai chiamato in quel percorso,
+        # quindi il MinValueValidator non deve interferire con save()
+        elemento, creato = Carrello.objects.get_or_create(cliente=self.cliente, prodotto=self.prodotto)
+        self.assertTrue(creato)
+        self.assertEqual(elemento.quantita, 0)
+
+    def test_related_name_da_prodotto_a_elementi_carrello(self):
+        elemento = Carrello.objects.create(cliente=self.cliente, prodotto=self.prodotto, quantita=1)
+        self.assertIn(elemento, self.prodotto.elementi_carrello.all())

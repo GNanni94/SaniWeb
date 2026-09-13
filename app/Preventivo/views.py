@@ -1,6 +1,5 @@
 from django.db.models.query import QuerySet
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 from Carrello.models import Carrello
 from Prodotti.models import puo_vedere_precursori
 from .models import Preventivo, Elementi_Preventivo
@@ -11,7 +10,6 @@ from django.contrib.auth.views import redirect_to_login
 from django.contrib import messages
 from typing import Any, Dict
 from InvioEmail.views import emailPreventivo
-from django.core.paginator import Paginator
 import logging
 
 # Create your views here.
@@ -21,25 +19,31 @@ class PreventivoListView(LoginRequiredMixin, ListView):
     model = Preventivo
     template_name = "preventivo.html"
     paginate_by = 8
-    
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        context = {}
-        object_list = self.request.user.ordini.all()
-        paginator = Paginator(object_list,self.paginate_by)
-        page_number=request.GET.get('page')
-        object_list=paginator.get_page(page_number)
-        context["object_list"] = object_list
-        return render(request, self.template_name, context)
+
+    def get_queryset(self) -> QuerySet[Any]:
+        return self.request.user.ordini.all()
+
+    def paginate_queryset(self, queryset, page_size):
+        paginator = self.get_paginator(
+            queryset, page_size, orphans=self.get_paginate_orphans(),
+            allow_empty_first_page=self.get_allow_empty(),
+        )
+        page = self.request.GET.get(self.page_kwarg) or 1
+        page_obj = paginator.get_page(page)
+        return (paginator, page_obj, page_obj.object_list, page_obj.has_other_pages())
 
 def crea_ordine_da_carrello(request):
     #logger = logging.getLogger(__name__)
     if request.user.is_authenticated:
         #logger.info(f"Creato ordene dal carrello dell'utente con id: {request.user.pk} ed email {request.user.email}")
+        dettaglio_form = DettaglioPreventivoForm(request.POST)
+        if not dettaglio_form.is_valid():
+            messages.error(request, 'Dati non validi, riprova.')
+            return redirect('carrello')
+
         preventivo = Preventivo()
         preventivo.cliente = request.user
         preventivo.save()
-
-        dettaglio_form = DettaglioPreventivoForm(request.POST)
 
         dettaglio_preventivo = dettaglio_form.save(commit=False)
         dettaglio_preventivo.preventivo = preventivo
@@ -70,8 +74,9 @@ def crea_ordine_da_carrello(request):
         # manualmente aggirando cosi' il blocco
         emailPreventivo(request, elementi_inclusi, dettaglio_preventivo, preventivo)
         carrello.delete()
-        
+
         return redirect('lista_ordini')
+    return redirect_to_login(request.get_full_path())
 
 def aggiungi_preventivo_al_carrello(request, pk):
     if request.user.is_authenticated:
