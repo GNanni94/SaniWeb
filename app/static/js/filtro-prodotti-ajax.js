@@ -59,8 +59,30 @@
         requestAnimationFrame(step);
     }
 
+    // Applica il nuovo contenuto alla griglia (Idiomorph, fallback a innerHTML)
+    // e sincronizza campo nascosto sottocategoria e titolo/tab del browser
+    function applicaContenuto(nuovoContenuto) {
+        if (window.Idiomorph) {
+            Idiomorph.morph(container, nuovoContenuto.innerHTML, { morphStyle: 'innerHTML' });
+        } else {
+            container.innerHTML = nuovoContenuto.innerHTML;
+        }
+        var hiddenSottocategoria = document.getElementById('ricercaSottocategoriaHidden');
+        if (hiddenSottocategoria) {
+            hiddenSottocategoria.value = nuovoContenuto.dataset.sottocategoria || '';
+        }
+        var titoloLink = document.getElementById('titoloCategoriaLink');
+        if (titoloLink) {
+            titoloLink.textContent = nuovoContenuto.dataset.nomeCategoria;
+        }
+        document.title = nuovoContenuto.dataset.nomeCategoria;
+    }
+
     function caricaConAjax(url, scrollInCima) {
         var idRichiesta = ++richiestaCorrente;
+        // Se la ricerca risulta senza esito, la classe di caricamento viene
+        // tolta dal callback del toast (vedi sotto) invece che nel finally
+        var rimuoviCaricamentoSubito = true;
         container.classList.add('lista-prodotti-in-caricamento');
         fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
             .then(function (response) {
@@ -84,27 +106,14 @@
                     window.location.href = url;
                     return;
                 }
-                // Applica il nuovo contenuto con Idiomorph, fallback a innerHTML se non caricato
-                if (window.Idiomorph) {
-                    Idiomorph.morph(container, nuovoContenuto.innerHTML, { morphStyle: 'innerHTML' });
-                } else {
-                    container.innerHTML = nuovoContenuto.innerHTML;
-                }
-                // Sincronizza il campo nascosto della ricerca e il titolo/tab del browser con lo stato ricevuto dal server
-                var hiddenSottocategoria = document.getElementById('ricercaSottocategoriaHidden');
-                if (hiddenSottocategoria) {
-                    hiddenSottocategoria.value = nuovoContenuto.dataset.sottocategoria || '';
-                }
-                var titoloLink = document.getElementById('titoloCategoriaLink');
-                if (titoloLink) {
-                    titoloLink.textContent = nuovoContenuto.dataset.nomeCategoria;
-                }
-                document.title = nuovoContenuto.dataset.nomeCategoria;
-
-                // Ricerca senza risultati: mostra il toast e ripristina campo di ricerca e filtro
                 var urlDaMostrare = url;
                 if (nuovoContenuto.dataset.ricercaSenzaRisultati === '1') {
+                    rimuoviCaricamentoSubito = false;
+                    // Mostra prima il toast e solo a comparsa avvenuta aggiorna
+                    // la griglia, cosi' il cambio di contenuto non anticipa l'avviso
                     mostraToastRicercaSenzaRisultati(nuovoContenuto.dataset.messaggioRicercaSenzaRisultati, function () {
+                        applicaContenuto(nuovoContenuto);
+                        container.classList.remove('lista-prodotti-in-caricamento');
                         if (inputRicerca) {
                             inputRicerca.value = '';
                         }
@@ -118,9 +127,12 @@
                         }
                     });
                     // Mostra nell'URL la categoria intera invece della ricerca fallita
+                    var titoloLink = document.getElementById('titoloCategoriaLink');
                     if (titoloLink) {
                         urlDaMostrare = titoloLink.href;
                     }
+                } else {
+                    applicaContenuto(nuovoContenuto);
                 }
                 // Aggiorna l'URL senza aggiungere una voce alla cronologia
                 history.replaceState(null, '', urlDaMostrare);
@@ -136,7 +148,7 @@
                 }
             })
             .finally(function () {
-                if (idRichiesta === richiestaCorrente) {
+                if (idRichiesta === richiestaCorrente && rimuoviCaricamentoSubito) {
                     container.classList.remove('lista-prodotti-in-caricamento');
                 }
             });
