@@ -90,6 +90,7 @@
 /* Sfondo grigio del form Contatti: solo l'area dei campi, non il titolo "RICHIEDI INFORMAZIONI" ne' il bottone Invia */
 .campi-form {
   background-color: var(--color-bg-alt);
+  border: 2px solid var(--color-primary);
   border-radius: .75rem; /* stesso raggio di #orari e #map in questa pagina */
 }
 
