@@ -17,7 +17,9 @@
     {# Sentinella usata dall'IntersectionObserver per rilevare quando la riga sotto si aggancia alla navbar #}
     <div id="sentinellaIntestazione" class="sentinella-intestazione"></div>
 
-    {% include 'partials/intestazione_categoria.html' with controlli_template='partials/controlli_ricerca_filtro_tabella.html' intestazione_sticky=True %}
+    {% url 'catalogo' as url_catalogo %}
+    {% url 'dettaglio_categoria' categoria_pk as url_categoria %}
+    {% include 'partials/intestazione_categoria.html' with titolo=nome_categoria url_indietro=url_catalogo testo_indietro='Torna al catalogo' classe_indietro='btn-torna-catalogo' url_titolo=url_categoria id_titolo='titoloCategoriaLink' controlli_template='partials/controlli_ricerca_filtro_tabella.html' intestazione_sticky=True %}
 
     <div class="table-responsive py-3">
         {% if not user.is_authenticated %}

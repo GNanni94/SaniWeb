@@ -1,0 +1,15 @@
+{% comment %}
+Filtro per sezione + bottone "+" nuovo documento, nella riga del titolo a destra (partials/intestazione_categoria.html, gestione_documenti.html).
+{% endcomment %}
+<div class="dropdown" id="filtroSezioneDocumentiWrapper">
+    <button type="button" id="filtroSezioneDocumenti" class="form-select" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Filtra per sezione"></button>
+    {% include 'partials/menu_filtro_sezione_documenti.html' %}
+    <i class="bi bi-funnel filtro-icon-overlay" aria-hidden="true"></i>
+</div>
+<button type="button" class="btn btn-navbar rounded-circle btn-cerchio-intestazione-gestione"
+        hx-get="{% url 'nuovo_documento' %}"
+        hx-target="#modalDocumentoBody"
+        hx-swap="innerHTML"
+        id="btnNuovoDocumento" title="Nuovo documento" aria-label="Nuovo documento">
+    <i class="bi bi-plus-lg"></i>
+</button>

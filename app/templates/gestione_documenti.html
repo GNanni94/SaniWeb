@@ -17,31 +17,13 @@
     {% comment %} Riga titolo agganciata sotto la navbar da desktop durante lo scroll, spostata nella pillola della navbar da telefono. {% endcomment %}
     <div id="sentinellaIntestazione" class="sentinella-intestazione"></div>
 
-    <div class="d-flex align-items-center position-relative pt-5 mb-4 intestazione-categoria-sticky">
-        <a href="{% url 'dashboard_admin' %}" id="btnTornaDashboard" class="btn btn-navbar btn-sm rounded-pill btn-pillola-intestazione-gestione position-absolute start-0" title="Torna alla dashboard">
-            <i class="bi bi-arrow-left"></i>
-            <span class="d-none d-md-inline">Torna alla dashboard</span>
-        </a>
-        <h1 id="titoloGestioneDocumenti" class="mb-0 mx-auto">Gestione Documenti</h1>
-        <div class="d-flex align-items-center gap-2 slot-controlli-intestazione-fine position-absolute end-0">
-            {% comment %} Filtro per sezione: filtra le righe di #tabella-documenti. {% endcomment %}
-            <div class="dropdown" id="filtroSezioneDocumentiWrapper">
-                <button type="button" id="filtroSezioneDocumenti" class="form-select" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Filtra per sezione"></button>
-                {% include 'partials/menu_filtro_sezione_documenti.html' %}
-                <i class="bi bi-funnel filtro-icon-overlay" aria-hidden="true"></i>
-            </div>
-            <button type="button" class="btn btn-navbar rounded-circle btn-cerchio-intestazione-gestione"
-                    hx-get="{% url 'nuovo_documento' %}"
-                    hx-target="#modalDocumentoBody"
-                    hx-swap="innerHTML"
-                    id="btnNuovoDocumento" title="Nuovo documento" aria-label="Nuovo documento">
-                <i class="bi bi-plus-lg"></i>
-            </button>
-        </div>
-    </div>
+    {% url 'dashboard_admin' as url_dashboard %}
+    {% url 'gestione_documenti' as url_documenti %}
+    {% comment %} Titolo cliccabile: stesso comportamento di prodotti_tabella.html, ricarica la pagina "vuota" (nessuna sezione filtrata). {% endcomment %}
+    {% include 'partials/intestazione_categoria.html' with titolo='Gestione Documenti' url_indietro=url_dashboard testo_indietro='Torna alla dashboard' classe_indietro='btn-pillola-intestazione-gestione' id_indietro='btnTornaDashboard' url_titolo=url_documenti id_titolo='titoloGestioneDocumenti' classe_controlli_wrapper='slot-controlli-intestazione-fine' controlli_template='partials/controlli_intestazione_documenti.html' intestazione_sticky=True %}
 
     {% comment %} Tabella documenti a piena larghezza del container; il nome di un documento apre il file in una nuova scheda. {% endcomment %}
-    <div class="pannello-documenti p-2">
+    <div class="pannello-documenti p-2 mt-4">
         {% include 'partials/tabella_documenti.html' %}
     </div>
 </div>
@@ -59,6 +41,6 @@
 <script src="{% static 'js/sovrapposizione-sfondo-blu.js' %}"></script>
 <script src="{% static 'js/gestione-documenti.js' %}"></script>
 <script src="{% static 'js/pillola-titolo-sticky.js' %}"></script>
-<script src="{% static 'js/intestazione-documenti-sticky.js' %}"></script>
+<script src="{% static 'js/intestazione-gestione-sticky.js' %}"></script>
 
 {% endblock contenuto %}

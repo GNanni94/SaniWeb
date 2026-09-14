@@ -1,18 +1,29 @@
 {% comment %}
-Riga titolo categoria (prodotti_card.html/prodotti_tabella.html): pillola "Torna al catalogo" a sinistra, titolo h1 centrato.
-Richiede in context "categoria_pk" e "nome_categoria". "controlli_template" (opzionale) include un partial nella stessa riga a destra del titolo, in position-absolute per non spostare l'h1 centrato.
-"intestazione_sticky" (opzionale, booleano) fissa la riga sotto la navbar durante lo scroll da desktop.
+Riga titolo di una pagina con intestazione sticky: pillola "indietro" a
+sinistra, titolo h1 cliccabile e centrato, controlli opzionali a destra.
+Condivisa dalla famiglia "catalogo" (prodotti_card.html/prodotti_tabella.html)
+e dalla famiglia "gestione" (gestione_documenti.html,
+dashboard_prodotti_senza_immagine.html - non ancora gestione_avvisi.html,
+che resta con markup proprio).
+Richiede: "titolo" (testo h1), "url_indietro"/"testo_indietro" (pillola a
+sinistra), "classe_indietro" (classe CSS della pillola, per lo stile della
+rispettiva famiglia), "url_titolo"/"id_titolo" (titolo cliccabile).
+Opzionali: "id_indietro", "classe_controlli_wrapper" (default
+"controlli-categoria-wrapper"), "controlli_template" (include un partial
+nella stessa riga a destra del titolo, in position-absolute per non
+spostare l'h1 centrato), "intestazione_sticky" (booleano, fissa la riga
+sotto la navbar durante lo scroll da desktop).
 {% endcomment %}
 <div class="d-flex align-items-center position-relative pt-5{% if intestazione_sticky %} intestazione-categoria-sticky{% endif %}">
-    <a href="{% url 'catalogo' %}" class="btn btn-navbar btn-sm rounded-pill btn-torna-catalogo position-absolute start-0" title="Torna al catalogo">
+    <a href="{{ url_indietro }}"{% if id_indietro %} id="{{ id_indietro }}"{% endif %} class="btn btn-navbar btn-sm rounded-pill {{ classe_indietro }} position-absolute start-0" title="{{ testo_indietro }}">
         <i class="bi bi-arrow-left"></i>
-        <span class="d-none d-md-inline">Torna al catalogo</span>
+        <span class="d-none d-md-inline">{{ testo_indietro }}</span>
     </a>
     <h1 class="fw-bold mb-0 mx-auto">
-        <a href="{% url 'dettaglio_categoria' categoria_pk %}" class="titolo-categoria-link" id="titoloCategoriaLink">{{nome_categoria}}</a>
+        <a href="{{ url_titolo }}" class="titolo-categoria-link" id="{{ id_titolo }}">{{ titolo }}</a>
     </h1>
     {% if controlli_template %}
-    <div class="d-flex align-items-center gap-2 position-absolute end-0 controlli-categoria-wrapper">
+    <div class="d-flex align-items-center gap-2 position-absolute end-0 controlli-intestazione-wrapper {{ classe_controlli_wrapper|default:'controlli-categoria-wrapper' }}">
         {% include controlli_template %}
     </div>
     {% endif %}
