@@ -1,0 +1,11 @@
+<button type="button" class="btn p-0 rounded-circle btn-outline-primario-avviso {% if pieno %}toggle-attivo-avviso-on{% endif %} {{ classi_extra }}"
+        hx-post="{{ url }}"
+        hx-target="{{ hx_target }}"
+        hx-swap="morph:outerHTML"
+        {% if conferma %}hx-confirm="{{ conferma }}"{% endif %}
+        {% if conferma_testo %}data-conferma-testo="{{ conferma_testo }}"{% endif %}
+        {% if conferma_classe %}data-conferma-classe="{{ conferma_classe }}"{% endif %}
+        hx-disabled-elt="this"
+        title="{{ titolo }}" aria-label="{{ titolo }}">
+  <i class="bi {{ icona }}"></i>
+</button>

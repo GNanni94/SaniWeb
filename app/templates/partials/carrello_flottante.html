@@ -16,9 +16,9 @@
       <ul class="list-unstyled mb-3">
         {% for elemento in elementi_carrello_utente %}
         <li class="d-flex justify-content-between align-items-center mb-2">
-          <button type="button" class="btn btn-outline-danger rounded-circle carrello-delete-btn me-2 btn-rimuovi-elemento"
+          <button type="button" class="btn btn-outline-danger rounded-circle btn-cerchio-elimina carrello-delete-btn me-2 btn-rimuovi-elemento"
             data-url="{% url 'elimina_prodotti' elemento.pk %}" aria-label="Rimuovi">
-            <i class="bi bi-trash"></i>
+            <i class="bi bi-x"></i>
           </button>
           <span class="flex-grow-1 small me-2 carrello-flottante-item-nome">{{ elemento.prodotto.nome_prodotto }}</span>
           <div class="d-flex align-items-center gap-2 carrello-stepper">

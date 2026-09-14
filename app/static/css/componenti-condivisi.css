@@ -167,3 +167,25 @@
   white-space: normal;
   max-width: 100%;
 }
+
+/* Bottone a cerchio per azioni di eliminazione/rimozione: da usare insieme
+   a "btn-outline-danger" e "rounded-circle" di Bootstrap (bordo/colori
+   nativi per ogni stato, niente da reinventare) - dimensione (width/
+   height) resta definita per pagina, qui solo la struttura comune */
+.btn.btn-cerchio-elimina {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-width: 2px;
+}
+
+/* Su schermi touch (nessun hover reale): annulla il riempimento rosso
+   pieno nativo di "btn-outline-danger" al tocco, resta come a riposo */
+@media (hover: none) {
+  .btn.btn-cerchio-elimina:hover {
+    color: var(--bs-btn-color);
+    background-color: var(--bs-btn-bg);
+    border-color: var(--bs-btn-border-color);
+  }
+}

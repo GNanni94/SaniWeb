@@ -25,25 +25,18 @@
           <td class="border">{{ avviso.motivo_chiusura }}</td>
           <td class="border colonna-azioni-riga-avviso">
             <div class="d-flex align-items-center justify-content-center gap-2">
-              <button type="button" class="btn btn-sm p-0 border-0 bg-transparent toggle-attivo-avviso"
-                      hx-post="{% url 'toggle_avviso' avviso.pk %}"
-                      hx-target="#tabella-avvisi"
-                      hx-swap="morph:outerHTML"
-                      hx-disabled-elt="this"
-                      title="{% if avviso.attivo %}Disattiva{% else %}Attiva{% endif %}"
-                      aria-label="{% if avviso.attivo %}Disattiva{% else %}Attiva{% endif %}">
-                <i class="bi {% if avviso.attivo %}bi-check-circle-fill{% else %}bi-dash-circle{% endif %}"
-                   style="color: var(--color-primary);"></i>
-              </button>
-              <button type="button" class="btn btn-sm btn-outline-danger rounded-circle p-0"
-                      hx-post="{% url 'elimina_avviso' avviso.pk %}"
-                      hx-target="#tabella-avvisi"
-                      hx-swap="morph:outerHTML"
-                      hx-confirm="Eliminare questo avviso?"
-                      hx-disabled-elt="this"
-                      title="Elimina" aria-label="Elimina">
-                <i class="bi bi-trash"></i>
-              </button>
+              {% url 'toggle_avviso' avviso.pk as url_toggle_avviso %}
+              {% if avviso.attivo %}
+              {% include 'partials/bottone_cerchio_avvisi.html' with url=url_toggle_avviso hx_target='#tabella-avvisi' titolo='Disattiva' icona='bi-check' pieno=True classi_extra='toggle-attivo-avviso' %}
+              {% else %}
+              {% include 'partials/bottone_cerchio_avvisi.html' with url=url_toggle_avviso hx_target='#tabella-avvisi' titolo='Attiva' icona='bi-dash' pieno=False classi_extra='toggle-attivo-avviso' %}
+              {% endif %}
+              {% if avviso.passato %}
+              {% url 'aggiorna_anno_avviso' avviso.pk as url_aggiorna_anno %}
+              {% include 'partials/bottone_cerchio_avvisi.html' with url=url_aggiorna_anno hx_target='#tabella-avvisi' conferma="Aggiornare l'anno di questo avviso di un anno?" conferma_testo='Conferma' conferma_classe='btn-success' titolo='Aggiorna anno' icona='bi-arrow-repeat' pieno=False %}
+              {% endif %}
+              {% url 'elimina_avviso' avviso.pk as url_elimina_avviso %}
+              {% include 'partials/bottone_cerchio_elimina.html' with url=url_elimina_avviso hx_target='#tabella-avvisi' conferma='Eliminare questo avviso?' titolo='Elimina' icona='bi-x' %}
             </div>
           </td>
         </tr>

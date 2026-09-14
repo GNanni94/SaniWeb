@@ -117,6 +117,15 @@ def elimina_avviso(request, pk):
 
 @staff_richiesto
 @require_POST
+def aggiorna_anno_avviso(request, pk):
+    avviso = get_object_or_404(AvvisoChiusura, pk=pk)
+    avviso.aggiorna_anno()
+    avviso.save(update_fields=["data_inizio", "data_fine"])
+    return _risposta_tabella(request)
+
+
+@staff_richiesto
+@require_POST
 def toggle_avviso(request, pk):
     avviso = get_object_or_404(AvvisoChiusura, pk=pk)
     avviso.attivo = not avviso.attivo

@@ -26,6 +26,22 @@ class AvvisoChiusura(models.Model):
     def __str__(self):
         return f"{self.motivo_chiusura} ({self.data_inizio} - {self.data_fine})"
 
+    def passato(self, oggi=None):
+        if oggi is None:
+            oggi = timezone.localdate()
+        return self.data_fine < oggi
+
+    def aggiorna_anno(self):
+        self.data_inizio = self._anno_avanti(self.data_inizio)
+        self.data_fine = self._anno_avanti(self.data_fine)
+
+    @staticmethod
+    def _anno_avanti(data):
+        try:
+            return data.replace(year=data.year + 1)
+        except ValueError:
+            return data.replace(year=data.year + 1, day=28)
+
     def _intervallo_testo(self):
         if self.data_fine == self.data_inizio:
             return "il {}".format(date_format(self.data_inizio, "j F").lower())

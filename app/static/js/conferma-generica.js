@@ -17,6 +17,8 @@
         }
         event.preventDefault();
         testoEl.textContent = event.detail.question;
+        btnConferma.textContent = event.detail.elt.dataset.confermaTesto || 'Elimina';
+        btnConferma.className = 'btn rounded-pill px-4 ' + (event.detail.elt.dataset.confermaClasse || 'btn-danger');
         riprendiRichiesta = event.detail.issueRequest;
         modalBootstrap.show();
     });

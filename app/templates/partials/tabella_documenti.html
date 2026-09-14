@@ -33,24 +33,10 @@
           </td>
           <td class="colonna-azioni-documento">
             <div class="d-flex justify-content-center gap-2">
-              <button type="button" class="btn btn-outline-danger rounded-circle btn-cerchio-cartella"
-                      hx-post="{% url 'elimina_categoria' categoria.pk %}"
-                      hx-target="#tabella-documenti"
-                      hx-swap="morph:outerHTML"
-                      hx-confirm='Vuoi cancellare la cartella "{{ categoria.nome_categoria }}" e i suoi file?'
-                      hx-disabled-elt="this"
-                      title="Elimina categoria" aria-label="Elimina categoria">
-                <i class="bi bi-folder-x"></i>
-              </button>
-              <button type="button" class="btn btn-outline-danger rounded-circle btn-cerchio-cartella"
-                      hx-post="{% url 'elimina_documento' documento.pk %}"
-                      hx-target="#tabella-documenti"
-                      hx-swap="morph:outerHTML"
-                      hx-confirm='Vuoi cancellare il file "{{ documento.nome_file }}"?'
-                      hx-disabled-elt="this"
-                      title="Elimina documento" aria-label="Elimina documento">
-                <i class="bi bi-file-earmark-x"></i>
-              </button>
+              {% url 'elimina_categoria' categoria.pk as url_elimina_categoria %}
+              {% include 'partials/bottone_cerchio_elimina.html' with url=url_elimina_categoria hx_target='#tabella-documenti' conferma='Vuoi cancellare la cartella "'|add:categoria.nome_categoria|add:'" e i suoi file?' titolo='Elimina categoria' icona='bi-folder-x' classi_extra='btn-cerchio-cartella' %}
+              {% url 'elimina_documento' documento.pk as url_elimina_documento %}
+              {% include 'partials/bottone_cerchio_elimina.html' with url=url_elimina_documento hx_target='#tabella-documenti' conferma='Vuoi cancellare il file "'|add:documento.nome_file|add:'"?' titolo='Elimina documento' icona='bi-file-earmark-x' classi_extra='btn-cerchio-cartella' %}
             </div>
           </td>
         </tr>

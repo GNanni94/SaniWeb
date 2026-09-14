@@ -1,0 +1,9 @@
+<button type="button" class="btn btn-outline-danger rounded-circle btn-cerchio-elimina {{ classi_extra }}"
+        hx-post="{{ url }}"
+        hx-target="{{ hx_target }}"
+        hx-swap="morph:outerHTML"
+        hx-confirm="{{ conferma }}"
+        hx-disabled-elt="this"
+        title="{{ titolo }}" aria-label="{{ titolo }}">
+  <i class="bi {{ icona }}"></i>
+</button>

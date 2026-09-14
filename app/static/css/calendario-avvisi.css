@@ -15,39 +15,40 @@
   margin-bottom: 0;
 }
 
-/* Bottone "Attivo": solo icona, senza bordo/cerchio. Font-size dell'icona
-   uguale alla larghezza del box (e non un valore piu' piccolo come
-   "fs-*"): l'icona stessa disegna un cerchio, deve arrivare al bordo del
-   box per sembrare della stessa dimensione del cerchio bordato "Elimina"
-   accanto */
-#tabella-avvisi .toggle-attivo-avviso {
-  width: 2.25rem;
-  height: 2.25rem;
+/* Bottoni della colonna "Azioni": stesso box per tutti, mai schiacciati se la riga e' stretta */
+#tabella-avvisi .colonna-azioni-riga-avviso .btn {
+  width: 1.5rem;
+  height: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.25rem;
+  padding: 0;
+  flex-shrink: 0;
 }
 
-/* Cerchio del bottone "Elimina": stesso stile del bottone cestino del
-   carrello flottante (".carrello-delete-btn" in carrello.css) - bordo
-   rosso, nessun riempimento, stessa dimensione del cerchio "Attivo"
-   accanto. L'inversione dei colori al passaggio del mouse (sfondo rosso
-   pieno, icona bianca) e' gia' il comportamento nativo di
-   "btn-outline-danger" di Bootstrap, nessun CSS aggiuntivo necessario */
-#tabella-avvisi .btn-outline-danger {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-width: 2px;
+/* "Attiva"/"Disattiva"/"Aggiorna anno"/"Elimina": icona piu' piccola del box, il cerchio e' il bordo del bottone */
+#tabella-avvisi .colonna-azioni-riga-avviso .btn-outline-primario-avviso,
+#tabella-avvisi .colonna-azioni-riga-avviso .btn-cerchio-elimina {
+  font-size: 1.25rem;
 }
 
-/* Cerchio del bottone "Elimina": stesso stile del bottone cestino del
-   carrello flottante (".carrello-delete-btn" in carrello.css) - bordo
-   rosso, nessun riempimento, dimensione fissa per farlo tondo */
-.cella-cerchio-griglia-avvisi .btn-outline-danger {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-width: 2px;
+/* Cerchio blu navbar: bottoni "Attiva"/"Disattiva"/"Aggiorna anno" */
+#tabella-avvisi .btn-outline-primario-avviso {
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+}
+
+@media (hover: hover) {
+  #tabella-avvisi .btn-outline-primario-avviso:hover {
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
+  }
+}
+
+/* Stato "Attivo" (bottone toggle): sfondo pieno sempre, non solo in hover */
+#tabella-avvisi .toggle-attivo-avviso-on {
+  background-color: var(--color-primary);
+  color: var(--color-text-light);
 }
 
 /* Angoli del pop-up "Avviso di chiusura" arrotondati, contenuto ritagliato ai bordi */
