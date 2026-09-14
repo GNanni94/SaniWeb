@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.urls import reverse
 
 
-DEFAULT_IMMAGINE_ARTICOLO = "default_immagine_articolo/saniscope_logo 2.png"
+DEFAULT_IMMAGINE_ARTICOLO = "default_immagine_articolo/saniscope_logo.png"
 
 
 def puo_vedere_precursori(user):
