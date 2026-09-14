@@ -16,7 +16,7 @@
         <form method="post" action="{% url 'elimina_prodotti' elementi_carrello.pk %}" class="d-inline flex-shrink-0">
             {% csrf_token %}
             <button type="submit" class="btn btn-outline-danger rounded-circle btn-cerchio-elimina carrello-delete-btn" aria-label="Rimuovi">
-                <i class="bi bi-trash"></i>
+                <i class="bi bi-x"></i>
             </button>
         </form>
         <div class="d-flex align-items-center carrello-item-qty-row">
