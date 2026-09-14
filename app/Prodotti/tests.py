@@ -131,6 +131,22 @@ class ProdottoOrdinamentoDefaultTest(TestCase):
         self.assertLess(contenuto.index("Prodotto Primo"), contenuto.index("Prodotto Ultimo"))
 
 
+class CatalogoViewImmagineDefaultTest(TestCase):
+    # Verifica che una categoria senza immagine caricata produca un src
+    # valido sotto /media/, non un doppio prefisso.
+    def test_categoria_senza_immagine_ha_src_valido_sotto_media(self):
+        Categoria.objects.create(nome_categoria="Nuova Categoria")
+        response = self.client.get(reverse('catalogo'))
+        self.assertEqual(response.status_code, 200)
+        contenuto = response.content.decode()
+        inizio = contenuto.index('id="home_immaginiCategorie"')
+        frammento = contenuto[max(0, inizio - 200):inizio]
+        inizio_src = frammento.rindex('src="') + len('src="')
+        src = frammento[inizio_src:frammento.index('"', inizio_src)]
+        self.assertTrue(src.startswith("/media/"), f"src inatteso: {src!r}")
+        self.assertNotIn("/media/media/", src)
+
+
 class ProdottiPrecursoreVisibilitaTest(TestCase):
     # Regressione per la richiesta: gli utenti anonimi devono vedere nel
     # catalogo anche i prodotti soggetti alla normativa precursori; se
