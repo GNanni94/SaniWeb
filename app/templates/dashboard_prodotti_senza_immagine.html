@@ -11,7 +11,7 @@
     {% url 'dashboard_admin' as url_dashboard %}
     {% url 'dashboard_prodotti_senza_immagine' as url_prodotti_senza_immagine %}
     {% comment %} Titolo cliccabile: stesso comportamento di prodotti_tabella.html, ricarica la pagina "vuota" (nessun filtro/ricerca). {% endcomment %}
-    {% include 'partials/intestazione_categoria.html' with titolo='Prodotti senza immagine' url_indietro=url_dashboard testo_indietro='Torna alla dashboard' classe_indietro='btn-pillola-intestazione-gestione' id_indietro='btnTornaDashboard' url_titolo=url_prodotti_senza_immagine id_titolo='titoloProdottiSenzaImmagine' classe_controlli_wrapper='slot-controlli-intestazione-fine' controlli_template='partials/controlli_intestazione_prodotti_senza_immagine.html' intestazione_sticky=True %}
+    {% include 'partials/intestazione_categoria.html' with titolo='Prodotti senza immagine' url_indietro=url_dashboard testo_indietro='Torna alla dashboard' classe_indietro='btn-torna-dashboard' id_indietro='btnTornaDashboard' url_titolo=url_prodotti_senza_immagine id_titolo='titoloProdottiSenzaImmagine' classe_controlli_wrapper='slot-controlli-intestazione-fine' controlli_template='partials/controlli_intestazione_prodotti_senza_immagine.html' intestazione_sticky=True %}
 
     <div class="row mt-4">
         <div class="col-12">

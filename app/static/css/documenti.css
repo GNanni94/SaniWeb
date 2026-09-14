@@ -98,46 +98,10 @@
   }
 }
 
-/* Filtro sezione come cerchio a icona anche sotto i 576px (prodotti.css lo fa gia' da 576px in su): stesse proprieta', per averlo visibile fin dal telefono piu' piccolo in questa pagina */
-@media (max-width: 575.98px) {
-  #filtroSezioneDocumentiWrapper {
-    position: relative;
-    flex-grow: 0 !important;
-  }
-
-  #filtroSezioneDocumentiWrapper #filtroSezioneDocumenti {
-    color: transparent;
-    background-color: var(--color-primary);
-    background-image: none !important;
-    padding: 0;
-    text-align: center;
-    border: 2px solid var(--color-primary);
-    border-radius: 50%;
-  }
-
-  #filtroSezioneDocumentiWrapper #filtroSezioneDocumenti:hover,
-  #filtroSezioneDocumentiWrapper #filtroSezioneDocumenti:focus {
-    background-color: var(--color-primary-dark);
-    border-color: var(--color-primary-dark);
-    box-shadow: none;
-  }
-}
-
-/* Filtro grande come il bottone freccia "Torna alla dashboard" da telefono (32px, la stessa dimensione base di ".btn-cerchio-intestazione-gestione"): sovrascrive i 42px fissi di prodotti.css, validi li' da 576px in su */
-@media (max-width: 767.98px) {
-  #filtroSezioneDocumentiWrapper {
-    flex-basis: 32px;
-    max-width: 32px !important;
-  }
-
-  #filtroSezioneDocumentiWrapper #filtroSezioneDocumenti {
-    width: 32px;
-    height: 32px;
-  }
-}
-
-/* Bottone "+ Nuovo documento" flottante e fisso in basso a sinistra da telefono, sganciato dalla riga di intestazione */
-@media (max-width: 767.98px) {
+/* Bottone "+ Nuovo documento" flottante e fisso in basso a sinistra sotto la
+   soglia della pillola sticky (1400px, stessa di intestazione-gestione-sticky.js),
+   sganciato dalla riga di intestazione */
+@media (max-width: 1399.98px) {
   #btnNuovoDocumento {
     position: fixed;
     left: 1rem;

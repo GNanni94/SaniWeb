@@ -83,9 +83,25 @@
   border-color: var(--bs-table-border-color);
 }
 
-/* Bottoni ai lati del titolo nelle pagine di gestione con intestazione sticky: dimensione leggermente ingrandita da desktop */
+/* Bottone "Torna alla home" di dashboard_admin.html: unico uso rimasto di
+   questa classe, riga titolo statica senza scroll/pillola - resta a 768px */
 @media (min-width: 768px) {
   .btn-pillola-intestazione-gestione {
+    padding: 0.5rem 1.25rem;
+    font-size: 1rem;
+  }
+}
+
+/* Bottoni ai lati del titolo di gestione_documenti.html/
+   dashboard_prodotti_senza_immagine.html (partials/intestazione_categoria.html)
+   e gestione_avvisi.html: restano piccoli come da telefono (icona sola,
+   nessun ingrandimento) fino a 1400px, dove ricompare il testo
+   (".d-xxl-inline" nei rispettivi template) e il bottone si ingrandisce in
+   una pillola - stessa soglia del filtro nella stessa riga
+   (":is(#filtroProdottiWrapper, ..., #filtroSezioneDocumentiWrapper, ...)"
+   in prodotti.css, anche lui piccolo fino a 1400px) */
+@media (min-width: 1400px) {
+  .btn-torna-dashboard {
     padding: 0.5rem 1.25rem;
     font-size: 1rem;
   }

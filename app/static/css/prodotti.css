@@ -319,44 +319,9 @@
     border-radius: 0 calc(var(--bs-border-radius) - 2px) calc(var(--bs-border-radius) - 2px) 0 !important;
   }
 
-  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) {
-    position: relative;
-    flex-grow: 0 !important;
-    flex-basis: 42px;
-    max-width: 42px !important;
-  }
-
-  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti, #filtroSezioneDocumenti) {
-    width: 100%;
-    height: 42px;
-    color: transparent;
-    background-color: var(--color-primary);
-    background-image: none !important;
-    padding: 0;
-    text-align: center;
-    border: 2px solid var(--color-primary);
-    /* 50%: con larghezza = altezza (42px) da' un cerchio pieno invece di un
-       quadrato con angoli smussati */
-    border-radius: 50%;
-  }
-
-  /* Larghezza fissa in px per "#prodottiCardFiltro"/"#filtroSottocategoria"
-     (bottoni vuoti, senza dimensione intrinseca basata sul contenuto) */
-  #filtroProdottiWrapper #prodottiCardFiltro,
-  #filtroTabellaWrapper #filtroSottocategoria,
-  #filtroCategoriaProdottiWrapper #filtroCategoriaProdotti,
-  #filtroSezioneDocumentiWrapper #filtroSezioneDocumenti {
-    width: 42px;
-  }
-
-  /* Hover/focus piu' scuro, coerente col bottone "Torna al catalogo" nella
-     stessa riga */
-  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti, #filtroSezioneDocumenti):hover,
-  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti, #filtroSezioneDocumenti):focus {
-    background-color: var(--color-primary-dark);
-    border-color: var(--color-primary-dark);
-    box-shadow: none;
-  }
+  /* Dimensione/colore del filtro (42px da 1400px in su) sono in un blocco a
+     parte qui sotto (@media min-width: 1400px), per restare piccolo come da
+     telefono fino a quella soglia invece di ingrandirsi gia' da 576px */
 
   /* Posizione/colore dell'icona definiti fuori da questa media query:
      valgono sia da telefono che da desktop */
@@ -388,12 +353,96 @@
   text-decoration: none;
 }
 
-/* Bottone "Torna al catalogo": ingrandito leggermente sopra il breakpoint
-   "md" (768px), taglia fissa non legata al titolo h1 accanto */
-@media (min-width: 768px) {
+/* Bottone "Torna al catalogo" e filtro sottocategoria: restano piccoli come
+   da telefono (icona sola, nessun ingrandimento) fino a 1400px, dove
+   ricompare il testo del bottone indietro (".d-xxl-inline" in
+   partials/intestazione_categoria.html) ed entrambi si ingrandiscono
+   insieme, per restare della stessa altezza */
+@media (max-width: 1399.98px) {
+  /* Dimensione/colore del filtro sotto i 1400px, identica a quella gia'
+     usata sotto i 576px (vedi ":is(#filtroProdottiWrapper, ...)" qui sopra,
+     stesso "flex-basis: 40px" seguito da "32px" per lo stesso motivo) */
+  :is(#filtroProdottiWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper, .filtro-a-comparsa) {
+    position: relative;
+    flex-grow: 0 !important;
+    flex-basis: 40px;
+    max-width: 40px !important;
+  }
+
+  :is(#filtroProdottiWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper, .filtro-a-comparsa) :is(#prodottiCardFiltro, #filtroCategoriaProdotti, #filtroSezioneDocumenti, .filtro-a-comparsa-select) {
+    width: 100%;
+    height: calc(1.5em + 0.75rem + 4px);
+    color: transparent;
+    background-color: var(--color-primary);
+    background-image: none !important;
+    padding: 0;
+    text-align: center;
+    border: 2px solid var(--color-primary);
+  }
+
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) {
+    flex-basis: 32px;
+    max-width: 32px !important;
+  }
+
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti, #filtroSezioneDocumenti) {
+    height: 32px;
+    border-radius: 50%;
+  }
+
+  #filtroProdottiWrapper #prodottiCardFiltro,
+  #filtroTabellaWrapper #filtroSottocategoria,
+  #filtroCategoriaProdottiWrapper #filtroCategoriaProdotti,
+  #filtroSezioneDocumentiWrapper #filtroSezioneDocumenti {
+    width: 32px;
+  }
+
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti, #filtroSezioneDocumenti):hover,
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti, #filtroSezioneDocumenti):focus {
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+    box-shadow: none;
+  }
+}
+
+@media (min-width: 1400px) {
   .btn-torna-catalogo {
     padding: 0.5rem 1.25rem;
     font-size: 1rem;
+  }
+
+  /* Filtro sottocategoria: cerchio 42px, stessa altezza del bottone indietro qui sopra */
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) {
+    position: relative;
+    flex-grow: 0 !important;
+    flex-basis: 42px;
+    max-width: 42px !important;
+  }
+
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti, #filtroSezioneDocumenti) {
+    width: 100%;
+    height: 42px;
+    color: transparent;
+    background-color: var(--color-primary);
+    background-image: none !important;
+    padding: 0;
+    text-align: center;
+    border: 2px solid var(--color-primary);
+    border-radius: 50%;
+  }
+
+  #filtroProdottiWrapper #prodottiCardFiltro,
+  #filtroTabellaWrapper #filtroSottocategoria,
+  #filtroCategoriaProdottiWrapper #filtroCategoriaProdotti,
+  #filtroSezioneDocumentiWrapper #filtroSezioneDocumenti {
+    width: 42px;
+  }
+
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti, #filtroSezioneDocumenti):hover,
+  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti, #filtroSezioneDocumenti):focus {
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+    box-shadow: none;
   }
 }
 
@@ -672,10 +721,12 @@
     border-radius: 0 calc(var(--bs-border-radius) - 2px) calc(var(--bs-border-radius) - 2px) 0 !important;
   }
 
-  /* dashboard_prodotti_senza_immagine.html, da telefono: la lente diventa un
-     bottone fluttuante fisso in basso a sinistra, cerchio 3.5rem.
-     !important per vincere le classi Bootstrap di posizionamento
-     nell'HTML */
+  /* Ricerca come bottone fluttuante fisso in basso a sinistra, cerchio
+     3.5rem: prodotti_card.html/prodotti_tabella.html hanno un wrapper
+     esterno dedicato (#controlliRicercaFiltroWrapper/-TabellaWrapper, dopo
+     il filtro qui sotto), dashboard_prodotti_senza_immagine.html no
+     ("!important" per vincere le classi Bootstrap di posizionamento gia'
+     sull'elemento stesso, che gli altri due wrapper esterni non hanno) */
   #ricercaCodiceWrapper {
     position: fixed !important;
     left: 1rem;
@@ -687,75 +738,29 @@
     width: 3.5rem;
   }
 
-  #ricercaCodiceWrapper .ricerca-form {
+  /* Cerchio 3.5rem condiviso dalle tre pagine (la larghezza del wrapper e'
+     invece specifica di ciascuna, sopra/sotto) */
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, #ricercaCodiceWrapper) .ricerca-form {
     height: 3.5rem;
     border-radius: 999px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
   }
 
-  #ricercaCodiceWrapper .ricerca-toggle-btn {
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, #ricercaCodiceWrapper) .ricerca-toggle-btn {
     width: 3.5rem;
     height: 3.5rem;
   }
 
   /* Bordo bianco quando il cerchio scorre sopra il footer di pagina
      (".su-sfondo-blu" impostata via JS) */
-  #ricercaCodiceWrapper.su-sfondo-blu .ricerca-form {
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, #ricercaCodiceWrapper).su-sfondo-blu .ricerca-form {
     border-color: var(--color-bg);
   }
 
-  /* Filtro sottocategoria sotto i 576px: resta sempre solo l'icona a
-     imbuto, la <select> resta funzionante ma invisibile e ridimensionata a
-     icona */
-  /* ".filtro-a-comparsa"/".filtro-a-comparsa-select" nell'is(...): aggancio
-     riusabile per il filtro "solo icona a imbuto" da telefono, additivo
-     rispetto agli id esistenti */
-  :is(#filtroProdottiWrapper, #filtroCategoriaProdottiWrapper, .filtro-a-comparsa) {
-    position: relative;
-    flex-grow: 0 !important;
-    flex-basis: 40px; /* stessa larghezza della lente chiusa, per coerenza */
-    max-width: 40px !important;
-  }
-
-  :is(#filtroProdottiWrapper, #filtroCategoriaProdottiWrapper, .filtro-a-comparsa) :is(#prodottiCardFiltro, #filtroCategoriaProdotti, .filtro-a-comparsa-select) {
-    width: 100%;
-    height: calc(1.5em + 0.75rem + 4px); /* stessa altezza della ricerca */
-    color: transparent;
-    background-color: var(--color-primary); /* stesso blu navbar della lente */
-    background-image: none !important; /* toglie la freccina SVG di default */
-    padding: 0;
-    text-align: center;
-    /* Bordo ripetuto qui per "#prodottiCardFiltro" (non piu' nel selettore
-       condiviso sopra), serve per ".su-sfondo-blu" sotto */
-    border: 2px solid var(--color-primary);
-  }
-
-  /* Cerchio a 32px, stessa dimensione della pillola "Torna al catalogo"
-     nella riga (il filtro resta sempre nella riga del titolo, non diventa
-     un bottone fluttuante) */
-  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) {
-    flex-basis: 32px;
-    max-width: 32px !important;
-  }
-
-  :is(#filtroProdottiWrapper, #filtroTabellaWrapper, #filtroCategoriaProdottiWrapper, #filtroSezioneDocumentiWrapper) :is(#prodottiCardFiltro, #filtroSottocategoria, #filtroCategoriaProdotti, #filtroSezioneDocumenti) {
-    height: 32px;
-    border-radius: 50%;
-  }
-
-  /* Larghezza fissa in px, stesso motivo del pixel fisso equivalente da
-     desktop sopra */
-  #filtroProdottiWrapper #prodottiCardFiltro,
-  #filtroTabellaWrapper #filtroSottocategoria,
-  #filtroCategoriaProdottiWrapper #filtroCategoriaProdotti,
-  #filtroSezioneDocumentiWrapper #filtroSezioneDocumenti {
-    width: 32px;
-  }
-
-  /* Toglie il glow di focus di Bootstrap per ".form-select" */
-  :is(#filtroProdottiWrapper, .filtro-a-comparsa) :is(#prodottiCardFiltro, .filtro-a-comparsa-select):focus {
-    box-shadow: none;
-  }
+  /* Dimensione/colore del filtro (icona a imbuto sotto i 1400px) sono in un
+     blocco a parte qui sotto (@media max-width: 1399.98px), per restare
+     della stessa dimensione dal telefono fino alla soglia della pillola
+     sticky, invece di ingrandirsi gia' da 576px */
 
   /* Solo ".filtro-a-comparsa" (icona sempre bianca); "#filtroProdottiWrapper"
      ha colore variabile, definito fuori da questa media query */
@@ -772,8 +777,10 @@
   /* Ricerca come bottone fluttuante (il filtro resta nella riga del
      titolo): stesso stile del carrello flottante, a sinistra invece che a
      destra. display: flex necessario perche' "position: fixed" abbia
-     effetto */
-  #controlliRicercaFiltroWrapper {
+     effetto. prodotti_tabella.html ha lo stesso trattamento, con id proprio
+     (lo stile del cerchio - ".ricerca-form"/".ricerca-toggle-btn"/
+     ".su-sfondo-blu" - e' condiviso con "#ricercaCodiceWrapper" sopra) */
+  :is(#controlliRicercaFiltroWrapper, #controlliRicercaFiltroTabellaWrapper) {
     display: flex;
     position: fixed;
     left: 1rem;
@@ -785,68 +792,122 @@
     transition: transform .25s ease;
   }
 
+  /* Disattiva la transizione durante lo scroll a tastiera gia' aperta, per
+     un aggancio in tempo reale frame per frame. Aggiunta/tolta via JS solo
+     per la durata dello scroll */
+  :is(#controlliRicercaFiltroWrapper, #controlliRicercaFiltroTabellaWrapper).spostamento-istantaneo {
+    transition: none;
+  }
+
   /* Cerchio grande (stesso "3.5rem" del carrello flottante) */
-  #ricercaProdottiWrapper {
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper) {
     width: 3.5rem;
   }
+}
 
-  #ricercaProdottiWrapper .ricerca-form {
-    height: 3.5rem;
-    /* 999px: a qualunque larghezza resta completamente arrotondata sui lati
-       corti, cerchio da chiusa senza regola separata */
-    border-radius: 999px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
-  }
-
-  #ricercaProdottiWrapper .ricerca-toggle-btn {
-    width: 3.5rem;
-    height: 3.5rem;
-  }
-
-  /* Bordo bianco quando il cerchio finisce sopra uno sfondo blu navbar
-     (".su-sfondo-blu" impostata via JS) */
-  #ricercaProdottiWrapper.su-sfondo-blu .ricerca-form {
-    border-color: var(--color-bg);
-  }
-
-  /* Stesso trattamento "bottone fluttuante" di prodotti_card.html sopra,
-     per prodotti_tabella.html, con id proprio */
-  #controlliRicercaFiltroTabellaWrapper {
+/* Stessa lente flottante fissa in basso a sinistra vista sopra
+   (@media max-width: 575.98px), ripetuta senza condividere i selettori con
+   quel blocco: qui la soglia arriva fino a 1400px (stessa soglia della
+   pillola sticky, sia in pillola-titolo-sticky.js/intestazione-*-sticky.js).
+   Copre prodotti_card.html (#controlliRicercaFiltroWrapper/#ricercaProdottiWrapper),
+   prodotti_tabella.html (#controlliRicercaFiltroTabellaWrapper/#ricercaTabellaWrapper)
+   e dashboard_prodotti_senza_immagine.html (#ricercaCodiceWrapper, senza un
+   wrapper esterno separato) */
+@media (min-width: 576px) and (max-width: 1399.98px) {
+  /* Ricerca come bottone fluttuante (il filtro resta nella riga del
+     titolo): stesso stile del carrello flottante, a sinistra invece che a
+     destra. display: flex necessario perche' "position: fixed" abbia
+     effetto. prodotti_tabella.html ha lo stesso trattamento, con id proprio */
+  :is(#controlliRicercaFiltroWrapper, #controlliRicercaFiltroTabellaWrapper) {
     display: flex;
     position: fixed;
     left: 1rem;
     bottom: 1rem;
     z-index: 1040;
-    /* Stesso motivo di "#controlliRicercaFiltroWrapper" qui sopra */
     transition: transform .25s ease;
   }
 
-  /* Disattiva la transizione durante lo scroll a tastiera gia' aperta, per
-     un aggancio in tempo reale frame per frame. Aggiunta/tolta via JS solo
-     per la durata dello scroll */
-  #controlliRicercaFiltroWrapper.spostamento-istantaneo,
-  #controlliRicercaFiltroTabellaWrapper.spostamento-istantaneo {
+  :is(#controlliRicercaFiltroWrapper, #controlliRicercaFiltroTabellaWrapper).spostamento-istantaneo {
     transition: none;
   }
 
-  #ricercaTabellaWrapper {
+  /* Cerchio grande (stesso "3.5rem" del carrello flottante) */
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper) {
     width: 3.5rem;
   }
 
-  #ricercaTabellaWrapper .ricerca-form {
+  /* dashboard_prodotti_senza_immagine.html non ha un wrapper esterno
+     separato come i due sopra: l'elemento stesso diventa fisso
+     ("!important" per vincere le classi Bootstrap di posizionamento gia'
+     sull'elemento) */
+  #ricercaCodiceWrapper {
+    flex-grow: 0 !important;
+    position: fixed !important;
+    left: 1rem;
+    bottom: 1rem;
+    top: auto !important;
+    right: auto !important;
+    transform: none !important;
+    z-index: 1040;
+    width: 3.5rem;
+  }
+
+  /* Cerchio 3.5rem condiviso dalle tre pagine */
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, #ricercaCodiceWrapper) .ricerca-form {
+    flex-wrap: nowrap;
+    align-items: center;
     height: 3.5rem;
+    border: 2px solid var(--color-primary);
     border-radius: 999px;
+    overflow: hidden;
+    background-color: var(--color-primary);
     box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
+    transition: background-color .3s ease;
   }
 
-  #ricercaTabellaWrapper .ricerca-toggle-btn {
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, #ricercaCodiceWrapper).ricerca-espansa .ricerca-form {
+    background-color: var(--color-bg);
+  }
+
+  :is(#ricercaProdottiWrapper #prodottiCardSearch, #ricercaTabellaWrapper #ricercaTabellaProdotti, #ricercaCodiceWrapper #inputCercaCodiceProdotto) {
+    border: 0 !important;
+    border-radius: 0 !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    height: auto;
+    margin-left: 0 !important;
+    flex-grow: 1;
+    width: 1%;
+    min-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    opacity: 0;
+    transition: padding .3s ease, opacity .2s ease .1s;
+  }
+
+  :is(#ricercaProdottiWrapper.ricerca-espansa #prodottiCardSearch, #ricercaTabellaWrapper.ricerca-espansa #ricercaTabellaProdotti, #ricercaCodiceWrapper.ricerca-espansa #inputCercaCodiceProdotto) {
+    padding-left: .75rem;
+    padding-right: .75rem;
+    opacity: 1;
+  }
+
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, #ricercaCodiceWrapper) .ricerca-toggle-btn {
+    flex: none;
     width: 3.5rem;
     height: 3.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
+    border: 0 !important;
+    border-radius: 999px !important;
+    padding: 0 !important;
+    -webkit-tap-highlight-color: transparent;
+    margin-left: 0 !important;
   }
 
-  /* Bordo bianco sopra il footer di pagina (".su-sfondo-blu" impostata via
-     JS) */
-  #ricercaTabellaWrapper.su-sfondo-blu .ricerca-form {
+  :is(#ricercaProdottiWrapper, #ricercaTabellaWrapper, #ricercaCodiceWrapper).su-sfondo-blu .ricerca-form {
     border-color: var(--color-bg);
   }
 }

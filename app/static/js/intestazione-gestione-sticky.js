@@ -52,7 +52,13 @@
         elementiDaSpostare: function (riga, slotIndietro, slotTitolo, slotFiltro) {
             var indietro = document.getElementById('btnTornaDashboard');
             var titolo = document.getElementById(idTitolo);
-            var controlli = riga.querySelector('.controlli-intestazione-wrapper');
+            // "#filtroSezioneDocumentiWrapper" (gestione_documenti.html): solo il
+            // filtro, non anche "#btnNuovoDocumento" (gia' un cerchio fluttuante
+            // fisso in basso a sinistra da telefono - documenti.css - e non
+            // dimensionato per stare nella pillola a fianco del filtro).
+            // "dashboard_prodotti_senza_immagine.html" non ha un id cosi'
+            // specifico: sposta l'intero blocco filtro+ricerca
+            var controlli = riga.querySelector('#filtroSezioneDocumentiWrapper') || riga.querySelector('.controlli-intestazione-wrapper');
             var risultato = [];
             if (indietro && slotIndietro) { risultato.push([indietro, slotIndietro]); }
             if (titolo && slotTitolo) { risultato.push([titolo, slotTitolo]); }

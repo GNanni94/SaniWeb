@@ -20,7 +20,7 @@
     {% url 'dashboard_admin' as url_dashboard %}
     {% url 'gestione_documenti' as url_documenti %}
     {% comment %} Titolo cliccabile: stesso comportamento di prodotti_tabella.html, ricarica la pagina "vuota" (nessuna sezione filtrata). {% endcomment %}
-    {% include 'partials/intestazione_categoria.html' with titolo='Gestione Documenti' url_indietro=url_dashboard testo_indietro='Torna alla dashboard' classe_indietro='btn-pillola-intestazione-gestione' id_indietro='btnTornaDashboard' url_titolo=url_documenti id_titolo='titoloGestioneDocumenti' classe_controlli_wrapper='slot-controlli-intestazione-fine' controlli_template='partials/controlli_intestazione_documenti.html' intestazione_sticky=True %}
+    {% include 'partials/intestazione_categoria.html' with titolo='Gestione Documenti' url_indietro=url_dashboard testo_indietro='Torna alla dashboard' classe_indietro='btn-torna-dashboard' id_indietro='btnTornaDashboard' url_titolo=url_documenti id_titolo='titoloGestioneDocumenti' classe_controlli_wrapper='slot-controlli-intestazione-fine' controlli_template='partials/controlli_intestazione_documenti.html' intestazione_sticky=True %}
 
     {% comment %} Tabella documenti a piena larghezza del container; il nome di un documento apre il file in una nuova scheda. {% endcomment %}
     <div class="pannello-documenti p-2 mt-4">
