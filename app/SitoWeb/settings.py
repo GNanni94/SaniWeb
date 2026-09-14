@@ -60,6 +60,9 @@ CSRF_COOKIE_SECURE = not DEBUG
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
+# Manda solo l'origin (mai path/query) come referrer nelle richieste verso domini esterni
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
 
 # Application definition
 

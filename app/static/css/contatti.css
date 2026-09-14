@@ -35,9 +35,9 @@
     flex-direction: column;
   }
 
-  /* La riga "mappa" e' 1fr: si allunga fino a pareggiare il fondo del form */
+  /* L'altezza di #map viene impostata via JS (contatti-mappa.js) */
   .sezione-mappa #map {
-    flex: 1 1 auto;
+    flex: 0 0 auto;
   }
 }
 

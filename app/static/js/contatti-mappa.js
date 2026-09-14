@@ -48,3 +48,22 @@ mymap.getContainer().addEventListener('wheel', function (e) {
     e.stopPropagation();
   }
 }, { capture: true });
+
+// Da desktop (>=768px) imposta l'altezza di #map fino al fondo del campo
+// telefono del form; da mobile rimuove l'altezza inline e lascia il CSS
+var mqDesktop = window.matchMedia('(min-width: 768px)');
+var campoTelefono = document.getElementById('div_id_telefono');
+
+function impostaAltezzaMappa() {
+  var contenitore = mymap.getContainer();
+  if (!mqDesktop.matches || !campoTelefono) {
+    contenitore.style.height = '';
+  } else {
+    var altezza = campoTelefono.getBoundingClientRect().bottom - contenitore.getBoundingClientRect().top;
+    contenitore.style.height = altezza + 'px';
+  }
+  mymap.invalidateSize();
+}
+
+impostaAltezzaMappa();
+window.addEventListener('resize', impostaAltezzaMappa);
