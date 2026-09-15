@@ -4,6 +4,8 @@ from django.core.files.storage import FileSystemStorage
 from django.utils import timezone
 from django.urls import reverse
 
+from .utils import comprimi_immagine
+
 
 DEFAULT_IMMAGINE_ARTICOLO = "default_immagine_articolo/saniscope_logo.png"
 
@@ -29,6 +31,9 @@ class Categoria(models.Model):
 
     def save(self, *args, **kwargs):
         self.full_clean()
+        if self.immagine_categoria and not self.immagine_categoria._committed and self.immagine_categoria.name != DEFAULT_IMMAGINE_ARTICOLO:
+            nome = self.immagine_categoria.name
+            self.immagine_categoria.save(nome, comprimi_immagine(self.immagine_categoria), save=False)
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -117,6 +122,12 @@ class Prodotto(models.Model):
 class ImmaginiArticolo(models.Model):
     articolo = models.OneToOneField(Prodotto, on_delete= models.CASCADE, related_name='immagine_rel')
     immagine = models.ImageField(upload_to='immagini_articoli/', default=DEFAULT_IMMAGINE_ARTICOLO)
+
+    def save(self, *args, **kwargs):
+        if self.immagine and not self.immagine._committed and self.immagine.name != DEFAULT_IMMAGINE_ARTICOLO:
+            nome = self.immagine.name
+            self.immagine.save(nome, comprimi_immagine(self.immagine), save=False)
+        super().save(*args, **kwargs)
 
     def __str__ (self):
         return "id: "+ str(self.pk) + " id_articolo: " + str(self.articolo.pk)+ " url: " + str(self.immagine)
