@@ -118,17 +118,8 @@ installaIconaValidita('id_codiceFiscale_PartitaIVA', function (valore) {
   return CF_PIVA_REGEX.test(valore);
 });
 
-// Regole password (lunghezza minima, non solo lettere/numeri, maiuscola,
-// carattere speciale), riusate sia per l'icona di validita' che per la
-// checklist sotto il campo
-var REGOLE_PASSWORD = {
-  lunghezza: function (v) { return v.length >= 8; },
-  alfanumerico: function (v) { return !/^[A-Za-z]+$/.test(v) && !/^\d+$/.test(v); },
-  maiuscola: function (v) { return /[A-Z]/.test(v); },
-  speciale: function (v) { return /[^A-Za-z0-9]/.test(v); },
-};
-
-var MESSAGGIO_PASSWORD = 'La password deve avere almeno 8 caratteri, una maiuscola e un carattere speciale, e non essere solo lettere o solo numeri.';
+// REGOLE_PASSWORD, MESSAGGIO_PASSWORD e installaChecklistPassword sono
+// definite in validazione-campi.js (condivise con password_change_form.html)
 
 installaIconaValidita('id_password1', function (valore) {
   return Object.keys(REGOLE_PASSWORD).every(function (chiave) {
@@ -138,34 +129,6 @@ installaIconaValidita('id_password1', function (valore) {
   blocca: true,
   messaggio: MESSAGGIO_PASSWORD,
 });
-
-// Checklist dettagliata: si aggiorna ad ogni carattere digitato, non solo al "blur"
-function installaChecklistPassword(idCampo, idLista) {
-  var input = document.getElementById(idCampo);
-  var lista = document.getElementById(idLista);
-  if (!input || !lista) return;
-
-  function aggiorna() {
-    var valore = input.value;
-    var valida = true;
-    Object.keys(REGOLE_PASSWORD).forEach(function (chiave) {
-      var ok = REGOLE_PASSWORD[chiave](valore);
-      valida = valida && ok;
-      var icona = lista.querySelector('[data-regola="' + chiave + '"] i');
-      icona.classList.remove('bi-circle', 'text-muted', 'bi-check-circle-fill', 'text-success', 'bi-x-circle-fill', 'text-danger');
-      if (valore === '') {
-        icona.classList.add('bi-circle', 'text-muted');
-      } else if (ok) {
-        icona.classList.add('bi-check-circle-fill', 'text-success');
-      } else {
-        icona.classList.add('bi-x-circle-fill', 'text-danger');
-      }
-    });
-    input.setCustomValidity(valore && !valida ? MESSAGGIO_PASSWORD : '');
-  }
-
-  input.addEventListener('input', aggiorna);
-}
 
 installaChecklistPassword('id_password1', 'requisiti-password1');
 

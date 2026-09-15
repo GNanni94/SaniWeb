@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import messaggio
 from .views import SignUpView
-from .forms import CustomAuthenticationForm, CustomPasswordResetForm
+from .forms import CustomAuthenticationForm, CustomPasswordResetForm, CustomPasswordChangeForm
 from django.contrib.auth import views
 from .views import UtenteDeleteView, Profilo, CustomLoginView
 
@@ -19,6 +19,9 @@ urlpatterns = [
     path('password_reset/', views.PasswordResetView.as_view(
             form_class=CustomPasswordResetForm
             ), name='password_reset'),
+    path('password_change/', views.PasswordChangeView.as_view(
+            form_class=CustomPasswordChangeForm
+            ), name='password_change'),
     path('profilo/<int:pk>/delete', UtenteDeleteView.as_view(), name="eliminaProfilo" ),
     path('profilo/<int:pk>/update', Profilo.as_view(), name="profilo" )
 

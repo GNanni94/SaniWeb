@@ -139,6 +139,40 @@
   display: none;
 }
 
+/* Larghezza ridotta e centrata per i campi del form di cambio password */
+#form-cambia-password .campo-cambia-password {
+  max-width: 280px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Riga di "Nuova password"/"Conferma nuova password" affiancate: larga
+   abbastanza da contenere i due campi da 280px una accanto all'altra */
+#form-cambia-password .campi-nuova-password {
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Card del form di cambio password: sfondo grigio, bordo blu navbar, bottone escluso */
+#card-cambia-password {
+  max-width: 640px;
+  background-color: var(--color-bg-alt);
+  border-color: var(--color-primary);
+  border-width: 2px;
+  border-radius: 1rem;
+}
+
+/* Toglie l'asterisco alle etichette dei campi obbligatori del form di cambio password */
+#form-cambia-password .asteriskField {
+  display: none;
+}
+
+/* Campi del form di cambio password a forma di pillola */
+#form-cambia-password .form-control {
+  border-radius: 999px;
+}
+
 /* Campi "Messaggio" e "Luogo" del form preventivo: bordo dello stesso blu e spessore del contorno della card che li racchiude */
 #informazioni .form-control {
   border: 2px solid var(--color-primary);

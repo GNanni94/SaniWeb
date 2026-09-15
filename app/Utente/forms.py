@@ -1,4 +1,4 @@
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm, PasswordChangeForm
 from django.forms import ModelForm
 from .models import Cliente, Messaggi, Registrati
 from phonenumber_field.formfields import PhoneNumberField
@@ -195,4 +195,11 @@ class CustomPasswordResetForm(PasswordResetForm):
         # proprio il tag <label>, invece che lasciarne uno vuoto - qui basta
         # gia' il placeholder a indicare cosa scrivere nel campo
         self.fields["email"].label = False
+
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["new_password1"].help_text = ""
+        self.fields["new_password2"].help_text = ""
 
