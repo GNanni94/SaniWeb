@@ -5,15 +5,7 @@
         hx-swap="morph:outerHTML"
         hx-disabled-elt="find button[type='submit']">
     {% csrf_token %}
-    <div class="table-responsive">
-      <table id="tabella-testi-pillola-orari" class="table table-sm table-hover text-center align-middle">
-        <thead class="table-navbar align-middle">
-          <tr>
-            <th scope="col" class="border">Stato</th>
-            <th scope="col" class="border">Contenuto</th>
-          </tr>
-        </thead>
-        <tbody>
+    {% include 'partials/tabella_cornice_apertura.html' with id_tabella='tabella-testi-pillola-orari' colonne=colonne_testi_pillola_orari %}
           <tr>
             <td class="border cella-stato-pillola-orari"><span class="pallino-stato bg-success"></span>Aperto</td>
             <td class="border">{{ form.testo_aperto }}{{ form.testo_aperto.errors }}</td>
@@ -34,9 +26,7 @@
             <td class="border cella-stato-pillola-orari"><span class="pallino-stato bg-danger"></span>Chiusura weekend</td>
             <td class="border">{{ form.testo_chiuso_weekend }}{{ form.testo_chiuso_weekend.errors }}</td>
           </tr>
-        </tbody>
-      </table>
-    </div>
+    {% include 'partials/tabella_cornice_chiusura.html' %}
     <div class="text-center mt-3">
       <button type="submit" class="btn btn-navbar rounded-pill">Salva</button>
     </div>

@@ -11,6 +11,10 @@ from .models import AvvisoChiusura, TestiPillolaOrari
 
 staff_richiesto = user_passes_test(lambda u: u.is_authenticated and u.is_staff, login_url='login')
 
+# Intestazioni delle due tabelle costruite con partials/tabella_cornice_apertura.html
+COLONNE_AVVISI = ["Inizio", "Fine", "Motivo", "Azioni"]
+COLONNE_TESTI_PILLOLA_ORARI = ["Stato", "Contenuto"]
+
 
 def _is_ajax_request(request):
     # Stesso pattern gia' usato in Prodotti/views.py: l'header lo manda il
@@ -26,7 +30,7 @@ def _risposta_tabella(request):
         # pagina rotta, si torna alla pagina completa (POST-redirect-GET)
         return redirect('gestione_avvisi')
     avvisi = AvvisoChiusura.objects.all()
-    html_tabella = render_to_string(request=request, template_name='partials/tabella_avvisi.html', context={'avvisi': avvisi})
+    html_tabella = render_to_string(request=request, template_name='partials/tabella_avvisi.html', context={'avvisi': avvisi, 'colonne_avvisi': COLONNE_AVVISI})
     # Frammento "out-of-band" aggiunto in coda: aggiorna il banner
     # dell'avviso corrente (partials/avviso_chiusura.html, incluso in
     # base.html) ovunque si trovi nella pagina, cosi' attivare/disattivare/
@@ -70,6 +74,8 @@ def gestione_avvisi(request):
         'form': form,
         'azione_url': reverse('nuovo_avviso'),
         'form_testi_pillola_orari': form_testi_pillola_orari,
+        'colonne_avvisi': COLONNE_AVVISI,
+        'colonne_testi_pillola_orari': COLONNE_TESTI_PILLOLA_ORARI,
     })
 
 
@@ -147,7 +153,8 @@ def salva_testi_pillola_orari(request):
         if form.is_valid():
             form.save()
         return redirect('gestione_avvisi')
+    contesto = {'form': form, 'colonne_testi_pillola_orari': COLONNE_TESTI_PILLOLA_ORARI}
     if form.is_valid():
         form.save()
-        return render(request, 'partials/form_testi_pillola_orari.html', {'form': form})
-    return render(request, 'partials/form_testi_pillola_orari.html', {'form': form}, status=400)
+        return render(request, 'partials/form_testi_pillola_orari.html', contesto)
+    return render(request, 'partials/form_testi_pillola_orari.html', contesto, status=400)

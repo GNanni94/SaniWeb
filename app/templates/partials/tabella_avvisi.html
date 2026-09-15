@@ -1,16 +1,6 @@
 <div id="tabella-avvisi">
   {% if avvisi %}
-  <div class="table-responsive">
-    <table class="table table-sm table-hover text-center align-middle">
-      <thead class="table-navbar align-middle">
-        <tr>
-          <th scope="col" class="border">Inizio</th>
-          <th scope="col" class="border">Fine</th>
-          <th scope="col" class="border">Motivo</th>
-          <th scope="col" class="border">Azioni</th>
-        </tr>
-      </thead>
-      <tbody>
+  {% include 'partials/tabella_cornice_apertura.html' with colonne=colonne_avvisi %}
         {% for avviso in avvisi %}
         {% comment %} Click sulla riga apre "Modifica"; hx-trigger esclude i click nella cella "Azioni". {% endcomment %}
         <tr id="avviso-riga-{{ avviso.pk }}" data-pk="{{ avviso.pk }}"
@@ -41,9 +31,7 @@
           </td>
         </tr>
         {% endfor %}
-      </tbody>
-    </table>
-  </div>
+  {% include 'partials/tabella_cornice_chiusura.html' %}
   {% else %}
   <p class="text-center">Nessun avviso configurato.</p>
   {% endif %}

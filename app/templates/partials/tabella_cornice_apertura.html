@@ -1,0 +1,16 @@
+{% comment %}
+Cornice condivisa tra tabella_avvisi.html e form_testi_pillola_orari.html:
+wrapper .table-responsive, classi Bootstrap, thead blu navbar, apertura
+<tbody>. Il chiamante scrive le righe subito dopo questo include, poi
+chiude con partials/tabella_cornice_chiusura.html.
+{% endcomment %}
+<div class="table-responsive">
+  <table {% if id_tabella %}id="{{ id_tabella }}" {% endif %}class="table table-sm table-hover text-center align-middle">
+    <thead class="table-navbar align-middle">
+      <tr>
+        {% for colonna in colonne %}
+        <th scope="col" class="border">{{ colonna }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
