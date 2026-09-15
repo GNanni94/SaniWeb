@@ -32,8 +32,8 @@
                         <img src="{{ elementi_ordine.prodotto.immagine_rel.immagine.url }}"
                             class="card-img-top pt-3 px-3" alt="" style="height: 150px; object-fit: contain;">
                         <div class="card-body">
-                            <h6 class="fw-normal mb-2">{{ elementi_ordine.prodotto.codice_prodotto}}</h6>
-                            <h6 class="fw-normal mb-2">{{ elementi_ordine.prodotto.nome_prodotto}}</h6>
+                            <p class="h6 fw-normal mb-2">{{ elementi_ordine.prodotto.codice_prodotto}}</p>
+                            <h2 class="h6 fw-normal mb-2">{{ elementi_ordine.prodotto.nome_prodotto}}</h2>
                             <p class="mb-0">Quantità ordinata {{ elementi_ordine.quantita}} {{ elementi_ordine.prodotto.unita_di_misura }}</p>
                         </div>
                     </div>
@@ -49,11 +49,11 @@
         <div class="col-lg-4 col-12">
             <div class="card rounded-3 mb-4" style="border: 2px solid var(--color-primary);">
                 <div class="card-body p-4">
-                    <h6 class="fw-normal text-center mb-1">Messaggio</h6>
+                    <h2 class="h6 fw-normal text-center mb-1">Messaggio</h2>
                     <div class="mb-3 p-3 rounded-3 text-center" style="border: 2px solid var(--color-primary);">
                         <p class="mb-0">{{ dettaglio_preventivo.messaggio|default:"-" }}</p>
                     </div>
-                    <h6 class="fw-normal text-center mb-1">Luogo</h6>
+                    <h2 class="h6 fw-normal text-center mb-1">Luogo</h2>
                     <div class="p-3 rounded-3 text-center" style="border: 2px solid var(--color-primary);">
                         <p class="mb-0">{{ dettaglio_preventivo.luogo|default:"-" }}</p>
                     </div>

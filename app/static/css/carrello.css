@@ -99,7 +99,7 @@
 /* Codice prodotto e categoria come pillole informative sopra al nome del prodotto */
 .carrello-tag-codice {
   background-color: var(--color-bg-alt);
-  color: #6b7683;
+  color: #5f6a77;
   font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;

@@ -5,14 +5,14 @@
         <div class="col-6 col-xl-4 col-xxl-4 card-deck py-4 " id="prodotto-{{ x.pk }}">
             <div class="card card-prodotto" style="height: 100%;">
                 <div class="card-prodotto-img-wrap">
-                    <img src="{{x.immagine_rel.immagine.url}}" class="card-img-top" alt="...">
+                    <img src="{{x.immagine_rel.immagine.url}}" class="card-img-top" alt="{{x.nome_prodotto}}">
                 </div>
                 <div class="card-body card-prodotto-body">
                     <div class="card-prodotto-riga-codice">
                         <span class="card-prodotto-codice">{{x.codice_prodotto}}</span>
                         <span class="card-prodotto-badge-unita">{{x.unita_di_misura}}</span>
                     </div>
-                    <h3 class="card-prodotto-titolo">{{x.nome_prodotto}}</h3>
+                    <h2 class="card-prodotto-titolo">{{x.nome_prodotto}}</h2>
                     {% if x.descrizione %}
                         <p class="card-prodotto-descrizione text-muted">{{x.descrizione}}</p>
                     {% endif %}
