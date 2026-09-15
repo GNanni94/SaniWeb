@@ -15,6 +15,35 @@
   margin-bottom: 0;
 }
 
+/* Angoli tondi sulla tabella dei testi pillola orari, stessa tecnica di
+   "#tabella-avvisi table" qui sopra */
+#tabella-testi-pillola-orari {
+  border-radius: .75rem;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+
+/* Cella "Stato" della tabella testi pillola orari: posizionamento
+   relativo, cosi' il pallino puo' ancorarsi al bordo sinistro invece di
+   seguire il testo centrato */
+.cella-stato-pillola-orari {
+  position: relative;
+}
+
+/* Pallino colorato ancorato all'inizio della riga (bordo sinistro della
+   cella), stessa dimensione di ".pallino-pagina-corrente"/
+   ".pallino-mese-corrente": il colore lo da' la classe bg- o
+   badge-orario-arancione aggiunta insieme in HTML */
+.pallino-stato {
+  position: absolute;
+  left: .75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
 /* Bottoni della colonna "Azioni": stesso box per tutti, mai schiacciati se la riga e' stretta */
 #tabella-avvisi .colonna-azioni-riga-avviso .btn {
   width: 1.5rem;

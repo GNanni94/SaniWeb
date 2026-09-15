@@ -6,6 +6,7 @@ from .views import (
     gestione_avvisi,
     modifica_avviso,
     nuovo_avviso,
+    salva_testi_pillola_orari,
     toggle_avviso,
 )
 
@@ -16,4 +17,5 @@ urlpatterns = [
     path("<int:pk>/elimina/", elimina_avviso, name="elimina_avviso"),
     path("<int:pk>/toggle/", toggle_avviso, name="toggle_avviso"),
     path("<int:pk>/aggiorna-anno/", aggiorna_anno_avviso, name="aggiorna_anno_avviso"),
+    path("testi-pillola-orari/", salva_testi_pillola_orari, name="salva_testi_pillola_orari"),
 ]

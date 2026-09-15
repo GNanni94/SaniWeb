@@ -34,7 +34,13 @@
         </button>
     </div>
 
+    <h2 class="h4 mb-3">Banner per i giorni feriali</h2>
     {% include 'partials/tabella_avvisi.html' %}
+
+    <div class="pannello-testi-pillola-orari mt-5">
+        <h2 class="h4 mb-3">Banner stato live azienda</h2>
+        {% include 'partials/form_testi_pillola_orari.html' with form=form_testi_pillola_orari %}
+    </div>
 </div>
 
 <div class="modal fade" id="modalAvviso" tabindex="-1" aria-hidden="true">

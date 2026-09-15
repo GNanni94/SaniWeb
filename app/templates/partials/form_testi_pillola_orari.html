@@ -1,0 +1,44 @@
+<div id="form-testi-pillola-orari-container">
+  <form id="form-testi-pillola-orari" method="post" action="{% url 'salva_testi_pillola_orari' %}"
+        hx-post="{% url 'salva_testi_pillola_orari' %}"
+        hx-target="#form-testi-pillola-orari-container"
+        hx-swap="morph:outerHTML"
+        hx-disabled-elt="find button[type='submit']">
+    {% csrf_token %}
+    <div class="table-responsive">
+      <table id="tabella-testi-pillola-orari" class="table table-sm table-hover text-center align-middle">
+        <thead class="table-navbar align-middle">
+          <tr>
+            <th scope="col" class="border">Stato</th>
+            <th scope="col" class="border">Contenuto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="border cella-stato-pillola-orari"><span class="pallino-stato bg-success"></span>Aperto</td>
+            <td class="border">{{ form.testo_aperto }}{{ form.testo_aperto.errors }}</td>
+          </tr>
+          <tr>
+            <td class="border cella-stato-pillola-orari"><span class="pallino-stato bg-warning"></span>Pausa pranzo</td>
+            <td class="border">{{ form.testo_pranzo }}{{ form.testo_pranzo.errors }}</td>
+          </tr>
+          <tr>
+            <td class="border cella-stato-pillola-orari"><span class="pallino-stato badge-orario-arancione"></span>Vicino alla chiusura</td>
+            <td class="border">{{ form.testo_vicino_chiusura }}{{ form.testo_vicino_chiusura.errors }}</td>
+          </tr>
+          <tr>
+            <td class="border cella-stato-pillola-orari"><span class="pallino-stato bg-danger"></span>Chiusura</td>
+            <td class="border">{{ form.testo_chiuso_feriale }}{{ form.testo_chiuso_feriale.errors }}</td>
+          </tr>
+          <tr>
+            <td class="border cella-stato-pillola-orari"><span class="pallino-stato bg-danger"></span>Chiusura weekend</td>
+            <td class="border">{{ form.testo_chiuso_weekend }}{{ form.testo_chiuso_weekend.errors }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="text-center mt-3">
+      <button type="submit" class="btn btn-navbar rounded-pill">Salva</button>
+    </div>
+  </form>
+</div>

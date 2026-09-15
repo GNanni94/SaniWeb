@@ -6,8 +6,8 @@ from django.urls import reverse
 from django.views.decorators.http import require_http_methods, require_POST
 
 from .context_processors import contesto_avviso_corrente
-from .forms import AvvisoChiusuraForm
-from .models import AvvisoChiusura
+from .forms import AvvisoChiusuraForm, TestiPillolaOrariForm
+from .models import AvvisoChiusura, TestiPillolaOrari
 
 staff_richiesto = user_passes_test(lambda u: u.is_authenticated and u.is_staff, login_url='login')
 
@@ -64,10 +64,12 @@ def _risposta_form_errori(request, form, azione_url):
 def gestione_avvisi(request):
     avvisi = AvvisoChiusura.objects.all()
     form = AvvisoChiusuraForm()
+    form_testi_pillola_orari = TestiPillolaOrariForm(instance=TestiPillolaOrari.corrente())
     return render(request, 'gestione_avvisi.html', {
         'avvisi': avvisi,
         'form': form,
         'azione_url': reverse('nuovo_avviso'),
+        'form_testi_pillola_orari': form_testi_pillola_orari,
     })
 
 
@@ -134,3 +136,18 @@ def toggle_avviso(request, pk):
     # pop-up Modifica) non viene sovrascritto per sbaglio da qui
     avviso.save(update_fields=["attivo"])
     return _risposta_tabella(request)
+
+
+@staff_richiesto
+@require_POST
+def salva_testi_pillola_orari(request):
+    testi = TestiPillolaOrari.corrente()
+    form = TestiPillolaOrariForm(request.POST, instance=testi)
+    if not _is_ajax_request(request):
+        if form.is_valid():
+            form.save()
+        return redirect('gestione_avvisi')
+    if form.is_valid():
+        form.save()
+        return render(request, 'partials/form_testi_pillola_orari.html', {'form': form})
+    return render(request, 'partials/form_testi_pillola_orari.html', {'form': form}, status=400)

@@ -81,3 +81,27 @@ class AvvisoChiusura(models.Model):
             scelto = min(candidati_preavviso, key=lambda a: abs((a.data_inizio - oggi).days))
             return "preavviso", scelto
         return None, None
+
+
+class TestiPillolaOrari(models.Model):
+    testo_aperto = models.CharField(max_length=200, default="Siamo aperti")
+    testo_vicino_chiusura = models.CharField(max_length=200, default="Aperti ma vicini alla chiusura")
+    testo_pranzo = models.CharField(max_length=200, default="Chiusura per pranzo")
+    testo_chiuso_feriale = models.CharField(max_length=200, default="Chiusi, ci vediamo domani dalle ore 8")
+    testo_chiuso_weekend = models.CharField(max_length=200, default="Chiusi il fine settimana, ci vediamo Lunedì dalle ore 8")
+
+    class Meta:
+        verbose_name = "Testi pillola orari"
+        verbose_name_plural = "Testi pillola orari"
+
+    def __str__(self):
+        return "Testi pillola orari"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def corrente(cls):
+        oggetto, _ = cls.objects.get_or_create(pk=1)
+        return oggetto

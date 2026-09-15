@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import AvvisoChiusura
+from .models import AvvisoChiusura, TestiPillolaOrari
 
 
 class AvvisoChiusuraForm(forms.ModelForm):
@@ -23,4 +23,20 @@ class AvvisoChiusuraForm(forms.ModelForm):
             # campo nascosto dalla pillola "Attiva"/"Disattiva" (vedi
             # form_avviso.html e gestione-avvisi.js)
             "attivo": forms.HiddenInput(),
+        }
+
+
+class TestiPillolaOrariForm(forms.ModelForm):
+    class Meta:
+        model = TestiPillolaOrari
+        fields = (
+            "testo_aperto",
+            "testo_vicino_chiusura",
+            "testo_pranzo",
+            "testo_chiuso_feriale",
+            "testo_chiuso_weekend",
+        )
+        widgets = {
+            campo: forms.TextInput(attrs={"class": "form-control form-control-sm text-center"})
+            for campo in fields
         }
