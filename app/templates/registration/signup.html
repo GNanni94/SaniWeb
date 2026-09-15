@@ -18,7 +18,7 @@
       </div>
       <div id="card-registrazione" class="card">
         <div class="card-body">
-          <form id="form-registrazione" class="row"  method="post" >
+          <form id="form-registrazione" class="row gx-2 gx-md-4"  method="post" >
           {% csrf_token %}
             <div id="riga-azienda" class="col-12 mb-3 collapse show">
                 <label for="id_azienda" class="form-label">Azienda</label>
@@ -29,12 +29,12 @@
                 <div id="avviso-nome-cognome" class="alert alert-danger d-none" role="alert">
                     Inserisci Nome e Cognome, oppure il campo Azienda se ti stai registrando come azienda.
                 </div>
-                <div id="riga-nome-cognome" class="row collapse show">
-                    <div class="col-md-6">
+                <div id="riga-nome-cognome" class="row gx-2 gx-md-4 collapse show">
+                    <div class="col-6">
                           {{ form.first_name|as_crispy_field }}
                     </div>
 
-                    <div class="col-md-6" >
+                    <div class="col-6" >
                         {{ form.cognome_ragione_sociale|as_crispy_field }}
                     </div>
                 </div>
@@ -44,23 +44,23 @@
                 {{ form.email|as_crispy_field }}
             </div>
         
-            <div class="col-md-6 ">
+            <div class="col-6 ">
                 {{ form.codiceFiscale_PartitaIVA|as_crispy_field }}
             </div>
-            
-            <div class="col-md-6">
+
+            <div class="col-6">
                 {{ form.telefono|as_crispy_field }}
             </div>
         
-            <div class="col-md-6 ">
+            <div class="col-6 ">
                 {{ form.citta|as_crispy_field }}
-            </div>    
+            </div>
 
-            <div class="col-md-6 ">
+            <div class="col-6 ">
                 {{ form.indirizzo|as_crispy_field }}
-            </div>    
+            </div>
 
-            <div class="col-md-6 ">
+            <div class="col-6 ">
                 {{ form.password1|as_crispy_field }}
                 <ul id="requisiti-password1" class="list-unstyled small mt-1 mb-0">
                     <li data-regola="lunghezza"><i class="bi bi-circle text-muted me-1"></i>Almeno 8 caratteri</li>
@@ -70,9 +70,9 @@
                 </ul>
             </div>
 
-            <div class="col-md-6 ">
+            <div class="col-6 ">
                 {{ form.password2|as_crispy_field }}
-            </div>    
+            </div>
     
             <div class="col-12 text-center">
                 <button class="btn btn-navbar w-30 "  type="submit">Registrati</button>

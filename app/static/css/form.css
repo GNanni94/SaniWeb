@@ -25,6 +25,23 @@
   box-shadow: 0 0 0 0.25rem rgba(27, 90, 160, 0.25);
 }
 
+/* Campo email e bottone "Manda istruzioni" del form di password_reset_form.html a forma di pillola */
+#form-password-reset .form-control {
+  border-radius: 999px;
+}
+
+#form-password-reset input[type="submit"] {
+  border-radius: 999px;
+}
+
+/* Card che racchiude il form di password_reset_form.html: sfondo grigio, bordo blu navbar da 2px */
+#card-password-reset {
+  background-color: var(--color-bg-alt);
+  border-color: var(--color-primary);
+  border-width: 2px;
+  border-radius: 1rem;
+}
+
 /* Campi del form di contatti.html: contorno blu navbar, escluso lo stato di errore */
 #form-contatti .form-control:not(.is-invalid) {
   border-color: var(--color-primary);
@@ -133,10 +150,22 @@
   border-radius: 999px;
 }
 
-/* Toglie l'asterisco alle etichette dei campi password1/password2 del form di registrazione */
+/* Toglie l'asterisco alle etichette dei campi password1/password2/email/codiceFiscale_PartitaIVA del form di registrazione */
 #form-registrazione #div_id_password1 .asteriskField,
-#form-registrazione #div_id_password2 .asteriskField {
+#form-registrazione #div_id_password2 .asteriskField,
+#form-registrazione #div_id_email .asteriskField,
+#form-registrazione #div_id_codiceFiscale_PartitaIVA .asteriskField {
   display: none;
+}
+
+/* Da telefono: rimpicciolisce le etichette "CodiceFiscale PartitaIVA" e "Conferma
+   password", altrimenti vanno a capo nella colonna stretta accanto rispettivamente
+   a "Telefono" e "Password" */
+@media (max-width: 767.98px) {
+  #form-registrazione #div_id_codiceFiscale_PartitaIVA .form-label,
+  #form-registrazione #div_id_password2 .form-label {
+    font-size: 0.8rem;
+  }
 }
 
 /* Larghezza ridotta e centrata per i campi del form di cambio password */
