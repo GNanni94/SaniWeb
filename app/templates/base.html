@@ -60,16 +60,13 @@
     integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
     crossorigin="anonymous"></script>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Barlow+Semi+Condensed:wght@600;700&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
   {% comment %} Librerie esterne usate solo da alcune pagine (jQuery/DataTables per prodotti_tabella.html, Leaflet per contatti.html): ogni pagina dichiara qui cosa le serve, invece di scaricarle ovunque. {% endcomment %}
   {% block extra_head %}{% endblock extra_head %}
 
   <!-- Fogli di stile del progetto, caricati per ultimi: vincono su quelle di Bootstrap a parita' di specificita'. -->
+  <link href="{% static 'css/fonts.css' %}" rel="stylesheet" type="text/css" />
   <link href="{% static 'css/variables.css' %}" rel="stylesheet" type="text/css" />
   <link href="{% static 'css/main.css' %}" rel="stylesheet" type="text/css" />
   <!-- CSS divisi per argomento -->
