@@ -19,8 +19,14 @@ function creaGestoreTastieraVirtuale(opzioni) {
     var bottoneToggle = opzioni.bottoneToggle;
     var wrapperFluttuante = opzioni.wrapperFluttuante;
 
+    // Se il campo non e' aperto la tastiera non puo' essere in scena: esce subito
+    // con 0, prima ancora di leggere il viewport. Senza questo controllo qui (non
+    // solo su chi legge il risultato) lo scroll normale da mobile - la barra degli
+    // indirizzi di Chrome che si nasconde/mostra cambia visualViewport esattamente
+    // come farebbe la tastiera - verrebbe scambiato per tastiera aperta da
+    // qualunque punto del codice richiami questa funzione, presente o futuro
     function spazioOccupatoDallaTastiera() {
-        if (!window.visualViewport) {
+        if (!window.visualViewport || !wrapper.classList.contains('ricerca-espansa')) {
             return 0;
         }
         var vv = window.visualViewport;
@@ -63,6 +69,7 @@ function creaGestoreTastieraVirtuale(opzioni) {
 
     if (window.visualViewport && wrapperFluttuante) {
         // Sposta il wrapper con transform: translateY() in base allo spazio occupato dalla tastiera
+        // (0 se il campo non e' aperto, vedi spazioOccupatoDallaTastiera sopra)
         function applicaSpostamento() {
             wrapperFluttuante.style.transform = 'translateY(-' + spazioOccupatoDallaTastiera() + 'px)';
         }
