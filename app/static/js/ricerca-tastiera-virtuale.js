@@ -19,6 +19,12 @@ function creaGestoreTastieraVirtuale(opzioni) {
     var bottoneToggle = opzioni.bottoneToggle;
     var wrapperFluttuante = opzioni.wrapperFluttuante;
 
+    // Margine minimo (px) da lasciare sempre visibile in cima al viewport
+    // visivo: anche se il calcolo sotto sballa (es. barra di Chrome che
+    // cambia insieme alla tastiera, non solo la tastiera), il bottone non
+    // deve mai finire spinto fuori dallo schermo
+    var MARGINE_MINIMO_DALL_ALTO = 80;
+
     // Se il campo non e' aperto la tastiera non puo' essere in scena: esce subito
     // con 0, prima ancora di leggere il viewport. Senza questo controllo qui (non
     // solo su chi legge il risultato) lo scroll normale da mobile - la barra degli
@@ -30,7 +36,10 @@ function creaGestoreTastieraVirtuale(opzioni) {
             return 0;
         }
         var vv = window.visualViewport;
-        return Math.max(window.innerHeight - vv.height - vv.offsetTop, 0);
+        var spazio = Math.max(window.innerHeight - vv.height - vv.offsetTop, 0);
+        // Non oltre quanto serve a lasciare MARGINE_MINIMO_DALL_ALTO visibile in cima
+        var spazioMassimo = Math.max(vv.height - MARGINE_MINIMO_DALL_ALTO, 0);
+        return Math.min(spazio, spazioMassimo);
     }
 
     // 56px/192px = 3.5rem/12rem, larghezza chiusa/espansa del cerchio (vedi
