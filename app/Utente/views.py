@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from .forms import ClienteCreationForm
 from InvioEmail.views import emailMessaggio
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, PasswordChangeView
 import logging
 
 
@@ -134,4 +134,22 @@ class CustomLoginView(LoginView):
     def form_invalid(self, form):
         if _e_richiesta_in_background(self.request):
             return render(self.request, 'partials/form_login.html', {'form': form}, status=400)
+        return super().form_invalid(form)
+
+
+class CustomPasswordChangeView(PasswordChangeView):
+    """
+    Stesso pattern di CustomLoginView, per il popup di cambio password
+    (vedi "static/js/password-change-modal.js").
+    """
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if _e_richiesta_in_background(self.request):
+            return render(self.request, 'partials/password_cambiata_successo.html')
+        return response
+
+    def form_invalid(self, form):
+        if _e_richiesta_in_background(self.request):
+            return render(self.request, 'partials/form_cambio_password.html', {'form': form}, status=400)
         return super().form_invalid(form)

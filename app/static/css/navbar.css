@@ -418,6 +418,22 @@
   margin-right: auto;
 }
 
+/* Stessi angoli arrotondati del popup di login, sul popup di cambio password */
+#modalCambioPassword .modal-content {
+  border-radius: 24px;
+  border: 2px solid var(--color-primary);
+  overflow: hidden;
+}
+
+/* Popup piu' largo di quello di login: contiene i campi "Nuova password"/
+   "Conferma nuova password" affiancati (vedi "#form-cambia-password
+   .campi-nuova-password" in form.css) */
+#modalCambioPassword .modal-dialog {
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* Disattiva l'animazione a comparsa per chi ha impostato la preferenza
    di sistema per ridurre le animazioni */
 @media (prefers-reduced-motion: reduce) {
